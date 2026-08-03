@@ -26,6 +26,8 @@ export function MessageComposer({
   editingMessage,
   onCancelContext,
   currentUserId = "teacher-1",
+  onTyping,
+  allowAttachments = false,
 }) {
   const [draft, setDraft] = useState(() => editingMessage?.text ?? "");
   const [selectedFile, setSelectedFile] = useState(null);
@@ -154,19 +156,19 @@ export function MessageComposer({
             event.target.value = "";
           }}
         />
-        <button
+        {allowAttachments ? <button
           className="composer-action"
           onClick={() => fileRef.current?.click()}
           disabled={Boolean(editingMessage)}
           aria-label="Fayl biriktirish"
         >
           <Paperclip size={20} />
-        </button>
+        </button> : null}
         <textarea
           ref={textareaRef}
           rows={1}
           value={draft}
-          onChange={(event) => setDraft(event.target.value)}
+          onChange={(event) => { setDraft(event.target.value); onTyping?.(); }}
           onKeyDown={handleKeyDown}
           placeholder={
             editingMessage ? "Xabarni tahrirlang..." : "Xabar yozing..."

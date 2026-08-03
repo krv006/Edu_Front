@@ -1,319 +1,53 @@
 import { useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import {
-  BookOpen,
-  CalendarDays,
-  CheckCircle2,
-  ClipboardList,
-  Clock3,
-  Plus,
-  Search,
-  UserPlus,
-  UsersRound,
-  Video,
-} from "lucide-react";
+import { BookOpen, CalendarDays, CheckCircle2, ClipboardList, Clock3, Pencil, Plus, Search, Trash2, UsersRound, Video } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
-import { availableUsers } from "@/modules/user";
+import { useAuth } from "@/app/providers";
+import { useAttendance } from "@/modules/attendance";
+import { useCourse, useCourseStudents } from "@/modules/course";
+import { useAssignments, useCreateAssignment, useDeleteAssignment } from "@/modules/homework";
+import { useCreateLesson, useDeleteLesson, useFinishLesson, useLessons, useUpdateLesson } from "@/modules/lesson";
+import { LiveLessonDialog } from "@/modules/live";
 import { ChatHeader } from "../chat/chat-header";
 import { MessageList } from "../chat/message-list";
 import { MessageComposer } from "../chat/message-composer";
 import { Avatar } from "../ui/avatar";
 import { Button } from "../ui/button";
+import { Dialog, DialogContent } from "../ui/dialog";
 import { AddAssignmentDialog, AddLessonDialog } from "./group-action-dialogs";
 
-const tabs = [
-  { id: "chat", label: "Chat", icon: BookOpen },
-  { id: "lessons", label: "Darslar", icon: CalendarDays },
-  { id: "assignments", label: "Vazifalar", icon: ClipboardList },
-  { id: "students", label: "O‘quvchilar", icon: UsersRound },
-];
+const tabs = [{ id: "chat", label: "Chat", icon: BookOpen }, { id: "lessons", label: "Darslar", icon: CalendarDays }, { id: "assignments", label: "Vazifalar", icon: ClipboardList }, { id: "students", label: "O‘quvchilar", icon: UsersRound }, { id: "attendance", label: "Davomat", icon: CheckCircle2 }];
 
-export function GroupWorkspace({
-  conversation,
-  messages,
-  sendMessage,
-  updateMessage,
-  deleteMessage,
-  toggleReaction,
-}) {
-  const [searchParams, setSearchParams] = useSearchParams();
-  const [studentSearch, setStudentSearch] = useState("");
-  const [replyMessage, setReplyMessage] = useState(null);
-  const [editingMessage, setEditingMessage] = useState(null);
-  const activeTab = tabs.some((tab) => tab.id === searchParams.get("tab"))
-    ? searchParams.get("tab")
-    : "chat";
-  const students = useMemo(
-    () =>
-      availableUsers.filter((user) =>
-        user.name.toLowerCase().includes(studentSearch.toLowerCase())
-      ),
-    [studentSearch]
-  );
-
-  async function handleSend(payload) {
-    try {
-      if (editingMessage) {
-        await updateMessage.mutateAsync({
-          messageId: editingMessage.id,
-          text: payload.text,
-        });
-        setEditingMessage(null);
-        toast.success("Xabar tahrirlandi");
-        return;
-      }
-      await sendMessage.mutateAsync({
-        ...payload,
-        replyTo: replyMessage
-          ? {
-              author:
-                replyMessage.senderName ||
-                (replyMessage.senderId === "teacher-1"
-                  ? "Siz"
-                  : conversation.title),
-              text: replyMessage.text,
-            }
-          : undefined,
-      });
-      setReplyMessage(null);
-    } catch {
-      toast.error("Xabar yuborilmadi");
-    }
-  }
-
-  async function handleDelete(message, scope) {
-    try {
-      await deleteMessage.mutateAsync({ messageId: message.id, scope });
-      if (replyMessage?.id === message.id) setReplyMessage(null);
-      if (editingMessage?.id === message.id) setEditingMessage(null);
-      toast.success(
-        scope === "everyone"
-          ? "Xabar hamma uchun o‘chirildi"
-          : "Xabar siz uchun o‘chirildi"
-      );
-    } catch {
-      toast.error("Xabarni o‘chirib bo‘lmadi");
-    }
-  }
-
-  return (
-    <section className="chat-page group-workspace">
-      <ChatHeader conversation={conversation} />
-      <nav className="group-tabs" aria-label="Guruh bo‘limlari">
-        {tabs.map((tab) => {
-          const Icon = tab.icon;
-          const active = tab.id === activeTab;
-          return (
-            <button
-              key={tab.id}
-              className={active ? "is-active" : ""}
-              onClick={() =>
-                setSearchParams(tab.id === "chat" ? {} : { tab: tab.id })
-              }
-            >
-              {active && (
-                <motion.span
-                  layoutId="group-tab-indicator"
-                  className="group-tab-indicator"
-                />
-              )}
-              <Icon size={16} />
-              <span>{tab.label}</span>
-            </button>
-          );
-        })}
-      </nav>
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={activeTab}
-          className="group-tab-content"
-          initial={{ opacity: 0, y: 5 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -3 }}
-          transition={{ duration: 0.18 }}
-        >
-          {activeTab === "chat" && (
-            <MessageList
-              messages={messages.data}
-              conversation={conversation}
-              loading={messages.isLoading}
-              error={messages.isError}
-              onRetry={messages.refetch}
-              onReply={(message) => {
-                setReplyMessage(message);
-                setEditingMessage(null);
-              }}
-              onEdit={(message) => {
-                setEditingMessage(message);
-                setReplyMessage(null);
-              }}
-              onDelete={handleDelete}
-              onReact={(message, emoji) =>
-                toggleReaction.mutate({ messageId: message.id, emoji })
-              }
-            />
-          )}
-          {activeTab === "lessons" && <LessonsPanel />}
-          {activeTab === "assignments" && <AssignmentsPanel />}
-          {activeTab === "students" && (
-            <StudentsPanel
-              students={students}
-              search={studentSearch}
-              onSearch={setStudentSearch}
-            />
-          )}
-        </motion.div>
-      </AnimatePresence>
-      {activeTab === "chat" && (
-        <MessageComposer
-          key={editingMessage?.id ?? "compose"}
-          onSend={handleSend}
-          sending={sendMessage.isPending || updateMessage.isPending}
-          replyTo={replyMessage}
-          editingMessage={editingMessage}
-          onCancelContext={() => {
-            setReplyMessage(null);
-            setEditingMessage(null);
-          }}
-        />
-      )}
-    </section>
-  );
+export function GroupWorkspace({ conversation, messages, sendMessage, sendTyping, retryMessage }) {
+  const { user } = useAuth(); const [params, setParams] = useSearchParams(); const [reply, setReply] = useState(null); const courseId = conversation.courseId;
+  const course = useCourse(courseId); const lessons = useLessons({ course: courseId, page_size: 100 }); const assignments = useAssignments(courseId); const students = useCourseStudents(courseId, { page_size: 100 }); const attendance = useAttendance({ page_size: 100 });
+  const activeTab = tabs.some((item) => item.id === params.get("tab")) ? params.get("tab") : "chat";
+  async function send(payload) { try { await sendMessage.mutateAsync({ ...payload, replyTo: reply ? { author: reply.senderName || "Javob", text: reply.text } : undefined }); setReply(null); } catch { toast.error("Xabar yuborilmadi"); } }
+  const hydrated = { ...conversation, title: course.data?.title ?? conversation.title, subject: course.data?.subject, description: course.data?.description, memberCount: course.data?.studentCount ?? 0 };
+  return <section className="chat-page group-workspace"><ChatHeader conversation={hydrated} /><nav className="group-tabs">{tabs.map((tab) => { const Icon = tab.icon; return <button key={tab.id} className={activeTab === tab.id ? "is-active" : ""} onClick={() => setParams(tab.id === "chat" ? {} : { tab: tab.id })}>{activeTab === tab.id ? <motion.span layoutId="group-tab-indicator" className="group-tab-indicator" /> : null}<Icon size={16} /><span>{tab.label}</span></button>; })}</nav><AnimatePresence mode="wait"><motion.div key={activeTab} className="group-tab-content" initial={{ opacity: 0, y: 5 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: -3 }}>
+    {activeTab === "chat" ? <MessageList messages={messages.data} conversation={hydrated} loading={messages.isLoading} error={messages.isError} onRetry={messages.refetch} onRetryMessage={retryMessage} currentUserId={user?.id} onReply={setReply} onEdit={() => undefined} onDelete={() => undefined} onReact={() => undefined} capabilities={{ reply: true, edit: false, delete: false, react: false }} /> : null}
+    {activeTab === "lessons" ? <LessonsPanel courseId={courseId} lessons={lessons.data} loading={lessons.isLoading} /> : null}
+    {activeTab === "assignments" ? <AssignmentsPanel courseId={courseId} assignments={assignments.data} loading={assignments.isLoading} /> : null}
+    {activeTab === "students" ? <StudentsPanel page={students.data} loading={students.isLoading} /> : null}
+    {activeTab === "attendance" ? <AttendancePanel lessons={lessons.data} rows={attendance.data} loading={attendance.isLoading} /> : null}
+  </motion.div></AnimatePresence>{activeTab === "chat" ? <MessageComposer onSend={send} onTyping={sendTyping} sending={sendMessage.isPending} replyTo={reply} onCancelContext={() => setReply(null)} currentUserId={user?.id} /> : null}</section>;
 }
 
-function LessonsPanel() {
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [lessons, setLessons] = useState([
-    { id: "lesson-1", topic: "Present Simple — amaliyot", date: "2026-08-01", time: "18:30", duration: "45" },
-  ]);
-  return (
-    <div className="group-panel">
-      <div className="group-panel-head">
-        <div>
-          <span>GURUH DARSLARI</span>
-          <h2>Darslar jadvali</h2>
-          <p>Rejalashtirilgan va yakunlangan mashg‘ulotlar.</p>
-        </div>
-        <Button onClick={() => setDialogOpen(true)}>
-          <Plus size={17} /> Dars qo‘shish
-        </Button>
-      </div>
-      <div className="lesson-list">
-        {lessons.map((lesson) => {
-          const date = new Date(`${lesson.date}T00:00:00`);
-          return (
-            <motion.article key={lesson.id} className="lesson-feature-card" initial={{ opacity: 0, y: 7 }} animate={{ opacity: 1, y: 0 }} whileHover={{ y: -2 }}>
-              <div className="lesson-date"><strong>{String(date.getDate()).padStart(2, "0")}</strong><span>{["YAN", "FEV", "MAR", "APR", "MAY", "IYN", "IYL", "AVG", "SEN", "OKT", "NOY", "DEK"][date.getMonth()]}</span></div>
-              <div className="lesson-main"><span className="live-pill"><span /> REJADA</span><h3>{lesson.topic}</h3><p><Clock3 size={15} /> {lesson.time} · {lesson.duration} daqiqa</p></div>
-              <Button size="sm" onClick={() => toast.success(`${lesson.topic} darsiga kirildi`)}><Video size={16} /> Darsga kirish</Button>
-            </motion.article>
-          );
-        })}
-      </div>
-      <div className="lesson-summary">
-        <span>
-          <CheckCircle2 size={17} /> 12 ta dars yakunlangan
-        </span>
-        <span>Jami 9 soat 20 daqiqa</span>
-      </div>
-      <AddLessonDialog open={dialogOpen} onOpenChange={setDialogOpen} onCreate={(lesson) => { setLessons((current) => [...current, lesson]); toast.success("Yangi dars saqlandi"); }} />
-    </div>
-  );
+function LessonsPanel({ courseId, lessons = [], loading }) {
+  const [dialog, setDialog] = useState(false); const [editing, setEditing] = useState(null); const [deleteTarget, setDeleteTarget] = useState(null); const [liveLesson, setLiveLesson] = useState(null); const create = useCreateLesson(); const update = useUpdateLesson(); const remove = useDeleteLesson(); const finish = useFinishLesson();
+  function save(form) { const payload = { ...form, courseId }; const request = editing ? update.mutateAsync({ id: editing.id, form: payload }) : create.mutateAsync(payload); return request.then(() => { setDialog(false); setEditing(null); }); }
+  return <div className="group-panel"><div className="group-panel-head"><div><span>DARS JADVALI</span><h2>Darslar</h2><p>Rejalashtirilgan jonli mashg‘ulotlar.</p></div><Button onClick={() => { setEditing(null); setDialog(true); }}><Plus size={17} /> Dars qo‘shish</Button></div>{loading ? <div className="student-tab-loading"><span /></div> : <div className="lesson-list">{lessons.map((lesson) => <motion.article key={lesson.id} className="lesson-feature-card" initial={{ opacity: 0, y: 7 }} animate={{ opacity: 1, y: 0 }}><div className="lesson-date"><strong>{new Date(lesson.startsAt).getDate()}</strong><span>{new Intl.DateTimeFormat("uz-UZ", { month: "short" }).format(new Date(lesson.startsAt))}</span></div><div className="lesson-main"><span className="live-pill"><span /> {lesson.status}</span><h3>{lesson.title}</h3><p><Clock3 size={15} /> {lesson.time} · {lesson.durationMinutes} daqiqa</p></div><div className="lesson-card-actions"><Button size="sm" disabled={["finished", "cancelled"].includes(lesson.status)} onClick={() => setLiveLesson(lesson)}><Video size={16} /> Kirish</Button>{lesson.status === "live" ? <Button size="sm" variant="secondary" loading={finish.isPending} onClick={() => finish.mutate(lesson.id)}>Yakunlash</Button> : null}<button className="icon-button" onClick={() => { setEditing(lesson); setDialog(true); }} aria-label="Darsni tahrirlash"><Pencil size={16} /></button><button className="icon-button destructive-icon" onClick={() => setDeleteTarget(lesson)} aria-label="Darsni o‘chirish"><Trash2 size={16} /></button></div></motion.article>)}</div>}
+    <AddLessonDialog key={editing?.id ?? "new-lesson"} open={dialog} onOpenChange={(open) => { setDialog(open); if (!open) setEditing(null); }} initialValues={editing} onCreate={save} /><LiveLessonDialog lesson={liveLesson} open={Boolean(liveLesson)} onOpenChange={(open) => { if (!open) setLiveLesson(null); }} />
+    <Dialog open={Boolean(deleteTarget)} onOpenChange={(open) => { if (!open) setDeleteTarget(null); }}>{deleteTarget && <DialogContent title="Darsni o‘chirish" description={`“${deleteTarget.title}” qayta tiklanmaydi.`}><div className="dialog-actions"><Button variant="secondary" onClick={() => setDeleteTarget(null)}>Bekor</Button><Button loading={remove.isPending} onClick={() => remove.mutateAsync(deleteTarget.id).then(() => setDeleteTarget(null))}>O‘chirish</Button></div></DialogContent>}</Dialog>
+  </div>;
 }
 
-function AssignmentsPanel() {
-  const [dialogOpen, setDialogOpen] = useState(false);
-  const [assignments, setAssignments] = useState([]);
-  return (
-    <div className="group-panel">
-      <div className="group-panel-head">
-        <div>
-          <span>GURUH VAZIFALARI</span>
-          <h2>Vazifalar</h2>
-          <p>Topshiriqlar va natijalarni shu yerda boshqaring.</p>
-        </div>
-        <Button onClick={() => setDialogOpen(true)}>
-          <Plus size={17} /> Vazifa berish
-        </Button>
-      </div>
-      {assignments.length === 0 ? <div className="premium-empty">
-        <span>
-          <ClipboardList size={30} />
-        </span>
-        <h3>Hali vazifa berilmagan</h3>
-        <p>
-          O‘quvchilarga birinchi vazifani bering va topshirish jarayonini
-          kuzating.
-        </p>
-        <Button onClick={() => setDialogOpen(true)}>
-          <Plus size={16} /> Birinchi vazifani berish
-        </Button>
-      </div> : (
-        <div className="assignment-list">
-          {assignments.map((assignment) => (
-            <motion.article key={assignment.id} className="assignment-card" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}>
-              <span className="assignment-card-icon"><ClipboardList size={20} /></span>
-              <div><strong>{assignment.title}</strong><p>{assignment.description}</p><small>{assignment.dueAt ? `Muddat: ${assignment.dueAt.replace("T", " · ")}` : "Muddat belgilanmagan"}{assignment.fileName ? ` · ${assignment.fileName}` : ""}</small></div>
-              <span className="assignment-subject">{assignment.subject}</span>
-            </motion.article>
-          ))}
-        </div>
-      )}
-      <AddAssignmentDialog open={dialogOpen} onOpenChange={setDialogOpen} onCreate={(assignment) => { setAssignments((current) => [...current, assignment]); toast.success("Vazifa guruhga yuborildi"); }} />
-    </div>
-  );
+function AssignmentsPanel({ courseId, assignments = [], loading }) {
+  const [dialog, setDialog] = useState(false); const [deleteTarget, setDeleteTarget] = useState(null); const create = useCreateAssignment(); const remove = useDeleteAssignment();
+  return <div className="group-panel"><div className="group-panel-head"><div><span>GURUH VAZIFALARI</span><h2>Vazifalar</h2><p>Topshiriqlar va AI natijalarini boshqaring.</p></div><Button onClick={() => setDialog(true)}><Plus size={17} /> Vazifa berish</Button></div>{loading ? <div className="student-tab-loading"><span /></div> : assignments.length ? <div className="assignment-list">{assignments.map((item) => <motion.article key={item.id} className="assignment-card" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }}><span className="assignment-card-icon"><ClipboardList size={20} /></span><div><strong>{item.title}</strong><p>{item.description}</p><small>{item.dueAt ? `Muddat: ${new Intl.DateTimeFormat("uz-UZ", { dateStyle: "medium", timeStyle: "short" }).format(new Date(item.dueAt))}` : "Muddat belgilanmagan"} · {item.submissionsCount ?? 0} topshirilgan</small></div><span className="assignment-subject">{item.subject}</span><button className="icon-button destructive-icon" onClick={() => setDeleteTarget(item)}><Trash2 size={16} /></button></motion.article>)}</div> : <div className="premium-empty"><ClipboardList size={30} /><h3>Hali vazifa berilmagan</h3><Button onClick={() => setDialog(true)}>Birinchi vazifani berish</Button></div>}<AddAssignmentDialog open={dialog} onOpenChange={setDialog} onCreate={(form) => create.mutateAsync({ ...form, courseId }).then(() => setDialog(false))} /><Dialog open={Boolean(deleteTarget)} onOpenChange={(open) => { if (!open) setDeleteTarget(null); }}>{deleteTarget && <DialogContent title="Vazifani o‘chirish" description={`“${deleteTarget.title}” va unga bog‘liq ma’lumotlar o‘chadi.`}><div className="dialog-actions"><Button variant="secondary" onClick={() => setDeleteTarget(null)}>Bekor</Button><Button loading={remove.isPending} onClick={() => remove.mutateAsync(deleteTarget.id).then(() => setDeleteTarget(null))}>O‘chirish</Button></div></DialogContent>}</Dialog></div>;
 }
 
-function StudentsPanel({ students, search, onSearch }) {
-  return (
-    <div className="group-panel">
-      <div className="group-panel-head">
-        <div>
-          <span>ISHTIROKCHILAR</span>
-          <h2>O‘quvchilar</h2>
-          <p>{students.length} o‘quvchi ko‘rsatilmoqda.</p>
-        </div>
-        <Button onClick={() => toast.info("O‘quvchi taklif qilish")}>
-          <UserPlus size={17} /> O‘quvchi qo‘shish
-        </Button>
-      </div>
-      <label className="student-search">
-        <Search size={18} />
-        <input
-          value={search}
-          onChange={(event) => onSearch(event.target.value)}
-          placeholder="Ism yoki username bo‘yicha qidirish"
-        />
-      </label>
-      <div className="student-grid">
-        {students.map((student, index) => (
-          <motion.article
-            key={student.id}
-            className="student-card"
-            initial={{ opacity: 0, y: 6 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: index * 0.04 }}
-          >
-            <Avatar
-              name={student.name}
-              tone={student.avatarTone}
-              size="md"
-              status={student.status}
-            />
-            <div>
-              <strong>{student.name}</strong>
-              <span>{student.username}</span>
-            </div>
-            <button
-              onClick={() => toast.info(`${student.name} profili`)}
-              aria-label={`${student.name} profilini ochish`}
-            >
-              Ko‘rish
-            </button>
-          </motion.article>
-        ))}
-      </div>
-    </div>
-  );
-}
+function StudentsPanel({ page, loading }) { const [search, setSearch] = useState(""); const students = useMemo(() => (page?.items ?? []).map((item) => item.student).filter((item) => `${item.name} ${item.username}`.toLowerCase().includes(search.toLowerCase())), [page, search]); return <div className="group-panel"><div className="group-panel-head"><div><span>ISHTIROKCHILAR</span><h2>O‘quvchilar</h2><p>{page?.total ?? 0} o‘quvchi</p></div></div><label className="student-search"><Search size={18} /><input value={search} onChange={(event) => setSearch(event.target.value)} placeholder="Ism yoki username bo‘yicha qidirish" /></label>{loading ? <div className="student-tab-loading"><span /></div> : <div className="student-grid">{students.map((student) => <article className="student-card" key={student.id}><Avatar name={student.name} tone={student.avatarTone} size="md" /><div><strong>{student.name}</strong><span>@{student.username}</span></div></article>)}</div>}</div>; }
+
+function AttendancePanel({ lessons = [], rows = [], loading }) { const lessonIds = new Set(lessons.map((lesson) => lesson.id)); const filtered = rows.filter((row) => lessonIds.has(row.lessonId)); if (loading) return <div className="student-tab-loading"><span /></div>; return <div className="group-panel"><div className="group-panel-head"><div><span>KURS HISOBOTI</span><h2>Davomat va fokus</h2><p>{filtered.length} ta yozuv</p></div></div><div className="attendance-table-scroll"><table className="attendance-table"><thead><tr><th>O‘quvchi</th><th>Dars</th><th>Daqiqa</th><th>Diqqat</th><th>Fokusdan chiqish</th></tr></thead><tbody>{filtered.map((row) => <tr key={row.id}><td><strong>{row.child}</strong></td><td>{row.lesson}</td><td>{row.minutes}</td><td>{row.attentionAnswered}/{row.attentionTotal}</td><td>{row.focusExits}</td></tr>)}</tbody></table>{!filtered.length ? <p className="portal-muted">Davomat hali yo‘q.</p> : null}</div></div>; }

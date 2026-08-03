@@ -16,7 +16,7 @@ function keepPickerInteractionInside(event) {
   }
 }
 
-export function DialogContent({ title, description, children, className = '', motionPreset = 'modal' }) {
+export function DialogContent({ title, description, children, className = '', motionPreset = 'modal', closeable = true }) {
   const isSheet = motionPreset === 'right-sheet'
   return (
     <AnimatePresence>
@@ -26,8 +26,9 @@ export function DialogContent({ title, description, children, className = '', mo
         </DialogPrimitive.Overlay>
         <DialogPrimitive.Content
           asChild
-          onPointerDownOutside={keepPickerInteractionInside}
-          onInteractOutside={keepPickerInteractionInside}
+          onPointerDownOutside={(event) => { if (!closeable) event.preventDefault(); else keepPickerInteractionInside(event) }}
+          onInteractOutside={(event) => { if (!closeable) event.preventDefault(); else keepPickerInteractionInside(event) }}
+          onEscapeKeyDown={(event) => { if (!closeable) event.preventDefault() }}
         >
           <motion.div
             className={`dialog-content ${className}`}
@@ -41,7 +42,7 @@ export function DialogContent({ title, description, children, className = '', mo
                 <DialogPrimitive.Title>{title}</DialogPrimitive.Title>
                 {description && <DialogPrimitive.Description>{description}</DialogPrimitive.Description>}
               </div>
-              <DialogPrimitive.Close className="icon-button" aria-label="Yopish"><X size={19} /></DialogPrimitive.Close>
+              {closeable ? <DialogPrimitive.Close className="icon-button" aria-label="Yopish"><X size={19} /></DialogPrimitive.Close> : null}
             </div>
             {children}
           </motion.div>

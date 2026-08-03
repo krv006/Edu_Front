@@ -1,0 +1,1 @@
+export function mapBoardDto(dto) { return { sheets: (dto.sheets ?? []).map((sheet) => ({ index: Number(sheet.index), strokes: sheet.strokes ?? [] })), canDraw: Boolean(dto.can_draw), isTeacher: Boolean(dto.is_teacher), width: Number(dto.size?.[0] ?? 1200), height: Number(dto.size?.[1] ?? 800), subject: dto.subject || "" }; }

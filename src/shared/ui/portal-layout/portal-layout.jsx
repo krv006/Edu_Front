@@ -5,7 +5,7 @@ import { NavLink, Outlet } from "react-router-dom";
 import { Brand } from "@/components/shared/brand";
 import { Avatar } from "@/components/ui/avatar";
 
-export function PortalLayout({ navItems, roleLabel, user, onLogout }) {
+export function PortalLayout({ navItems, roleLabel, user, onLogout, headerExtra = null }) {
   const [accountOpen, setAccountOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -19,6 +19,7 @@ export function PortalLayout({ navItems, roleLabel, user, onLogout }) {
         <div className="portal-header-inner">
           <NavLink to="/" className="portal-brand-link" aria-label="Bosh sahifa"><Brand /></NavLink>
           <div className="portal-header-actions">
+            {headerExtra}
             <span className="portal-role-badge">{roleLabel}</span>
             <div className="portal-account-wrap">
               <button className="portal-account" onClick={() => setAccountOpen((value) => !value)} aria-expanded={accountOpen}>

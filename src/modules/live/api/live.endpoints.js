@@ -1,0 +1,1 @@
+export const liveEndpoints = Object.freeze({ token: "/api/v1/live/token/", leave: "/api/v1/live/leave/", attention: "/api/v1/live/attention/", focus: "/api/v1/live/focus/", allowShare: "/api/v1/live/allow-share/" });

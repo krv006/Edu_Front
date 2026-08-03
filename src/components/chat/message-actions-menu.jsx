@@ -13,6 +13,7 @@ export function MessageActionsMenu({
   onDelete,
   onReact,
   currentUserId = "teacher-1",
+  capabilities = { reply: true, edit: false, delete: false, react: false },
 }) {
   const outgoing = message?.senderId === currentUserId;
 
@@ -46,7 +47,7 @@ export function MessageActionsMenu({
             exit={{ opacity: 0, scale: 0.96 }}
             transition={{ duration: 0.14 }}
           >
-            <div
+            {capabilities.react ? <div
               className="message-reaction-picker"
               aria-label="Reaksiya tanlash"
             >
@@ -64,9 +65,9 @@ export function MessageActionsMenu({
                   {emoji}
                 </motion.button>
               ))}
-            </div>
-            <span className="message-menu-divider" />
-            <button
+            </div> : null}
+            {capabilities.react ? <span className="message-menu-divider" /> : null}
+            {capabilities.reply ? <button
               role="menuitem"
               onClick={() => {
                 onReply(message);
@@ -74,8 +75,8 @@ export function MessageActionsMenu({
               }}
             >
               <Reply size={17} /> Javob berish
-            </button>
-            {outgoing && (
+            </button> : null}
+            {capabilities.edit && outgoing && (
               <button
                 role="menuitem"
                 onClick={() => {
@@ -86,8 +87,8 @@ export function MessageActionsMenu({
                 <Pencil size={16} /> Tahrirlash
               </button>
             )}
-            <span className="message-menu-divider" />
-            <button
+            {capabilities.delete ? <span className="message-menu-divider" /> : null}
+            {capabilities.delete ? <button
               role="menuitem"
               className="destructive"
               onClick={() => {
@@ -96,8 +97,8 @@ export function MessageActionsMenu({
               }}
             >
               <Trash2 size={16} /> Men uchun o‘chirish
-            </button>
-            {outgoing && (
+            </button> : null}
+            {capabilities.delete && outgoing && (
               <button
                 role="menuitem"
                 className="destructive"

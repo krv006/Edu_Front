@@ -1,6 +1,6 @@
 import { motion } from "framer-motion";
 import { Sparkles } from "lucide-react";
-import { Navigate, useNavigate } from "react-router-dom";
+import { Link, Navigate, useNavigate } from "react-router-dom";
 import { useAuth } from "@/app/providers";
 import { LoginForm, resolveHomeRoute } from "@/modules/auth";
 
@@ -33,6 +33,7 @@ export function LoginPage() {
           <p>O‘qituvchi, o‘quvchi yoki ota-ona hisobingiz bilan kiring.</p>
         </div>
         <LoginForm onSubmit={handleLogin} />
+        <Link className="auth-switch-link" to="/register">Hisob yaratish</Link>
       </motion.section>
       <p className="login-footer">© 2026 · EduTech</p>
     </main>

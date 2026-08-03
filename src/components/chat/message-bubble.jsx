@@ -1,10 +1,10 @@
-import { CheckCheck, Mic, Play, Reply } from "lucide-react";
+import { CheckCheck, Mic, Play, RefreshCw, Reply } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useState } from "react";
 import { formatMessageTime } from "@/shared/lib";
 import { AttachmentPreview } from "./attachment-preview";
 
-export function MessageBubble({ message, currentUserId = "teacher-1", onReply, onOpenActions, onReact }) {
+export function MessageBubble({ message, currentUserId = "teacher-1", onReply, onOpenActions, onReact, onRetryMessage }) {
   const outgoing = message.senderId === currentUserId;
   const [dragging, setDragging] = useState(false);
 
@@ -89,6 +89,7 @@ export function MessageBubble({ message, currentUserId = "teacher-1", onReply, o
             />
           )}
         </span>
+        {message.failed ? <button className="message-retry" onClick={(event) => { event.stopPropagation(); onRetryMessage?.(message); }}><RefreshCw size={13} /> Qayta yuborish</button> : null}
         <AnimatePresence initial={false}>
         {message.reactions?.length > 0 && (
           <motion.div className="message-reactions" aria-label="Xabar reaksiyalari" initial={{ opacity: 0, y: -18, scale: .68 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: -8, scale: .72 }} transition={{ type: "spring", stiffness: 520, damping: 24 }}>

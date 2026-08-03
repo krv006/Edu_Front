@@ -30,3 +30,24 @@ export function useLogoutMutation() {
     onSuccess() { queryClient.clear(); },
   });
 }
+
+export function useRegisterMutation() {
+  return useMutation({
+    mutationFn: (values) => authApi.register({
+      username: values.username.trim(),
+      password: values.password,
+      first_name: values.firstName.trim(),
+      last_name: values.lastName.trim(),
+      role: values.role,
+      phone: values.phone?.trim() || "",
+    }),
+  });
+}
+
+export function useUpdateProfileMutation() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (values) => mapUserDto(await authApi.updateCurrentUser({ first_name: values.firstName.trim(), last_name: values.lastName.trim(), phone: values.phone?.trim() || "" })),
+    onSuccess: (user) => queryClient.setQueryData(authKeys.currentUser, user),
+  });
+}

@@ -38,6 +38,7 @@ export const ROUTES = Object.freeze({
     children: "/parent/children",
     child: (childId) => `/parent/children/${segment(childId)}`,
     attendance: "/parent/attendance",
+    homework: "/parent/homework",
     grades: "/parent/grades",
     payments: "/parent/payments",
     chats: "/parent/chats",

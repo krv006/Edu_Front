@@ -1,0 +1,13 @@
+import { useState } from "react";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
+import { homeworkApi } from "../api/homework.api";
+export const homeworkKeys = Object.freeze({ all: ["homework"], assignments: (courseId) => ["homework", "assignments", courseId], assignment: (id) => ["homework", "assignment", id], submission: (id) => ["homework", "submission", id] });
+export function getHomeworkPollingInterval(submission, elapsedMs, maxPollingMs) { return submission?.status === "checking" && elapsedMs < maxPollingMs ? 2500 : false; }
+export function useAssignments(courseId) { return useQuery({ queryKey: homeworkKeys.assignments(courseId), queryFn: ({ signal }) => homeworkApi.getAssignments(courseId, { signal }), enabled: Boolean(courseId) }); }
+export function useAssignment(id) { return useQuery({ queryKey: homeworkKeys.assignment(id), queryFn: ({ signal }) => homeworkApi.getAssignment(id, { signal }), enabled: Boolean(id) }); }
+export function useSubmission(id, { poll = true, maxPollingMs = 5 * 60_000 } = {}) { const [startedAt] = useState(Date.now); return useQuery({ queryKey: homeworkKeys.submission(id), queryFn: ({ signal }) => homeworkApi.getSubmission(id, { signal }), enabled: Boolean(id), refetchInterval: (query) => poll ? getHomeworkPollingInterval(query.state.data, Date.now() - startedAt, maxPollingMs) : false, refetchOnWindowFocus: true }); }
+export function useCreateAssignment() { const client = useQueryClient(); return useMutation({ mutationFn: homeworkApi.createAssignment, onSuccess: (item) => { client.invalidateQueries({ queryKey: homeworkKeys.assignments(item.courseId) }); toast.success("Vazifa yuborildi"); } }); }
+export function useSubmitHomework() { const client = useQueryClient(); return useMutation({ mutationFn: ({ assignmentId, file, skillKey }) => homeworkApi.submit(assignmentId, file, skillKey), onSuccess: (submission) => { client.setQueryData(homeworkKeys.submission(submission.id), submission); client.invalidateQueries({ queryKey: homeworkKeys.all }); toast.success("Vazifa topshirildi, AI tekshiruvi boshlandi"); } }); }
+export function useDeleteAssignment() { const client = useQueryClient(); return useMutation({ mutationFn: homeworkApi.deleteAssignment, onSuccess: () => { client.invalidateQueries({ queryKey: homeworkKeys.all }); toast.success("Vazifa o‘chirildi"); } }); }
+export function useRecheckSubmission() { const client = useQueryClient(); return useMutation({ mutationFn: homeworkApi.recheck, onSuccess: (submission) => { client.setQueryData(homeworkKeys.submission(submission.id), submission); toast.success("Qayta tekshirish boshlandi"); } }); }

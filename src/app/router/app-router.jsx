@@ -16,6 +16,9 @@ const LoginPage = lazy(() =>
     default: module.LoginPage,
   }))
 );
+const RegisterPage = lazy(() =>
+  import("@/pages/auth/register-page").then((module) => ({ default: module.RegisterPage }))
+);
 const TeacherLayout = lazy(() =>
   import("@/app/layouts/teacher-layout").then((module) => ({
     default: module.TeacherLayout,
@@ -61,11 +64,8 @@ const ParentAttendancePage = lazy(() =>
     default: module.ParentAttendancePage,
   }))
 );
-const ComingSoonPage = lazy(() =>
-  import("@/pages/shared/coming-soon-page").then((module) => ({
-    default: module.ComingSoonPage,
-  }))
-);
+const ParentHomeworkPage = lazy(() => import("@/pages/parent/homework/parent-homework-page").then((module) => ({ default: module.ParentHomeworkPage })));
+const AdminDashboardPage = lazy(() => import("@/pages/admin/admin-dashboard-page").then((module) => ({ default: module.AdminDashboardPage })));
 
 export function AppRouter() {
   return (
@@ -81,6 +81,7 @@ export function AppRouter() {
               <Route element={<PublicRoute />}>
                 <Route element={<AuthLayout />}>
                   <Route path={ROUTES.auth.login} element={<LoginPage />} />
+                  <Route path={ROUTES.auth.register} element={<RegisterPage />} />
                 </Route>
               </Route>
 
@@ -157,6 +158,7 @@ export function AppRouter() {
                       path="attendance"
                       element={<ParentAttendancePage />}
                     />
+                    <Route path="homework" element={<ParentHomeworkPage />} />
                   </Route>
                 </Route>
 
@@ -173,7 +175,7 @@ export function AppRouter() {
                   />
                   <Route
                     path={ROUTES.admin.dashboard}
-                    element={<ComingSoonPage title="Administrator paneli" />}
+                    element={<AdminDashboardPage />}
                   />
                 </Route>
               </Route>

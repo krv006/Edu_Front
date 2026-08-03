@@ -13,9 +13,11 @@ export function ConversationPage() {
     conversation,
     messages,
     sendMessage,
+    retryMessage,
     updateMessage,
     deleteMessage,
     toggleReaction,
+    sendTyping,
   } = useChat(conversationId);
   const [replyMessage, setReplyMessage] = useState(null);
   const [editingMessage, setEditingMessage] = useState(null);
@@ -44,6 +46,8 @@ export function ConversationPage() {
         updateMessage={updateMessage}
         deleteMessage={deleteMessage}
         toggleReaction={toggleReaction}
+        sendTyping={sendTyping}
+        retryMessage={retryMessage}
       />
     );
   }
@@ -114,6 +118,8 @@ export function ConversationPage() {
         onReact={(message, emoji) =>
           toggleReaction.mutate({ messageId: message.id, emoji })
         }
+        capabilities={{ reply: true, edit: false, delete: false, react: false }}
+        onRetryMessage={retryMessage}
       />
       <MessageComposer
         key={editingMessage?.id ?? "compose"}
@@ -125,6 +131,7 @@ export function ConversationPage() {
           setReplyMessage(null);
           setEditingMessage(null);
         }}
+        onTyping={sendTyping}
       />
     </section>
   );

@@ -1,6 +1,7 @@
-import { apiClient, selectApiTransport } from "@/shared/api";
-import { attendanceSeed } from "./adapters/attendance.mock-data";
-
-const mock = { async getAll() { await new Promise((resolve) => globalThis.setTimeout(resolve, 180)); return structuredClone(attendanceSeed); } };
-const remote = { async getAll(options) { const result = await apiClient.get("/attendance", options); return result.data ?? result; } };
-export const attendanceApi = selectApiTransport({ mock, remote });
+import { apiClient } from "@/shared/api";
+import { attendanceEndpoints } from "./attendance.endpoints";
+import { mapAttendanceDto, mapAttendancePage } from "../lib/attendance.mappers";
+export const attendanceApi = {
+  async getAll(options = {}) { return mapAttendancePage(await apiClient.get(attendanceEndpoints.list, options), options.query); },
+  async getById(id, options) { return mapAttendanceDto(await apiClient.get(attendanceEndpoints.detail(id), options)); },
+};

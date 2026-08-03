@@ -1,7 +1,6 @@
 import { useState } from "react";
-import { ArrowLeft, Search } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { toast } from "sonner";
 import { Avatar } from "../ui/avatar";
 
 import { ConversationInfoPanel } from "./conversation-info-panel";
@@ -43,17 +42,6 @@ export function ChatHeader({ conversation, backTo = "/teacher/chats" }) {
             </span>
           </span>
         </button>
-        <div className="chat-actions">
-          <button
-            className="icon-button"
-            onClick={() =>
-              toast.info("Chat ichida qidiruv keyingi yangilanishda qo‘shiladi")
-            }
-            aria-label="Chatda qidirish"
-          >
-            <Search size={19} />
-          </button>
-        </div>
       </header>
       <ConversationInfoPanel
         conversation={conversation}

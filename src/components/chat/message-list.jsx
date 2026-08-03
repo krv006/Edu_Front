@@ -14,7 +14,9 @@ export function MessageList({
   onEdit,
   onDelete,
   onReact,
+  onRetryMessage,
   currentUserId = "teacher-1",
+  capabilities,
 }) {
   const bottomRef = useRef(null);
   const [actionMessage, setActionMessage] = useState(null);
@@ -54,6 +56,7 @@ export function MessageList({
             currentUserId={currentUserId}
             onReply={onReply}
             onReact={onReact}
+            onRetryMessage={onRetryMessage}
             onOpenActions={(selected, position) => {
               const mobile = window.innerWidth <= 768;
               const menuWidth = mobile ? 226 : 234;
@@ -78,6 +81,7 @@ export function MessageList({
         onDelete={onDelete}
         onReact={onReact}
         currentUserId={currentUserId}
+        capabilities={capabilities}
       />
     </div>
   );

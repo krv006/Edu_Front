@@ -22,15 +22,21 @@ const DURATION_OPTIONS = [
   { value: "90", label: "90 daqiqa" },
 ];
 
-const SUBJECT_OPTIONS = ["Umumiy", "Ingliz tili", "Matematika", "Tarix"];
+const SKILL_OPTIONS = [
+  { value: "", label: "Umumiy vazifa" },
+  { value: "writing", label: "Writing" },
+  { value: "reading", label: "Reading" },
+  { value: "listening", label: "Listening" },
+  { value: "speaking", label: "Speaking" },
+];
 
-export function AddLessonDialog({ open, onOpenChange, onCreate }) {
-  const [form, setForm] = useState({
-    topic: "",
-    date: "",
-    time: "18:30",
-    duration: "45",
-  });
+export function AddLessonDialog({ open, onOpenChange, onCreate, initialValues = null }) {
+  const [form, setForm] = useState(() => ({
+    topic: initialValues?.topic ?? "",
+    date: initialValues?.date ?? "",
+    time: initialValues?.time ?? "18:30",
+    duration: String(initialValues?.durationMinutes ?? initialValues?.duration ?? "45"),
+  }));
 
   function update(field, value) {
     setForm((current) => ({ ...current, [field]: value }));
@@ -40,7 +46,6 @@ export function AddLessonDialog({ open, onOpenChange, onCreate }) {
     event.preventDefault();
     if (!form.topic.trim() || !form.time) return;
     onCreate({
-      id: crypto.randomUUID(),
       ...form,
       date: form.date || new Date().toISOString().slice(0, 10),
     });
@@ -53,7 +58,7 @@ export function AddLessonDialog({ open, onOpenChange, onCreate }) {
       {open && (
         <DialogContent
           className="group-action-dialog"
-          title="Yangi dars"
+          title={initialValues ? "Darsni tahrirlash" : "Yangi dars"}
           description="Guruh uchun yangi mashg‘ulot vaqtini belgilang."
         >
           <motion.form
@@ -100,7 +105,7 @@ export function AddLessonDialog({ open, onOpenChange, onCreate }) {
                 Bekor qilish
               </Button>
               <Button type="submit" disabled={!form.topic.trim()}>
-                Darsni saqlash
+                {initialValues ? "O‘zgarishlarni saqlash" : "Darsni saqlash"}
               </Button>
             </div>
           </motion.form>
@@ -115,7 +120,7 @@ export function AddAssignmentDialog({ open, onOpenChange, onCreate }) {
     title: "",
     description: "",
     dueAt: "",
-    subject: "Umumiy",
+    skillKey: "",
     grading: "",
   });
   const [file, setFile] = useState(null);
@@ -128,12 +133,12 @@ export function AddAssignmentDialog({ open, onOpenChange, onCreate }) {
   function submit(event) {
     event.preventDefault();
     if (!form.title.trim() || !form.description.trim()) return;
-    onCreate({ id: crypto.randomUUID(), ...form, fileName: file?.name });
+    onCreate({ ...form, body: form.description, extraInstructions: form.grading, file });
     setForm({
       title: "",
       description: "",
       dueAt: "",
-      subject: "Umumiy",
+      skillKey: "",
       grading: "",
     });
     setFile(null);
@@ -196,6 +201,7 @@ export function AddAssignmentDialog({ open, onOpenChange, onCreate }) {
               <input
                 ref={fileRef}
                 type="file"
+                accept=".pdf,.doc,.docx,.png,.jpg,.jpeg,.webp"
                 hidden
                 onChange={(event) => setFile(event.target.files?.[0] ?? null)}
               />
@@ -217,11 +223,11 @@ export function AddAssignmentDialog({ open, onOpenChange, onCreate }) {
                 optional
               />
               <SelectPicker
-                label="Fan"
+                label="Tekshiruv turi"
                 icon={GraduationCap}
-                value={form.subject}
-                onChange={(value) => update("subject", value)}
-                options={SUBJECT_OPTIONS}
+                value={form.skillKey}
+                onChange={(value) => update("skillKey", value)}
+                options={SKILL_OPTIONS}
               />
             </div>
             <label>
