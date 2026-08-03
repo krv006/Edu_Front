@@ -1,51 +1,23 @@
-import { apiClient, selectApiTransport, tokenStorage } from "@/shared/api";
-import { STORAGE_KEYS } from "@/shared/constants";
-import { storage } from "@/shared/lib";
-import { mockLogin } from "./adapters/auth.mock";
+import { apiClient } from "@/shared/api";
+import { authEndpoints } from "./auth.endpoints";
 
-function persistSession(user, remember = true) {
-  if (remember) storage.setJson(STORAGE_KEYS.AUTH_SESSION, user);
-  else storage.remove(STORAGE_KEYS.AUTH_SESSION);
-}
-
-const mockAuthApi = {
-  async login(credentials) {
-    const user = await mockLogin(credentials);
-    persistSession(user, credentials.remember !== false);
-    storage.remove(STORAGE_KEYS.TEACHER_SESSION);
-    return user;
+export const authApi = {
+  login(dto) {
+    return apiClient.post(authEndpoints.login, dto, {
+      skipAuth: true,
+      skipRefresh: true,
+    });
   },
-  async logout() {
-    await new Promise((resolve) => globalThis.setTimeout(resolve, 160));
-    storage.remove(STORAGE_KEYS.AUTH_SESSION);
-    storage.remove(STORAGE_KEYS.TEACHER_SESSION);
-    tokenStorage.clear();
+  refresh(dto) {
+    return apiClient.post(authEndpoints.refresh, dto, {
+      skipAuth: true,
+      skipRefresh: true,
+    });
   },
   getCurrentUser() {
-    return storage.getJson(STORAGE_KEYS.AUTH_SESSION) ?? storage.getJson(STORAGE_KEYS.TEACHER_SESSION);
+    return apiClient.get(authEndpoints.me);
   },
-  async refreshSession() { return this.getCurrentUser(); },
-};
-
-const remoteAuthApi = {
-  async login(credentials) {
-    const result = await apiClient.post("/auth/login", credentials, { skipAuth: true });
-    const payload = result.data ?? result;
-    tokenStorage.setTokens(payload.tokens ?? payload);
-    persistSession(payload.user, credentials.remember !== false);
-    return payload.user;
-  },
-  async logout() {
-    try { await apiClient.post("/auth/logout"); }
-    finally { storage.remove(STORAGE_KEYS.AUTH_SESSION); tokenStorage.clear(); }
-  },
-  getCurrentUser() { return storage.getJson(STORAGE_KEYS.AUTH_SESSION); },
-  async refreshSession() {
-    const result = await apiClient.get("/auth/me");
-    const user = result.data ?? result;
-    persistSession(user);
-    return user;
+  updateCurrentUser(dto) {
+    return apiClient.patch(authEndpoints.me, dto);
   },
 };
-
-export const authApi = selectApiTransport({ mock: mockAuthApi, remote: remoteAuthApi });

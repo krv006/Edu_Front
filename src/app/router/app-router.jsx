@@ -11,16 +11,61 @@ import { RouteErrorBoundary } from "./route-error-boundary";
 import { ForbiddenPage, NotFoundPage } from "./route-status-pages";
 import { ROUTES } from "./route-paths";
 
-const LoginPage = lazy(() => import("@/pages/auth/login-page").then((module) => ({ default: module.LoginPage })));
-const TeacherLayout = lazy(() => import("@/app/layouts/teacher-layout").then((module) => ({ default: module.TeacherLayout })));
-const ChatsPage = lazy(() => import("@/pages/teacher/chats-page").then((module) => ({ default: module.ChatsPage })));
-const ConversationPage = lazy(() => import("@/pages/teacher/conversation-page").then((module) => ({ default: module.ConversationPage })));
-const StudentLayout = lazy(() => import("@/app/layouts/student-layout").then((module) => ({ default: module.StudentLayout })));
-const StudentConversationPage = lazy(() => import("@/pages/student/conversation-page").then((module) => ({ default: module.StudentConversationPage })));
-const ParentLayout = lazy(() => import("@/app/layouts/parent-layout").then((module) => ({ default: module.ParentLayout })));
-const ParentDashboardPage = lazy(() => import("@/pages/parent/dashboard/parent-dashboard-page").then((module) => ({ default: module.ParentDashboardPage })));
-const ParentChildrenPage = lazy(() => import("@/pages/parent/children/parent-children-page").then((module) => ({ default: module.ParentChildrenPage })));
-const ParentAttendancePage = lazy(() => import("@/pages/parent/attendance/parent-attendance-page").then((module) => ({ default: module.ParentAttendancePage })));
+const LoginPage = lazy(() =>
+  import("@/pages/auth/login-page").then((module) => ({
+    default: module.LoginPage,
+  }))
+);
+const TeacherLayout = lazy(() =>
+  import("@/app/layouts/teacher-layout").then((module) => ({
+    default: module.TeacherLayout,
+  }))
+);
+const ChatsPage = lazy(() =>
+  import("@/pages/teacher/chats-page").then((module) => ({
+    default: module.ChatsPage,
+  }))
+);
+const ConversationPage = lazy(() =>
+  import("@/pages/teacher/conversation-page").then((module) => ({
+    default: module.ConversationPage,
+  }))
+);
+const StudentLayout = lazy(() =>
+  import("@/app/layouts/student-layout").then((module) => ({
+    default: module.StudentLayout,
+  }))
+);
+const StudentConversationPage = lazy(() =>
+  import("@/pages/student/conversation-page").then((module) => ({
+    default: module.StudentConversationPage,
+  }))
+);
+const ParentLayout = lazy(() =>
+  import("@/app/layouts/parent-layout").then((module) => ({
+    default: module.ParentLayout,
+  }))
+);
+const ParentDashboardPage = lazy(() =>
+  import("@/pages/parent/dashboard/parent-dashboard-page").then((module) => ({
+    default: module.ParentDashboardPage,
+  }))
+);
+const ParentChildrenPage = lazy(() =>
+  import("@/pages/parent/children/parent-children-page").then((module) => ({
+    default: module.ParentChildrenPage,
+  }))
+);
+const ParentAttendancePage = lazy(() =>
+  import("@/pages/parent/attendance/parent-attendance-page").then((module) => ({
+    default: module.ParentAttendancePage,
+  }))
+);
+const ComingSoonPage = lazy(() =>
+  import("@/pages/shared/coming-soon-page").then((module) => ({
+    default: module.ComingSoonPage,
+  }))
+);
 
 export function AppRouter() {
   return (
@@ -29,7 +74,10 @@ export function AppRouter() {
         <Suspense fallback={<LoadingFallback />}>
           <Routes>
             <Route element={<RootLayout />}>
-              <Route index element={<Navigate to={ROUTES.auth.login} replace />} />
+              <Route
+                index
+                element={<Navigate to={ROUTES.auth.login} replace />}
+              />
               <Route element={<PublicRoute />}>
                 <Route element={<AuthLayout />}>
                   <Route path={ROUTES.auth.login} element={<LoginPage />} />
@@ -38,37 +86,102 @@ export function AppRouter() {
 
               <Route element={<ProtectedRoute />}>
                 <Route element={<RoleRoute allowedRoles={[ROLES.TEACHER]} />}>
-                  <Route path={ROUTES.teacher.root} element={<Navigate to={ROUTES.teacher.chats} replace />} />
-                  <Route path={ROUTES.teacher.chats} element={<TeacherLayout />}>
+                  <Route
+                    path={ROUTES.teacher.root}
+                    element={<Navigate to={ROUTES.teacher.dashboard} replace />}
+                  />
+                  <Route
+                    path={ROUTES.teacher.dashboard}
+                    element={<Navigate to={ROUTES.teacher.chats} replace />}
+                  />
+                  <Route
+                    path={ROUTES.teacher.chats}
+                    element={<TeacherLayout />}
+                  >
                     <Route index element={<ChatsPage />} />
-                    <Route path=":conversationId" element={<ConversationPage />} />
+                    <Route
+                      path=":conversationId"
+                      element={<ConversationPage />}
+                    />
                   </Route>
                 </Route>
 
                 <Route element={<RoleRoute allowedRoles={[ROLES.STUDENT]} />}>
-                  <Route path={ROUTES.student.root} element={<Navigate to={ROUTES.student.chats} replace />} />
-                  <Route path={ROUTES.student.dashboard} element={<Navigate to={ROUTES.student.chats} replace />} />
-                  <Route path={ROUTES.student.courses} element={<Navigate to={ROUTES.student.chats} replace />} />
-                  <Route path={ROUTES.student.assignments} element={<Navigate to={ROUTES.student.chats} replace />} />
-                  <Route path={ROUTES.student.grades} element={<Navigate to={ROUTES.student.chats} replace />} />
-                  <Route path={ROUTES.student.schedule} element={<Navigate to={ROUTES.student.chats} replace />} />
-                  <Route path={ROUTES.student.chats} element={<StudentLayout />}>
+                  <Route
+                    path={ROUTES.student.root}
+                    element={<Navigate to={ROUTES.student.chats} replace />}
+                  />
+                  <Route
+                    path={ROUTES.student.dashboard}
+                    element={<Navigate to={ROUTES.student.chats} replace />}
+                  />
+                  <Route
+                    path={ROUTES.student.courses}
+                    element={<Navigate to={ROUTES.student.chats} replace />}
+                  />
+                  <Route
+                    path={ROUTES.student.assignments}
+                    element={<Navigate to={ROUTES.student.chats} replace />}
+                  />
+                  <Route
+                    path={ROUTES.student.grades}
+                    element={<Navigate to={ROUTES.student.chats} replace />}
+                  />
+                  <Route
+                    path={ROUTES.student.schedule}
+                    element={<Navigate to={ROUTES.student.chats} replace />}
+                  />
+                  <Route
+                    path={ROUTES.student.chats}
+                    element={<StudentLayout />}
+                  >
                     <Route index element={<ChatsPage />} />
-                    <Route path=":conversationId" element={<StudentConversationPage />} />
+                    <Route
+                      path=":conversationId"
+                      element={<StudentConversationPage />}
+                    />
                   </Route>
                 </Route>
 
                 <Route element={<RoleRoute allowedRoles={[ROLES.PARENT]} />}>
                   <Route path={ROUTES.parent.root} element={<ParentLayout />}>
-                    <Route index element={<Navigate to={ROUTES.parent.dashboard} replace />} />
+                    <Route
+                      index
+                      element={
+                        <Navigate to={ROUTES.parent.dashboard} replace />
+                      }
+                    />
                     <Route path="dashboard" element={<ParentDashboardPage />} />
                     <Route path="children" element={<ParentChildrenPage />} />
-                    <Route path="attendance" element={<ParentAttendancePage />} />
+                    <Route
+                      path="attendance"
+                      element={<ParentAttendancePage />}
+                    />
                   </Route>
+                </Route>
+
+                <Route
+                  element={
+                    <RoleRoute
+                      allowedRoles={[ROLES.ADMIN, ROLES.SUPER_ADMIN]}
+                    />
+                  }
+                >
+                  <Route
+                    path={ROUTES.admin.root}
+                    element={<Navigate to={ROUTES.admin.dashboard} replace />}
+                  />
+                  <Route
+                    path={ROUTES.admin.dashboard}
+                    element={<ComingSoonPage title="Administrator paneli" />}
+                  />
                 </Route>
               </Route>
 
-              <Route path={ROUTES.errors.forbidden} element={<ForbiddenPage />} />
+              <Route
+                path={ROUTES.errors.forbidden}
+                element={<ForbiddenPage />}
+              />
               <Route path={ROUTES.errors.notFound} element={<NotFoundPage />} />
               <Route path="*" element={<NotFoundPage />} />
             </Route>

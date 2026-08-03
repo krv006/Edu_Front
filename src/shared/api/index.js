@@ -1,4 +1,16 @@
 export { apiClient, ApiClient } from "./api-client";
-export { ApiError, API_ERROR_CODES, createApiError } from "./api-error";
+export {
+  AppError,
+  ApiError,
+  API_ERROR_CODES,
+  createApiError,
+  createTransportError,
+} from "./api-error";
+export { applyApiFieldErrors } from "./apply-api-field-errors";
+export { normalizePagination } from "./pagination";
+export {
+  refreshTokenManager,
+  RefreshTokenManager,
+} from "./refresh-token-manager";
 export { tokenStorage } from "./token-storage";
 export { selectApiTransport } from "./select-api-transport";
