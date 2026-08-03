@@ -6,11 +6,11 @@
   "outputDirectory": "dist",
   "rewrites": [
     {
-      "source": "/api/:path*",
-      "destination": "https://edu.thesofmebel.uz/api/:path*"
+      "source": "/api/(.*)",
+      "destination": "https://edu.thesofmebel.uz/api/$1"
     },
     {
-      "source": "/(.*)",
+      "source": "/((?!api(?:/|$)).*)",
       "destination": "/index.html"
     }
   ],
