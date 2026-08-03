@@ -11,14 +11,16 @@ import {
   UsersRound,
 } from "lucide-react";
 import { toast } from "sonner";
-import { availableUsers } from "../../mocks/users.mock";
+import { availableUsers, currentTeacher } from "@/modules/user";
+import { useAuth } from "@/app/providers";
 import { Avatar } from "../ui/avatar";
 import { Button } from "../ui/button";
 import { Dialog, DialogContent } from "../ui/dialog";
 
 export function ConversationInfoPanel({ conversation, open, onOpenChange }) {
+  const { user: currentUser } = useAuth();
   const isGroup = conversation.type === "group";
-  const person = availableUsers.find(
+  const person = [...availableUsers, currentTeacher].find(
     (user) => user.id === conversation.participantId
   );
   const muteKey = `fokus_muted_${conversation.id}`;
@@ -164,7 +166,7 @@ export function ConversationInfoPanel({ conversation, open, onOpenChange }) {
             </div>
           )}
 
-          {!isGroup && (
+          {!isGroup && currentUser?.role !== "STUDENT" && (
             <Button
               variant="ghost"
               className="block-button"

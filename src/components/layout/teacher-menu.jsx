@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { useAuth } from "../../app/auth-context";
+import { useAuth } from "@/app/providers";
 import { Avatar } from "../ui/avatar";
 import { Button } from "../ui/button";
 import { Dialog, DialogContent } from "../ui/dialog";
@@ -43,6 +43,8 @@ export function TeacherMenu({
   onOpenChange,
   profileOpen,
   onProfileOpenChange,
+  roleLabel = "O‘qituvchi",
+  workspaceLabel = "Teacher workspace",
 }) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
@@ -93,7 +95,7 @@ export function TeacherMenu({
               animate={{ x: 0, opacity: 1 }}
               exit={{ x: -20, opacity: 0 }}
               transition={{ type: "spring", stiffness: 360, damping: 32 }}
-              aria-label="O‘qituvchi menyusi"
+              aria-label={`${roleLabel} menyusi`}
             >
               <div className="teacher-menu-top">
                 <button
@@ -116,14 +118,14 @@ export function TeacherMenu({
                 />
                 <span>
                   <strong>{user?.name}</strong>
-                  <small>O‘qituvchi · Onlayn</small>
+                  <small>{roleLabel} · Onlayn</small>
                 </span>
                 <ChevronRight size={18} />
               </button>
               <div className="teacher-menu-status">
                 <ShieldCheck size={17} />
                 <span>
-                  <strong>Teacher workspace</strong>
+                  <strong>{workspaceLabel}</strong>
                   <small>Demo sessiya xavfsiz saqlanmoqda</small>
                 </span>
               </div>
@@ -157,8 +159,8 @@ export function TeacherMenu({
         {profileOpen && (
           <DialogContent
             className="teacher-profile-dialog"
-            title="O‘qituvchi profili"
-            description="Fokus platformasidagi teacher hisobingiz."
+            title={`${roleLabel} profili`}
+            description={`Fokus platformasidagi ${roleLabel.toLowerCase()} hisobingiz.`}
           >
             <motion.div
               className="teacher-profile-hero"
@@ -173,7 +175,7 @@ export function TeacherMenu({
                 status="online"
               />
               <h3>{user?.name}</h3>
-              <p>O‘qituvchi</p>
+              <p>{roleLabel}</p>
               <span>
                 <ShieldCheck size={14} /> Tasdiqlangan profil
               </span>

@@ -1,5 +1,5 @@
 import * as AvatarPrimitive from '@radix-ui/react-avatar'
-import { cn, initials } from '../../lib/utils'
+import { cn, initials } from "@/shared/lib";
 
 export function Avatar({ name, tone = 'violet', size = 'md', status, className }) {
   return (
@@ -11,4 +11,3 @@ export function Avatar({ name, tone = 'violet', size = 'md', status, className }
     </span>
   )
 }
-

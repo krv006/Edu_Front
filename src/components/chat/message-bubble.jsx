@@ -1,11 +1,11 @@
 import { CheckCheck, Mic, Play, Reply } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useState } from "react";
-import { formatMessageTime } from "../../lib/date";
+import { formatMessageTime } from "@/shared/lib";
 import { AttachmentPreview } from "./attachment-preview";
 
-export function MessageBubble({ message, onReply, onOpenActions, onReact }) {
-  const outgoing = message.senderId === "teacher-1";
+export function MessageBubble({ message, currentUserId = "teacher-1", onReply, onOpenActions, onReact }) {
+  const outgoing = message.senderId === currentUserId;
   const [dragging, setDragging] = useState(false);
 
   if (message.type === "system")

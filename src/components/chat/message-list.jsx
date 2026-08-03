@@ -14,6 +14,7 @@ export function MessageList({
   onEdit,
   onDelete,
   onReact,
+  currentUserId = "teacher-1",
 }) {
   const bottomRef = useRef(null);
   const [actionMessage, setActionMessage] = useState(null);
@@ -50,6 +51,7 @@ export function MessageList({
           <MessageBubble
             key={message.id}
             message={message}
+            currentUserId={currentUserId}
             onReply={onReply}
             onReact={onReact}
             onOpenActions={(selected, position) => {
@@ -75,6 +77,7 @@ export function MessageList({
         onEdit={onEdit}
         onDelete={onDelete}
         onReact={onReact}
+        currentUserId={currentUserId}
       />
     </div>
   );

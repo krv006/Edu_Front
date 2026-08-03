@@ -18,4 +18,26 @@ export default defineConfig([
       parserOptions: { ecmaFeatures: { jsx: true } },
     },
   },
+  {
+    files: ['src/shared/**/*.{js,jsx}'],
+    rules: {
+      'no-restricted-imports': ['error', {
+        patterns: [{
+          group: ['@/app/**', '@/modules/**', '@/pages/**'],
+          message: 'Shared qatlam app, module yoki page qatlamiga bog‘lanmasligi kerak.',
+        }],
+      }],
+    },
+  },
+  {
+    files: ['src/modules/**/*.{js,jsx}'],
+    rules: {
+      'no-restricted-imports': ['error', {
+        patterns: [{
+          group: ['@/app/**', '@/pages/**'],
+          message: 'Domain modul app yoki page qatlamini import qilmasligi kerak.',
+        }],
+      }],
+    },
+  },
 ])

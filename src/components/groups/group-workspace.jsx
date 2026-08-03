@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import { useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
-import { availableUsers } from "../../mocks/users.mock";
+import { availableUsers } from "@/modules/user";
 import { ChatHeader } from "../chat/chat-header";
 import { MessageList } from "../chat/message-list";
 import { MessageComposer } from "../chat/message-composer";

@@ -5,7 +5,7 @@ import { ChatHeader } from "../../components/chat/chat-header";
 import { MessageList } from "../../components/chat/message-list";
 import { MessageComposer } from "../../components/chat/message-composer";
 import { GroupWorkspace } from "../../components/groups/group-workspace";
-import { useChat } from "../../hooks/use-chat";
+import { useChat } from "@/modules/message";
 
 export function ConversationPage() {
   const { conversationId } = useParams();

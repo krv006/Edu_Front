@@ -1,6 +1,6 @@
 import { forwardRef } from "react";
 import { LoaderCircle } from "lucide-react";
-import { cn } from "../../lib/utils";
+import { cn } from "@/shared/lib";
 
 export const Button = forwardRef(function Button(
   {

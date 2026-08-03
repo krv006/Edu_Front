@@ -6,7 +6,7 @@ import { Avatar } from "../ui/avatar";
 
 import { ConversationInfoPanel } from "./conversation-info-panel";
 
-export function ChatHeader({ conversation }) {
+export function ChatHeader({ conversation, backTo = "/teacher/chats" }) {
   const navigate = useNavigate();
   const [infoOpen, setInfoOpen] = useState(false);
   return (
@@ -14,7 +14,7 @@ export function ChatHeader({ conversation }) {
       <header className="chat-header">
         <button
           className="icon-button chat-back"
-          onClick={() => navigate("/teacher/chats")}
+          onClick={() => navigate(backTo)}
           aria-label="Suhbatlar ro‘yxatiga qaytish"
         >
           <ArrowLeft size={21} />

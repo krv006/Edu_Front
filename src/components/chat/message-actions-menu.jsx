@@ -12,8 +12,9 @@ export function MessageActionsMenu({
   onEdit,
   onDelete,
   onReact,
+  currentUserId = "teacher-1",
 }) {
-  const outgoing = message?.senderId === "teacher-1";
+  const outgoing = message?.senderId === currentUserId;
 
   useEffect(() => {
     if (!message) return undefined;

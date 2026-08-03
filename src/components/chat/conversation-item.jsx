@@ -2,13 +2,13 @@ import { motion } from "framer-motion";
 import { UsersRound } from "lucide-react";
 import { Link } from "react-router-dom";
 import { Avatar } from "../ui/avatar";
-import { formatConversationTime } from "../../lib/date";
+import { formatConversationTime } from "@/shared/lib";
 
-export function ConversationItem({ conversation, active }) {
+export function ConversationItem({ conversation, active, basePath = "/teacher/chats" }) {
   return (
     <Link
       className={`conversation-item ${active ? "is-active" : ""}`}
-      to={`/teacher/chats/${conversation.id}`}
+      to={`${basePath}/${conversation.id}`}
     >
       {active && (
         <motion.span

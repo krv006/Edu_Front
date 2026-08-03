@@ -18,7 +18,7 @@ import { toast } from "sonner";
 import { Brand } from "../shared/brand";
 import { Avatar } from "../ui/avatar";
 import { Sidebar, SidebarContent, SidebarFooter } from "../ui/sidebar";
-import { useAuth } from "../../app/auth-context";
+import { useAuth } from "@/app/providers";
 
 const navItems = [
   {

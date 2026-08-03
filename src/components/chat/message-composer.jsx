@@ -25,6 +25,7 @@ export function MessageComposer({
   replyTo,
   editingMessage,
   onCancelContext,
+  currentUserId = "teacher-1",
 }) {
   const [draft, setDraft] = useState(() => editingMessage?.text ?? "");
   const [selectedFile, setSelectedFile] = useState(null);
@@ -91,7 +92,7 @@ export function MessageComposer({
                   ? "Xabarni tahrirlash"
                   : `${
                       replyTo.senderName ||
-                      (replyTo.senderId === "teacher-1" ? "Siz" : "Javob")
+                      (replyTo.senderId === currentUserId ? "Siz" : "Javob")
                     }`}
               </strong>
               <small>{context.text}</small>

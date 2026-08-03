@@ -10,9 +10,8 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { availableUsers } from "../../mocks/users.mock";
-import { chatService } from "../../services/chat.service";
-import { queryKeys } from "../../hooks/use-conversations";
+import { conversationApi, conversationKeys } from "@/modules/conversation";
+import { availableUsers } from "@/modules/user";
 import { Avatar } from "../ui/avatar";
 import { Button } from "../ui/button";
 import { Dialog, DialogContent } from "../ui/dialog";
@@ -39,10 +38,10 @@ export function NewConversationDialog({ open, onOpenChange }) {
   const create = useMutation({
     mutationFn: ({ kind, payload }) =>
       kind === "group"
-        ? chatService.createGroup(payload)
-        : chatService.createConversation(payload),
+        ? conversationApi.createGroup(payload)
+        : conversationApi.createDirect(payload),
     onSuccess: (conversation) => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.conversations });
+      queryClient.invalidateQueries({ queryKey: conversationKeys.all });
       onOpenChange(false);
       navigate(`/teacher/chats/${conversation.id}`);
       toast.success(

@@ -2,11 +2,12 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { Menu, Plus, Search, X } from "lucide-react";
 import { useParams } from "react-router-dom";
-import { useConversations } from "../../hooks/use-conversations";
+import { useConversations } from "@/modules/conversation";
 import { ConversationItem } from "../chat/conversation-item";
 import { NewConversationDialog } from "../chat/new-conversation-dialog";
 import { Avatar } from "../ui/avatar";
-import { useAuth } from "../../app/auth-context";
+import { useAuth } from "@/app/providers";
+import { StudentEnrollmentDialog } from "@/modules/student";
 import { TeacherMenu } from "./teacher-menu";
 
 const filters = [
@@ -16,7 +17,7 @@ const filters = [
   { id: "unread", label: "O‘qilmagan" },
 ];
 
-export function ConversationPanel() {
+export function ConversationPanel({ role = "teacher" }) {
   const [search, setSearch] = useState("");
   const [filter, setFilter] = useState("all");
   const [dialogOpen, setDialogOpen] = useState(false);
@@ -26,7 +27,9 @@ export function ConversationPanel() {
   const searchRef = useRef(null);
   const { conversationId } = useParams();
   const { user } = useAuth();
-  const { data = [], isLoading, isError, refetch } = useConversations();
+  const { data = [], isLoading, isError, refetch } = useConversations(role);
+  const isTeacher = role === "teacher";
+  const basePath = isTeacher ? "/teacher/chats" : "/student/chats";
 
   const visible = useMemo(
     () =>
@@ -66,7 +69,7 @@ export function ConversationPanel() {
           <button
             className="panel-menu-button"
             onClick={() => setMenuOpen(true)}
-            aria-label="O‘qituvchi menyusini ochish"
+            aria-label="Profil menyusini ochish"
           >
             <Menu size={21} />
           </button>
@@ -118,7 +121,7 @@ export function ConversationPanel() {
           <button
             className="panel-account"
             onClick={() => setMenuOpen(true)}
-            aria-label="O‘qituvchi profil menyusi"
+            aria-label="Profil menyusi"
           >
             <Avatar
               name={user?.name ?? "Teacher"}
@@ -173,6 +176,7 @@ export function ConversationPanel() {
               key={conversation.id}
               conversation={conversation}
               active={conversation.id === conversationId}
+              basePath={basePath}
             />
           ))}
         {!isLoading && !isError && visible.length === 0 && (
@@ -197,18 +201,24 @@ export function ConversationPanel() {
       <motion.button
         className="new-conversation-fab"
         onClick={() => setDialogOpen(true)}
-        aria-label="Yangi guruh yoki suhbat yaratish"
+        aria-label={isTeacher ? "Yangi guruh yoki suhbat yaratish" : "O‘qituvchi yoki kurs topish"}
         whileHover={{ y: -3, scale: 1.03 }}
         whileTap={{ scale: 0.94 }}
       >
         <Plus size={18} />
       </motion.button>
-      <NewConversationDialog open={dialogOpen} onOpenChange={setDialogOpen} />
+      {isTeacher ? (
+        <NewConversationDialog open={dialogOpen} onOpenChange={setDialogOpen} />
+      ) : (
+        <StudentEnrollmentDialog open={dialogOpen} onOpenChange={setDialogOpen} />
+      )}
       <TeacherMenu
         open={menuOpen}
         onOpenChange={setMenuOpen}
         profileOpen={profileOpen}
         onProfileOpenChange={setProfileOpen}
+        roleLabel={isTeacher ? "O‘qituvchi" : "O‘quvchi"}
+        workspaceLabel={isTeacher ? "Teacher workspace" : "Student workspace"}
       />
     </section>
   );
