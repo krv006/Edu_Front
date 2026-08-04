@@ -1,6 +1,6 @@
 import { Link } from "react-router-dom";
 import { RouteState } from "@/shared/ui/legacy";
-import { ROUTES } from "./route-paths";
+import { ROUTES } from "@/shared/config";
 
 export function ForbiddenPage() {
   return (

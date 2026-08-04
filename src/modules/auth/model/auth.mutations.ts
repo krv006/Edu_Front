@@ -1,41 +1,9 @@
-import { useMutation, useQueryClient } from "@tanstack/react-query";
-import { tokenStorage } from "@/shared/api";
-import type { AuthUser, LoginCredentials } from "@/shared/types";
+import { useMutation } from "@tanstack/react-query";
+import type { AuthUser } from "@/shared/types";
 import { authApi } from "../api/auth.api";
-import type { RegisterFormValues } from "../api/auth.dto";
-import { mapLoginRequest, mapTokenPairDto, mapUserDto } from "../lib/auth.mappers";
-import { authKeys } from "./auth.keys";
-import type { ProfileFormValues } from "../api/auth.dto";
-
-export function useLoginMutation() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: async (values: LoginCredentials): Promise<AuthUser> => {
-      try {
-        const tokens = mapTokenPairDto(await authApi.login(mapLoginRequest(values)));
-        tokenStorage.setTokens(tokens, { persistent: values.remember !== false });
-        return mapUserDto(await authApi.getCurrentUser());
-      } catch (error) {
-        // Yarim ochilgan sessiya qolmasin.
-        tokenStorage.clearTokens();
-        throw error;
-      }
-    },
-    onSuccess(user) {
-      queryClient.setQueryData(authKeys.currentUser, user);
-    },
-  });
-}
-
-export function useLogoutMutation() {
-  const queryClient = useQueryClient();
-  return useMutation({
-    mutationFn: async () => tokenStorage.clearTokens(),
-    onSuccess() {
-      queryClient.clear();
-    },
-  });
-}
+import type { ProfileFormValues, RegisterFormValues } from "../api/auth.dto";
+import { mapUserDto } from "../lib/auth.mappers";
+import { useAuthStore } from "./auth.store";
 
 export function useRegisterMutation() {
   return useMutation({
@@ -52,7 +20,6 @@ export function useRegisterMutation() {
 }
 
 export function useUpdateProfileMutation() {
-  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async (values: ProfileFormValues): Promise<AuthUser> =>
       mapUserDto(
@@ -62,6 +29,7 @@ export function useUpdateProfileMutation() {
           phone: values.phone?.trim() || "",
         })
       ),
-    onSuccess: (user) => queryClient.setQueryData(authKeys.currentUser, user),
+    // Server javobi global auth holatiga ko'chiriladi.
+    onSuccess: (user) => useAuthStore.getState().setUser(user),
   });
 }

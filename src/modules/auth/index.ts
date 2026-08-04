@@ -10,10 +10,10 @@ export type {
   TokenPair,
   TokenPairDto,
 } from "./api/auth.dto";
-export { AuthProvider, useAuth } from "./model/auth-context";
+export { AUTH_STATUS, useAuthStore } from "./model/auth.store";
+export { useAuth, useCurrentUser, useIsAuthenticated } from "./model/use-auth";
 export { loginSchema, registerSchema } from "./model/auth.schemas";
 export { useRegisterMutation, useUpdateProfileMutation } from "./model/auth.mutations";
-export { AUTH_STATUS, resolveAuthStatus } from "./model/auth.store";
 export { mapLoginRequest, mapTokenPairDto, mapUserDto } from "./lib/auth.mappers";
 export { resolveHomeRoute } from "./lib/resolve-home-route";
 export { LoginForm } from "./ui/login-form";

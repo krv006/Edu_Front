@@ -1,8 +1,8 @@
 import { motion } from "framer-motion";
 import { ArrowRight, CalendarCheck2, CheckCircle2, Clock3, Hourglass, Timer, UsersRound } from "lucide-react";
 import { Link } from "react-router-dom";
-import { useAuth } from "@/app/providers";
-import { ROUTES } from "@/app/router/route-paths";
+import { useAuth } from "@/modules/auth";
+import { ROUTES } from "@/shared/config";
 import { useAttendance } from "@/modules/attendance";
 import { useParentDashboard, useSelectedChild } from "@/modules/parent";
 import { LoadingFallback, RouteState } from "@/shared/ui/legacy";

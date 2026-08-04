@@ -20,13 +20,16 @@
   --primary-hover: #5b49da;
   --primary-foreground: #ffffff;
   --primary-soft: #f0edff;
+  /* Yuza ustidagi MATN sifatidagi brend rangi. --primary fon uchun optimallashtirilgan
+     (oq matn bilan AA), matn uchun esa alohida qiymat kerak. */
+  --primary-text: #6957e8;
 
   --secondary: #f2f3f7;
   --secondary-foreground: #1f2030;
 
   --muted: #f2f3f7;
-  /* WCAG AA: oq fonda 4.93:1, sahifa fonida 4.60:1 (avvalgi #77798d — 4.28/4.00, AA'dan past edi). */
-  --muted-foreground: #6d6f85;
+  /* WCAG AA: oq fonda 5.23:1, muted fonda 4.72:1, sahifa fonida 4.89:1. */
+  --muted-foreground: #696b80;
 
   --accent: #f0edff;
   --accent-foreground: #4a3bc4;
@@ -63,6 +66,51 @@
   --sidebar-border: #2a2a42;
   --sidebar-ring: #6957e8;
 
+  /* --- Kengaytirilgan semantik tokenlar ---
+     legacy.css da qattiq yozilgan ranglar shu tokenlarga bog'landi,
+     shuning uchun har bir ekran dark rejimga avtomatik moslashadi. */
+
+  /* Yuzalar: sahifa fonidan sal ajralib turadigan bloklar */
+  --surface-subtle: #f7f7fb;
+  --surface-tint: #faf9ff;
+
+  /* Brend binafsha yuvindilari (kartochka fonlari, hover holatlar) */
+  --primary-tint: #f6f4ff;
+  --primary-tint-strong: #e9e4ff;
+  --border-accent: #ded8ff;
+  --border-accent-strong: #cfc7ff;
+
+  /* Holat ranglari — yumshoq fon + kontrastli matn */
+  --destructive-soft: #fff0f2;
+  --destructive-soft-border: #f4dadd;
+  --destructive-strong: #b4233a;
+
+  --success-soft: #e8f8f2;
+  --success-strong: #0f7a59;
+
+  --warning-soft: #fff5d9;
+  --warning-strong: #7a5100;
+
+/* Aksent tonlari — metrik kartochkalar, status pillari, avatarlar */
+  --tone-violet-fg: #5643c9;  --tone-violet-bg: #f0edff;
+  --tone-blue-fg:   #2f6fb8;  --tone-blue-bg:   #ebf4ff;
+  --tone-amber-fg:  #9c6017;  --tone-amber-bg:  #fff4e3;
+  --tone-emerald-fg:#0f7a59;  --tone-emerald-bg:#e7f8f1;
+  --tone-rose-fg:   #b73f56;  --tone-rose-bg:   #ffedf1;
+
+  /* Overlay va shisha effektli yuzalar.
+     RGB uchligi alohida token — shaffoflik darajasi har joyda o‘zgacha,
+     lekin rang asosi mavzuga qarab almashadi. */
+  --surface-rgb: 255 255 255;
+  --shadow-rgb: 31 29 57;
+  --scrim-rgb: 12 12 22;
+  --overlay: rgba(12, 12, 22, 0.55);
+  --glass: rgba(255, 255, 255, 0.94);
+  --glass-border: rgba(226, 225, 236, 0.9);
+
+  --shadow-sm: 0 1px 3px rgba(31, 29, 57, 0.08);
+  --shadow-md: 0 10px 26px rgba(35, 33, 67, 0.1);
+  --shadow-primary: 0 10px 26px rgba(105, 87, 232, 0.22);
   --shadow-float: 0 18px 50px rgba(33, 31, 65, 0.12);
 }
 
@@ -78,6 +126,8 @@
   --primary-hover: #655bdf;
   --primary-foreground: #ffffff;
   --primary-soft: #232141;
+  /* Qorong‘i yuzada 7.45:1 (--primary o‘zi atigi 3.82:1 berardi). */
+  --primary-text: #a99cff;
 
   --secondary: #212137;
   --secondary-foreground: #ececf5;
@@ -109,6 +159,42 @@
   --sidebar-accent: #1d1d33;
   --sidebar-border: #232338;
 
+  /* --- Kengaytirilgan semantik tokenlar (qorong‘i variant) --- */
+  --surface-subtle: #1b1b2d;
+  --surface-tint: #1a1930;
+
+  --primary-tint: #1e1c36;
+  --primary-tint-strong: #272348;
+  --border-accent: #332f5c;
+  --border-accent-strong: #423c73;
+
+  --destructive-soft: #2c1620;
+  --destructive-soft-border: #4a2331;
+  --destructive-strong: #ff9aa6;
+
+  --success-soft: #102b25;
+  --success-strong: #5fd9ae;
+
+  --warning-soft: #2e2413;
+  --warning-strong: #f5c37a;
+
+--tone-violet-fg: #c3bcff;  --tone-violet-bg: #232141;
+  --tone-blue-fg:   #93c2f5;  --tone-blue-bg:   #17263a;
+  --tone-amber-fg:  #f5c37a;  --tone-amber-bg:  #2e2413;
+  --tone-emerald-fg:#5fd9ae;  --tone-emerald-bg:#102b25;
+  --tone-rose-fg:   #ffa5b6;  --tone-rose-bg:   #2c1620;
+
+  --surface-rgb: 23 23 42;
+  --shadow-rgb: 0 0 0;
+  --scrim-rgb: 2 2 6;
+  --overlay: rgba(4, 4, 10, 0.7);
+  --glass: rgba(23, 23, 42, 0.94);
+  --glass-border: rgba(42, 42, 66, 0.9);
+
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 10px 26px rgba(0, 0, 0, 0.55);
+  --shadow-primary: 0 10px 26px rgba(0, 0, 0, 0.5);
+
   --shadow-float: 0 18px 50px rgba(0, 0, 0, 0.5);
 }
 
@@ -121,6 +207,7 @@
   --color-primary: var(--primary);
   --color-primary-foreground: var(--primary-foreground);
   --color-primary-soft: var(--primary-soft);
+  --color-primary-text: var(--primary-text);
 
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
@@ -144,6 +231,19 @@
   --color-destructive-foreground: var(--destructive-foreground);
   --color-success: var(--success);
   --color-warning: var(--warning);
+
+--color-surface-subtle: var(--surface-subtle);
+  --color-surface-tint: var(--surface-tint);
+  --color-primary-tint: var(--primary-tint);
+  --color-primary-tint-strong: var(--primary-tint-strong);
+  --color-border-accent: var(--border-accent);
+  --color-border-accent-strong: var(--border-accent-strong);
+  --color-destructive-soft: var(--destructive-soft);
+  --color-destructive-strong: var(--destructive-strong);
+  --color-success-soft: var(--success-soft);
+  --color-success-strong: var(--success-strong);
+  --color-warning-soft: var(--warning-soft);
+  --color-warning-strong: var(--warning-strong);
 
   --color-chart-1: var(--chart-1);
   --color-chart-2: var(--chart-2);

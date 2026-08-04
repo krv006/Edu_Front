@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { BookOpen, CalendarDays, CheckCircle2, Clock3, ListChecks, Paperclip } from "lucide-react";
-import { useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 import { ChatHeader } from "@/modules/conversation";
 import { MessageComposer, MessageList } from "@/modules/message";
@@ -13,7 +13,6 @@ import {
   useSubmitHomework,
 } from "@/modules/homework";
 import { useLessons } from "@/modules/lesson";
-import { LiveLessonDialog } from "@/modules/live";
 import type {
   Assignment,
   ChatMessage,
@@ -23,6 +22,7 @@ import type {
   Submission,
 } from "@/shared/types";
 import type { ChatController } from "@/modules/message";
+import { ROUTES } from "@/shared/config";
 import { Button, Dialog, DialogContent } from "@/shared/ui/legacy";
 
 type TabId = "chat" | "lessons" | "assignments";
@@ -145,7 +145,7 @@ export function StudentGroupWorkspace({
 
 // ─── Darslar (faqat ko‘rish) ────────────────────────────────────────────────
 function StudentLessons({ lessons = [], loading }: { lessons?: Lesson[]; loading: boolean }) {
-  const [live, setLive] = useState<Lesson | null>(null);
+  const navigate = useNavigate();
 
   if (loading)
     return (
@@ -177,7 +177,7 @@ function StudentLessons({ lessons = [], loading }: { lessons?: Lesson[]; loading
             <Button
               size="sm"
               disabled={CLOSED_LESSON_STATUSES.includes(lesson.status)}
-              onClick={() => setLive(lesson)}
+              onClick={() => navigate(ROUTES.live(lesson.id))}
             >
               Darsga kirish
             </Button>
@@ -185,13 +185,6 @@ function StudentLessons({ lessons = [], loading }: { lessons?: Lesson[]; loading
         ))}
         {!lessons.length ? <p className="portal-muted">Dars rejalashtirilmagan.</p> : null}
       </div>
-      <LiveLessonDialog
-        lesson={live}
-        open={Boolean(live)}
-        onOpenChange={(open: boolean) => {
-          if (!open) setLive(null);
-        }}
-      />
     </div>
   );
 }

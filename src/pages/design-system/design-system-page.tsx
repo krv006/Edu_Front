@@ -1,4 +1,4 @@
-import { useEffect, useState, type ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import {
   Bell,
   Check,
@@ -14,6 +14,8 @@ import {
   User,
 } from "lucide-react";
 import { toast } from "sonner";
+import { useTheme } from "@/shared/model";
+import { ThemeToggle } from "@/shared/ui/legacy";
 
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/shared/ui/accordion";
 import { Alert, AlertDescription, AlertTitle } from "@/shared/ui/alert";
@@ -111,22 +113,44 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "@/shared/ui/tooltip";
 const BRAND_TOKENS = [
   "background",
   "foreground",
+  "surface",
+  "surface-subtle",
+  "surface-tint",
   "card",
   "popover",
   "primary",
   "primary-foreground",
+  "primary-soft",
+  "primary-tint",
+  "primary-tint-strong",
   "secondary",
   "muted",
   "muted-foreground",
   "accent",
   "accent-foreground",
   "border",
+  "border-strong",
+  "border-accent",
+  "border-accent-strong",
   "input",
   "ring",
   "destructive",
+  "destructive-soft",
+  "destructive-strong",
   "success",
+  "success-soft",
+  "success-strong",
   "warning",
+  "warning-soft",
+  "warning-strong",
+  "tone-violet-bg",
+  "tone-blue-bg",
+  "tone-amber-bg",
+  "tone-emerald-bg",
+  "tone-rose-bg",
   "sidebar",
+  "overlay",
+  "glass",
 ];
 
 const NOT_SHOWN = [
@@ -153,15 +177,6 @@ const NOT_SHOWN = [
   "sonner",
 ];
 
-function useTheme() {
-  const [dark, setDark] = useState(() => document.documentElement.classList.contains("dark"));
-  useEffect(() => {
-    document.documentElement.classList.toggle("dark", dark);
-    return () => document.documentElement.classList.remove("dark");
-  }, [dark]);
-  return { dark, toggle: () => setDark((value) => !value) };
-}
-
 function Section({ id, title, hint, children }: { id: string; title: string; hint?: string; children: ReactNode }) {
   return (
     <section id={id} className="scroll-mt-24 space-y-4">
@@ -179,7 +194,7 @@ function Row({ children }: { children: ReactNode }) {
 }
 
 export function DesignSystemPage() {
-  const theme = useTheme();
+  const { resolved, toggle } = useTheme();
   const [progress, setProgress] = useState(62);
   const [collapsed, setCollapsed] = useState(false);
 
@@ -197,10 +212,13 @@ export function DesignSystemPage() {
               uchun shadcn ham, eski CSS ham bitta manbadan ishlaydi.
             </p>
           </div>
-          <Button variant="outline" onClick={theme.toggle}>
-            {theme.dark ? <Sun /> : <Moon />}
-            {theme.dark ? "Yorug‘ rejim" : "Qorong‘i rejim"}
-          </Button>
+          <div className="flex items-center gap-3">
+            <ThemeToggle />
+            <Button variant="outline" onClick={toggle}>
+              {resolved === "dark" ? <Sun /> : <Moon />}
+              {resolved === "dark" ? "Yorug‘ rejim" : "Qorong‘i rejim"}
+            </Button>
+          </div>
         </header>
 
         <div className="space-y-10">

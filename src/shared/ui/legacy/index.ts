@@ -16,3 +16,4 @@ export { Dropdown, DropdownContent, DropdownItem, DropdownTrigger } from "./drop
 export { LoadingFallback } from "./loading-fallback";
 export { RouteState } from "./route-state";
 export type { RouteStateProps } from "./route-state";
+export { ThemeToggle, ThemeToggleButton } from "./theme-toggle";

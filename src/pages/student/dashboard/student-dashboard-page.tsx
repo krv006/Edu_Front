@@ -1,8 +1,8 @@
 import { motion } from "framer-motion";
 import { ArrowRight, BookOpen, CalendarClock, CheckCircle2, Clock3, GraduationCap, ListChecks, PlayCircle, TrendingUp } from "lucide-react";
 import { Link } from "react-router-dom";
-import { useAuth } from "@/app/providers";
-import { ROUTES } from "@/app/router/route-paths";
+import { useAuth } from "@/modules/auth";
+import { ROUTES } from "@/shared/config";
 import { useStudentDashboard } from "@/modules/student";
 import { LoadingFallback, RouteState } from "@/shared/ui/legacy";
 

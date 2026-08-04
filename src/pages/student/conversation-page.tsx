@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Navigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
-import { useAuth } from "@/app/providers";
+import { useAuth } from "@/modules/auth";
 import { ChatHeader } from "@/modules/conversation";
 import { MessageComposer, MessageList, useChat } from "@/modules/message";
 import type { ChatMessage, SendMessagePayload } from "@/shared/types";

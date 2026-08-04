@@ -1,8 +1,8 @@
 import { CalendarCheck2, Home, ListChecks, UsersRound } from "lucide-react";
-import { ROUTES } from "@/app/router/route-paths";
-import { useAuth } from "@/app/providers";
+import { ROUTES } from "@/shared/config";
+import { useAuth } from "@/modules/auth";
 import { PortalLayout } from "@/app/layouts/portal-layout";
-import { SelectedChildProvider, SelectedChildSelector } from "@/modules/parent";
+import { SelectedChildSelector } from "@/modules/parent";
 
 const navigation = [
   { to: ROUTES.parent.dashboard, label: "Asosiy", icon: Home, end: true },
@@ -13,5 +13,13 @@ const navigation = [
 
 export function ParentLayout() {
   const { user, logout } = useAuth();
-  return <SelectedChildProvider><PortalLayout navItems={navigation} roleLabel="Ota-ona" user={user} onLogout={logout} headerExtra={<SelectedChildSelector />} /></SelectedChildProvider>;
+  return (
+    <PortalLayout
+      navItems={navigation}
+      roleLabel="Ota-ona"
+      user={user}
+      onLogout={logout}
+      headerExtra={<SelectedChildSelector />}
+    />
+  );
 }

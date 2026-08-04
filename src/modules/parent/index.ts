@@ -23,6 +23,6 @@ export {
   useRespondParentLink,
   useSetParentConsent,
 } from "./model/parent.queries";
-export { SelectedChildProvider } from "./model/selected-child-provider";
-export { useSelectedChild } from "./model/use-selected-child";
+export { useSelectedChild, useSelectedChildStore } from "./model/selected-child.store";
+export type { UseSelectedChildResult } from "./model/selected-child.store";
 export { SelectedChildSelector } from "./ui/selected-child-selector";

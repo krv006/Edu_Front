@@ -1,6 +1,6 @@
 import { BookOpen, CalendarDays, CheckCircle2, LogOut, ShieldCheck } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useAuth } from "@/app/providers";
+import { useAuth } from "@/modules/auth";
 import { Button } from "@/shared/ui/legacy";
 import { useAttendancePage } from "@/modules/attendance";
 import { useCoursePage } from "@/modules/course";

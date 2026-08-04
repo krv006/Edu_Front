@@ -15,7 +15,7 @@ import {
   UsersRound,
   Video,
 } from "lucide-react";
-import { useSearchParams } from "react-router-dom";
+import { useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 import { useAuth } from "@/modules/auth";
 import { useAttendance } from "@/modules/attendance";
@@ -33,7 +33,6 @@ import {
   useLessons,
   useUpdateLesson,
 } from "@/modules/lesson";
-import { LiveLessonDialog } from "@/modules/live";
 import { ChatHeader } from "@/modules/conversation";
 import { MessageComposer, MessageList } from "@/modules/message";
 import type {
@@ -49,6 +48,7 @@ import type {
 import type { ChatController } from "@/modules/message";
 import type { Page } from "@/shared/api";
 import { Avatar, Button, Dialog, DialogContent } from "@/shared/ui/legacy";
+import { ROUTES } from "@/shared/config";
 import { AddAssignmentDialog, AddLessonDialog, type LessonDraft } from "./group-action-dialogs";
 
 type TabId = "chat" | "lessons" | "assignments" | "students" | "attendance";
@@ -207,7 +207,7 @@ function LessonsPanel({ courseId, lessons = [], loading }: LessonsPanelProps) {
   const [dialog, setDialog] = useState(false);
   const [editing, setEditing] = useState<Lesson | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Lesson | null>(null);
-  const [liveLesson, setLiveLesson] = useState<Lesson | null>(null);
+  const navigate = useNavigate();
   const create = useCreateLesson();
   const update = useUpdateLesson();
   const remove = useDeleteLesson();
@@ -272,7 +272,7 @@ function LessonsPanel({ courseId, lessons = [], loading }: LessonsPanelProps) {
                 <Button
                   size="sm"
                   disabled={CLOSED_LESSON_STATUSES.includes(lesson.status)}
-                  onClick={() => setLiveLesson(lesson)}
+                  onClick={() => navigate(ROUTES.live(lesson.id))}
                 >
                   <Video size={16} /> Kirish
                 </Button>
@@ -318,13 +318,6 @@ function LessonsPanel({ courseId, lessons = [], loading }: LessonsPanelProps) {
         }}
         initialValues={editing}
         onCreate={save}
-      />
-      <LiveLessonDialog
-        lesson={liveLesson}
-        open={Boolean(liveLesson)}
-        onOpenChange={(open: boolean) => {
-          if (!open) setLiveLesson(null);
-        }}
       />
       <Dialog
         open={Boolean(deleteTarget)}

@@ -9,7 +9,7 @@ import { PublicRoute } from "./public-route";
 import { RoleRoute } from "./role-route";
 import { RouteErrorBoundary } from "./route-error-boundary";
 import { ForbiddenPage, NotFoundPage } from "./route-status-pages";
-import { ROUTES } from "./route-paths";
+import { ROUTES } from "@/shared/config";
 
 const LoginPage = lazy(() =>
   import("@/pages/auth/login-page").then((module) => ({
@@ -66,6 +66,7 @@ const ParentAttendancePage = lazy(() =>
 );
 const ParentHomeworkPage = lazy(() => import("@/pages/parent/homework/parent-homework-page").then((module) => ({ default: module.ParentHomeworkPage })));
 const AdminDashboardPage = lazy(() => import("@/pages/admin/admin-dashboard-page").then((module) => ({ default: module.AdminDashboardPage })));
+const LiveLessonPage = lazy(() => import("@/pages/live/live-lesson-page").then((module) => ({ default: module.LiveLessonPage })));
 const DesignSystemPage = lazy(() => import("@/pages/design-system/design-system-page").then((module) => ({ default: module.DesignSystemPage })));
 const BoardPage = lazy(() => import("@/pages/board/board-page").then((module) => ({ default: module.BoardPage })));
 
@@ -166,6 +167,8 @@ export function AppRouter() {
                     <Route path="homework" element={<ParentHomeworkPage />} />
                   </Route>
                 </Route>
+
+                <Route path="/live/:lessonId" element={<LiveLessonPage />} />
 
                 <Route
                   element={

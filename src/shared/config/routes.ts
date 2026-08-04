@@ -51,6 +51,8 @@ export const ROUTES = Object.freeze({
     payments: "/admin/payments",
     reports: "/admin/reports",
   }),
+  /** Jonli dars — alohida to‘liq ekran sahifasi. */
+  live: (lessonId: string) => `/live/${segment(lessonId)}`,
   errors: Object.freeze({
     forbidden: "/forbidden",
     notFound: "/not-found",

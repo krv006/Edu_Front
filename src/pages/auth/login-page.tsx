@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
 import { Sparkles } from "lucide-react";
 import { Link, Navigate, useNavigate } from "react-router-dom";
-import { useAuth } from "@/app/providers";
+import { useAuth } from "@/modules/auth";
 import { LoginForm, resolveHomeRoute } from "@/modules/auth";
 import type { LoginCredentials } from "@/shared/types";
 

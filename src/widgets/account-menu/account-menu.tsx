@@ -4,7 +4,7 @@ import { Bell, ChevronRight, Copy, LogOut, Phone, Settings, ShieldCheck, UserRou
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { useAuth, useUpdateProfileMutation, type ProfileFormValues } from "@/modules/auth";
-import { Avatar, Button, Dialog, DialogContent } from "@/shared/ui/legacy";
+import { Avatar, Button, Dialog, DialogContent, ThemeToggle } from "@/shared/ui/legacy";
 
 type MenuItemId = "profile" | "notifications" | "settings";
 
@@ -115,6 +115,10 @@ export function AccountMenu({
                 </span>
                 <ChevronRight size={18} />
               </button>
+              <div className="teacher-menu-theme">
+                <span>Mavzu</span>
+                <ThemeToggle />
+              </div>
               <div className="teacher-menu-status">
                 <ShieldCheck size={17} />
                 <span>

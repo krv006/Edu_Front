@@ -3,7 +3,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { ChevronDown, LogOut, Menu, X } from "lucide-react";
 import { NavLink, Outlet } from "react-router-dom";
 import type { AuthUser } from "@/shared/types";
-import { Avatar, Brand } from "@/shared/ui/legacy";
+import { Avatar, Brand, ThemeToggle } from "@/shared/ui/legacy";
 
 export interface PortalNavItem {
   to: string;
@@ -37,6 +37,7 @@ export function PortalLayout({ navItems, roleLabel, user, onLogout, headerExtra 
           </NavLink>
           <div className="portal-header-actions">
             {headerExtra}
+            <ThemeToggle className="portal-theme-toggle" />
             <span className="portal-role-badge">{roleLabel}</span>
             <div className="portal-account-wrap">
               <button
