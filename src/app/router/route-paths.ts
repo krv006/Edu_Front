@@ -1,4 +1,4 @@
-function segment(value) {
+function segment(value: string | number): string {
   return encodeURIComponent(String(value));
 }
 
@@ -13,10 +13,10 @@ export const ROUTES = Object.freeze({
     root: "/teacher",
     dashboard: "/teacher/dashboard",
     chats: "/teacher/chats",
-    chat: (conversationId) => `/teacher/chats/${segment(conversationId)}`,
+    chat: (conversationId: string) => `/teacher/chats/${segment(conversationId)}`,
     courses: "/teacher/courses",
-    course: (courseId) => `/teacher/courses/${segment(courseId)}`,
-    courseLessons: (courseId) => `/teacher/courses/${segment(courseId)}/lessons`,
+    course: (courseId: string) => `/teacher/courses/${segment(courseId)}`,
+    courseLessons: (courseId: string) => `/teacher/courses/${segment(courseId)}/lessons`,
     attendance: "/teacher/attendance",
     schedule: "/teacher/schedule",
     profile: "/teacher/profile",
@@ -26,7 +26,7 @@ export const ROUTES = Object.freeze({
     root: "/student",
     dashboard: "/student/dashboard",
     courses: "/student/courses",
-    course: (courseId) => `/student/courses/${segment(courseId)}`,
+    course: (courseId: string) => `/student/courses/${segment(courseId)}`,
     assignments: "/student/assignments",
     grades: "/student/grades",
     schedule: "/student/schedule",
@@ -36,7 +36,7 @@ export const ROUTES = Object.freeze({
     root: "/parent",
     dashboard: "/parent/dashboard",
     children: "/parent/children",
-    child: (childId) => `/parent/children/${segment(childId)}`,
+    child: (childId: string) => `/parent/children/${segment(childId)}`,
     attendance: "/parent/attendance",
     homework: "/parent/homework",
     grades: "/parent/grades",
@@ -55,4 +55,6 @@ export const ROUTES = Object.freeze({
     forbidden: "/forbidden",
     notFound: "/not-found",
   }),
+  // Ichki: shadcn komponentlarini ko'rib chiqish uchun (auth talab qilmaydi).
+  designSystem: "/design-system",
 });

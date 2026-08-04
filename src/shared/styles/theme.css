@@ -1,0 +1,186 @@
+/**
+ * Fokus dizayn tokenlari.
+ *
+ * Bitta manba: brend qiymatlari `:root` da oddiy CSS o‘zgaruvchisi sifatida turadi,
+ * `@theme inline` esa ularni Tailwind utilitalariga (`bg-background`, `text-muted-foreground`)
+ * bog‘laydi. Shu sabab shadcn komponentlari ham, `legacy.css` dagi qo‘lda yozilgan
+ * uslublar ham AYNAN bitta palitradan oziqlanadi.
+ */
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  /* --- Brend --- */
+  --background: #f6f7fb;
+  --foreground: #1f2030;
+  --surface: #ffffff;
+  --surface-elevated: #ffffff;
+
+  --primary: #6957e8;
+  --primary-hover: #5b49da;
+  --primary-foreground: #ffffff;
+  --primary-soft: #f0edff;
+
+  --secondary: #f2f3f7;
+  --secondary-foreground: #1f2030;
+
+  --muted: #f2f3f7;
+  /* WCAG AA: oq fonda 4.93:1, sahifa fonida 4.60:1 (avvalgi #77798d — 4.28/4.00, AA'dan past edi). */
+  --muted-foreground: #6d6f85;
+
+  --accent: #f0edff;
+  --accent-foreground: #4a3bc4;
+
+  --card: #ffffff;
+  --card-foreground: #1f2030;
+  --popover: #ffffff;
+  --popover-foreground: #1f2030;
+
+  --border: #e6e6ee;
+  --border-strong: #d9d9e5;
+  --input: #e6e6ee;
+  --ring: #6957e8;
+
+  /* WCAG AA: oq matn bilan 4.88:1 (avvalgi #d94555 — 4.26:1, AA'dan past edi). */
+  --destructive: #cd3a4b;
+  --destructive-foreground: #ffffff;
+  --success: #22a979;
+  --warning: #e99a3d;
+
+  --chart-1: #6957e8;
+  --chart-2: #22a979;
+  --chart-3: #e99a3d;
+  --chart-4: #d94555;
+  --chart-5: #3b82f6;
+
+  --sidebar: #171725;
+  --sidebar-muted: #9696aa;
+  --sidebar-foreground: #e8e8f2;
+  --sidebar-primary: #6957e8;
+  --sidebar-primary-foreground: #ffffff;
+  --sidebar-accent: #23233a;
+  --sidebar-accent-foreground: #ffffff;
+  --sidebar-border: #2a2a42;
+  --sidebar-ring: #6957e8;
+
+  --shadow-float: 0 18px 50px rgba(33, 31, 65, 0.12);
+}
+
+.dark {
+  --background: #101019;
+  --foreground: #ececf5;
+  --surface: #17172a;
+  --surface-elevated: #1d1d33;
+
+  /* Oq matn bilan 4.61:1 (AA) va fon bilan 4.10:1 — tugma fondan aniq ajralib turadi.
+     Avvalgi #8377ef yorug‘roq edi, oq matn bilan atigi 3.59:1 berardi. */
+  --primary: #6f61e8;
+  --primary-hover: #655bdf;
+  --primary-foreground: #ffffff;
+  --primary-soft: #232141;
+
+  --secondary: #212137;
+  --secondary-foreground: #ececf5;
+
+  --muted: #1d1d30;
+  --muted-foreground: #9a9ab4;
+
+  --accent: #232141;
+  --accent-foreground: #c3bcff;
+
+  --card: #17172a;
+  --card-foreground: #ececf5;
+  --popover: #1d1d33;
+  --popover-foreground: #ececf5;
+
+  --border: #2a2a42;
+  --border-strong: #363654;
+  --input: #2a2a42;
+  --ring: #8377ef;
+
+  --destructive: #f0616f;
+  --destructive-foreground: #16060a;
+  --success: #35c493;
+  --warning: #f0ac57;
+
+  --sidebar: #0c0c15;
+  --sidebar-muted: #75758d;
+  --sidebar-foreground: #ececf5;
+  --sidebar-accent: #1d1d33;
+  --sidebar-border: #232338;
+
+  --shadow-float: 0 18px 50px rgba(0, 0, 0, 0.5);
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-surface: var(--surface);
+  --color-surface-elevated: var(--surface-elevated);
+
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-primary-soft: var(--primary-soft);
+
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+
+  --font-sans: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+
+/* `@theme` (inline emas) — o‘zgaruvchilar :root ga chiqadi, shuning uchun
+   legacy.css dagi `var(--radius-sm)` ham, `rounded-sm` utilitasi ham ishlaydi. */
+@theme {
+  --radius-sm: 10px;
+  --radius-md: 13px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+}
+
+@layer base {
+  * {
+    border-color: var(--border);
+  }
+  body {
+    font-family: var(--font-sans);
+    color: var(--foreground);
+    background: var(--background);
+    font-synthesis: none;
+    text-rendering: optimizeLegibility;
+  }
+}

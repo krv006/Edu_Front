@@ -1,7 +1,7 @@
 import { CalendarCheck2, Home, ListChecks, UsersRound } from "lucide-react";
 import { ROUTES } from "@/app/router/route-paths";
 import { useAuth } from "@/app/providers";
-import { PortalLayout } from "@/shared/ui";
+import { PortalLayout } from "@/app/layouts/portal-layout";
 import { SelectedChildProvider, SelectedChildSelector } from "@/modules/parent";
 
 const navigation = [

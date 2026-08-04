@@ -3,7 +3,7 @@ import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { AuthLayout } from "@/app/layouts/auth-layout";
 import { RootLayout } from "@/app/layouts/root-layout";
 import { ROLES } from "@/shared/constants";
-import { LoadingFallback } from "@/shared/ui";
+import { LoadingFallback } from "@/shared/ui/legacy";
 import { ProtectedRoute } from "./protected-route";
 import { PublicRoute } from "./public-route";
 import { RoleRoute } from "./role-route";
@@ -66,6 +66,8 @@ const ParentAttendancePage = lazy(() =>
 );
 const ParentHomeworkPage = lazy(() => import("@/pages/parent/homework/parent-homework-page").then((module) => ({ default: module.ParentHomeworkPage })));
 const AdminDashboardPage = lazy(() => import("@/pages/admin/admin-dashboard-page").then((module) => ({ default: module.AdminDashboardPage })));
+const DesignSystemPage = lazy(() => import("@/pages/design-system/design-system-page").then((module) => ({ default: module.DesignSystemPage })));
+const BoardPage = lazy(() => import("@/pages/board/board-page").then((module) => ({ default: module.BoardPage })));
 
 export function AppRouter() {
   return (
@@ -86,6 +88,9 @@ export function AppRouter() {
               </Route>
 
               <Route element={<ProtectedRoute />}>
+                {/* Doska havolasi chat xabaridan keladi — rol cheklovi backend tomonda. */}
+                <Route path="/boards/:lessonId" element={<BoardPage />} />
+
                 <Route element={<RoleRoute allowedRoles={[ROLES.TEACHER]} />}>
                   <Route
                     path={ROUTES.teacher.root}
@@ -180,6 +185,10 @@ export function AppRouter() {
                 </Route>
               </Route>
 
+              <Route
+                path={ROUTES.designSystem}
+                element={<DesignSystemPage />}
+              />
               <Route
                 path={ROUTES.errors.forbidden}
                 element={<ForbiddenPage />}

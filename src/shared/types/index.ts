@@ -1,0 +1,32 @@
+export type { AuthContextValue, AuthStatus, AuthUser, LoginCredentials } from "./auth";
+export type {
+  AiQuestion,
+  AiResult,
+  AiSummary,
+  Assignment,
+  AssignmentFormValues,
+  AssignmentStats,
+  AttendanceRow,
+  AvatarTone,
+  ChatMessage,
+  Conversation,
+  ConversationParticipant,
+  ConversationRole,
+  Course,
+  CourseStudentSearchResult,
+  DirectStatus,
+  DomainUser,
+  Enrollment,
+  EnrollmentStatus,
+  Lesson,
+  LessonFormValues,
+  LessonStatus,
+  MessageReaction,
+  PresenceStatus,
+  MessageReply,
+  SendMessagePayload,
+  Submission,
+  SubmissionStatus,
+} from "./domain";
+export type { MessageCapabilities } from "./chat";
+export type { PaginatedDto, UserDto } from "./dto";

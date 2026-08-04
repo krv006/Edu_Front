@@ -1,0 +1,38 @@
+import { normalizePagination, type Page, type PaginationOptions } from "@/shared/api";
+import type { Lesson } from "@/shared/types";
+import type { LessonDto, LessonFormInput, LessonRequestDto } from "../api/lesson.dto";
+
+export function mapLessonDto(dto: LessonDto): Lesson {
+  return {
+    id: String(dto.id),
+    courseId: String(dto.course),
+    courseTitle: dto.course_title,
+    title: dto.title,
+    topic: dto.title,
+    startsAt: dto.starts_at,
+    durationMinutes: Number(dto.duration_min),
+    duration: Number(dto.duration_min),
+    status: dto.status,
+    roomName: dto.room_name,
+    createdAt: dto.created_at,
+    date: dto.starts_at?.slice(0, 10) ?? "",
+    time: dto.starts_at?.slice(11, 16) ?? "",
+  };
+}
+
+export function mapLessonPage(dto: unknown, options?: PaginationOptions): Page<Lesson> {
+  const page = normalizePagination<LessonDto>(dto, options);
+  return { ...page, items: page.items.map(mapLessonDto) };
+}
+
+export function mapLessonRequest(form: LessonFormInput): LessonRequestDto {
+  const startsAt =
+    form.startsAt ??
+    `${form.date || new Date().toISOString().slice(0, 10)}T${form.time || "00:00"}:00`;
+  return {
+    course: form.courseId ?? null,
+    title: form.topic ?? form.title ?? "",
+    starts_at: startsAt,
+    duration_min: Number(form.duration ?? form.durationMinutes ?? 45),
+  };
+}

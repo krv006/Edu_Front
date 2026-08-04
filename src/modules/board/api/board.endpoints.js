@@ -1,1 +1,0 @@
-export const boardEndpoints = Object.freeze({ state: (id) => `/api/v1/board/${id}/`, stroke: (id) => `/api/v1/board/${id}/stroke/`, sheet: (id) => `/api/v1/board/${id}/sheet/`, erase: (id) => `/api/v1/board/${id}/erase/`, grant: (id) => `/api/v1/board/${id}/grant/`, solve: (id) => `/api/v1/board/${id}/solve/`, pdf: (id) => `/api/v1/board/${id}/pdf/` });

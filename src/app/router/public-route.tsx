@@ -1,6 +1,6 @@
 import { Navigate, Outlet } from "react-router-dom";
 import { useAuth } from "@/app/providers";
-import { LoadingFallback, RouteState } from "@/shared/ui";
+import { LoadingFallback, RouteState } from "@/shared/ui/legacy";
 import { resolveHomeRoute } from "./resolve-home-route";
 
 export function PublicRoute() {

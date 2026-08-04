@@ -1,0 +1,43 @@
+import { useState, type FormEvent } from "react";
+import { Bell, BellOff, Check, Copy, Pencil, ShieldAlert, Trash2, UserRound, UsersRound } from "lucide-react";
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
+import { storage } from "@/shared/lib";
+import { useAuth } from "@/modules/auth";
+import { useCourseStudents, useDeleteCourse, useUpdateCourse } from "@/modules/course";
+import { DIRECT_STATUS, directStatusLabel, useRespondDirect } from "@/modules/conversation";
+import type { CourseFormInput } from "@/modules/course";
+import type { Conversation } from "@/shared/types";
+import { Avatar, Button, Dialog, DialogContent } from "@/shared/ui/legacy";
+import type { DirectAction } from "../api/conversation.dto";
+
+export interface ConversationInfoPanelProps {
+  conversation: Conversation;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}
+
+export function ConversationInfoPanel({ conversation, open, onOpenChange }: ConversationInfoPanelProps) {
+  const { user } = useAuth(); const navigate = useNavigate(); const isGroup = conversation.type === "group"; const muteKey = `fokus_muted_${conversation.id}`;
+  const [muted, setMuted] = useState(() => storage.get(muteKey) === "true"); const [copied, setCopied] = useState(false); const [editOpen, setEditOpen] = useState(false); const [deleteOpen, setDeleteOpen] = useState(false); const [courseForm, setCourseForm] = useState<CourseFormInput>({ title: "", subject: "", description: "" });
+  const members = useCourseStudents(conversation.courseId, { page_size: 20 }); const respond = useRespondDirect(); const updateCourse = useUpdateCourse(); const deleteCourse = useDeleteCourse();
+  function toggleMute() { const next = !muted; setMuted(next); storage.set(muteKey, next); toast.success(next ? "Bildirishnomalar ovozsiz qilindi" : "Bildirishnomalar ovozi yoqildi"); }
+  async function copyUsername() { const value = conversation.participant?.username ? `@${conversation.participant.username}` : ""; if (!value) return; await navigator.clipboard.writeText(value); setCopied(true); toast.success("Username nusxalandi"); setTimeout(() => setCopied(false), 1400); }
+  function respondDirect(action: DirectAction) { respond.mutate({ roomId: conversation.id, action }, { onSuccess: () => { toast.success(action === "accept" ? "Suhbat qabul qilindi" : "Suhbat bloklandi"); onOpenChange(false); }, onError: (error: Error) => toast.error(error.message) }); }
+  function beginEdit() { setCourseForm({ title: conversation.title || "", subject: conversation.subject || "", description: conversation.description || "" }); setEditOpen(true); }
+  function saveCourse(event: FormEvent<HTMLFormElement>) { event.preventDefault(); updateCourse.mutate({ id: conversation.courseId as string, form: courseForm }, { onSuccess: () => setEditOpen(false), onError: (error: Error) => toast.error(error.message) }); }
+  function removeCourse() { deleteCourse.mutate(conversation.courseId as string, { onSuccess: () => { setDeleteOpen(false); onOpenChange(false); navigate("/teacher/chats", { replace: true }); }, onError: (error: Error) => toast.error(error.message) }); }
+  const teacherGroup = isGroup && user?.role === "TEACHER";
+  return <><Dialog open={open} onOpenChange={onOpenChange}>{open ? <DialogContent className="info-sheet" motionPreset="right-sheet" title={conversation.title} description={isGroup ? conversation.subject || "Kurs guruhi" : "Profil ma’lumotlari"}>
+    <div className="info-profile"><Avatar name={conversation.title} tone={conversation.avatarTone} size="lg" /><h3>{conversation.title}</h3><p>{isGroup ? `${members.data?.total ?? conversation.memberCount ?? 0} o‘quvchi` : directStatusLabel(conversation.directStatus, "Shaxsiy suhbat")}</p></div>
+    <div className="info-quick-actions"><button className={muted ? "is-active" : ""} onClick={toggleMute}>{muted ? <Bell size={19} /> : <BellOff size={19} />}<span>{muted ? "Ovozni yoqish" : "Ovozsiz qilish"}</span></button>{teacherGroup ? <button onClick={beginEdit}><Pencil size={19} /><span>Kursni tahrirlash</span></button> : null}</div>
+    <div className="info-section"><span className="info-section-title">{isGroup ? "GURUH HAQIDA" : "MA’LUMOT"}</span>{isGroup ? <p className="info-description">{conversation.description || "Kurs guruh chati"}</p> : <button className="info-row" onClick={copyUsername}><UserRound size={18} /><span><small>Username · nusxalash uchun bosing</small><strong>@{conversation.participant?.username || "—"}</strong></span>{copied ? <Check size={17} /> : <Copy size={16} />}</button>}</div>
+    {isGroup ? <div className="info-section"><span className="info-section-title">ISHTIROKCHILAR</span>{(members.data?.items ?? []).slice(0, 5).map(({ student }) => <div className="member-mini" key={student.id}><Avatar name={student.name} tone={student.avatarTone} size="sm" /><span><strong>{student.name}</strong><small>@{student.username}</small></span></div>)}<div className="member-count"><UsersRound size={16} /> Jami {members.data?.total ?? 0} ishtirokchi</div></div> : null}
+    {/* Backend DirectStatusEnum: pending | active | blocked (/api/schema/). */}
+    {!isGroup && user?.role === "TEACHER" && conversation.directStatus === DIRECT_STATUS.PENDING ? <Button loading={respond.isPending} onClick={() => respondDirect("accept")}><Check size={18} /> Suhbatni qabul qilish</Button> : null}
+    {!isGroup && user?.role === "TEACHER" && conversation.directStatus !== DIRECT_STATUS.BLOCKED ? <Button variant="ghost" className="block-button" loading={respond.isPending} onClick={() => respondDirect("block")}><ShieldAlert size={18} /> Foydalanuvchini bloklash</Button> : null}
+    {teacherGroup ? <Button variant="ghost" className="block-button" onClick={() => setDeleteOpen(true)}><Trash2 size={18} /> Kursni o‘chirish</Button> : null}
+  </DialogContent> : null}</Dialog>
+  <Dialog open={editOpen} onOpenChange={setEditOpen}>{editOpen && <DialogContent title="Kursni tahrirlash" description="Kurs nomi, fan va tavsifini yangilang."><form className="dialog-form" onSubmit={saveCourse}><label className="field-group"><span>Kurs nomi</span><div className="input-shell"><input value={courseForm.title} onChange={(event) => setCourseForm((value) => ({ ...value, title: event.target.value }))} required /></div></label><label className="field-group"><span>Fan</span><div className="input-shell"><input value={courseForm.subject} onChange={(event) => setCourseForm((value) => ({ ...value, subject: event.target.value }))} /></div></label><label className="field-group"><span>Tavsif</span><textarea value={courseForm.description} onChange={(event) => setCourseForm((value) => ({ ...value, description: event.target.value }))} rows={4} /></label><div className="dialog-actions"><Button type="button" variant="secondary" onClick={() => setEditOpen(false)}>Bekor</Button><Button type="submit" loading={updateCourse.isPending}>Saqlash</Button></div></form></DialogContent>}</Dialog>
+  <Dialog open={deleteOpen} onOpenChange={setDeleteOpen}>{deleteOpen && <DialogContent title="Kursni o‘chirish" description={`“${conversation.title}” va unga bog‘liq ma’lumotlar qayta tiklanmaydi.`}><div className="dialog-actions"><Button variant="secondary" onClick={() => setDeleteOpen(false)}>Bekor</Button><Button loading={deleteCourse.isPending} onClick={removeCourse}>Kursni o‘chirish</Button></div></DialogContent>}</Dialog></>;
+}
