@@ -19,7 +19,7 @@ import {
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 import { useAuth } from "@/modules/auth";
-import { FocusJournalCell, useAttendance } from "@/modules/attendance";
+import { AttendanceAccordion, useAttendance } from "@/modules/attendance";
 import { AddStudentDialog, useCourse, useCourseStudents, useUnenrollStudent } from "@/modules/course";
 import {
   AssignmentDetailDialog,
@@ -591,6 +591,7 @@ interface AttendancePanelProps {
 function AttendancePanel({ lessons = [], rows = [], loading }: AttendancePanelProps) {
   const lessonIds = new Set(lessons.map((lesson) => lesson.id));
   const filtered = rows.filter((row) => lessonIds.has(row.lessonId));
+  const lessonCount = new Set(filtered.map((row) => row.lessonId)).size;
 
   if (loading)
     return (
@@ -605,40 +606,12 @@ function AttendancePanel({ lessons = [], rows = [], loading }: AttendancePanelPr
         <div>
           <span>KURS HISOBOTI</span>
           <h2>Davomat va fokus</h2>
-          <p>{filtered.length} ta yozuv</p>
+          <p>
+            {lessonCount} ta dars · {filtered.length} ta yozuv
+          </p>
         </div>
       </div>
-      <div className="attendance-table-scroll">
-        <table className="attendance-table">
-          <thead>
-            <tr>
-              <th>O‘quvchi</th>
-              <th>Dars</th>
-              <th>Daqiqa</th>
-              <th>Diqqat</th>
-              <th>Fokusdan chiqish</th>
-            </tr>
-          </thead>
-          <tbody>
-            {filtered.map((row) => (
-              <tr key={row.id}>
-                <td>
-                  <strong>{row.child}</strong>
-                </td>
-                <td>{row.lesson}</td>
-                <td>{row.minutes}</td>
-                <td>
-                  {row.attentionAnswered}/{row.attentionTotal}
-                </td>
-                <td>
-                  <FocusJournalCell focus={row.focus} student={row.child} lesson={row.lesson} />
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        {!filtered.length ? <p className="portal-muted">Davomat hali yo‘q.</p> : null}
-      </div>
+      <AttendanceAccordion rows={filtered} emptyLabel="Davomat hali yo‘q." />
     </div>
   );
 }

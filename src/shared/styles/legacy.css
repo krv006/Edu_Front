@@ -3636,6 +3636,14 @@ body.is-resizing-sidebar {
 .attendance-status { padding: 5px 8px; border-radius: 999px; color: var(--tone-emerald-fg); background: var(--success-soft); font-size: 8px; font-weight: 850; }
 .attendance-status--active { color: var(--tone-amber-fg); background: var(--tone-amber-bg); }
 
+/* Dars bo'yicha guruhlangan davomat — akkordeon ichidagi jadval */
+.attendance-groups { padding: 6px 10px; border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--surface); }
+.attendance-table--nested { min-width: 640px; }
+.attendance-table--nested th { background: transparent; }
+.attendance-table--nested tr:first-child td { border-top: 0; }
+.attendance-student { display: inline-flex; gap: 8px; align-items: center; }
+.attendance-student strong { white-space: nowrap; }
+
 /* Fokus jurnali — davomat jadvalidagi katak va uning dialogi */
 .focus-cell { padding: 5px 9px; border: 1px solid var(--destructive-soft-border); border-radius: 999px; display: inline-flex; gap: 6px; align-items: center; color: var(--destructive-strong); background: var(--destructive-soft); font-size: 9px; font-weight: 800; cursor: pointer; transition: border-color .18s, transform .18s; }
 .focus-cell:hover { border-color: var(--destructive); transform: translateY(-1px); }

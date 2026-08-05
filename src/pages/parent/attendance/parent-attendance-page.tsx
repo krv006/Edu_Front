@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import { CalendarCheck2, Download, Search } from "lucide-react";
-import { FocusJournalCell, useAttendance } from "@/modules/attendance";
+import { AttendanceAccordion, useAttendance } from "@/modules/attendance";
 import { useSelectedChild } from "@/modules/parent";
 import { formatDuration } from "@/shared/lib";
 import { Button, LoadingFallback, RouteState } from "@/shared/ui/legacy";
@@ -66,43 +66,7 @@ export function ParentAttendancePage() {
         </span>
       </div>
 
-      <section className="portal-card attendance-table-card">
-        <div className="attendance-table-scroll">
-          <table className="attendance-table">
-            <thead>
-              <tr>
-                <th>O‘quvchi</th>
-                <th>Dars</th>
-                <th>Kirdi</th>
-                <th>Chiqdi</th>
-                <th>Davomiyligi</th>
-                <th>Diqqat</th>
-                <th>Fokus</th>
-              </tr>
-            </thead>
-            <tbody>
-              {rows.map((item) => (
-                <tr key={item.id}>
-                  <td>
-                    <strong>{item.child}</strong>
-                  </td>
-                  <td>{item.lesson}</td>
-                  <td>{item.entered}</td>
-                  <td>{item.exited}</td>
-                  <td>{item.duration}</td>
-                  <td>
-                    {item.attentionAnswered}/{item.attentionTotal}
-                  </td>
-                  <td>
-                    <FocusJournalCell focus={item.focus} student={item.child} lesson={item.lesson} />
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-          {!rows.length ? <p className="portal-muted">Davomat yozuvi topilmadi.</p> : null}
-        </div>
-      </section>
+      <AttendanceAccordion rows={rows} />
     </div>
   );
 }
