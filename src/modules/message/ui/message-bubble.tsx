@@ -3,6 +3,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useState } from "react";
 import { formatMessageTime } from "@/shared/lib";
 import type { ChatMessage } from "@/shared/types";
+import { MessageText } from "./message-text";
 
 export interface MessageBubbleProps {
   message: ChatMessage;
@@ -69,7 +70,7 @@ export function MessageBubble({ message, currentUserId = null, onReply, onOpenAc
         )}
         {/* Backend hozircha faqat matnli xabar qaytaradi (mapMessageDto: type="text").
             Fayl/audio turlari API'da paydo bo'lganda shu yerga qo'shiladi. */}
-        {message.text && <p>{message.text}</p>}
+        {message.text && <MessageText text={message.text} />}
         <span className="message-meta">
           {message.editedAt && <em>tahrirlangan</em>}
           <time>{formatMessageTime(message.createdAt)}</time>

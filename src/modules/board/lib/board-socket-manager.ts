@@ -1,0 +1,99 @@
+import { RealtimeSocket, type SocketState } from "@/shared/api";
+import type { StrokeDto, StrokeInput } from "../api/board.dto";
+
+export type { SocketState };
+
+/** Doska kanalidan keladigan hodisalar — docs/PROJECT.md §5.2. */
+export type BoardSocketEvent =
+  | { type: "stroke"; sheet: number; stroke: StrokeDto }
+  | { type: "erase"; sheet: number; strokeIds: string[]; by: string; reason: string }
+  | { type: "sheet"; index: number }
+  | { type: "error"; detail: string };
+
+interface RawBoardEvent {
+  type?: string;
+  sheet?: number | string;
+  stroke?: StrokeDto;
+  stroke_ids?: string[];
+  by?: string;
+  reason?: string;
+  index?: number | string;
+  detail?: string;
+}
+
+export function parseBoardEvent(raw: unknown): BoardSocketEvent | null {
+  const event = (typeof raw === "string" ? JSON.parse(raw) : raw) as RawBoardEvent | null;
+  if (!event) return null;
+
+  switch (event.type) {
+    case "stroke":
+      return event.stroke
+        ? { type: "stroke", sheet: Number(event.sheet ?? 0), stroke: event.stroke }
+        : null;
+    case "erase":
+      return {
+        type: "erase",
+        sheet: Number(event.sheet ?? 0),
+        strokeIds: event.stroke_ids ?? [],
+        by: event.by ?? "",
+        reason: event.reason ?? "",
+      };
+    case "sheet":
+      return { type: "sheet", index: Number(event.index ?? 0) };
+    case "error":
+      return { type: "error", detail: event.detail || "Doska ulanishida xatolik" };
+    default:
+      return null;
+  }
+}
+
+export interface BoardSocketManagerInit {
+  lessonId: string;
+  onEvent?: (event: BoardSocketEvent) => void;
+  onState?: (state: SocketState) => void;
+}
+
+/**
+ * Doska kanali — `wss://<domain>/ws/board/<lesson_id>/` (docs/PROJECT.md §5.2).
+ *
+ * Boshlang'ich holat REST `GET /board/<id>/` dan olinadi, keyin faqat shu kanal
+ * orqali yangilanadi. Kanal ulanmasa `useBoard` pollingga qaytadi.
+ */
+export class BoardSocketManager {
+  private readonly socket: RealtimeSocket;
+
+  constructor({ lessonId, onEvent, onState }: BoardSocketManagerInit) {
+    this.socket = new RealtimeSocket({
+      path: `/ws/board/${encodeURIComponent(lessonId)}/`,
+      onState,
+      onMessage: (raw) => {
+        try {
+          const parsed = parseBoardEvent(raw);
+          if (parsed) onEvent?.(parsed);
+        } catch {
+          onEvent?.({ type: "error", detail: "Doska javobi noto‘g‘ri" });
+        }
+      },
+    });
+  }
+
+  get isOpen(): boolean {
+    return this.socket.isOpen;
+  }
+
+  start(): void {
+    this.socket.start();
+  }
+
+  stop(): void {
+    this.socket.stop();
+  }
+
+  /**
+   * Chizmani kanal orqali yuboradi. `false` qaytsa — ulanish yo'q,
+   * chaqiruvchi REST `POST .../stroke/` ga o'tadi (ikkalasi teng kuchli).
+   */
+  sendStroke(sheet: number, stroke: StrokeInput): boolean {
+    return this.socket.send({ type: "stroke", sheet, stroke });
+  }
+}

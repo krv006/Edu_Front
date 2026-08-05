@@ -1,5 +1,6 @@
 import { apiClient, type RequestOptions } from "@/shared/api";
 import { authEndpoints } from "./auth.endpoints";
+import { mapLoginRecords } from "../lib/auth.mappers";
 import type {
   AuthUserDto,
   ConsentRequestDto,
@@ -51,5 +52,14 @@ export const authApi = {
   },
   setConsent(dto: ConsentRequestDto) {
     return apiClient.post(authEndpoints.consents, dto);
+  },
+  /** `studentId` berilsa — ota-ona bolasining kirishlar tarixini oladi. */
+  async getLogins(studentId: string | null, options?: RequestOptions) {
+    return mapLoginRecords(
+      await apiClient.get(authEndpoints.logins, {
+        ...options,
+        query: studentId ? { student: studentId } : undefined,
+      })
+    );
   },
 };

@@ -1,12 +1,17 @@
 import { useState, type FormEvent } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Bell, ChevronRight, Copy, LogOut, Phone, Settings, ShieldCheck, UserRound, X } from "lucide-react";
+import { Bell, ChevronRight, Copy, History, LogOut, Phone, Settings, ShieldCheck, UserRound, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { useAuth, useUpdateProfileMutation, type ProfileFormValues } from "@/modules/auth";
+import {
+  LoginHistoryDialog,
+  useAuth,
+  useUpdateProfileMutation,
+  type ProfileFormValues,
+} from "@/modules/auth";
 import { Avatar, Button, Dialog, DialogContent, ThemeToggle } from "@/shared/ui/legacy";
 
-type MenuItemId = "profile" | "notifications" | "settings";
+type MenuItemId = "profile" | "logins" | "notifications" | "settings";
 
 const MENU_ITEMS: Array<{
   id: MenuItemId;
@@ -15,6 +20,7 @@ const MENU_ITEMS: Array<{
   icon: typeof UserRound;
 }> = [
   { id: "profile", label: "Profil ma’lumotlari", description: "Shaxsiy ma’lumotlarni ko‘rish", icon: UserRound },
+  { id: "logins", label: "Kirishlar tarixi", description: "Qurilma va IP bo‘yicha jurnal", icon: History },
   { id: "notifications", label: "Bildirishnomalar", description: "Xabarlar va eslatmalar", icon: Bell },
   { id: "settings", label: "Sozlamalar", description: "Platforma parametrlari", icon: Settings },
 ];
@@ -40,12 +46,18 @@ export function AccountMenu({
   const navigate = useNavigate();
   const updateProfile = useUpdateProfileMutation();
   const [editing, setEditing] = useState(false);
+  const [loginsOpen, setLoginsOpen] = useState(false);
   const [draft, setDraft] = useState<ProfileFormValues>({ firstName: "", lastName: "", phone: "" });
 
   function selectItem(id: MenuItemId) {
     if (id === "profile") {
       onOpenChange(false);
       onProfileOpenChange(true);
+      return;
+    }
+    if (id === "logins") {
+      onOpenChange(false);
+      setLoginsOpen(true);
       return;
     }
     toast.info(
@@ -261,6 +273,8 @@ export function AccountMenu({
           </DialogContent>
         )}
       </Dialog>
+
+      <LoginHistoryDialog open={loginsOpen} onOpenChange={setLoginsOpen} />
     </>
   );
 }

@@ -69,6 +69,7 @@ const AdminDashboardPage = lazy(() => import("@/pages/admin/admin-dashboard-page
 const LiveLessonPage = lazy(() => import("@/pages/live/live-lesson-page").then((module) => ({ default: module.LiveLessonPage })));
 const DesignSystemPage = lazy(() => import("@/pages/design-system/design-system-page").then((module) => ({ default: module.DesignSystemPage })));
 const BoardPage = lazy(() => import("@/pages/board/board-page").then((module) => ({ default: module.BoardPage })));
+const RecordingPage = lazy(() => import("@/pages/recording/recording-page").then((module) => ({ default: module.RecordingPage })));
 
 export function AppRouter() {
   return (
@@ -89,8 +90,9 @@ export function AppRouter() {
               </Route>
 
               <Route element={<ProtectedRoute />}>
-                {/* Doska havolasi chat xabaridan keladi — rol cheklovi backend tomonda. */}
+                {/* Doska va yozuv havolalari chat xabaridan keladi — rol cheklovi backend tomonda. */}
                 <Route path="/boards/:lessonId" element={<BoardPage />} />
+                <Route path="/recordings/:lessonId" element={<RecordingPage />} />
 
                 <Route element={<RoleRoute allowedRoles={[ROLES.TEACHER]} />}>
                   <Route

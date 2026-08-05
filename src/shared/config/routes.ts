@@ -53,6 +53,9 @@ export const ROUTES = Object.freeze({
   }),
   /** Jonli dars — alohida to‘liq ekran sahifasi. */
   live: (lessonId: string) => `/live/${segment(lessonId)}`,
+  /** Backend chatga yuboradigan havolalar (docs/PROJECT.md §10, README). */
+  board: (lessonId: string) => `/boards/${segment(lessonId)}`,
+  recording: (lessonId: string) => `/recordings/${segment(lessonId)}`,
   errors: Object.freeze({
     forbidden: "/forbidden",
     notFound: "/not-found",

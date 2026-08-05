@@ -1,11 +1,28 @@
 import { normalizePagination, type Page, type PaginationOptions } from "@/shared/api";
-import type { AttendanceRow, DomainUser } from "@/shared/types";
-import type { AttendanceDto } from "../api/attendance.dto";
+import type { AttendanceRow, DomainUser, FocusJournal } from "@/shared/types";
+import type { AttendanceDto, FocusJournalDto } from "../api/attendance.dto";
 
 function time(value: string | null | undefined): string {
   return value
     ? new Intl.DateTimeFormat("uz-UZ", { hour: "2-digit", minute: "2-digit" }).format(new Date(value))
     : "—";
+}
+
+/**
+ * Eski backend faqat `focus_exits` sonini qaytaradi, yangisi to'liq `focus` obyektini.
+ * Ikkalasini ham bitta shaklga keltiramiz — UI faqat `AttendanceRow.focus` bilan ishlaydi.
+ */
+function mapFocusJournal(dto: FocusJournalDto | null | undefined, fallbackExits: number): FocusJournal {
+  return {
+    exits: Number(dto?.exits ?? fallbackExits ?? 0),
+    awaySeconds: Number(dto?.away_seconds ?? 0),
+    longestSeconds: Number(dto?.longest_seconds ?? 0),
+    timeline: (dto?.timeline ?? []).map((item) => ({
+      leftAt: item.left_at,
+      returnedAt: item.returned_at,
+      seconds: Number(item.seconds ?? 0),
+    })),
+  };
 }
 
 export function mapAttendanceDto(dto: AttendanceDto): AttendanceRow {
@@ -29,7 +46,7 @@ export function mapAttendanceDto(dto: AttendanceDto): AttendanceRow {
     duration: `${Number(dto.minutes ?? 0)} daqiqa`,
     attentionTotal: Number(dto.attention_total ?? 0),
     attentionAnswered: Number(dto.attention_answered ?? 0),
-    focusExits: Number(dto.focus_exits ?? 0),
+    focus: mapFocusJournal(dto.focus, Number(dto.focus_exits ?? 0)),
     status: dto.left_at ? "completed" : "active",
   };
 }

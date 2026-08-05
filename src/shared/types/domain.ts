@@ -133,6 +133,23 @@ export interface CourseStudentSearchResult extends DomainUser {
 // ─── Dars ───────────────────────────────────────────────────────────────────
 export type LessonStatus = "scheduled" | "live" | "finished" | "cancelled";
 
+/** `processing` — egress hali MP4 ni yozib tugatmagan. */
+export type LessonRecordingStatus = "ready" | "processing" | "failed";
+
+/**
+ * Dars video yozuvi (docs/PROJECT.md §10). Havola muddatli va imzolangan —
+ * doimiy URL yo'q, shuning uchun `streamUrl` ni saqlab qo'yish mumkin emas.
+ */
+export interface LessonRecording {
+  status: LessonRecordingStatus;
+  title: string;
+  streamUrl: string | null;
+  durationSeconds: number;
+  sizeBytes: number;
+  createdAt: string | null;
+  expiresAt: string | null;
+}
+
 export interface Lesson {
   id: string;
   courseId: string;
@@ -239,6 +256,26 @@ export interface AssignmentFormValues {
 }
 
 // ─── Davomat ────────────────────────────────────────────────────────────────
+
+/** O'quvchi dars oynasidan chiqib turgan bitta oraliq. */
+export interface FocusExit {
+  leftAt: string;
+  /** `null` — dars tugaguncha qaytmagan. */
+  returnedAt: string | null;
+  seconds: number;
+}
+
+/**
+ * Fokus jurnali (docs/PROJECT.md §10) — ota-ona "necha marta chiqdi va
+ * har safar qancha turdi" degan savolga shu yerdan javob oladi.
+ */
+export interface FocusJournal {
+  exits: number;
+  awaySeconds: number;
+  longestSeconds: number;
+  timeline: FocusExit[];
+}
+
 export interface AttendanceRow {
   id: string;
   lessonId: string;
@@ -254,6 +291,6 @@ export interface AttendanceRow {
   duration: string;
   attentionTotal: number;
   attentionAnswered: number;
-  focusExits: number;
+  focus: FocusJournal;
   status: "completed" | "active";
 }

@@ -7,6 +7,7 @@ import {
   ClipboardList,
   Clock3,
   Pencil,
+  PlayCircle,
   Plus,
   Search,
   Trash2,
@@ -18,7 +19,7 @@ import {
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 import { useAuth } from "@/modules/auth";
-import { useAttendance } from "@/modules/attendance";
+import { FocusJournalCell, useAttendance } from "@/modules/attendance";
 import { AddStudentDialog, useCourse, useCourseStudents, useUnenrollStudent } from "@/modules/course";
 import {
   AssignmentDetailDialog,
@@ -27,9 +28,9 @@ import {
   useDeleteAssignment,
 } from "@/modules/homework";
 import {
+  FinishLessonDialog,
   useCreateLesson,
   useDeleteLesson,
-  useFinishLesson,
   useLessons,
   useUpdateLesson,
 } from "@/modules/lesson";
@@ -207,11 +208,11 @@ function LessonsPanel({ courseId, lessons = [], loading }: LessonsPanelProps) {
   const [dialog, setDialog] = useState(false);
   const [editing, setEditing] = useState<Lesson | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Lesson | null>(null);
+  const [finishTarget, setFinishTarget] = useState<Lesson | null>(null);
   const navigate = useNavigate();
   const create = useCreateLesson();
   const update = useUpdateLesson();
   const remove = useDeleteLesson();
-  const finish = useFinishLesson();
 
   function save(form: LessonDraft) {
     const payload = { ...form, courseId };
@@ -277,13 +278,17 @@ function LessonsPanel({ courseId, lessons = [], loading }: LessonsPanelProps) {
                   <Video size={16} /> Kirish
                 </Button>
                 {lesson.status === "live" ? (
+                  <Button size="sm" variant="secondary" onClick={() => setFinishTarget(lesson)}>
+                    Yakunlash
+                  </Button>
+                ) : null}
+                {lesson.status === "finished" ? (
                   <Button
                     size="sm"
                     variant="secondary"
-                    loading={finish.isPending}
-                    onClick={() => finish.mutate(lesson.id)}
+                    onClick={() => navigate(ROUTES.recording(lesson.id))}
                   >
-                    Yakunlash
+                    <PlayCircle size={16} /> Yozuv
                   </Button>
                 ) : null}
                 <button
@@ -341,6 +346,12 @@ function LessonsPanel({ courseId, lessons = [], loading }: LessonsPanelProps) {
           </DialogContent>
         )}
       </Dialog>
+      <FinishLessonDialog
+        lesson={finishTarget}
+        onOpenChange={(open) => {
+          if (!open) setFinishTarget(null);
+        }}
+      />
     </div>
   );
 }
@@ -619,7 +630,9 @@ function AttendancePanel({ lessons = [], rows = [], loading }: AttendancePanelPr
                 <td>
                   {row.attentionAnswered}/{row.attentionTotal}
                 </td>
-                <td>{row.focusExits}</td>
+                <td>
+                  <FocusJournalCell focus={row.focus} student={row.child} lesson={row.lesson} />
+                </td>
               </tr>
             ))}
           </tbody>

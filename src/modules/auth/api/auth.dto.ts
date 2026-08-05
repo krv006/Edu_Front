@@ -16,8 +16,30 @@ export const userDtoSchema = z.object({
   invite_code: z.string().nullable().optional(),
 });
 
+/** `GET /api/v1/auth/logins/` — bitta kirish yozuvi (paginatsiyasiz massiv). */
+export const loginRecordDtoSchema = z.object({
+  at: z.string(),
+  ip: z.string().nullable().default(null),
+  user_agent: z.string().nullable().default(null),
+  new_ip: z.boolean().default(false),
+  new_device: z.boolean().default(false),
+});
+
 export type TokenPairDto = z.infer<typeof tokenPairDtoSchema>;
 export type AuthUserDto = z.infer<typeof userDtoSchema>;
+export type LoginRecordDto = z.infer<typeof loginRecordDtoSchema>;
+
+/** Kirishlar tarixining domen ko'rinishi. */
+export interface LoginRecord {
+  id: string;
+  at: string;
+  ip: string;
+  /** Foydalanuvchiga tushunarli qurilma nomi: "Chrome · Windows". */
+  device: string;
+  userAgent: string;
+  isNewIp: boolean;
+  isNewDevice: boolean;
+}
 
 export interface LoginRequestDto {
   username: string;

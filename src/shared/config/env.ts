@@ -15,7 +15,6 @@ const envSchema = z.object({
       (value) => value.startsWith("ws://") || value.startsWith("wss://"),
       "VITE_WS_URL ws:// yoki wss:// bilan boshlanishi kerak"
     ),
-  VITE_ENABLE_MOCKS: z.enum(["true", "false"]).default("false"),
   VITE_REQUEST_TIMEOUT: z.coerce.number().int().min(1_000).max(120_000).default(15_000),
 });
 
@@ -34,16 +33,11 @@ function normalizeBaseUrl(value: string): string {
   return value.replace(/\/+$/, "");
 }
 
-if (parsedEnv.data.VITE_APP_ENV === "production" && parsedEnv.data.VITE_ENABLE_MOCKS === "true") {
-  throw new Error("Production muhitida mocklarni yoqish mumkin emas");
-}
-
 export interface AppEnv {
   readonly appName: string;
   readonly appEnv: "development" | "test" | "production";
   readonly apiUrl: string;
   readonly wsUrl: string;
-  readonly enableMocks: boolean;
   readonly requestTimeout: number;
   readonly isProduction: boolean;
 }
@@ -53,7 +47,6 @@ export const env: AppEnv = Object.freeze({
   appEnv: parsedEnv.data.VITE_APP_ENV,
   apiUrl: normalizeBaseUrl(parsedEnv.data.VITE_API_URL),
   wsUrl: normalizeBaseUrl(parsedEnv.data.VITE_WS_URL),
-  enableMocks: parsedEnv.data.VITE_ENABLE_MOCKS === "true",
   requestTimeout: parsedEnv.data.VITE_REQUEST_TIMEOUT,
   isProduction: parsedEnv.data.VITE_APP_ENV === "production",
 });

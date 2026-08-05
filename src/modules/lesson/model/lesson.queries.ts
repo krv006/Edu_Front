@@ -8,7 +8,11 @@ export const lessonKeys = Object.freeze({
   all: ["lessons"] as const,
   list: (params: QueryParams = {}) => ["lessons", "list", params] as const,
   detail: (id: string) => ["lessons", "detail", id] as const,
+  recording: (id: string) => ["lessons", "recording", id] as const,
 });
+
+/** Egress MP4 ni yozib tugatguncha holat `processing` — shu vaqtda sekin polling qilamiz. */
+const RECORDING_POLL_MS = 15_000;
 
 export function useLessons(params: QueryParams = {}) {
   return useQuery({
@@ -69,10 +73,33 @@ export function useDeleteLesson() {
 export function useFinishLesson() {
   const client = useQueryClient();
   return useMutation({
-    mutationFn: (id: string) => lessonApi.finish(id),
+    mutationFn: ({ id, recordingTitle }: { id: string; recordingTitle?: string }) =>
+      lessonApi.finish(id, recordingTitle),
     onSuccess: () => {
       client.invalidateQueries({ queryKey: lessonKeys.all });
-      toast.success("Dars yakunlandi");
+      toast.success("Dars yakunlandi — yozuv guruh chatiga tushadi");
+    },
+  });
+}
+
+export function useLessonRecording(id: string | null) {
+  return useQuery({
+    queryKey: lessonKeys.recording(id ?? ""),
+    queryFn: ({ signal }) => lessonApi.getRecording(id as string, { signal }),
+    enabled: Boolean(id),
+    // Havola muddatli — keshdan eskirgan URL bilan pleer ochilib qolmasin.
+    staleTime: 0,
+    refetchInterval: (query) => (query.state.data?.status === "processing" ? RECORDING_POLL_MS : false),
+  });
+}
+
+export function useDeleteRecording() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: (id: string) => lessonApi.removeRecording(id),
+    onSuccess: (id) => {
+      client.invalidateQueries({ queryKey: lessonKeys.recording(id) });
+      toast.success("Video yozuv o‘chirildi");
     },
   });
 }

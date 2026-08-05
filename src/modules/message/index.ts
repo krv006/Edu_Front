@@ -1,9 +1,11 @@
 export { messageApi } from "./api/message.api";
 export type { MessageDto, SocketEventDto } from "./api/message.dto";
-export { ChatSocketManager, getSocketClosePolicy } from "./lib/chat-socket-manager";
+export { ChatSocketManager } from "./lib/chat-socket-manager";
 export type { SocketState } from "./lib/chat-socket-manager";
 export { mapMessageDto, markMessageFailed, parseSocketEvent, upsertMessage } from "./lib/message.mappers";
 export type { ParsedSocketEvent } from "./lib/message.mappers";
+export { tokenizeMessageText } from "./lib/linkify";
+export type { MessageToken } from "./lib/linkify";
 export { messageKeys } from "./model/message.keys";
 export { useChat } from "./model/use-chat";
 export type { ChatController } from "./model/use-chat";
@@ -12,4 +14,5 @@ export { MessageActionsMenu } from "./ui/message-actions-menu";
 export { MessageBubble } from "./ui/message-bubble";
 export { MessageComposer } from "./ui/message-composer";
 export { MessageList } from "./ui/message-list";
+export { MessageText } from "./ui/message-text";
 export { TypingIndicator } from "./ui/typing-indicator";

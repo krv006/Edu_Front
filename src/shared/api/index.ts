@@ -13,6 +13,8 @@ export { applyApiFieldErrors } from "./apply-api-field-errors";
 export { normalizePagination } from "./pagination";
 export type { DrfPage, Page, PaginationOptions } from "./pagination";
 export { normalizeMediaUrl } from "./media-url";
+export { getSocketClosePolicy, RealtimeSocket } from "./realtime-socket";
+export type { RealtimeSocketInit, SocketClosePolicy, SocketState } from "./realtime-socket";
 export {
   refreshTokenManager,
   RefreshTokenManager,

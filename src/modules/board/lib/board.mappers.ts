@@ -11,5 +11,6 @@ export function mapBoardDto(dto: BoardStateDto): BoardState {
     width: Number(dto.size?.[0] ?? 1200),
     height: Number(dto.size?.[1] ?? 800),
     subject: dto.subject || "",
+    mathEnabled: Boolean(dto.math_enabled),
   };
 }

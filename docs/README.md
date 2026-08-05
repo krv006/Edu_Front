@@ -31,6 +31,16 @@ rozilikka asoslangan ota-ona paneli. O'zbekiston bozori uchun.
 ## Frontend integratsiyasi (alohida loyiha uchun shartnoma)
 
 - **Auth:** `POST /api/v1/auth/login/` → `{access, refresh}`; har so'rovda `Authorization: Bearer <access>`
+- **Doska real-time (WebSocket, polling KERAK EMAS):**
+  `wss://<domain>/ws/board/<lesson_id>/?token=<access>` — boshlang'ich holatni
+  REST `GET /board/<id>/` bilan oling, keyin faqat WS eventlarini qo'llang:
+  `{"type":"stroke","sheet",...}`, `{"type":"erase",...}`, `{"type":"sheet",...}`.
+  Chizishni WS orqali yuborish ham mumkin: `{"type":"stroke","sheet":0,"stroke":{...}}`
+- **Doska stroke turlari (hammasi saqlanadi va PDF'ga tushadi):**
+  qalam `{points,color,width,opacity?}` (opacity<1 = marker), matn
+  `{type:'text',text,x,y,size,color}`, chiziq/strelka
+  `{type:'line',x1,y1,x2,y2,arrow?}`, `{type:'rect',x,y,w,h}`,
+  `{type:'ellipse',x,y,w,h}`, formula `{type:'math',latex,...}` (faqat matematika)
 - **Chat real-time (WebSocket):** `wss://<domain>/ws/chat/<room_id>/?token=<access>`
   - Yopilish kodlari: `4401` token yaroqsiz, `4403` xonaga a'zo emas
   - Yuborish: `{"type":"message","text":"..."}` (yoki avvalgidek REST `POST .../send/` — ikkalasi ham broadcast bo'ladi)
@@ -42,6 +52,15 @@ rozilikka asoslangan ota-ona paneli. O'zbekiston bozori uchun.
 - **Doska PDF havolasi:** dars tugaganda backend kurs chatiga `"... /boards/<lesson_id>"`
   matnli xabar yuboradi — frontend shu yo'l uchun sahifa qilishi kerak
   (doska ma'lumoti: `GET /api/v1/board/<lesson_id>/`, PDF: `.../pdf/`)
+- **Doska matematik rejimi (MathLive):** `GET /board/<id>/` javobidagi
+  `math_enabled` bayrog'iga qarang — `true` bo'lsagina (faqat matematika
+  kurslari) formula vositasini ko'rsating. Formula kiritish uchun
+  [MathLive](https://mathlive.io/mathfield/) `<math-field>` tavsiya etiladi;
+  doskaga saqlash: `POST .../stroke/` body `{sheet, stroke: {type:'math',
+  latex:'\\frac{a}{b}', x, y, size, color}}` (LaTeX'ni `math-field.value`dan
+  oling). Boshqa fanlarda server bu blokni 400 bilan rad etadi; SymPy yechuvchi
+  (`POST .../solve/`) ham faqat matematikada ishlaydi. Statik ko'rsatish uchun
+  MathLive'ning `convertLatexToMarkup` funksiyasi bor
 - **Fayllar:** uy vazifasi fayllari auth talab qiladi — `GET /api/v1/homework/submissions/<id>/file/`
   va `.../assignments/<id>/file/` (to'g'ridan-to'g'ri `/media/` URL ishlatilmaydi)
 - **CORS:** frontend domenini `.env` → `CORS_ALLOWED_ORIGINS` ga qo'shish shart

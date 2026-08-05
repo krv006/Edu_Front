@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { BookOpen, CalendarDays, CheckCircle2, Clock3, ListChecks, Paperclip } from "lucide-react";
+import { BookOpen, CalendarDays, CheckCircle2, Clock3, ListChecks, Paperclip, PlayCircle } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 import { ChatHeader } from "@/modules/conversation";
@@ -174,13 +174,23 @@ function StudentLessons({ lessons = [], loading }: { lessons?: Lesson[]; loading
                 {lesson.date} · {lesson.time} · <Clock3 size={14} /> {lesson.durationMinutes} daqiqa
               </p>
             </div>
-            <Button
-              size="sm"
-              disabled={CLOSED_LESSON_STATUSES.includes(lesson.status)}
-              onClick={() => navigate(ROUTES.live(lesson.id))}
-            >
-              Darsga kirish
-            </Button>
+            {lesson.status === "finished" ? (
+              <Button
+                size="sm"
+                variant="secondary"
+                onClick={() => navigate(ROUTES.recording(lesson.id))}
+              >
+                <PlayCircle size={16} /> Yozuv
+              </Button>
+            ) : (
+              <Button
+                size="sm"
+                disabled={CLOSED_LESSON_STATUSES.includes(lesson.status)}
+                onClick={() => navigate(ROUTES.live(lesson.id))}
+              >
+                Darsga kirish
+              </Button>
+            )}
           </article>
         ))}
         {!lessons.length ? <p className="portal-muted">Dars rejalashtirilmagan.</p> : null}

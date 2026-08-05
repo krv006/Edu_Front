@@ -1,11 +1,13 @@
-import { useRef, useState, type FormEvent, type PointerEvent } from "react";
-import { Calculator, Download, Eraser, FilePlus2, PenLine, UserCheck } from "lucide-react";
+import { useState, type FormEvent } from "react";
+import { Calculator, Download, FilePlus2, UserCheck } from "lucide-react";
 import { toast } from "sonner";
 import { useCourseStudents } from "@/modules/course";
 import { downloadBlob } from "@/shared/lib";
 import { Button, Dialog, DialogContent } from "@/shared/ui/legacy";
 import { boardApi } from "../api/board.api";
-import type { FormulaSolutionDto } from "../api/board.dto";
+import type { FormulaSolutionDto, Point, StrokeShapeDto } from "../api/board.dto";
+import { BOARD_COLORS, BOARD_TEXT_SIZE, BOARD_WIDTHS } from "../constants/board.constants";
+import { buildStroke } from "../lib/board.geometry";
 import {
   useAddSheet,
   useAddStroke,
@@ -14,10 +16,11 @@ import {
   useGrantDraw,
   useSolveFormula,
 } from "../model/board.queries";
-
-const STROKE_COLOR = "#5b5cf0";
-const TEXT_COLOR = "#1c1e3a";
-const SELECTED_COLOR = "#ef4444";
+import { useBoardDrawing } from "../model/use-board-drawing";
+import { useBoardRealtime } from "../model/use-board-realtime";
+import { BoardStroke } from "./board-stroke";
+import { BoardToolbar, type BoardTool } from "./board-toolbar";
+import { MathFieldInput } from "./math-field-input";
 
 export interface BoardPanelProps {
   lessonId: string;
@@ -25,7 +28,8 @@ export interface BoardPanelProps {
 }
 
 export function BoardPanel({ lessonId, courseId }: BoardPanelProps) {
-  const board = useBoard(lessonId);
+  const realtime = useBoardRealtime(lessonId);
+  const board = useBoard(lessonId, { live: realtime.connected });
   const addStroke = useAddStroke(lessonId);
   const addSheet = useAddSheet(lessonId);
   const erase = useEraseStrokes(lessonId);
@@ -34,33 +38,71 @@ export function BoardPanel({ lessonId, courseId }: BoardPanelProps) {
   const members = useCourseStudents(board.data?.isTeacher ? courseId : null, { page_size: 100 });
 
   const [sheet, setSheet] = useState(0);
-  const [draft, setDraft] = useState<Array<[number, number]>>([]);
+  const [tool, setTool] = useState<BoardTool>("pen");
+  const [color, setColor] = useState<string>(BOARD_COLORS[0]);
+  const [strokeWidth, setStrokeWidth] = useState<number>(BOARD_WIDTHS[1]);
   const [selected, setSelected] = useState<string | null>(null);
+
   const [reasonOpen, setReasonOpen] = useState(false);
   const [reason, setReason] = useState("");
   const [grantOpen, setGrantOpen] = useState(false);
+
+  // Matn/formula joylashtiriladigan nuqta — dialog shu koordinataga qo'yadi.
+  const [placement, setPlacement] = useState<{ tool: "text" | "math"; point: Point } | null>(null);
+  const [draftText, setDraftText] = useState("");
+
   const [formulaOpen, setFormulaOpen] = useState(false);
   const [formula, setFormula] = useState("");
   const [solution, setSolution] = useState<FormulaSolutionDto | null>(null);
-  const svgRef = useRef<SVGSVGElement>(null);
 
   const state = board.data;
   const active = state?.sheets.find((item) => item.index === sheet) ?? state?.sheets[0];
+  const canDraw = Boolean(state?.canDraw);
 
-  /** Ekran koordinatasini doska koordinata tizimiga o'tkazadi. */
-  function point(event: PointerEvent<SVGSVGElement>): [number, number] {
-    const rect = svgRef.current!.getBoundingClientRect();
-    return [
-      Math.round(((event.clientX - rect.left) * state!.width) / rect.width),
-      Math.round(((event.clientY - rect.top) * state!.height) / rect.height),
-    ];
+  /**
+   * Chizmani real-time kanal orqali yuboramiz — server uni darhol hammaga tarqatadi.
+   * Kanal yopiq bo'lsa REST `POST .../stroke/` ishlatiladi (docs: ikkalasi teng kuchli).
+   */
+  function commitStroke(stroke: StrokeShapeDto) {
+    if (!realtime.socket?.sendStroke(sheet, stroke)) addStroke.mutate({ sheet, stroke });
   }
 
-  function endDraw() {
-    if (draft.length > 1) {
-      addStroke.mutate({ sheet, stroke: { points: draft, color: STROKE_COLOR, width: 4 } });
-    }
-    setDraft([]);
+  const { svgRef, draft, handlePointerDown, handlePointerMove, handlePointerUp } = useBoardDrawing({
+    width: state?.width ?? 1600,
+    height: state?.height ?? 900,
+    tool,
+    color,
+    strokeWidth,
+    enabled: canDraw,
+    onCommit: commitStroke,
+    onPlacePoint: (point) => {
+      if (tool !== "text" && tool !== "math") return;
+      setDraftText("");
+      setPlacement({ tool, point });
+    },
+  });
+
+  function placeBlock(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!placement || !draftText.trim()) return;
+    const [x, y] = placement.point;
+    const stroke: StrokeShapeDto =
+      placement.tool === "math"
+        ? { type: "math", latex: draftText.trim(), x, y, size: BOARD_TEXT_SIZE, color }
+        : { type: "text", text: draftText, x, y, size: BOARD_TEXT_SIZE, color };
+
+    // Bu yerda ataylab REST: server formulani rad etsa (`math_enabled` yo'q kursda)
+    // 400 va tushunarli matn qaytaradi. WS orqali yuborilsa xato dialog yopilgach kelardi.
+    addStroke.mutate(
+      { sheet, stroke },
+      {
+        onSuccess: () => {
+          setPlacement(null);
+          setDraftText("");
+        },
+        onError: (error) => toast.error(error.message),
+      }
+    );
   }
 
   async function removeSelected(event: FormEvent<HTMLFormElement>) {
@@ -86,6 +128,7 @@ export function BoardPanel({ lessonId, courseId }: BoardPanelProps) {
     }
   }
 
+  /** SymPy yechimini doskaga matn bloki sifatida qo'yadi. */
   function placeSolution() {
     if (!solution) return;
     const steps = solution.steps?.length ? `\n${solution.steps.join("\n")}` : "";
@@ -97,8 +140,8 @@ export function BoardPanel({ lessonId, courseId }: BoardPanelProps) {
           text: `${solution.pretty}\n${solution.result}${steps}`,
           x: 60,
           y: 80,
-          size: 22,
-          color: TEXT_COLOR,
+          size: BOARD_TEXT_SIZE,
+          color,
         },
       },
       {
@@ -120,98 +163,142 @@ export function BoardPanel({ lessonId, courseId }: BoardPanelProps) {
       </div>
     );
 
+  // Chizilayotgan element server javobini kutmasdan darhol ko'rinadi.
+  const preview =
+    draft && tool !== "select" && tool !== "text" && tool !== "math"
+      ? buildStroke({ kind: tool, ...draft, color, width: strokeWidth })
+      : null;
+
   return (
     <div className="board-panel">
       <div className="board-toolbar">
-        <span>
-          <PenLine size={17} /> {state.canDraw ? "Chizish mumkin" : "Faqat ko‘rish"}
+        <span className="board-mode">
+          <i className={`board-live-dot ${realtime.connected ? "is-live" : ""}`} aria-hidden="true" />
+          {canDraw ? "Chizish mumkin" : "Faqat ko‘rish"}
+          {realtime.connected ? "" : " · sinxronlash sekin rejimda"}
         </span>
-        {state.sheets.map((item) => (
-          <button
-            className={sheet === item.index ? "is-active" : ""}
-            key={item.index}
-            onClick={() => setSheet(item.index)}
-          >
-            #{item.index + 1}
-          </button>
-        ))}
-        {state.isTeacher ? (
-          <Button size="sm" variant="secondary" onClick={() => addSheet.mutate()}>
-            <FilePlus2 size={15} /> Sahifa
+
+        <div className="board-sheets">
+          {state.sheets.map((item) => (
+            <button
+              key={item.index}
+              type="button"
+              className={sheet === item.index ? "is-active" : ""}
+              onClick={() => setSheet(item.index)}
+            >
+              #{item.index + 1}
+            </button>
+          ))}
+          {state.isTeacher ? (
+            <Button size="sm" variant="secondary" onClick={() => addSheet.mutate()}>
+              <FilePlus2 size={15} /> Sahifa
+            </Button>
+          ) : null}
+        </div>
+
+        <div className="board-toolbar-actions">
+          {state.isTeacher ? (
+            <Button size="sm" variant="secondary" onClick={() => setGrantOpen(true)}>
+              <UserCheck size={15} /> Ruxsat
+            </Button>
+          ) : null}
+          {/* Formula yechuvchi faqat matematika kurslarida ishlaydi (docs/README). */}
+          {state.mathEnabled ? (
+            <Button size="sm" variant="secondary" onClick={() => setFormulaOpen(true)}>
+              <Calculator size={15} /> Yechuvchi
+            </Button>
+          ) : null}
+          <Button size="sm" variant="secondary" onClick={download}>
+            <Download size={15} /> PDF
           </Button>
-        ) : null}
-        {state.isTeacher ? (
-          <Button size="sm" variant="secondary" onClick={() => setGrantOpen(true)}>
-            <UserCheck size={15} /> Ruxsat
-          </Button>
-        ) : null}
-        <Button size="sm" variant="secondary" onClick={() => setFormulaOpen(true)}>
-          <Calculator size={15} /> Formula
-        </Button>
-        <Button
-          size="sm"
-          variant="secondary"
-          disabled={!selected || !state.canDraw}
-          onClick={() => setReasonOpen(true)}
-        >
-          <Eraser size={15} />
-        </Button>
-        <Button size="sm" variant="secondary" onClick={download}>
-          <Download size={15} /> PDF
-        </Button>
+        </div>
       </div>
+
+      <BoardToolbar
+        tool={tool}
+        color={color}
+        width={strokeWidth}
+        canDraw={canDraw}
+        mathEnabled={state.mathEnabled}
+        hasSelection={Boolean(selected)}
+        onToolChange={setTool}
+        onColorChange={setColor}
+        onWidthChange={setStrokeWidth}
+        onErase={() => setReasonOpen(true)}
+      />
 
       <svg
         ref={svgRef}
-        className="board-canvas"
+        className={`board-canvas board-canvas--${tool}`}
         viewBox={`0 0 ${state.width} ${state.height}`}
-        onPointerDown={(event) => {
-          if (state.canDraw) setDraft([point(event)]);
-        }}
-        onPointerMove={(event) => {
-          if (draft.length) setDraft((items) => [...items, point(event)]);
-        }}
-        onPointerUp={endDraw}
-        onPointerLeave={endDraw}
+        onPointerDown={handlePointerDown}
+        onPointerMove={handlePointerMove}
+        onPointerUp={handlePointerUp}
+        onPointerCancel={handlePointerUp}
       >
-        {active?.strokes.map((stroke) =>
-          stroke.type === "text" ? (
-            <text
-              key={stroke.id}
-              x={stroke.x}
-              y={stroke.y}
-              fontSize={stroke.size}
-              fill={stroke.color}
-              onClick={() => setSelected(stroke.id)}
-            >
-              {stroke.text}
-            </text>
-          ) : (
-            <polyline
-              key={stroke.id}
-              points={(stroke.points ?? []).map((item) => item.join(",")).join(" ")}
-              fill="none"
-              stroke={selected === stroke.id ? SELECTED_COLOR : stroke.color}
-              strokeWidth={stroke.width}
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              onClick={() => setSelected(stroke.id)}
-            />
-          )
-        )}
-        {draft.length > 1 ? (
-          <polyline
-            points={draft.map((item) => item.join(",")).join(" ")}
-            fill="none"
-            stroke={STROKE_COLOR}
-            strokeWidth="4"
+        {active?.strokes.map((stroke) => (
+          <BoardStroke
+            key={stroke.id}
+            stroke={stroke}
+            selected={selected === stroke.id}
+            onSelect={setSelected}
+          />
+        ))}
+        {preview ? (
+          <BoardStroke
+            stroke={{ ...preview, id: "draft" }}
+            selected={false}
+            onSelect={() => undefined}
           />
         ) : null}
       </svg>
 
+      <Dialog open={Boolean(placement)} onOpenChange={(open) => !open && setPlacement(null)}>
+        {placement ? (
+          <DialogContent
+            title={placement.tool === "math" ? "Formula qo‘shish" : "Matn qo‘shish"}
+            description={
+              placement.tool === "math"
+                ? "MathLive tahrirlagichida formulani yozing."
+                : "Doskaga qo‘yiladigan matnni kiriting."
+            }
+          >
+            <form className="dialog-form" onSubmit={placeBlock}>
+              <label className="field-group">
+                <span>{placement.tool === "math" ? "Formula" : "Matn"}</span>
+                {placement.tool === "math" ? (
+                  <MathFieldInput value={draftText} onChange={setDraftText} />
+                ) : (
+                  <div className="input-shell">
+                    <textarea
+                      autoFocus
+                      rows={3}
+                      value={draftText}
+                      onChange={(event) => setDraftText(event.target.value)}
+                      required
+                    />
+                  </div>
+                )}
+              </label>
+              <div className="dialog-actions">
+                <Button type="button" variant="secondary" onClick={() => setPlacement(null)}>
+                  Bekor
+                </Button>
+                <Button type="submit" loading={addStroke.isPending} disabled={!draftText.trim()}>
+                  Qo‘yish
+                </Button>
+              </div>
+            </form>
+          </DialogContent>
+        ) : null}
+      </Dialog>
+
       <Dialog open={reasonOpen} onOpenChange={setReasonOpen}>
         {reasonOpen && (
-          <DialogContent title="Elementni o‘chirish" description="Audit uchun o‘chirish sababini kiriting.">
+          <DialogContent
+            title="Elementni o‘chirish"
+            description="Audit uchun o‘chirish sababini kiriting."
+          >
             <form className="dialog-form" onSubmit={removeSelected}>
               <label className="field-group">
                 <span>Sabab</span>
@@ -293,7 +380,7 @@ export function BoardPanel({ lessonId, courseId }: BoardPanelProps) {
                 <Button type="submit" variant="secondary" loading={solve.isPending}>
                   Yechish
                 </Button>
-                {solution && state.canDraw ? (
+                {solution && canDraw ? (
                   <Button type="button" loading={addStroke.isPending} onClick={placeSolution}>
                     Doskaga qo‘yish
                   </Button>

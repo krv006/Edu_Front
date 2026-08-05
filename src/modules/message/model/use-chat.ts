@@ -9,6 +9,9 @@ import { messageKeys } from "./message.keys";
 
 const TYPING_RESET_MS = 2600;
 
+/** WebSocket ishlamayotgan holat uchun zaxira — kanal ulanganda o'chadi. */
+const REST_FALLBACK_POLL_MS = 6000;
+
 export interface UseChatOptions {
   role?: ConversationRole;
   senderId?: string | null;
@@ -40,6 +43,9 @@ export function useChat(
     queryKey: messagesKey,
     queryFn: ({ signal }) => messageApi.getAll(conversationId as string, { signal }),
     enabled: Boolean(conversationId),
+    // WebSocket uzilgan bo'lsa yangi xabarlar kelmay qoladi — zaxira sifatida
+    // tarixni qayta so'raymiz. Kanal ulanishi bilan polling o'chadi.
+    refetchInterval: socketState === "connected" ? false : REST_FALLBACK_POLL_MS,
   });
 
   const socket = useMemo(

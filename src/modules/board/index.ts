@@ -1,6 +1,16 @@
 export { boardApi } from "./api/board.api";
-export type { BoardSheet, BoardState, StrokeDto, StrokeInput } from "./api/board.dto";
+export type {
+  BoardSheet,
+  BoardState,
+  Point,
+  StrokeDto,
+  StrokeInput,
+  StrokeKind,
+  StrokeShapeDto,
+} from "./api/board.dto";
 export { mapBoardDto } from "./lib/board.mappers";
+export { BoardSocketManager, parseBoardEvent } from "./lib/board-socket-manager";
+export type { BoardSocketEvent } from "./lib/board-socket-manager";
 export {
   boardKeys,
   useAddSheet,
@@ -10,4 +20,12 @@ export {
   useGrantDraw,
   useSolveFormula,
 } from "./model/board.queries";
+export { useBoardRealtime } from "./model/use-board-realtime";
 export { BoardPanel } from "./ui/board-panel";
+export { BoardStroke } from "./ui/board-stroke";
+export { BoardToolbar } from "./ui/board-toolbar";
+export type { BoardTool } from "./ui/board-toolbar";
+export { BOARD_COLORS, BOARD_TEXT_SIZE, BOARD_WIDTHS } from "./constants/board.constants";
+export { MathMarkup } from "./ui/math-markup";
+export { arrowHeadPoints, boxFromDrag, buildStroke, strokeKindOf } from "./lib/board.geometry";
+export type { DrawKind } from "./lib/board.geometry";

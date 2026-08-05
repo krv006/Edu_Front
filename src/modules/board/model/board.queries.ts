@@ -7,13 +7,20 @@ export const boardKeys = Object.freeze({
   state: (id: string) => ["board", id] as const,
 });
 
-/** Backendda doska uchun WebSocket yo‘q — holat 2 soniyalik polling bilan yangilanadi. */
-export function useBoard(lessonId: string, enabled = true) {
+/** WebSocket uzilgan holat uchun zaxira — kanal ishlaganda polling o'chadi. */
+const FALLBACK_POLL_MS = 2000;
+
+/**
+ * Doska holati. Real-time kanal ulangan bo'lsa (`live = true`) polling kerak emas:
+ * yangilanishlar `useBoardRealtime` orqali to'g'ridan-to'g'ri keshga tushadi
+ * (docs/PROJECT.md §5.2 — "polling KERAK EMAS").
+ */
+export function useBoard(lessonId: string, { enabled = true, live = false } = {}) {
   return useQuery({
     queryKey: boardKeys.state(lessonId),
     queryFn: ({ signal }) => boardApi.getState(lessonId, { signal }),
     enabled: Boolean(lessonId && enabled),
-    refetchInterval: 2000,
+    refetchInterval: live ? false : FALLBACK_POLL_MS,
   });
 }
 
