@@ -5,16 +5,12 @@ import {
   CalendarDays,
   CheckCircle2,
   ClipboardList,
-  Clock3,
-  Pencil,
-  PlayCircle,
   Plus,
   Search,
   Trash2,
   UserMinus,
   UserPlus,
   UsersRound,
-  Video,
 } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
@@ -29,9 +25,13 @@ import {
 } from "@/modules/homework";
 import {
   FinishLessonDialog,
+  LessonCalendar,
+  LessonList,
+  LessonViewSwitch,
   useCreateLesson,
   useDeleteLesson,
   useLessons,
+  useLessonView,
   useUpdateLesson,
 } from "@/modules/lesson";
 import { ChatHeader } from "@/modules/conversation";
@@ -62,7 +62,6 @@ const TABS: Array<{ id: TabId; label: string; icon: typeof BookOpen }> = [
   { id: "attendance", label: "Davomat", icon: CheckCircle2 },
 ];
 
-const CLOSED_LESSON_STATUSES = ["finished", "cancelled"];
 
 export interface GroupWorkspaceProps {
   conversation: Conversation;
@@ -213,6 +212,7 @@ function LessonsPanel({ courseId, lessons = [], loading }: LessonsPanelProps) {
   const create = useCreateLesson();
   const update = useUpdateLesson();
   const remove = useDeleteLesson();
+  const { view, setView } = useLessonView();
 
   function save(form: LessonDraft) {
     const payload = { ...form, courseId };
@@ -225,6 +225,18 @@ function LessonsPanel({ courseId, lessons = [], loading }: LessonsPanelProps) {
     });
   }
 
+  // Ikkala ko'rinish ham aynan shu amallarni oladi.
+  const actions = {
+    onJoin: (lesson: Lesson) => navigate(ROUTES.live(lesson.id)),
+    onRecording: (lesson: Lesson) => navigate(ROUTES.recording(lesson.id)),
+    onFinish: setFinishTarget,
+    onDelete: setDeleteTarget,
+    onEdit: (lesson: Lesson) => {
+      setEditing(lesson);
+      setDialog(true);
+    },
+  };
+
   return (
     <div className="group-panel">
       <div className="group-panel-head">
@@ -233,85 +245,27 @@ function LessonsPanel({ courseId, lessons = [], loading }: LessonsPanelProps) {
           <h2>Darslar</h2>
           <p>Rejalashtirilgan jonli mashg‘ulotlar.</p>
         </div>
-        <Button
-          onClick={() => {
-            setEditing(null);
-            setDialog(true);
-          }}
-        >
-          <Plus size={17} /> Dars qo‘shish
-        </Button>
+        <div className="group-panel-tools">
+          <LessonViewSwitch view={view} onChange={setView} />
+          <Button
+            onClick={() => {
+              setEditing(null);
+              setDialog(true);
+            }}
+          >
+            <Plus size={17} /> Dars qo‘shish
+          </Button>
+        </div>
       </div>
 
       {loading ? (
         <div className="student-tab-loading">
           <span />
         </div>
+      ) : view === "calendar" ? (
+        <LessonCalendar lessons={lessons} {...actions} />
       ) : (
-        <div className="lesson-list">
-          {lessons.map((lesson) => (
-            <motion.article
-              key={lesson.id}
-              className="lesson-feature-card"
-              initial={{ opacity: 0, y: 7 }}
-              animate={{ opacity: 1, y: 0 }}
-            >
-              <div className="lesson-date">
-                <strong>{new Date(lesson.startsAt).getDate()}</strong>
-                <span>{new Intl.DateTimeFormat("uz-UZ", { month: "short" }).format(new Date(lesson.startsAt))}</span>
-              </div>
-              <div className="lesson-main">
-                <span className="live-pill">
-                  <span /> {lesson.status}
-                </span>
-                <h3>{lesson.title}</h3>
-                <p>
-                  <Clock3 size={15} /> {lesson.time} · {lesson.durationMinutes} daqiqa
-                </p>
-              </div>
-              <div className="lesson-card-actions">
-                <Button
-                  size="sm"
-                  disabled={CLOSED_LESSON_STATUSES.includes(lesson.status)}
-                  onClick={() => navigate(ROUTES.live(lesson.id))}
-                >
-                  <Video size={16} /> Kirish
-                </Button>
-                {lesson.status === "live" ? (
-                  <Button size="sm" variant="secondary" onClick={() => setFinishTarget(lesson)}>
-                    Yakunlash
-                  </Button>
-                ) : null}
-                {lesson.status === "finished" ? (
-                  <Button
-                    size="sm"
-                    variant="secondary"
-                    onClick={() => navigate(ROUTES.recording(lesson.id))}
-                  >
-                    <PlayCircle size={16} /> Yozuv
-                  </Button>
-                ) : null}
-                <button
-                  className="icon-button"
-                  onClick={() => {
-                    setEditing(lesson);
-                    setDialog(true);
-                  }}
-                  aria-label="Darsni tahrirlash"
-                >
-                  <Pencil size={16} />
-                </button>
-                <button
-                  className="icon-button destructive-icon"
-                  onClick={() => setDeleteTarget(lesson)}
-                  aria-label="Darsni o‘chirish"
-                >
-                  <Trash2 size={16} />
-                </button>
-              </div>
-            </motion.article>
-          ))}
-        </div>
+        <LessonList lessons={lessons} {...actions} />
       )}
 
       <AddLessonDialog

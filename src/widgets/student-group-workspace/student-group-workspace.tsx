@@ -12,7 +12,7 @@ import {
   useSubmission,
   useSubmitHomework,
 } from "@/modules/homework";
-import { useLessons } from "@/modules/lesson";
+import { isLessonClosed, useLessons } from "@/modules/lesson";
 import type {
   Assignment,
   ChatMessage,
@@ -33,7 +33,6 @@ const TABS: Array<{ id: TabId; label: string; icon: typeof BookOpen }> = [
   { id: "assignments", label: "Vazifalar", icon: ListChecks },
 ];
 
-const CLOSED_LESSON_STATUSES = ["finished", "cancelled"];
 const SPEAKING_ACCEPT = ".pdf,.png,.jpg,.jpeg,.webp,.docx,.mp3,.wav,.m4a,.ogg";
 const DEFAULT_ACCEPT = ".pdf,.png,.jpg,.jpeg,.webp,.docx";
 
@@ -185,7 +184,7 @@ function StudentLessons({ lessons = [], loading }: { lessons?: Lesson[]; loading
             ) : (
               <Button
                 size="sm"
-                disabled={CLOSED_LESSON_STATUSES.includes(lesson.status)}
+                disabled={isLessonClosed(lesson)}
                 onClick={() => navigate(ROUTES.live(lesson.id))}
               >
                 Darsga kirish

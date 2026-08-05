@@ -2263,7 +2263,7 @@ button:disabled {
   font-size: 11px;
 }
 .lesson-feature-card {
-  padding: 17px;
+  padding: 14px 16px;
   border: 1px solid var(--border);
   border-radius: 15px;
   display: flex;
@@ -2273,33 +2273,40 @@ button:disabled {
   box-shadow: 0 6px 20px rgb(var(--shadow-rgb) / 0.045);
 }
 .lesson-date {
-  width: 54px;
-  height: 58px;
+  width: 62px;
+  height: 56px;
+  flex: 0 0 auto;
   border-radius: 12px;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  color: white;
+  color: #fff;
   background: linear-gradient(145deg, #7462eb, #5946ce);
 }
 .lesson-date strong {
-  font-size: 20px;
+  font-size: 15px;
   line-height: 1;
+  letter-spacing: -0.2px;
 }
 .lesson-date span {
   margin-top: 4px;
   font-size: 8px;
   font-weight: 800;
+  opacity: 0.85;
 }
 .lesson-main {
   min-width: 0;
   flex: 1;
 }
-.lesson-main h3 {
-  margin: 5px 0;
+.lesson-main h3,
+.lesson-main h4 {
+  margin: 6px 0 4px;
+  overflow: hidden;
   color: var(--foreground);
   font-size: 14px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
 .lesson-main p {
   margin: 0;
@@ -2399,7 +2406,7 @@ button:disabled {
 }
 .student-grid {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  grid-template-columns: 1fr;
   gap: 10px;
 }
 .student-card {
@@ -2487,9 +2494,6 @@ button:disabled {
     min-height: 40px;
     padding: 0 11px;
     font-size: 11px;
-  }
-  .student-grid {
-    grid-template-columns: 1fr;
   }
 }
 
@@ -4659,6 +4663,101 @@ body.is-resizing-sidebar {
 .assignment-list {
   display: grid;
   gap: 10px;
+}
+
+/* ─── Darslar: ro'yxat va kalendar ko'rinishlari ─────────────────────────── */
+
+.group-panel-tools { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+
+/* Ro'yxat ⇄ kalendar almashtirgichi */
+.view-switch { padding: 3px; border: 1px solid var(--border); border-radius: 11px; display: inline-flex; gap: 3px; background: var(--surface); }
+.view-switch button { height: 30px; padding: 0 11px; border: 0; border-radius: 8px; display: inline-flex; gap: 6px; align-items: center; color: var(--muted-foreground); background: transparent; font-size: 11px; font-weight: 700; cursor: pointer; transition: color .16s, background .16s; }
+.view-switch button:hover { color: var(--foreground); background: var(--muted); }
+.view-switch button.is-active { color: var(--primary-foreground); background: var(--primary); }
+
+/* Dars holati nishoni — kalendar ham, ro'yxat ham shu klassni ishlatadi */
+.lesson-status { padding: 4px 9px; border-radius: 999px; display: inline-flex; gap: 5px; align-items: center; font-size: 9px; font-weight: 800; font-style: normal; }
+.lesson-status--scheduled { color: var(--tone-blue-fg); background: var(--tone-blue-bg); }
+.lesson-status--live { color: var(--destructive-strong); background: var(--destructive-soft); }
+.lesson-status--live::before { content: ""; width: 6px; height: 6px; border-radius: 999px; background: var(--destructive); animation: pulse 1.2s infinite; }
+.lesson-status--finished { color: var(--tone-emerald-fg); background: var(--success-soft); }
+.lesson-status--cancelled { color: var(--muted-foreground); background: var(--muted); }
+
+.lesson-actions { display: flex; gap: 6px; align-items: center; justify-content: flex-end; flex-wrap: wrap; }
+.lesson-actions--compact { gap: 4px; }
+
+.lesson-sections { display: grid; gap: 22px; }
+.lesson-section-title { margin: 0 0 10px; display: flex; gap: 10px; align-items: center; color: var(--muted-foreground); font-size: 10px; font-weight: 800; letter-spacing: .06em; text-transform: uppercase; }
+.lesson-section-title::after { content: ""; height: 1px; flex: 1; background: var(--border); }
+.lesson-section-title span { order: 3; padding: 3px 8px; border-radius: 999px; color: var(--primary-text); background: var(--primary-tint); font-size: 9px; letter-spacing: 0; text-transform: none; }
+.lesson-empty { min-height: 240px; padding: 30px; border: 1px dashed var(--border-accent); border-radius: var(--radius-lg); display: grid; gap: 10px; place-content: center; justify-items: center; color: var(--muted-foreground); background: var(--surface-subtle); text-align: center; }
+.lesson-empty svg { color: var(--primary-text); }
+.lesson-empty p { margin: 0; font-size: 11px; }
+
+/* Kalendar */
+.lesson-calendar { display: grid; gap: 12px; }
+.calendar-toolbar { display: flex; gap: 12px; align-items: center; justify-content: space-between; flex-wrap: wrap; }
+.calendar-title { display: grid; gap: 2px; }
+.calendar-title strong { color: var(--foreground); font-size: 16px; text-transform: capitalize; letter-spacing: -0.3px; }
+.calendar-title small { color: var(--muted-foreground); font-size: 10px; }
+.calendar-nav { display: flex; gap: 6px; align-items: center; }
+
+.calendar-weekdays { display: grid; gap: 6px; grid-template-columns: repeat(7, minmax(0, 1fr)); }
+.calendar-weekdays span { padding: 0 4px; overflow: hidden; color: var(--muted-foreground); font-size: 9px; font-weight: 800; letter-spacing: .05em; text-align: center; text-overflow: ellipsis; text-transform: uppercase; white-space: nowrap; }
+
+.calendar-grid { display: grid; gap: 6px; grid-template-columns: repeat(7, minmax(0, 1fr)); }
+.calendar-day { min-height: 92px; padding: 7px; border: 1px solid var(--border); border-radius: var(--radius-md); display: flex; flex-direction: column; gap: 5px; align-items: stretch; overflow: hidden; background: var(--surface); text-align: left; cursor: pointer; transition: border-color .16s, background .16s; }
+.calendar-day:hover { border-color: var(--border-accent-strong); }
+.calendar-day.is-outside { background: var(--surface-subtle); opacity: .55; }
+.calendar-day.is-today .calendar-day-number { color: var(--primary-foreground); background: var(--primary); }
+.calendar-day.is-selected { border-color: var(--primary); box-shadow: 0 0 0 2px var(--primary-tint-strong); }
+.calendar-day-number { width: 22px; height: 22px; flex: 0 0 auto; border-radius: 999px; display: grid; place-items: center; color: var(--foreground); font-size: 10px; font-weight: 800; }
+.calendar-day-chips { display: grid; gap: 3px; min-width: 0; }
+.calendar-chip { padding: 3px 5px; border-left: 3px solid currentColor; border-radius: 5px; display: grid; gap: 1px; min-width: 0; font-size: 8px; }
+.calendar-chip b { font-size: 8px; font-weight: 800; }
+.calendar-chip i { overflow: hidden; color: var(--foreground); font-size: 9px; font-style: normal; font-weight: 600; text-overflow: ellipsis; white-space: nowrap; }
+.calendar-chip--scheduled { color: var(--tone-blue-fg); background: var(--tone-blue-bg); }
+.calendar-chip--live { color: var(--destructive-strong); background: var(--destructive-soft); }
+.calendar-chip--finished { color: var(--tone-emerald-fg); background: var(--success-soft); }
+.calendar-chip--cancelled { color: var(--muted-foreground); background: var(--muted); }
+.calendar-chip-more { color: var(--muted-foreground); font-size: 8px; font-weight: 800; }
+.calendar-day-dots { display: none; gap: 3px; }
+.calendar-day-dots .dot { width: 5px; height: 5px; border-radius: 999px; background: currentColor; }
+.dot--scheduled { color: var(--tone-blue-fg); }
+.dot--live { color: var(--destructive); }
+.dot--finished { color: var(--tone-emerald-fg); }
+.dot--cancelled { color: var(--muted-foreground); }
+
+.calendar-day-panel { padding: 14px; border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--surface); }
+.calendar-day-panel header { margin-bottom: 10px; display: flex; gap: 10px; align-items: baseline; justify-content: space-between; }
+.calendar-day-panel header strong { color: var(--foreground); font-size: 13px; text-transform: capitalize; }
+.calendar-day-panel header small { color: var(--muted-foreground); font-size: 10px; white-space: nowrap; }
+.calendar-day-panel ul { margin: 0; padding: 0; display: grid; gap: 8px; list-style: none; }
+.calendar-day-panel li { padding: 10px 12px; border: 1px solid var(--border); border-radius: var(--radius-md); display: flex; gap: 12px; align-items: center; background: var(--surface-subtle); }
+.calendar-day-time { width: 52px; flex: 0 0 auto; display: grid; gap: 1px; }
+.calendar-day-time b { color: var(--foreground); font-size: 12px; }
+.calendar-day-time i { color: var(--muted-foreground); font-size: 9px; font-style: normal; }
+.calendar-day-info { min-width: 0; flex: 1; display: grid; gap: 5px; justify-items: start; }
+.calendar-day-info strong { max-width: 100%; overflow: hidden; color: var(--foreground); font-size: 12px; text-overflow: ellipsis; white-space: nowrap; }
+
+@media (max-width: 900px) {
+  .calendar-day { min-height: 62px; padding: 5px; align-items: center; justify-content: flex-start; }
+  .calendar-day-chips { display: none; }
+  .calendar-day-dots { display: flex; }
+  .calendar-day-number { width: 24px; height: 24px; font-size: 11px; }
+}
+
+@media (max-width: 640px) {
+  .group-panel-tools { width: 100%; justify-content: space-between; }
+  .lesson-feature-card { flex-wrap: wrap; gap: 10px; }
+  .lesson-feature-card .lesson-main { flex: 1 1 55%; }
+  .lesson-actions { width: 100%; justify-content: flex-start; }
+  .calendar-grid, .calendar-weekdays { gap: 3px; }
+  .calendar-day { min-height: 52px; border-radius: 10px; }
+  .calendar-day-panel li { flex-wrap: wrap; }
+  .calendar-day-panel .lesson-actions { width: 100%; justify-content: flex-start; }
+  .view-switch button span { display: none; }
+  .view-switch button { padding: 0 10px; }
 }
 .assignment-card {
   padding: 14px;
