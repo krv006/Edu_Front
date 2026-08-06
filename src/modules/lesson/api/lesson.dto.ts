@@ -21,28 +21,24 @@ export interface LessonRequestDto {
   duration_min: number;
 }
 
+/** `status`: egress hali yozmoqda / tugadi / xato (docs/COMPLETED_WORK.md §1). */
+export type RecordingStatusDto = "recording" | "completed" | "failed";
+
 /**
  * `GET /api/v1/lessons/<id>/recording/` javobi.
  *
- * Backend maydon nomlari hujjatda qat'iy belgilanmagan (`recording_info` deb ataladi),
- * shuning uchun mapper bir necha ehtimoliy nomni qabul qiladi va yozuv bo'lmasa 404 keladi.
+ * Yozuv bo'lmasa backend 404 qaytaradi. `stream_url` faqat `ready: true` bo'lganda
+ * keladi va u MUDDATLI imzolangan havola (3 soat) — saqlab qo'yib bo'lmaydi.
  */
 export interface LessonRecordingDto {
-  status?: string | null;
-  ready?: boolean | null;
+  lesson_id?: string;
   title?: string | null;
-  recording_title?: string | null;
-  /** To'liq havola yoki faqat imzolangan token — ikkalasi ham qo'llab-quvvatlanadi. */
-  stream_url?: string | null;
-  url?: string | null;
-  token?: string | null;
-  t?: string | null;
-  duration?: number | null;
-  duration_sec?: number | null;
-  size?: number | null;
-  size_bytes?: number | null;
+  status?: RecordingStatusDto | null;
+  ready?: boolean | null;
   created_at?: string | null;
-  expires_at?: string | null;
+  ended_at?: string | null;
+  error?: string | null;
+  stream_url?: string | null;
 }
 
 /** Dars formasi — `AddLessonDialog` yuboradigan shakl. */

@@ -87,9 +87,10 @@ export function useLessonRecording(id: string | null) {
     queryKey: lessonKeys.recording(id ?? ""),
     queryFn: ({ signal }) => lessonApi.getRecording(id as string, { signal }),
     enabled: Boolean(id),
-    // Havola muddatli — keshdan eskirgan URL bilan pleer ochilib qolmasin.
+    // Havola 3 soatlik va imzolangan — keshdan eskirgan URL bilan pleer ochilib qolmasin.
     staleTime: 0,
-    refetchInterval: (query) => (query.state.data?.status === "processing" ? RECORDING_POLL_MS : false),
+    // Dars davomida egress hali yozmoqda — tayyor bo'lgunicha kuzatib turamiz.
+    refetchInterval: (query) => (query.state.data?.status === "recording" ? RECORDING_POLL_MS : false),
   });
 }
 

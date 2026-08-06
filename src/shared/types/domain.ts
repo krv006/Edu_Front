@@ -133,21 +133,22 @@ export interface CourseStudentSearchResult extends DomainUser {
 // ─── Dars ───────────────────────────────────────────────────────────────────
 export type LessonStatus = "scheduled" | "live" | "finished" | "cancelled";
 
-/** `processing` — egress hali MP4 ni yozib tugatmagan. */
-export type LessonRecordingStatus = "ready" | "processing" | "failed";
+/** `recording` — egress hali dars davomida yozmoqda (docs/COMPLETED_WORK.md §1). */
+export type LessonRecordingStatus = "recording" | "completed" | "failed";
 
 /**
- * Dars video yozuvi (docs/PROJECT.md §10). Havola muddatli va imzolangan —
- * doimiy URL yo'q, shuning uchun `streamUrl` ni saqlab qo'yish mumkin emas.
+ * Dars video yozuvi. `streamUrl` — 3 soatlik imzolangan havola, doimiy URL emas:
+ * saqlab qo'yib bo'lmaydi, har safar qayta so'raladi.
  */
 export interface LessonRecording {
   status: LessonRecordingStatus;
+  /** Faqat shu bayroq `true` bo'lganda `streamUrl` keladi. */
+  ready: boolean;
   title: string;
   streamUrl: string | null;
-  durationSeconds: number;
-  sizeBytes: number;
   createdAt: string | null;
-  expiresAt: string | null;
+  endedAt: string | null;
+  error: string | null;
 }
 
 export interface Lesson {
@@ -274,6 +275,8 @@ export interface FocusJournal {
   awaySeconds: number;
   longestSeconds: number;
   timeline: FocusExit[];
+  /** Chegaradan oshgan — ota-onaga signal ketgan (docs/COMPLETED_WORK.md §3). */
+  alert: boolean;
 }
 
 export interface AttendanceRow {

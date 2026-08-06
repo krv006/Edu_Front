@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { Clock3, Loader2, ShieldCheck, Trash2, TriangleAlert, VideoOff } from "lucide-react";
-import { formatDateTime, formatDuration } from "@/shared/lib";
+import { Loader2, ShieldCheck, Trash2, TriangleAlert, VideoOff } from "lucide-react";
+import { formatDateTime } from "@/shared/lib";
 import type { LessonRecording } from "@/shared/types";
 import { Button, Dialog, DialogContent } from "@/shared/ui/legacy";
 import { useDeleteRecording } from "../model/lesson.queries";
@@ -12,18 +12,12 @@ export interface LessonRecordingPlayerProps {
   canDelete?: boolean;
 }
 
-function formatSize(bytes: number): string {
-  if (!bytes) return "";
-  const mb = bytes / 1024 / 1024;
-  return mb >= 1024 ? `${(mb / 1024).toFixed(1)} GB` : `${Math.round(mb)} MB`;
-}
-
 /**
- * Dars video yozuvi (docs/PROJECT.md §10).
+ * Dars video yozuvi (docs/COMPLETED_WORK.md §1).
  *
- * Yozuv FAQAT platformada ochiladi: havola muddatli va imzolangan, yuklab olish
+ * Yozuv FAQAT platformada ochiladi: havola 3 soatlik va imzolangan, yuklab olish
  * tugmasi ko'rsatilmaydi (`controlsList`), kontekst menyusi bloklanadi.
- * Bu himoya emas — brauzerda to'liq himoya imkonsiz — lekin yozuvni tarqatishni
+ * Bu to'liq himoya emas — brauzerda imkonsiz — lekin yozuvni tarqatishni
  * taklif qilmaslik hujjatdagi talab.
  */
 export function LessonRecordingPlayer({
@@ -43,20 +37,26 @@ export function LessonRecordingPlayer({
     );
   }
 
-  if (recording.status === "processing") {
+  if (recording.status === "failed") {
     return (
-      <div className="recording-state">
-        <Loader2 size={28} className="spin" />
-        <p>Yozuv tayyorlanmoqda — tayyor bo‘lishi bilan shu yerda ochiladi.</p>
+      <div className="recording-state recording-state--error">
+        <TriangleAlert size={28} />
+        <p>{recording.error || "Yozuvni tayyorlashda xatolik yuz berdi."}</p>
       </div>
     );
   }
 
-  if (recording.status === "failed" || !recording.streamUrl) {
+  // `recording` — dars hali davom etmoqda; `completed` bo'lsa-yu havola yo'q bo'lsa
+  // egress fayli hali ko'chirilmagan. Ikkalasida ham kutish holati ko'rsatiladi.
+  if (!recording.ready || !recording.streamUrl) {
     return (
-      <div className="recording-state recording-state--error">
-        <TriangleAlert size={28} />
-        <p>Yozuvni ochib bo‘lmadi. Iltimos, keyinroq urinib ko‘ring.</p>
+      <div className="recording-state">
+        <Loader2 size={28} className="spin" />
+        <p>
+          {recording.status === "recording"
+            ? "Dars yozib olinmoqda — tugagach shu yerda ochiladi."
+            : "Yozuv tayyorlanmoqda — tayyor bo‘lishi bilan shu yerda ochiladi."}
+        </p>
       </div>
     );
   }
@@ -79,15 +79,12 @@ export function LessonRecordingPlayer({
           <strong>{recording.title}</strong>
           <small>
             <ShieldCheck size={13} /> Faqat platformada ochiladi
-            {recording.createdAt ? ` · ${formatDateTime(recording.createdAt)}` : ""}
-            {recording.durationSeconds ? ` · ${formatDuration(recording.durationSeconds)}` : ""}
-            {recording.sizeBytes ? ` · ${formatSize(recording.sizeBytes)}` : ""}
+            {recording.endedAt
+              ? ` · ${formatDateTime(recording.endedAt)}`
+              : recording.createdAt
+                ? ` · ${formatDateTime(recording.createdAt)}`
+                : ""}
           </small>
-          {recording.expiresAt ? (
-            <small>
-              <Clock3 size={13} /> Havola {formatDateTime(recording.expiresAt)} gacha amal qiladi
-            </small>
-          ) : null}
         </div>
         {canDelete ? (
           <Button variant="secondary" onClick={() => setConfirmOpen(true)}>

@@ -1,5 +1,5 @@
 import { useMemo } from "react";
-import { CalendarDays, Clock3, Eye, UsersRound } from "lucide-react";
+import { CalendarDays, Clock3, Eye, ShieldAlert, UsersRound } from "lucide-react";
 import { formatDateTime, formatDuration } from "@/shared/lib";
 import type { AttendanceRow } from "@/shared/types";
 import { Avatar } from "@/shared/ui/legacy";
@@ -85,6 +85,11 @@ export function AttendanceAccordion({
                     className={`${BADGE} ${rate >= 70 ? TONE.good : rate >= 40 ? TONE.warn : TONE.bad} not-italic`}
                   >
                     <Eye size={11} /> {rate}%
+                  </i>
+                ) : null}
+                {group.hasAlert ? (
+                  <i className={`${BADGE} ${TONE.bad} not-italic`}>
+                    <ShieldAlert size={11} /> Ota-onaga xabar
                   </i>
                 ) : null}
                 {group.focusExits ? (

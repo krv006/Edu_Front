@@ -2,6 +2,7 @@ import { useState, type ComponentType, type ReactNode } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { ChevronDown, LogOut, Menu, X } from "lucide-react";
 import { NavLink, Outlet } from "react-router-dom";
+import { NotificationBell } from "@/modules/notification";
 import type { AuthUser } from "@/shared/types";
 import { Avatar, Brand, ThemeToggle } from "@/shared/ui/legacy";
 
@@ -37,6 +38,7 @@ export function PortalLayout({ navItems, roleLabel, user, onLogout, headerExtra 
           </NavLink>
           <div className="portal-header-actions">
             {headerExtra}
+            <NotificationBell enabled={Boolean(user)} />
             <ThemeToggle className="portal-theme-toggle" />
             <span className="portal-role-badge">{roleLabel}</span>
             <div className="portal-account-wrap">

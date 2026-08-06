@@ -39,7 +39,7 @@ export const lessonApi = {
   async getRecording(id: string, options?: RequestOptions) {
     try {
       const dto = await apiClient.get<LessonRecordingDto>(lessonEndpoints.recording(id), options);
-      return mapLessonRecordingDto(dto, id);
+      return mapLessonRecordingDto(dto);
     } catch (error) {
       if (error instanceof AppError && error.status === 404) return null;
       if (error instanceof AppError && error.code === API_ERROR_CODES.NOT_FOUND) return null;

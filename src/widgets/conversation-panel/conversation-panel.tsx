@@ -3,6 +3,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Menu, Plus, Search, X } from "lucide-react";
 import { useParams } from "react-router-dom";
 import { ConversationItem, NewConversationDialog, useConversations } from "@/modules/conversation";
+import { NotificationBell } from "@/modules/notification";
 import { Avatar } from "@/shared/ui/legacy";
 import { useAuth } from "@/modules/auth";
 import { StudentEnrollmentDialog } from "@/modules/student";
@@ -124,6 +125,7 @@ export function ConversationPanel({ role = "teacher" }: ConversationPanelProps) 
               )}
             </AnimatePresence>
           </div>
+          <NotificationBell enabled={Boolean(user)} />
           <button
             className="panel-account"
             onClick={() => setMenuOpen(true)}

@@ -29,4 +29,9 @@ export interface AttendanceDto {
   /** Eski, tekis maydon — `focus` kelmasa zaxira sifatida ishlatiladi. */
   focus_exits: number;
   focus?: FocusJournalDto | null;
+  /**
+   * Chegaradan oshib chiqqan va ota-onaga signal ketgan
+   * (docs/COMPLETED_WORK.md §3). Eski backendda bu maydon yo'q.
+   */
+  focus_alert?: boolean | null;
 }

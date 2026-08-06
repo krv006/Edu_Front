@@ -1,7 +1,13 @@
 import { apiClient, type RequestOptions } from "@/shared/api";
 import { liveEndpoints } from "./live.endpoints";
-import type { AttentionAnswerDto, AttentionResponseDto, FocusKind, RoomTokenDto } from "./live.dto";
-import { mapAttentionDto, mapRoomTokenDto } from "../lib/live.mappers";
+import type {
+  AttentionAnswerDto,
+  AttentionResponseDto,
+  FocusKind,
+  FocusResponseDto,
+  RoomTokenDto,
+} from "./live.dto";
+import { mapAttentionDto, mapFocusDto, mapRoomTokenDto } from "../lib/live.mappers";
 
 export const liveApi = {
   async getToken(lessonId: string) {
@@ -23,7 +29,9 @@ export const liveApi = {
     return { answeredAt: dto.answered_at };
   },
   async sendFocus(lessonId: string, kind: FocusKind) {
-    return apiClient.post(liveEndpoints.focus, { lesson_id: lessonId, kind });
+    return mapFocusDto(
+      await apiClient.post<FocusResponseDto>(liveEndpoints.focus, { lesson_id: lessonId, kind })
+    );
   },
   async allowShare(lessonId: string, identity: string) {
     return apiClient.post(liveEndpoints.allowShare, { lesson_id: lessonId, identity });

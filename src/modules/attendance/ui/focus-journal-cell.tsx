@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { ArrowLeftRight, Eye, LogIn, LogOut, Timer } from "lucide-react";
+import { ArrowLeftRight, Eye, LogIn, LogOut, ShieldAlert, Timer } from "lucide-react";
 import { formatDateTime, formatDuration } from "@/shared/lib";
 import type { FocusJournal } from "@/shared/types";
 import { Dialog, DialogContent } from "@/shared/ui/legacy";
@@ -24,7 +24,13 @@ export function FocusJournalCell({ focus, student, lesson }: FocusJournalCellPro
 
   return (
     <>
-      <button className="focus-cell" type="button" onClick={() => setOpen(true)}>
+      <button
+        className={`focus-cell ${focus.alert ? "is-alert" : ""}`}
+        type="button"
+        title={focus.alert ? "Chegaradan oshgan — ota-onaga xabar berilgan" : undefined}
+        onClick={() => setOpen(true)}
+      >
+        {focus.alert ? <ShieldAlert size={13} aria-hidden="true" /> : null}
         <strong>{focus.exits} chiqish</strong>
         {focus.awaySeconds ? <small>{formatDuration(focus.awaySeconds)}</small> : null}
         <Eye size={14} aria-hidden="true" />
@@ -34,6 +40,12 @@ export function FocusJournalCell({ focus, student, lesson }: FocusJournalCellPro
         {open ? (
           <DialogContent title="Fokus jurnali" description={`${student} · ${lesson}`}>
             <div className="focus-journal">
+              {focus.alert ? (
+                <p className="focus-alert">
+                  <ShieldAlert size={15} />
+                  Chiqishlar soni chegaradan oshgan — ota-onaga xabar yuborilgan.
+                </p>
+              ) : null}
               <div className="focus-stats">
                 <span>
                   <ArrowLeftRight size={15} />

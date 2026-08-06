@@ -18,6 +18,31 @@ export interface AttentionAnswerDto {
 /** Fokus jurnali hodisasi: oynadan chiqish / qaytish. */
 export type FocusKind = "exit" | "return";
 
+/**
+ * `POST /api/v1/live/focus/` javobi (docs/COMPLETED_WORK.md §3).
+ *
+ * `kind=return` da hisoblagichga ta'sir qilinmaydi va maydonlar bo'sh keladi.
+ * Eski backend faqat `{ok: true}` qaytaradi — shuning uchun hammasi ixtiyoriy.
+ */
+export interface FocusResponseDto {
+  ok?: boolean;
+  kind?: FocusKind;
+  /** Shu darsda jami necha marta oynadan chiqqani. */
+  exit_count?: number;
+  /** Ota-onaga signal yuboriladigan chegara (default 3). */
+  threshold?: number;
+  /** Chegaradan oshgan — ota-onaga signal yaratilgan. */
+  parent_notified?: boolean;
+}
+
+export interface FocusResult {
+  exitCount: number;
+  threshold: number;
+  parentNotified: boolean;
+  /** Backend eskirgan bo'lsa (`exit_count` yubormasa) — ogohlantirish ko'rsatilmaydi. */
+  tracked: boolean;
+}
+
 // ─── Domen ko'rinishlari ────────────────────────────────────────────────────
 export interface RoomToken {
   token: string;

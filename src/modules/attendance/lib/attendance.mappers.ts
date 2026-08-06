@@ -12,7 +12,11 @@ function time(value: string | null | undefined): string {
  * Eski backend faqat `focus_exits` sonini qaytaradi, yangisi to'liq `focus` obyektini.
  * Ikkalasini ham bitta shaklga keltiramiz — UI faqat `AttendanceRow.focus` bilan ishlaydi.
  */
-function mapFocusJournal(dto: FocusJournalDto | null | undefined, fallbackExits: number): FocusJournal {
+function mapFocusJournal(
+  dto: FocusJournalDto | null | undefined,
+  fallbackExits: number,
+  alert: boolean
+): FocusJournal {
   return {
     exits: Number(dto?.exits ?? fallbackExits ?? 0),
     awaySeconds: Number(dto?.away_seconds ?? 0),
@@ -22,6 +26,7 @@ function mapFocusJournal(dto: FocusJournalDto | null | undefined, fallbackExits:
       returnedAt: item.returned_at,
       seconds: Number(item.seconds ?? 0),
     })),
+    alert,
   };
 }
 
@@ -46,7 +51,7 @@ export function mapAttendanceDto(dto: AttendanceDto): AttendanceRow {
     duration: `${Number(dto.minutes ?? 0)} daqiqa`,
     attentionTotal: Number(dto.attention_total ?? 0),
     attentionAnswered: Number(dto.attention_answered ?? 0),
-    focus: mapFocusJournal(dto.focus, Number(dto.focus_exits ?? 0)),
+    focus: mapFocusJournal(dto.focus, Number(dto.focus_exits ?? 0), Boolean(dto.focus_alert)),
     status: dto.left_at ? "completed" : "active",
   };
 }

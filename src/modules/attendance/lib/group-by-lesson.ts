@@ -12,6 +12,8 @@ export interface LessonAttendanceGroup {
   attentionTotal: number;
   focusExits: number;
   awaySeconds: number;
+  /** Shu darsda kamida bitta o'quvchi chegaradan oshib chiqqan. */
+  hasAlert: boolean;
 }
 
 /**
@@ -37,6 +39,7 @@ export function groupAttendanceByLesson(rows: AttendanceRow[]): LessonAttendance
         attentionTotal: 0,
         focusExits: 0,
         awaySeconds: 0,
+        hasAlert: false,
       };
       groups.set(row.lessonId, group);
     }
@@ -47,6 +50,7 @@ export function groupAttendanceByLesson(rows: AttendanceRow[]): LessonAttendance
     group.attentionTotal += row.attentionTotal;
     group.focusExits += row.focus.exits;
     group.awaySeconds += row.focus.awaySeconds;
+    group.hasAlert ||= row.focus.alert;
 
     if (row.joinedAt && (!group.startedAt || row.joinedAt < group.startedAt)) {
       group.startedAt = row.joinedAt;

@@ -9,6 +9,7 @@ import {
   useUpdateProfileMutation,
   type ProfileFormValues,
 } from "@/modules/auth";
+import { NotificationInboxDialog } from "@/modules/notification";
 import { Avatar, Button, Dialog, DialogContent, ThemeToggle } from "@/shared/ui/legacy";
 
 type MenuItemId = "profile" | "logins" | "notifications" | "settings";
@@ -47,6 +48,7 @@ export function AccountMenu({
   const updateProfile = useUpdateProfileMutation();
   const [editing, setEditing] = useState(false);
   const [loginsOpen, setLoginsOpen] = useState(false);
+  const [inboxOpen, setInboxOpen] = useState(false);
   const [draft, setDraft] = useState<ProfileFormValues>({ firstName: "", lastName: "", phone: "" });
 
   function selectItem(id: MenuItemId) {
@@ -60,11 +62,12 @@ export function AccountMenu({
       setLoginsOpen(true);
       return;
     }
-    toast.info(
-      id === "notifications"
-        ? "Backendda bildirishnoma endpointi mavjud emas"
-        : "Sozlamalar ushbu qurilmada saqlanadi"
-    );
+    if (id === "notifications") {
+      onOpenChange(false);
+      setInboxOpen(true);
+      return;
+    }
+    toast.info("Sozlamalar ushbu qurilmada saqlanadi");
   }
 
   async function handleLogout() {
@@ -275,6 +278,7 @@ export function AccountMenu({
       </Dialog>
 
       <LoginHistoryDialog open={loginsOpen} onOpenChange={setLoginsOpen} />
+      <NotificationInboxDialog open={inboxOpen} onOpenChange={setInboxOpen} />
     </>
   );
 }

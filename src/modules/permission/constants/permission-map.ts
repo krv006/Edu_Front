@@ -17,6 +17,8 @@ export const PERMISSIONS = Object.freeze({
   GRADE_MANAGE: "grade:manage",
   PAYMENT_VIEW: "payment:view",
   USER_MANAGE: "user:manage",
+  /** Bildirishnoma yuborish — backendda `notification.send` (docs/COMPLETED_WORK.md §2). */
+  NOTIFICATION_SEND: "notification:send",
 });
 
 export type Permission = (typeof PERMISSIONS)[keyof typeof PERMISSIONS];
@@ -31,6 +33,7 @@ export const ROLE_PERMISSIONS: Record<string, readonly (Permission | "*")[]> = O
     PERMISSIONS.STUDENT_VIEW,
     PERMISSIONS.PAYMENT_VIEW,
     PERMISSIONS.USER_MANAGE,
+    PERMISSIONS.NOTIFICATION_SEND,
   ],
   [ROLES.TEACHER]: [
     PERMISSIONS.COURSE_VIEW,

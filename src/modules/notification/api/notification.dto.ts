@@ -1,0 +1,93 @@
+import type { UserDto } from "@/shared/types";
+
+/** Kimga yuborilgani: bitta foydalanuvchiga yoki hammaga. */
+export type NotificationTarget = "user" | "all";
+
+/** Xabarning o'zi (yuboruvchi ko'rinishi). */
+export interface NotificationDto {
+  id: string;
+  sender?: UserDto | null;
+  /** `nh3` bilan tozalangan HTML — faqat formatlash teglari. */
+  description: string;
+  target_type: NotificationTarget;
+  created_at: string;
+}
+
+/** `GET /notifications/` — inbox qatori (`id` — recipient yozuvi id'si). */
+export interface NotificationRecipientDto {
+  id: string;
+  notification: NotificationDto;
+  is_read: boolean;
+  read_at: string | null;
+  created_at: string;
+}
+
+/** `GET /notifications/sent/` — admin yuborgan xabar + o'qish statistikasi. */
+export interface SentNotificationDto {
+  id: string;
+  description: string;
+  target_type: NotificationTarget;
+  created_at: string;
+  read_count: number;
+  total_count: number;
+}
+
+/** `GET /notifications/{id}/recipients/` — kim o'qidi, kim yo'q. */
+export interface NotificationRecipientRowDto {
+  user: UserDto;
+  read_at: string | null;
+}
+
+/** `POST /notifications/send/` tanasi. */
+export interface SendNotificationDto {
+  description: string;
+  target_type: NotificationTarget;
+  /** Faqat `target_type: "user"` bo'lganda kerak. */
+  user_id?: string;
+}
+
+// ─── Domen ko'rinishlari ────────────────────────────────────────────────────
+
+export interface NotificationSender {
+  id: string;
+  name: string;
+  username: string;
+  role: string;
+}
+
+export interface InboxNotification {
+  /** Recipient yozuvining id'si — "o'qildi" shu id bilan yuboriladi. */
+  id: string;
+  notificationId: string;
+  sender: NotificationSender | null;
+  /** Tozalangan HTML. */
+  html: string;
+  targetType: NotificationTarget;
+  isRead: boolean;
+  readAt: string | null;
+  createdAt: string;
+}
+
+export interface SentNotification {
+  id: string;
+  html: string;
+  targetType: NotificationTarget;
+  createdAt: string;
+  readCount: number;
+  totalCount: number;
+}
+
+export interface NotificationRecipientRow {
+  id: string;
+  name: string;
+  username: string;
+  role: string;
+  readAt: string | null;
+}
+
+/** Admin xabar yuborish formasi. */
+export interface SendNotificationInput {
+  description: string;
+  targetType: NotificationTarget;
+  userId?: string | null;
+}
