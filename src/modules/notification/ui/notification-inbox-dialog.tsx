@@ -70,8 +70,8 @@ export function NotificationInboxDialog({ open, onOpenChange }: NotificationInbo
                     <Button
                       size="sm"
                       variant="secondary"
-                      loading={markRead.isPending && markRead.variables === item.id}
-                      onClick={() => markRead.mutate(item.id)}
+                      loading={markRead.isPending && markRead.variables === item.notificationId}
+                      onClick={() => markRead.mutate(item.notificationId)}
                     >
                       O‘qidim
                     </Button>

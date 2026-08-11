@@ -39,9 +39,14 @@ export const notificationApi = {
     }
   },
 
-  async markRead(recipientId: string) {
-    await apiClient.post(notificationEndpoints.read(recipientId), {});
-    return recipientId;
+  /**
+   * Diqqat: backend XABAR id'sini kutadi (`notification.id`), inbox qatorining
+   * id'sini emas. Ikkalasi ham UUID, shuning uchun adashish oson — noto'g'risi
+   * yuborilsa 404 keladi.
+   */
+  async markRead(notificationId: string) {
+    await apiClient.post(notificationEndpoints.read(notificationId), {});
+    return notificationId;
   },
 
   async send(input: SendNotificationInput) {

@@ -40,10 +40,11 @@ export function useNotificationInbox(params: QueryParams = {}, enabled = true) {
   });
 }
 
+/** `notificationId` — inbox qatorining emas, xabarning o'zining id'si. */
 export function useMarkNotificationRead() {
   const client = useQueryClient();
   return useMutation({
-    mutationFn: (recipientId: string) => notificationApi.markRead(recipientId),
+    mutationFn: (notificationId: string) => notificationApi.markRead(notificationId),
     onSuccess: () => client.invalidateQueries({ queryKey: notificationKeys.all }),
   });
 }
