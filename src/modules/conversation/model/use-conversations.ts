@@ -1,14 +1,33 @@
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useMutation, useQuery, useQueryClient, type QueryClient } from "@tanstack/react-query";
+import type { Page } from "@/shared/api";
+import type { Conversation, ConversationRole } from "@/shared/types";
 import { conversationApi } from "../api/conversation.api";
 import type { DirectAction } from "../api/conversation.dto";
 import { conversationKeys } from "./conversation.keys";
 
-export function useConversations() {
+export function useConversations(role: ConversationRole = "teacher") {
   return useQuery({
-    queryKey: conversationKeys.list(),
+    queryKey: conversationKeys.list(role),
     queryFn: ({ signal }) => conversationApi.getAll({ signal }),
     select: (page) => page.items,
   });
+}
+
+/**
+ * Yon paneldagi ro'yxatdan bitta suhbatni oladi.
+ *
+ * Ro'yxat ham, detal ham `mapConversationDto` orqali bir xil shaklga keladi,
+ * shuning uchun chat sahifasi detal so'rovi kelguncha shu nusxani ko'rsatib
+ * turishi mumkin — skeleton umuman chiqmaydi.
+ */
+export function readCachedConversation(
+  client: QueryClient,
+  id: string | undefined,
+  role: ConversationRole = "teacher"
+): Conversation | undefined {
+  if (!id) return undefined;
+  const page = client.getQueryData<Page<Conversation>>(conversationKeys.list(role));
+  return page?.items.find((item) => item.id === id);
 }
 
 export function useTeachersForDirect() {

@@ -84,14 +84,26 @@ export function GroupWorkspace({
   const [reply, setReply] = useState<ChatMessage | null>(null);
   const courseId = conversation.courseId;
 
-  const course = useCourse(courseId);
-  const lessons = useLessons({ course: courseId, page_size: 100 });
-  const assignments = useAssignments(courseId);
-  const students = useCourseStudents(courseId, { page_size: 100 });
-  const attendance = useAttendance({ page_size: 100 });
-
   const tabParam = params.get("tab") as TabId | null;
   const activeTab: TabId = TABS.some((item) => item.id === tabParam) ? (tabParam as TabId) : "chat";
+
+  /**
+   * Har bir bo'lim faqat o'zi ochilganda so'rov yuboradi.
+   *
+   * Avval beshalasi ham chat ochilishi bilan birdan ketardi — davomat va
+   * o'quvchilar ro'yxati `page_size: 100` bilan og'ir, natijada foydalanuvchi
+   * xabarlarni ko'rishdan oldin bir necha soniya kutardi. Kurs ma'lumoti
+   * bundan mustasno: u chat sarlavhasini to'ldiradi.
+   */
+  const course = useCourse(courseId);
+  // Davomat jadvali darslar ro'yxatiga tayanadi — u ikki bo'limda kerak.
+  const lessons = useLessons(
+    { course: courseId, page_size: 100 },
+    activeTab === "lessons" || activeTab === "attendance"
+  );
+  const assignments = useAssignments(courseId, activeTab === "assignments");
+  const students = useCourseStudents(courseId, { page_size: 100 }, activeTab === "students");
+  const attendance = useAttendance({ page_size: 100 }, activeTab === "attendance");
 
   async function send(payload: SendMessagePayload) {
     try {

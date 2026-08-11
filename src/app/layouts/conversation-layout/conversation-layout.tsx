@@ -1,5 +1,5 @@
 import { useEffect, useState, type CSSProperties, type KeyboardEvent, type PointerEvent } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { motion } from "framer-motion";
 import { Outlet, useParams } from "react-router-dom";
 import { ConversationPanel } from "@/widgets/conversation-panel";
 import { STORAGE_KEYS } from "@/shared/constants";
@@ -79,18 +79,21 @@ export function ConversationLayout({ role = "teacher" }: { role?: ConversationRo
         <span />
       </div>
       <main className={`teacher-main conversation-main ${conversationId ? "has-conversation" : ""}`}>
-        <AnimatePresence mode="wait">
-          <motion.div
-            key={conversationId ?? "empty"}
-            className="route-motion"
-            initial={{ opacity: 0, x: 5 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -4 }}
-            transition={{ duration: 0.18 }}
-          >
-            <Outlet />
-          </motion.div>
-        </AnimatePresence>
+        {/*
+          `AnimatePresence mode="wait"` ataylab olib tashlandi: u eski sahifa
+          chiqib ketmaguncha yangisini umuman mount qilmasdi, ya'ni har suhbat
+          almashganda 180 ms sof kechikish va so'rovlarning shuncha kechikishi.
+          Endi yangi sahifa darhol mount bo'lib, joyida ochiladi.
+        */}
+        <motion.div
+          key={conversationId ?? "empty"}
+          className="route-motion"
+          initial={{ opacity: 0, x: 4 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.14, ease: "easeOut" }}
+        >
+          <Outlet />
+        </motion.div>
       </main>
     </div>
   );

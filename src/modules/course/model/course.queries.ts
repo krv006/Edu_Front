@@ -45,11 +45,11 @@ export function useCourse(id: string | null) {
   });
 }
 
-export function useCourseStudents(id: string | null, params: QueryParams = {}) {
+export function useCourseStudents(id: string | null, params: QueryParams = {}, enabled = true) {
   return useQuery({
     queryKey: courseKeys.students(id ?? "", params),
     queryFn: ({ signal }) => courseApi.getStudents(id as string, { signal, query: params }),
-    enabled: Boolean(id),
+    enabled: Boolean(id) && enabled,
   });
 }
 

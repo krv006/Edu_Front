@@ -34,7 +34,7 @@ export function ConversationPanel({ role = "teacher" }: ConversationPanelProps) 
   const searchRef = useRef<HTMLDivElement>(null);
   const { conversationId } = useParams();
   const { user } = useAuth();
-  const { data = [], isLoading, isError, refetch } = useConversations();
+  const { data = [], isLoading, isError, refetch } = useConversations(role);
   const isTeacher = role === "teacher";
   const basePath = isTeacher ? "/teacher/chats" : "/student/chats";
 

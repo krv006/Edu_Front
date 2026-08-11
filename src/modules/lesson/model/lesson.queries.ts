@@ -15,11 +15,13 @@ export const lessonKeys = Object.freeze({
 /** Egress MP4 ni yozib tugatguncha holat `processing` — shu vaqtda sekin polling qilamiz. */
 const RECORDING_POLL_MS = 15_000;
 
-export function useLessons(params: QueryParams = {}) {
+/** `enabled` — chaqiruvchi ko'rinmayotgan bo'lim uchun so'rov yubormasligi mumkin. */
+export function useLessons(params: QueryParams = {}, enabled = true) {
   return useQuery({
     queryKey: lessonKeys.list(params),
     queryFn: ({ signal }) => lessonApi.getAll({ signal, query: params }),
     select: (page) => page.items,
+    enabled,
   });
 }
 
