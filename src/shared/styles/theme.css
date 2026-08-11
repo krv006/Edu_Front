@@ -10,75 +10,82 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  /* --- Brend --- */
-  --background: #f6f7fb;
-  --foreground: #1f2030;
+  /* --- Brend ---
+     Brend rangi — ko'k #2B7FFF. U FON sifatida ishlatiladi (tugma, aktiv holat),
+     shuning uchun ustidagi matn QORONG'I: oq matn bu ko'kda atigi 3.76:1 berardi
+     (AA'dan past), qorong'i matn esa 5.04:1. */
+  --background: #f5f7fa;
+  --foreground: #1a1f26;
   --surface: #ffffff;
   --surface-elevated: #ffffff;
 
-  --primary: #6957e8;
-  --primary-hover: #5b49da;
-  --primary-foreground: #ffffff;
-  --primary-soft: #f0edff;
-  /* Yuza ustidagi MATN sifatidagi brend rangi. --primary fon uchun optimallashtirilgan
-     (oq matn bilan AA), matn uchun esa alohida qiymat kerak. */
-  --primary-text: #6957e8;
+  --primary: #2b7fff;
+  --primary-hover: #1f6ff0;
+  --primary-foreground: #08111c;
+  --primary-soft: #e8f1ff;
+  /* Yuza ustidagi MATN sifatidagi brend rangi — alohida, to'qroq qiymat.
+     --primary o'zi oq fonda atigi 3.76:1 berardi; bu esa 5.13:1. */
+  --primary-text: #1466e8;
 
-  --secondary: #f2f3f7;
-  --secondary-foreground: #1f2030;
+  --secondary: #eef1f6;
+  --secondary-foreground: #1a1f26;
 
-  --muted: #f2f3f7;
-  /* WCAG AA: oq fonda 5.23:1, muted fonda 4.72:1, sahifa fonida 4.89:1. */
-  --muted-foreground: #696b80;
+  --muted: #eef1f6;
+  /* WCAG AA: oq fonda 5.87:1, sahifa fonida 5.47:1. */
+  --muted-foreground: #5a6672;
 
-  --accent: #f0edff;
-  --accent-foreground: #4a3bc4;
+  --accent: #e8f1ff;
+  --accent-foreground: #0f4fb3;
 
   --card: #ffffff;
-  --card-foreground: #1f2030;
+  --card-foreground: #1a1f26;
   --popover: #ffffff;
-  --popover-foreground: #1f2030;
+  --popover-foreground: #1a1f26;
 
-  --border: #e6e6ee;
-  --border-strong: #d9d9e5;
-  --input: #e6e6ee;
-  --ring: #6957e8;
+  --border: #e2e7ef;
+  --border-strong: #d2d9e4;
+  --input: #e2e7ef;
+  --ring: #2b7fff;
 
-  /* WCAG AA: oq matn bilan 4.88:1 (avvalgi #d94555 — 4.26:1, AA'dan past edi). */
+  /* WCAG AA: oq matn bilan 4.88:1. */
   --destructive: #cd3a4b;
   --destructive-foreground: #ffffff;
   --success: #22a979;
   --warning: #e99a3d;
 
-  --chart-1: #6957e8;
+  --chart-1: #2b7fff;
   --chart-2: #22a979;
   --chart-3: #e99a3d;
   --chart-4: #d94555;
-  --chart-5: #3b82f6;
+  --chart-5: #7c5cf0;
 
-  --sidebar: #171725;
-  --sidebar-muted: #9696aa;
-  --sidebar-foreground: #e8e8f2;
-  --sidebar-primary: #6957e8;
-  --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #23233a;
+  --sidebar: #101720;
+  --sidebar-muted: #8b98a5;
+  --sidebar-foreground: #e6edf3;
+  --sidebar-primary: #2b7fff;
+  --sidebar-primary-foreground: #08111c;
+  --sidebar-accent: #192739;
   --sidebar-accent-foreground: #ffffff;
-  --sidebar-border: #2a2a42;
-  --sidebar-ring: #6957e8;
+  --sidebar-border: #232c36;
+  --sidebar-ring: #2b7fff;
 
   /* --- Kengaytirilgan semantik tokenlar ---
      legacy.css da qattiq yozilgan ranglar shu tokenlarga bog'landi,
      shuning uchun har bir ekran dark rejimga avtomatik moslashadi. */
 
   /* Yuzalar: sahifa fonidan sal ajralib turadigan bloklar */
-  --surface-subtle: #f7f7fb;
-  --surface-tint: #faf9ff;
+  --surface-subtle: #f7f9fc;
+  --surface-tint: #f6faff;
 
-  /* Brend binafsha yuvindilari (kartochka fonlari, hover holatlar) */
-  --primary-tint: #f6f4ff;
-  --primary-tint-strong: #e9e4ff;
-  --border-accent: #ded8ff;
-  --border-accent-strong: #cfc7ff;
+  /* Suhbat maydoni foni — yon panel (--surface) dan to'qroq, shunda xabar
+     pufakchalari va yon panel bir-biridan aniq ajralib turadi. */
+  --chat-bg: #f5f7fa;
+
+  /* Brend ko'k yuvindilari (kartochka fonlari, hover holatlar) */
+  --primary-tint: #f3f8ff;
+  --primary-tint-strong: #deebff;
+  --border-accent: #c7ddff;
+  --border-accent-strong: #a9cbff;
 
   /* Holat ranglari — yumshoq fon + kontrastli matn */
   --destructive-soft: #fff0f2;
@@ -102,94 +109,129 @@
      RGB uchligi alohida token — shaffoflik darajasi har joyda o‘zgacha,
      lekin rang asosi mavzuga qarab almashadi. */
   --surface-rgb: 255 255 255;
-  --shadow-rgb: 31 29 57;
-  --scrim-rgb: 12 12 22;
-  --overlay: rgba(12, 12, 22, 0.55);
+  --shadow-rgb: 26 31 38;
+  --scrim-rgb: 10 14 19;
+  --overlay: rgba(10, 14, 19, 0.55);
   --glass: rgba(255, 255, 255, 0.94);
-  --glass-border: rgba(226, 225, 236, 0.9);
+  --glass-border: rgba(226, 231, 239, 0.9);
 
-  --shadow-sm: 0 1px 3px rgba(31, 29, 57, 0.08);
-  --shadow-md: 0 10px 26px rgba(35, 33, 67, 0.1);
-  --shadow-primary: 0 10px 26px rgba(105, 87, 232, 0.22);
-  --shadow-float: 0 18px 50px rgba(33, 31, 65, 0.12);
+  --shadow-sm: 0 1px 3px rgba(26, 31, 38, 0.08);
+  --shadow-md: 0 10px 26px rgba(26, 31, 38, 0.1);
+  --shadow-primary: 0 10px 26px rgba(43, 127, 255, 0.22);
+  --shadow-float: 0 18px 50px rgba(26, 31, 38, 0.12);
+
+  /* --- Tipografiya shkalasi ---
+     `legacy.css` da 26 xil o'lchov qo'lda yozilgan edi (8px dan 44px gacha),
+     332 tadan 245 tasi 13px va undan kichik. Shkala ularni 12 pog'onaga
+     yig'adi va pastki chekkasini ko'taradi — matn siqilgan ko'rinmasin.
+
+     Nom fazosi ataylab `--text-*` EMAS: u Tailwind'niki va shadcn
+     komponentlaridagi `text-sm` kabi utilitalarni o'zgartirib yuborardi. */
+  --fs-2xs: 11px;  /* avval 8–9.5px — mayda yorliqlar, meta matn */
+  --fs-xs: 12px;   /* avval 10px    — yordamchi matn */
+  --fs-sm: 13px;   /* avval 11px    — ikkilamchi matn */
+  --fs-md: 14px;   /* avval 12px    — asosiy matn */
+  --fs-lg: 15px;   /* avval 13px    — kuchaytirilgan matn */
+  --fs-xl: 16px;   /* avval 14–15px */
+  --fs-2xl: 17px;  /* avval 16–17px */
+  --fs-3xl: 19px;  /* avval 18–19px — kichik sarlavha */
+  --fs-4xl: 21px;  /* avval 20–22px */
+  --fs-5xl: 24px;  /* avval 23–25px */
+  --fs-6xl: 28px;  /* avval 26–29px — sahifa sarlavhasi */
+  --fs-7xl: 44px;  /* hero raqami */
+
+  /* --- Radius shkalasi ---
+     Avval 21 xil qiymat bor edi (2px dan 24px gacha) — 8/9/10/11/12 kabi
+     farqlarni ko'z ilg'amaydi, lekin ular UI'ni "yig'ilmagan" qiladi.
+     Qiymat manbasi — Tailwind'ning `--radius-*` tokenlari, shuning uchun
+     `rounded-md` utilitasi va `legacy.css` bir xil burchak beradi. */
+  --r-xs: 7px;
+  --r-sm: var(--radius-sm);
+  --r-md: var(--radius-md);
+  --r-lg: var(--radius-lg);
+  --r-xl: var(--radius-xl);
+  --r-full: 999px;
 }
 
 .dark {
-  --background: #101019;
-  --foreground: #ececf5;
-  --surface: #17172a;
-  --surface-elevated: #1d1d33;
+  --background: #0d1217;
+  --foreground: #e6edf3;
+  --surface: #161c23;
+  --surface-elevated: #1b242e;
 
-  /* Oq matn bilan 4.61:1 (AA) va fon bilan 4.10:1 — tugma fondan aniq ajralib turadi.
-     Avvalgi #8377ef yorug‘roq edi, oq matn bilan atigi 3.59:1 berardi. */
-  --primary: #6f61e8;
-  --primary-hover: #655bdf;
-  --primary-foreground: #ffffff;
-  --primary-soft: #232141;
-  /* Qorong‘i yuzada 7.45:1 (--primary o‘zi atigi 3.82:1 berardi). */
-  --primary-text: #a99cff;
+  /* Brend ko'k ikkala mavzuda ham bir xil — matni qorong'i (5.04:1). */
+  --primary: #2b7fff;
+  --primary-hover: #4d91ff;
+  --primary-foreground: #08111c;
+  --primary-soft: #192739;
+  /* Matn/ikonka uchun yorug'roq ko'k: eng yomon holatda (aktiv tab ustida)
+     4.90:1. --primary o'zi u yerda atigi 4.01:1 berardi. */
+  --primary-text: #4d91ff;
 
-  --secondary: #212137;
-  --secondary-foreground: #ececf5;
+  --secondary: #1b232b;
+  --secondary-foreground: #e6edf3;
 
-  --muted: #1d1d30;
-  --muted-foreground: #9a9ab4;
+  --muted: #192027;
+  /* Yuzada 5.82:1, aktiv tabda 5.13:1. */
+  --muted-foreground: #8b98a5;
 
-  --accent: #232141;
-  --accent-foreground: #c3bcff;
+  --accent: #192739;
+  --accent-foreground: #8cbbff;
 
-  --card: #17172a;
-  --card-foreground: #ececf5;
-  --popover: #1d1d33;
-  --popover-foreground: #ececf5;
+  --card: #161c23;
+  --card-foreground: #e6edf3;
+  --popover: #1b242e;
+  --popover-foreground: #e6edf3;
 
-  --border: #2a2a42;
-  --border-strong: #363654;
-  --input: #2a2a42;
-  --ring: #8377ef;
+  --border: #26313d;
+  --border-strong: #33404e;
+  --input: #26313d;
+  --ring: #4d91ff;
 
   --destructive: #f0616f;
-  --destructive-foreground: #16060a;
+  --destructive-foreground: #1a0a0d;
   --success: #35c493;
   --warning: #f0ac57;
 
-  --sidebar: #0c0c15;
-  --sidebar-muted: #75758d;
-  --sidebar-foreground: #ececf5;
-  --sidebar-accent: #1d1d33;
-  --sidebar-border: #232338;
+  --sidebar: #0a0e13;
+  --sidebar-muted: #7a8794;
+  --sidebar-foreground: #e6edf3;
+  --sidebar-accent: #192739;
+  --sidebar-border: #1e2731;
 
   /* --- Kengaytirilgan semantik tokenlar (qorong‘i variant) --- */
-  --surface-subtle: #1b1b2d;
-  --surface-tint: #1a1930;
+  --surface-subtle: #131a21;
+  --surface-tint: #151e29;
 
-  --primary-tint: #1e1c36;
-  --primary-tint-strong: #272348;
-  --border-accent: #332f5c;
-  --border-accent-strong: #423c73;
+  --chat-bg: #0d1217;
 
-  --destructive-soft: #2c1620;
-  --destructive-soft-border: #4a2331;
+  --primary-tint: #151e29;
+  --primary-tint-strong: #192739;
+  --border-accent: #23384f;
+  --border-accent-strong: #2c4a6b;
+
+  --destructive-soft: #2a1418;
+  --destructive-soft-border: #4a2028;
   --destructive-strong: #ff9aa6;
 
-  --success-soft: #102b25;
+  --success-soft: #0e2620;
   --success-strong: #5fd9ae;
 
-  --warning-soft: #2e2413;
+  --warning-soft: #2a2113;
   --warning-strong: #f5c37a;
 
---tone-violet-fg: #c3bcff;  --tone-violet-bg: #232141;
-  --tone-blue-fg:   #93c2f5;  --tone-blue-bg:   #17263a;
-  --tone-amber-fg:  #f5c37a;  --tone-amber-bg:  #2e2413;
-  --tone-emerald-fg:#5fd9ae;  --tone-emerald-bg:#102b25;
-  --tone-rose-fg:   #ffa5b6;  --tone-rose-bg:   #2c1620;
+  --tone-violet-fg: #b8c6ff;  --tone-violet-bg: #1e2440;
+  --tone-blue-fg:   #8cbbff;  --tone-blue-bg:   #16263a;
+  --tone-amber-fg:  #f5c37a;  --tone-amber-bg:  #2a2113;
+  --tone-emerald-fg:#5fd9ae;  --tone-emerald-bg:#0e2620;
+  --tone-rose-fg:   #ffa5b6;  --tone-rose-bg:   #2a1418;
 
-  --surface-rgb: 23 23 42;
+  --surface-rgb: 22 28 35;
   --shadow-rgb: 0 0 0;
-  --scrim-rgb: 2 2 6;
-  --overlay: rgba(4, 4, 10, 0.7);
-  --glass: rgba(23, 23, 42, 0.94);
-  --glass-border: rgba(42, 42, 66, 0.9);
+  --scrim-rgb: 2 4 8;
+  --overlay: rgba(3, 5, 9, 0.7);
+  --glass: rgba(22, 28, 35, 0.94);
+  --glass-border: rgba(38, 49, 61, 0.9);
 
   --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.5);
   --shadow-md: 0 10px 26px rgba(0, 0, 0, 0.55);
