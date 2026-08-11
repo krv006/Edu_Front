@@ -4,4 +4,8 @@ export const lessonEndpoints = Object.freeze({
   finish: (id: string) => `/api/v1/lessons/${id}/finish/`,
   /** Yozuv holati (GET) va o'qituvchi tomonidan o'chirish (DELETE). */
   recording: (id: string) => `/api/v1/lessons/${id}/recording/`,
+  /** O'quvchi tugagan darsga baho qo'yadi (POST). */
+  rate: (id: string) => `/api/v1/lessons/${id}/rate/`,
+  /** Shu darsga qo'yilgan baholar ro'yxati (GET). */
+  ratings: (id: string) => `/api/v1/lessons/${id}/ratings/`,
 });

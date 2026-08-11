@@ -1,8 +1,9 @@
-import { useCallback, useEffect, useRef } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { LiveKitRoom } from "@livekit/components-react";
 import { useNavigate, useParams } from "react-router-dom";
+import { useAuth } from "@/modules/auth";
 import { liveApi, useLiveToken } from "@/modules/live";
-import { useLesson } from "@/modules/lesson";
+import { RateLessonDialog, useLesson } from "@/modules/lesson";
 import { LoadingFallback, RouteState } from "@/shared/ui/legacy";
 import { LiveRoom, useLeaveGuard } from "@/widgets/live-room";
 
@@ -13,16 +14,23 @@ import { LiveRoom, useLeaveGuard } from "@/widgets/live-room";
 export function LiveLessonPage() {
   const { lessonId } = useParams();
   const navigate = useNavigate();
+  const { user } = useAuth();
   const lesson = useLesson(lessonId ?? null);
   const token = useLiveToken(lessonId, true);
   const joined = useRef(false);
+  const isTeacher = useRef(false);
+  const [ratePrompt, setRatePrompt] = useState(false);
 
   const connected = Boolean(token.data);
-  useLeaveGuard(connected);
+  // Baholash oynasi ochiq turganda sahifadan chiqish ogohlantirishi keraksiz.
+  useLeaveGuard(connected && !ratePrompt);
 
   // Xonaga kirganimizni belgilaymiz — chiqishda backendga "leave" yuboriladi (avtomatik davomat).
   useEffect(() => {
-    if (token.data) joined.current = true;
+    if (token.data) {
+      joined.current = true;
+      isTeacher.current = token.data.isTeacher;
+    }
   }, [token.data]);
 
   useEffect(() => {
@@ -35,9 +43,25 @@ export function LiveLessonPage() {
     };
   }, [lessonId]);
 
+  const refetchLesson = lesson.refetch;
+
+  /**
+   * O'quvchi darsdan chiqqanda: o'qituvchi darsni allaqachon yakunlagan bo'lsa
+   * chiqishdan oldin baho so'raymiz. Backend faqat tugagan darsni qabul qiladi,
+   * shuning uchun holat aynan shu payt qayta so'raladi.
+   */
   const handleLeave = useCallback(() => {
-    navigate(-1);
-  }, [navigate]);
+    if (isTeacher.current) {
+      navigate(-1);
+      return;
+    }
+    refetchLesson()
+      .then((result) => {
+        if (result.data?.status === "finished") setRatePrompt(true);
+        else navigate(-1);
+      })
+      .catch(() => navigate(-1));
+  }, [navigate, refetchLesson]);
 
   if (lesson.isLoading || token.isLoading) {
     return (
@@ -56,6 +80,27 @@ export function LiveLessonPage() {
           description={lesson.error?.message}
           actionLabel="Orqaga"
           onAction={handleLeave}
+        />
+      </main>
+    );
+  }
+
+  if (ratePrompt) {
+    return (
+      <main className="live-page">
+        <RouteState
+          eyebrow="DARS YAKUNLANDI"
+          title={lesson.data.title}
+          description="Chiqishdan oldin o‘qituvchi uchun fikringizni qoldiring."
+          actionLabel="Chiqish"
+          onAction={() => navigate(-1)}
+        />
+        <RateLessonDialog
+          lesson={lesson.data}
+          currentUserId={user?.id}
+          onOpenChange={(open) => {
+            if (!open) navigate(-1);
+          }}
         />
       </main>
     );

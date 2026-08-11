@@ -4,13 +4,28 @@ import {
   type Page,
   type PaginationOptions,
 } from "@/shared/api";
-import type { Lesson, LessonRecording, LessonRecordingStatus } from "@/shared/types";
+import type {
+  Lesson,
+  LessonRating,
+  LessonRecording,
+  LessonRecordingStatus,
+} from "@/shared/types";
 import type {
   LessonDto,
   LessonFormInput,
+  LessonRateRequestDto,
+  LessonRatingDto,
+  LessonRatingInput,
   LessonRecordingDto,
   LessonRequestDto,
 } from "../api/lesson.dto";
+
+/** Baho hali yo'q darsda backend `null` yoki bo'sh satr qaytaradi — bu 0 emas. */
+function toAverage(value: number | string | null | undefined): number | null {
+  if (value === null || value === undefined || value === "") return null;
+  const parsed = Number(value);
+  return Number.isFinite(parsed) ? parsed : null;
+}
 
 export function mapLessonDto(dto: LessonDto): Lesson {
   return {
@@ -27,6 +42,8 @@ export function mapLessonDto(dto: LessonDto): Lesson {
     createdAt: dto.created_at,
     date: dto.starts_at?.slice(0, 10) ?? "",
     time: dto.starts_at?.slice(11, 16) ?? "",
+    avgRating: toAverage(dto.avg_rating),
+    ratingCount: Number(dto.rating_count ?? 0),
   };
 }
 
@@ -53,6 +70,31 @@ export function mapLessonRecordingDto(dto: LessonRecordingDto): LessonRecording 
     endedAt: dto.ended_at ?? null,
     error: dto.error ?? null,
   };
+}
+
+export function mapLessonRatingDto(dto: LessonRatingDto): LessonRating {
+  const student = dto.student ?? null;
+  const fullName = [student?.first_name, student?.last_name].filter(Boolean).join(" ");
+
+  return {
+    id: String(dto.id),
+    lessonId: dto.lesson === undefined || dto.lesson === null ? "" : String(dto.lesson),
+    stars: Number(dto.stars ?? 0),
+    description: dto.description?.trim() ?? "",
+    studentId: student ? String(student.id) : null,
+    studentName: fullName || student?.username || dto.student_name || "O‘quvchi",
+    createdAt: dto.created_at,
+  };
+}
+
+/** Ro'yxat massiv ham, DRF sahifasi ham bo'lishi mumkin — ikkalasi ham bir shaklga keladi. */
+export function mapLessonRatingList(dto: unknown): LessonRating[] {
+  return normalizePagination<LessonRatingDto>(dto).items.map(mapLessonRatingDto);
+}
+
+export function mapLessonRatingRequest(input: LessonRatingInput): LessonRateRequestDto {
+  const description = input.description?.trim();
+  return description ? { stars: input.stars, description } : { stars: input.stars };
 }
 
 export function mapLessonRequest(form: LessonFormInput): LessonRequestDto {

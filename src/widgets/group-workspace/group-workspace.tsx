@@ -27,6 +27,7 @@ import {
   FinishLessonDialog,
   LessonCalendar,
   LessonList,
+  LessonRatingsDialog,
   LessonViewSwitch,
   useCreateLesson,
   useDeleteLesson,
@@ -208,6 +209,7 @@ function LessonsPanel({ courseId, lessons = [], loading }: LessonsPanelProps) {
   const [editing, setEditing] = useState<Lesson | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Lesson | null>(null);
   const [finishTarget, setFinishTarget] = useState<Lesson | null>(null);
+  const [ratingsTarget, setRatingsTarget] = useState<Lesson | null>(null);
   const navigate = useNavigate();
   const create = useCreateLesson();
   const update = useUpdateLesson();
@@ -230,6 +232,7 @@ function LessonsPanel({ courseId, lessons = [], loading }: LessonsPanelProps) {
     onJoin: (lesson: Lesson) => navigate(ROUTES.live(lesson.id)),
     onRecording: (lesson: Lesson) => navigate(ROUTES.recording(lesson.id)),
     onFinish: setFinishTarget,
+    onRatings: setRatingsTarget,
     onDelete: setDeleteTarget,
     onEdit: (lesson: Lesson) => {
       setEditing(lesson);
@@ -304,6 +307,12 @@ function LessonsPanel({ courseId, lessons = [], loading }: LessonsPanelProps) {
         lesson={finishTarget}
         onOpenChange={(open) => {
           if (!open) setFinishTarget(null);
+        }}
+      />
+      <LessonRatingsDialog
+        lesson={ratingsTarget}
+        onOpenChange={(open) => {
+          if (!open) setRatingsTarget(null);
         }}
       />
     </div>

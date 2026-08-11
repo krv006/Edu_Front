@@ -165,6 +165,24 @@ export interface Lesson {
   createdAt: string;
   date: string;
   time: string;
+  /** O'rtacha baho (1–5). Hali hech kim baholamagan bo'lsa — `null`. */
+  avgRating: number | null;
+  ratingCount: number;
+}
+
+/**
+ * O'quvchining tugagan darsga qo'ygan bahosi (docs/COMPLETED_WORK.md — baholash API).
+ * Anonim emas: kim qo'yganini o'qituvchi ko'radi.
+ */
+export interface LessonRating {
+  id: string;
+  lessonId: string;
+  /** 1 dan 5 gacha. */
+  stars: number;
+  description: string;
+  studentId: string | null;
+  studentName: string;
+  createdAt: string;
 }
 
 export interface LessonFormValues {

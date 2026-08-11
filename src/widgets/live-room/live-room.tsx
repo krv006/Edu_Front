@@ -64,8 +64,18 @@ export function LiveRoom({ lesson, isTeacher, onLeave }: LiveRoomProps) {
   const togglePanel = (next: Exclude<SidePanel, null>) =>
     setPanel((current) => (current === next ? null : next));
 
+  /**
+   * Doska yon panelga sig'maydi (asboblar qatori siqilib, gorizontal skroll paydo
+   * bo'ladi), shuning uchun u butun sahnani egallaydi va video chap pastdagi
+   * kichik oynaga tushadi. Ishtirokchilar ro'yxati esa oddiy yon panelligicha qoladi.
+   */
+  const boardFull = panel === "board";
+
   return (
-    <div className={`live-room ${panel ? "has-panel" : ""}`} data-lk-theme="default">
+    <div
+      className={`live-room ${panel ? "has-panel" : ""} ${boardFull ? "is-board-full" : ""}`}
+      data-lk-theme="default"
+    >
       <header className="live-room-topbar">
         <div className="live-room-identity">
           <span className={`live-dot live-dot--${connectionState}`} aria-hidden="true" />
@@ -98,6 +108,17 @@ export function LiveRoom({ lesson, isTeacher, onLeave }: LiveRoomProps) {
               <p>Kamera oqimi hali yo‘q</p>
             </div>
           )}
+
+          {/* Kichik oynani bosish doskani yopib videoni qaytaradi. */}
+          {boardFull ? (
+            <button
+              type="button"
+              className="live-room-stage-restore"
+              onClick={() => setPanel(null)}
+              aria-label="Doskani yopish va videoni ochish"
+              title="Doskani yopish"
+            />
+          ) : null}
         </main>
 
         {panel ? (
@@ -131,15 +152,31 @@ export function LiveRoom({ lesson, isTeacher, onLeave }: LiveRoomProps) {
       </div>
 
       <footer className="live-room-controls">
-        <TrackToggle source={Track.Source.Microphone} className="live-control">
+        {/* `showIcon={false}` — aks holda LiveKit o'z ikonkasini bizniki ustiga qo'shadi. */}
+        <TrackToggle
+          source={Track.Source.Microphone}
+          showIcon={false}
+          className="live-control"
+          aria-label="Mikrofon"
+        >
           <Mic size={19} />
           <MicOff size={19} className="live-control-off" />
         </TrackToggle>
-        <TrackToggle source={Track.Source.Camera} className="live-control">
+        <TrackToggle
+          source={Track.Source.Camera}
+          showIcon={false}
+          className="live-control"
+          aria-label="Kamera"
+        >
           <Video size={19} />
           <VideoOff size={19} className="live-control-off" />
         </TrackToggle>
-        <TrackToggle source={Track.Source.ScreenShare} className="live-control">
+        <TrackToggle
+          source={Track.Source.ScreenShare}
+          showIcon={false}
+          className="live-control live-control--share"
+          aria-label="Ekranni ulashish"
+        >
           <MonitorUp size={19} />
         </TrackToggle>
 

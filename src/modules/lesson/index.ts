@@ -2,12 +2,18 @@ export { lessonApi } from "./api/lesson.api";
 export type {
   LessonDto,
   LessonFormInput,
+  LessonRateRequestDto,
+  LessonRatingDto,
+  LessonRatingInput,
   LessonRecordingDto,
   LessonRequestDto,
 } from "./api/lesson.dto";
 export {
   mapLessonDto,
   mapLessonPage,
+  mapLessonRatingDto,
+  mapLessonRatingList,
+  mapLessonRatingRequest,
   mapLessonRecordingDto,
   mapLessonRequest,
 } from "./lib/lesson.mappers";
@@ -16,11 +22,13 @@ export {
   useLesson,
   useLessons,
   useLessonPage,
+  useLessonRatings,
   useLessonRecording,
   useCreateLesson,
   useDeleteLesson,
   useDeleteRecording,
   useFinishLesson,
+  useRateLesson,
   useUpdateLesson,
 } from "./model/lesson.queries";
 export { useLessonView, useLessonViewStore } from "./model/lesson-view.store";
@@ -45,5 +53,10 @@ export { FinishLessonDialog } from "./ui/finish-lesson-dialog";
 export { LessonActions } from "./ui/lesson-actions";
 export { LessonCalendar } from "./ui/lesson-calendar";
 export { LessonList } from "./ui/lesson-list";
+export { LessonRatingForm } from "./ui/lesson-rating-form";
+export type { LessonRatingFormProps } from "./ui/lesson-rating-form";
+export { LessonRatingsDialog } from "./ui/lesson-ratings-dialog";
 export { LessonRecordingPlayer } from "./ui/lesson-recording-player";
 export { LessonViewSwitch } from "./ui/lesson-view-switch";
+export { RateLessonDialog } from "./ui/rate-lesson-dialog";
+export { RatingSummary, StarRating } from "./ui/star-rating";
