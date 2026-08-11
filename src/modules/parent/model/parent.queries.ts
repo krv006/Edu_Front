@@ -27,10 +27,11 @@ export function useParentChildren() {
   });
 }
 
-export function useParentLinks() {
+export function useParentLinks(enabled = true) {
   return useQuery({
     queryKey: parentKeys.links,
     queryFn: ({ signal }) => parentApi.getLinks({ signal }),
+    enabled,
   });
 }
 

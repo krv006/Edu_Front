@@ -34,29 +34,45 @@ function toAppError(error: unknown): AppError {
       });
 }
 
+/**
+ * Ketayotgan `me/` so'rovi. React StrictMode (dev) effektni ikki marta
+ * chaqiradi, shuningdek daraxt qayta mount bo'lishi ham mumkin — ikkalasida
+ * ham bitta so'rov yetarli, chaqiruvchilar bir xil natijani kutadi.
+ */
+let pendingBootstrap: Promise<void> | null = null;
+
 export const useAuthStore = create<AuthState>()((set, get) => ({
   user: null,
   status: tokenStorage.hasSession() ? AUTH_STATUS.INITIALIZING : AUTH_STATUS.ANONYMOUS,
   error: null,
 
   async bootstrap() {
-    if (!tokenStorage.hasSession()) {
-      set({ user: null, status: AUTH_STATUS.ANONYMOUS, error: null });
-      return;
-    }
-    set({ status: AUTH_STATUS.INITIALIZING, error: null });
-    try {
-      const user = mapUserDto(await authApi.getCurrentUser());
-      set({ user, status: AUTH_STATUS.AUTHENTICATED, error: null });
-    } catch (error) {
-      const appError = toAppError(error);
-      // 401 — token yaroqsiz: sessiyani jimgina tozalaymiz, xato ekrani chiqarmaymiz.
-      if (appError.status === 401) {
-        tokenStorage.clearTokens();
+    pendingBootstrap ??= (async () => {
+      if (!tokenStorage.hasSession()) {
         set({ user: null, status: AUTH_STATUS.ANONYMOUS, error: null });
         return;
       }
-      set({ user: null, status: AUTH_STATUS.ERROR, error: appError });
+      set({ status: AUTH_STATUS.INITIALIZING, error: null });
+      try {
+        const user = mapUserDto(await authApi.getCurrentUser());
+        set({ user, status: AUTH_STATUS.AUTHENTICATED, error: null });
+      } catch (error) {
+        const appError = toAppError(error);
+        // 401 — token yaroqsiz: sessiyani jimgina tozalaymiz, xato ekrani chiqarmaymiz.
+        if (appError.status === 401) {
+          tokenStorage.clearTokens();
+          set({ user: null, status: AUTH_STATUS.ANONYMOUS, error: null });
+          return;
+        }
+        set({ user: null, status: AUTH_STATUS.ERROR, error: appError });
+      }
+    })();
+
+    // Tugagach tozalaymiz — "Qayta urinish" yangi so'rov yubora olsin.
+    try {
+      await pendingBootstrap;
+    } finally {
+      pendingBootstrap = null;
     }
   },
 
