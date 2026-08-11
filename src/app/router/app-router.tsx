@@ -1,8 +1,9 @@
-import { lazy, Suspense } from "react";
+import { lazy, Suspense, useEffect } from "react";
 import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
 import { AuthLayout } from "@/app/layouts/auth-layout";
 import { RootLayout } from "@/app/layouts/root-layout";
-import { ROLES } from "@/shared/constants";
+import { useCurrentUser } from "@/modules/auth";
+import { ROLES, type Role } from "@/shared/constants";
 import { LoadingFallback } from "@/shared/ui/legacy";
 import { ProtectedRoute } from "./protected-route";
 import { PublicRoute } from "./public-route";
@@ -19,30 +20,28 @@ const LoginPage = lazy(() =>
 const RegisterPage = lazy(() =>
   import("@/pages/auth/register-page").then((module) => ({ default: module.RegisterPage }))
 );
+/*
+ * Asosiy yo'ldagi bo'laklar oldindan yuklanishi uchun import funksiyalari
+ * alohida nomlangan — `usePrefetchRoutes` aynan shularni chaqiradi.
+ */
+const loadTeacherLayout = () => import("@/app/layouts/teacher-layout");
+const loadChatsPage = () => import("@/pages/teacher/chats-page");
+const loadConversationPage = () => import("@/pages/teacher/conversation-page");
+const loadStudentLayout = () => import("@/app/layouts/student-layout");
+const loadStudentConversationPage = () => import("@/pages/student/conversation-page");
+
 const TeacherLayout = lazy(() =>
-  import("@/app/layouts/teacher-layout").then((module) => ({
-    default: module.TeacherLayout,
-  }))
+  loadTeacherLayout().then((module) => ({ default: module.TeacherLayout }))
 );
-const ChatsPage = lazy(() =>
-  import("@/pages/teacher/chats-page").then((module) => ({
-    default: module.ChatsPage,
-  }))
-);
+const ChatsPage = lazy(() => loadChatsPage().then((module) => ({ default: module.ChatsPage })));
 const ConversationPage = lazy(() =>
-  import("@/pages/teacher/conversation-page").then((module) => ({
-    default: module.ConversationPage,
-  }))
+  loadConversationPage().then((module) => ({ default: module.ConversationPage }))
 );
 const StudentLayout = lazy(() =>
-  import("@/app/layouts/student-layout").then((module) => ({
-    default: module.StudentLayout,
-  }))
+  loadStudentLayout().then((module) => ({ default: module.StudentLayout }))
 );
 const StudentConversationPage = lazy(() =>
-  import("@/pages/student/conversation-page").then((module) => ({
-    default: module.StudentConversationPage,
-  }))
+  loadStudentConversationPage().then((module) => ({ default: module.StudentConversationPage }))
 );
 const ParentLayout = lazy(() =>
   import("@/app/layouts/parent-layout").then((module) => ({
@@ -71,7 +70,45 @@ const DesignSystemPage = lazy(() => import("@/pages/design-system/design-system-
 const BoardPage = lazy(() => import("@/pages/board/board-page").then((module) => ({ default: module.BoardPage })));
 const RecordingPage = lazy(() => import("@/pages/recording/recording-page").then((module) => ({ default: module.RecordingPage })));
 
+type ChunkLoader = () => Promise<unknown>;
+
+/** Rolga qarab keyingi bosiladigan sahifalarning bo'laklari. */
+const PREFETCH_BY_ROLE: Partial<Record<Role, ChunkLoader[]>> = {
+  [ROLES.TEACHER]: [loadTeacherLayout, loadChatsPage, loadConversationPage],
+  [ROLES.STUDENT]: [loadStudentLayout, loadChatsPage, loadStudentConversationPage],
+};
+
+/** `requestIdleCallback` hamma brauzerda yo'q — bo'lmasa oddiy taymer. */
+function scheduleIdle(task: () => void): () => void {
+  if (typeof window.requestIdleCallback === "function") {
+    const handle = window.requestIdleCallback(task, { timeout: 3000 });
+    return () => window.cancelIdleCallback?.(handle);
+  }
+  const handle = window.setTimeout(task, 1500);
+  return () => window.clearTimeout(handle);
+}
+
+/**
+ * Sahifa bo'laklarini brauzer bo'sh turganda oldindan yuklaydi.
+ *
+ * Aks holda suhbat birinchi marta ochilganda bo'lak endi yuklana boshlaydi va
+ * shu vaqt ichida butun ilova (yon panel bilan birga) `LoadingFallback`ga
+ * almashadi. Jonli dars va doska bo'laklari ataylab yuklanmaydi — ular og'ir
+ * (LiveKit, MathLive) va kamdan-kam kerak bo'ladi.
+ */
+function usePrefetchRoutes(role: Role | undefined) {
+  useEffect(() => {
+    const loaders = role ? PREFETCH_BY_ROLE[role] : undefined;
+    if (!loaders) return undefined;
+    return scheduleIdle(() => {
+      for (const load of loaders) void load().catch(() => undefined);
+    });
+  }, [role]);
+}
+
 export function AppRouter() {
+  usePrefetchRoutes(useCurrentUser()?.role);
+
   return (
     <BrowserRouter>
       <RouteErrorBoundary>

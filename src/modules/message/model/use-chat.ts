@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { conversationApi, conversationKeys } from "@/modules/conversation";
+import { conversationApi, conversationKeys, readCachedConversation } from "@/modules/conversation";
 import type { ChatMessage, ConversationRole, SendMessagePayload } from "@/shared/types";
 import { messageApi } from "../api/message.api";
 import { ChatSocketManager, type SocketState } from "../lib/chat-socket-manager";
@@ -33,10 +33,16 @@ export function useChat(
   const [socketState, setSocketState] = useState<SocketState>("idle");
   const [typing, setTyping] = useState<string | null>(null);
 
+  // Yon paneldagi ro'yxatdagi nusxa — chat ochilishi uchun detal so'rovi
+  // kutilmaydi, u fonda kelib ustiga yoziladi. Keshda topilmasa `undefined`
+  // bo'ladi va sahifa odatdagidek skeleton ko'rsatadi.
+  const cachedConversation = readCachedConversation(queryClient, conversationId, role);
+
   const conversation = useQuery({
     queryKey: conversationKeys.detail(conversationId ?? "", role),
     queryFn: ({ signal }) => conversationApi.getById(conversationId as string, { signal }),
     enabled: Boolean(conversationId),
+    placeholderData: cachedConversation,
   });
 
   const messages = useQuery({

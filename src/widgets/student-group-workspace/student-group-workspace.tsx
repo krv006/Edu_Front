@@ -56,11 +56,14 @@ export function StudentGroupWorkspace({
   const [params, setParams] = useSearchParams();
   const [reply, setReply] = useState<ChatMessage | null>(null);
   const courseId = conversation.courseId;
-  const lessons = useLessons({ course: courseId, page_size: 100 });
-  const assignments = useAssignments(courseId);
 
   const tabParam = params.get("tab") as TabId | null;
   const active: TabId = TABS.some((item) => item.id === tabParam) ? (tabParam as TabId) : "chat";
+
+  // Darslar va vazifalar faqat o'z bo'limi ochilganda so'raladi — chatni
+  // ochish uchun ular kutilib turilmasin.
+  const lessons = useLessons({ course: courseId, page_size: 100 }, active === "lessons");
+  const assignments = useAssignments(courseId, active === "assignments");
 
   async function send(payload: SendMessagePayload) {
     try {

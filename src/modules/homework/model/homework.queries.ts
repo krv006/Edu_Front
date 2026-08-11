@@ -25,11 +25,11 @@ export function getHomeworkPollingInterval(
   return submission?.status === "checking" && elapsedMs < maxPollingMs ? POLL_INTERVAL_MS : false;
 }
 
-export function useAssignments(courseId: string | null) {
+export function useAssignments(courseId: string | null, enabled = true) {
   return useQuery({
     queryKey: homeworkKeys.assignments(courseId),
     queryFn: ({ signal }) => homeworkApi.getAssignments(courseId, { signal }),
-    enabled: Boolean(courseId),
+    enabled: Boolean(courseId) && enabled,
   });
 }
 

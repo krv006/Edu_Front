@@ -3,7 +3,13 @@ export type { ChatRoomDto, DirectAction, DirectTeacher, DirectTeacherDto } from 
 export { DIRECT_STATUS, DIRECT_STATUS_LABELS, directStatusLabel } from "./constants/direct-status";
 export { mapConversationDto, mapConversationPage, mapTeacherDto } from "./lib/conversation.mappers";
 export { conversationKeys } from "./model/conversation.keys";
-export { useConversations, useTeachersForDirect, useRequestDirect, useRespondDirect } from "./model/use-conversations";
+export {
+  readCachedConversation,
+  useConversations,
+  useTeachersForDirect,
+  useRequestDirect,
+  useRespondDirect,
+} from "./model/use-conversations";
 export { ChatEmptyState } from "./ui/chat-empty-state";
 export { ChatHeader } from "./ui/chat-header";
 export { ConversationInfoPanel } from "./ui/conversation-info-panel";

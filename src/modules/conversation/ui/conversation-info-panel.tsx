@@ -20,7 +20,9 @@ export interface ConversationInfoPanelProps {
 export function ConversationInfoPanel({ conversation, open, onOpenChange }: ConversationInfoPanelProps) {
   const { user } = useAuth(); const navigate = useNavigate(); const isGroup = conversation.type === "group"; const muteKey = `fokus_muted_${conversation.id}`;
   const [muted, setMuted] = useState(() => storage.get(muteKey) === "true"); const [copied, setCopied] = useState(false); const [editOpen, setEditOpen] = useState(false); const [deleteOpen, setDeleteOpen] = useState(false); const [courseForm, setCourseForm] = useState<CourseFormInput>({ title: "", subject: "", description: "" });
-  const members = useCourseStudents(conversation.courseId, { page_size: 20 }); const respond = useRespondDirect(); const updateCourse = useUpdateCourse(); const deleteCourse = useDeleteCourse();
+  // Panel yopiq turganda ishtirokchilar kerak emas — u har chat ochilganda
+  // ortiqcha so'rov yuborardi (panelning o'zi doim mount bo'lib turadi).
+  const members = useCourseStudents(conversation.courseId, { page_size: 20 }, open); const respond = useRespondDirect(); const updateCourse = useUpdateCourse(); const deleteCourse = useDeleteCourse();
   function toggleMute() { const next = !muted; setMuted(next); storage.set(muteKey, next); toast.success(next ? "Bildirishnomalar ovozsiz qilindi" : "Bildirishnomalar ovozi yoqildi"); }
   async function copyUsername() { const value = conversation.participant?.username ? `@${conversation.participant.username}` : ""; if (!value) return; await navigator.clipboard.writeText(value); setCopied(true); toast.success("Username nusxalandi"); setTimeout(() => setCopied(false), 1400); }
   function respondDirect(action: DirectAction) { respond.mutate({ roomId: conversation.id, action }, { onSuccess: () => { toast.success(action === "accept" ? "Suhbat qabul qilindi" : "Suhbat bloklandi"); onOpenChange(false); }, onError: (error: Error) => toast.error(error.message) }); }
