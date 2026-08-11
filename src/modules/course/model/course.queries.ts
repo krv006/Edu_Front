@@ -30,10 +30,12 @@ export function useCoursePage(params: QueryParams = {}) {
   });
 }
 
-export function useCourseCatalog(params: QueryParams = {}) {
+/** `enabled` — katalog faqat dialog ochilganda kerak. */
+export function useCourseCatalog(params: QueryParams = {}, enabled = true) {
   return useQuery({
     queryKey: courseKeys.catalog(params),
     queryFn: ({ signal }) => courseApi.getCatalog({ signal, query: params }),
+    enabled,
   });
 }
 
@@ -53,10 +55,11 @@ export function useCourseStudents(id: string | null, params: QueryParams = {}, e
   });
 }
 
-export function useCourseRequests(params: QueryParams = {}) {
+export function useCourseRequests(params: QueryParams = {}, enabled = true) {
   return useQuery({
     queryKey: [...courseKeys.requests, params],
     queryFn: ({ signal }) => courseApi.getRequests({ signal, query: params }),
+    enabled,
   });
 }
 

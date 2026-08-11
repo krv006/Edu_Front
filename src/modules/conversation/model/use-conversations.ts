@@ -30,10 +30,12 @@ export function readCachedConversation(
   return page?.items.find((item) => item.id === id);
 }
 
-export function useTeachersForDirect() {
+/** `enabled` — o'qituvchilar ro'yxati faqat dialog ochilganda kerak. */
+export function useTeachersForDirect(enabled = true) {
   return useQuery({
     queryKey: ["conversations", "teachers"],
     queryFn: ({ signal }) => conversationApi.getTeachers({ signal }),
+    enabled,
   });
 }
 

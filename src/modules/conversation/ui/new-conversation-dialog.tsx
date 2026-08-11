@@ -21,7 +21,7 @@ export interface NewConversationDialogProps {
 }
 
 export function NewConversationDialog({ open, onOpenChange }: NewConversationDialogProps) {
-  const [group, setGroup] = useState<GroupDraft>({ name: "", subject: "", description: "" }); const navigate = useNavigate(); const client = useQueryClient(); const requests = useCourseRequests({ page_size: 20 }); const respond = useRespondCourseRequest();
+  const [group, setGroup] = useState<GroupDraft>({ name: "", subject: "", description: "" }); const navigate = useNavigate(); const client = useQueryClient(); const requests = useCourseRequests({ page_size: 20 }, open); const respond = useRespondCourseRequest();
   const create = useMutation({ mutationFn: conversationApi.createGroup.bind(conversationApi), onSuccess: (room: Conversation) => { client.invalidateQueries({ queryKey: conversationKeys.all }); onOpenChange(false); setGroup({ name: "", subject: "", description: "" }); navigate(`/teacher/chats/${room.id}`); toast.success("Kurs va guruh chat yaratildi"); } });
   function update(field: keyof GroupDraft, value: string) { setGroup((current) => ({ ...current, [field]: value })); }
   return <Dialog open={open} onOpenChange={onOpenChange}>{open ? <DialogContent title="Yangi kurs va guruh" description="Kurs yaratilganda backend uning guruh chatini avtomatik ochadi."><motion.div initial={{ opacity: 0, y: 7 }} animate={{ opacity: 1, y: 0 }}>

@@ -13,7 +13,10 @@ export interface StudentEnrollmentDialogProps {
 }
 
 export function StudentEnrollmentDialog({ open, onOpenChange }: StudentEnrollmentDialogProps) {
-  const catalog = useCourseCatalog({ page_size: 100 }); const teachers = useTeachersForDirect(); const links = useParentLinks(); const enroll = useCreateEnrollment(); const direct = useRequestDirect(); const respondLink = useRespondParentLink(); const navigate = useNavigate();
+  // Dialog yon panelda doim mount bo'lib turadi — yopiq holatida uchala
+  // ro'yxat ham kerak emas, aks holda har sahifa ochilishida uchta ortiqcha
+  // so'rov ketardi. Ularning ma'lumoti faqat dialog ichida ishlatiladi.
+  const catalog = useCourseCatalog({ page_size: 100 }, open); const teachers = useTeachersForDirect(open); const links = useParentLinks(open); const enroll = useCreateEnrollment(); const direct = useRequestDirect(); const respondLink = useRespondParentLink(); const navigate = useNavigate();
   async function requestTeacher(teacher: DirectTeacher) { if (teacher.roomId && teacher.directStatus === DIRECT_STATUS.ACTIVE) { onOpenChange(false); navigate(`/student/chats/${teacher.roomId}`); return; } const room = await direct.mutateAsync(teacher.id); onOpenChange(false); if (room.directStatus === DIRECT_STATUS.ACTIVE) navigate(`/student/chats/${room.id}`); }
   const pendingLinks = (links.data ?? []).filter((item) => item.status === "pending");
   return <Dialog open={open} onOpenChange={onOpenChange}>{open ? <DialogContent title="Yangi muloqot" description="O‘qituvchiga so‘rov yuboring yoki ochiq kursga qo‘shiling."><motion.div className="student-enrollment-dialog" initial={{ opacity: 0, y: 7 }} animate={{ opacity: 1, y: 0 }}>
