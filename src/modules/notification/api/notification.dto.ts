@@ -56,8 +56,9 @@ export interface NotificationSender {
 }
 
 export interface InboxNotification {
-  /** Recipient yozuvining id'si — "o'qildi" shu id bilan yuboriladi. */
+  /** Inbox qatorining (`NotificationRecipient`) id'si — ro'yxat kaliti uchun. */
   id: string;
+  /** Xabarning o'zining id'si — "o'qildi" AYNAN shu id bilan yuboriladi. */
   notificationId: string;
   sender: NotificationSender | null;
   /** Tozalangan HTML. */
