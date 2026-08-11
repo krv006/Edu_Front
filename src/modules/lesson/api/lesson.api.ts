@@ -1,12 +1,33 @@
 import { API_ERROR_CODES, apiClient, AppError, type RequestOptions } from "@/shared/api";
 import { lessonEndpoints } from "./lesson.endpoints";
-import type { LessonDto, LessonFormInput, LessonRecordingDto } from "./lesson.dto";
+import type {
+  LessonDto,
+  LessonFormInput,
+  LessonRatingDto,
+  LessonRatingInput,
+  LessonRecordingDto,
+} from "./lesson.dto";
 import {
   mapLessonDto,
   mapLessonPage,
+  mapLessonRatingDto,
+  mapLessonRatingList,
+  mapLessonRatingRequest,
   mapLessonRecordingDto,
   mapLessonRequest,
 } from "../lib/lesson.mappers";
+
+/**
+ * Baholash API hali barcha muhitlarga chiqarilmagan — o'sha yerda Django
+ * marshrutni topa olmaydi va HTML 404 qaytaradi. Bu server xatosi emas,
+ * shuning uchun UI baholashni butunlay yashiradi.
+ */
+function isMissingRatingApi(error: unknown): boolean {
+  return (
+    error instanceof AppError &&
+    (error.status === 404 || error.code === API_ERROR_CODES.NOT_FOUND)
+  );
+}
 
 export const lessonApi = {
   async getAll(options: RequestOptions = {}) {
@@ -49,5 +70,40 @@ export const lessonApi = {
   async removeRecording(id: string) {
     await apiClient.delete(lessonEndpoints.recording(id));
     return id;
+  },
+  /**
+   * Dars bahosi. Backend faqat tugagan darsni va faqat shu kursga yozilgan
+   * o'quvchini qabul qiladi — qolgan hollarda 400/403 keladi va xabar formada
+   * ko'rsatiladi.
+   */
+  async rate(id: string, input: LessonRatingInput) {
+    try {
+      const dto = await apiClient.post<LessonRatingDto | null>(
+        lessonEndpoints.rate(id),
+        mapLessonRatingRequest(input)
+      );
+      // Javob shakli hujjatlashtirilmagan: baho obyekti kelsa ishlatamiz, aks holda
+      // ro'yxat baribir qayta so'raladi.
+      return dto && typeof dto === "object" && "stars" in dto ? mapLessonRatingDto(dto) : null;
+    } catch (error) {
+      if (isMissingRatingApi(error)) {
+        throw new AppError({
+          code: API_ERROR_CODES.NOT_FOUND,
+          status: 404,
+          message: "Baholash serverda hali yoqilmagan.",
+          originalError: error,
+        });
+      }
+      throw error;
+    }
+  },
+  /** `null` — baholash API bu muhitda mavjud emas (chaqiruvchi bo'limni yashiradi). */
+  async getRatings(id: string, options?: RequestOptions) {
+    try {
+      return mapLessonRatingList(await apiClient.get(lessonEndpoints.ratings(id), options));
+    } catch (error) {
+      if (isMissingRatingApi(error)) return null;
+      throw error;
+    }
   },
 };

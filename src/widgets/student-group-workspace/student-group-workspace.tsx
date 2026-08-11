@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { BookOpen, CalendarDays, CheckCircle2, Clock3, ListChecks, Paperclip, PlayCircle } from "lucide-react";
+import { BookOpen, CalendarDays, CheckCircle2, Clock3, ListChecks, Paperclip, PlayCircle, Star } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 import { ChatHeader } from "@/modules/conversation";
@@ -12,7 +12,7 @@ import {
   useSubmission,
   useSubmitHomework,
 } from "@/modules/homework";
-import { isLessonClosed, useLessons } from "@/modules/lesson";
+import { isLessonClosed, RateLessonDialog, RatingSummary, useLessons } from "@/modules/lesson";
 import type {
   Assignment,
   ChatMessage,
@@ -120,7 +120,11 @@ export function StudentGroupWorkspace({
             />
           ) : null}
           {active === "lessons" ? (
-            <StudentLessons lessons={lessons.data} loading={lessons.isLoading} />
+            <StudentLessons
+              lessons={lessons.data}
+              loading={lessons.isLoading}
+              currentUserId={currentUserId}
+            />
           ) : null}
           {active === "assignments" ? (
             <StudentAssignments assignments={assignments.data} loading={assignments.isLoading} />
@@ -142,9 +146,18 @@ export function StudentGroupWorkspace({
   );
 }
 
-// ─── Darslar (faqat ko‘rish) ────────────────────────────────────────────────
-function StudentLessons({ lessons = [], loading }: { lessons?: Lesson[]; loading: boolean }) {
+// ─── Darslar (ko‘rish + tugagan darsni baholash) ────────────────────────────
+function StudentLessons({
+  lessons = [],
+  loading,
+  currentUserId,
+}: {
+  lessons?: Lesson[];
+  loading: boolean;
+  currentUserId?: string;
+}) {
   const navigate = useNavigate();
+  const [rateTarget, setRateTarget] = useState<Lesson | null>(null);
 
   if (loading)
     return (
@@ -174,13 +187,19 @@ function StudentLessons({ lessons = [], loading }: { lessons?: Lesson[]; loading
               </p>
             </div>
             {lesson.status === "finished" ? (
-              <Button
-                size="sm"
-                variant="secondary"
-                onClick={() => navigate(ROUTES.recording(lesson.id))}
-              >
-                <PlayCircle size={16} /> Yozuv
-              </Button>
+              <>
+                <RatingSummary average={lesson.avgRating} count={lesson.ratingCount} compact />
+                <Button size="sm" variant="secondary" onClick={() => setRateTarget(lesson)}>
+                  <Star size={16} /> Baholash
+                </Button>
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  onClick={() => navigate(ROUTES.recording(lesson.id))}
+                >
+                  <PlayCircle size={16} /> Yozuv
+                </Button>
+              </>
             ) : (
               <Button
                 size="sm"
@@ -194,6 +213,14 @@ function StudentLessons({ lessons = [], loading }: { lessons?: Lesson[]; loading
         ))}
         {!lessons.length ? <p className="portal-muted">Dars rejalashtirilmagan.</p> : null}
       </div>
+
+      <RateLessonDialog
+        lesson={rateTarget}
+        currentUserId={currentUserId}
+        onOpenChange={(open) => {
+          if (!open) setRateTarget(null);
+        }}
+      />
     </div>
   );
 }

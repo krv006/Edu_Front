@@ -22,6 +22,7 @@ export type {
   FocusJournal,
   Lesson,
   LessonFormValues,
+  LessonRating,
   LessonRecording,
   LessonRecordingStatus,
   LessonStatus,

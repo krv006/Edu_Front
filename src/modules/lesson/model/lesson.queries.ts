@@ -2,13 +2,14 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import type { QueryParams } from "@/shared/api";
 import { lessonApi } from "../api/lesson.api";
-import type { LessonFormInput } from "../api/lesson.dto";
+import type { LessonFormInput, LessonRatingInput } from "../api/lesson.dto";
 
 export const lessonKeys = Object.freeze({
   all: ["lessons"] as const,
   list: (params: QueryParams = {}) => ["lessons", "list", params] as const,
   detail: (id: string) => ["lessons", "detail", id] as const,
   recording: (id: string) => ["lessons", "recording", id] as const,
+  ratings: (id: string) => ["lessons", "ratings", id] as const,
 });
 
 /** Egress MP4 ni yozib tugatguncha holat `processing` — shu vaqtda sekin polling qilamiz. */
@@ -101,6 +102,36 @@ export function useDeleteRecording() {
     onSuccess: (id) => {
       client.invalidateQueries({ queryKey: lessonKeys.recording(id) });
       toast.success("Video yozuv o‘chirildi");
+    },
+  });
+}
+
+/**
+ * Darsga qo'yilgan baholar.
+ *
+ * Ro'yxatni ko'rish huquqi rolga bog'liq — o'quvchida 403 kelishi mumkin.
+ * Bu xato emas: forma shunchaki "avval baholaganmisiz" ma'lumotisiz ochiladi,
+ * shuning uchun qayta urinilmaydi va global toast ko'rsatilmaydi.
+ */
+export function useLessonRatings(lessonId: string | null, enabled = true) {
+  return useQuery({
+    queryKey: lessonKeys.ratings(lessonId ?? ""),
+    queryFn: ({ signal }) => lessonApi.getRatings(lessonId as string, { signal }),
+    enabled: Boolean(lessonId) && enabled,
+    retry: false,
+  });
+}
+
+/** Xatoni chaqiruvchi forma ichida ko'rsatadi (masalan "dars hali tugamagan"). */
+export function useRateLesson() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, input }: { id: string; input: LessonRatingInput }) =>
+      lessonApi.rate(id, input),
+    onSuccess: () => {
+      // Ro'yxatdagi `avg_rating`/`rating_count` ham yangilanishi kerak.
+      client.invalidateQueries({ queryKey: lessonKeys.all });
+      toast.success("Bahoyingiz uchun rahmat!");
     },
   });
 }

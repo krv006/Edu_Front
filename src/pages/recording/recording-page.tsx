@@ -1,9 +1,21 @@
-import { ArrowLeft, CalendarDays, Clock3 } from "lucide-react";
+import { ArrowLeft, BookOpen, CalendarDays, Clock3 } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "@/modules/auth";
-import { LessonRecordingPlayer, useLesson, useLessonRecording } from "@/modules/lesson";
+import {
+  LessonRatingForm,
+  LessonRecordingPlayer,
+  RatingSummary,
+  useLesson,
+  useLessonRecording,
+} from "@/modules/lesson";
 import { ROLES } from "@/shared/constants";
 import { LoadingFallback, RouteState } from "@/shared/ui/legacy";
+
+const LESSON_DATE = new Intl.DateTimeFormat("uz-UZ", {
+  day: "numeric",
+  month: "long",
+  year: "numeric",
+});
 
 /**
  * Dars tugagach backend kurs chatiga ".../recordings/<lesson_id>" havolasini yuboradi
@@ -31,6 +43,7 @@ export function RecordingPage() {
     );
 
   const data = lesson.data!;
+  const isStudent = user?.role === ROLES.STUDENT;
 
   return (
     <div className="portal-page recording-page">
@@ -38,10 +51,19 @@ export function RecordingPage() {
         <div>
           <span className="portal-eyebrow">DARS YOZUVI</span>
           <h1>{data.title}</h1>
-          <p>
-            {data.courseTitle} · <CalendarDays size={14} /> {data.date} · <Clock3 size={14} />{" "}
-            {data.time}
-          </p>
+          {/* Har ma'lumot alohida nishonda — ikonkalar matn oqimini buzmaydi */}
+          <div className="page-meta">
+            <span>
+              <BookOpen size={14} /> {data.courseTitle}
+            </span>
+            <span>
+              <CalendarDays size={14} /> {LESSON_DATE.format(new Date(data.startsAt))}
+            </span>
+            <span>
+              <Clock3 size={14} /> {data.time} · {data.durationMinutes} daqiqa
+            </span>
+            <RatingSummary average={data.avgRating} count={data.ratingCount} />
+          </div>
         </div>
         <button className="button button--secondary" onClick={() => navigate(-1)}>
           <ArrowLeft size={17} /> Orqaga
@@ -66,6 +88,19 @@ export function RecordingPage() {
           />
         )}
       </section>
+
+      {/* Dars tugagach o'quvchi o'qituvchini baholaydi (docs/COMPLETED_WORK.md — baholash API). */}
+      {isStudent ? (
+        <section className="portal-card recording-page-card">
+          <div className="portal-section-head">
+            <div>
+              <span>FIKR-MULOHAZA</span>
+              <h2>Darsni baholang</h2>
+            </div>
+          </div>
+          <LessonRatingForm lesson={data} currentUserId={user?.id} />
+        </section>
+      ) : null}
     </div>
   );
 }
