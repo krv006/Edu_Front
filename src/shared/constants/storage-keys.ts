@@ -6,6 +6,7 @@ export const STORAGE_KEYS = Object.freeze({
   PARENT_SELECTED_CHILD: "fokus_parent_selected_child",
   THEME: "fokus_theme",
   LESSON_VIEW: "fokus_lesson_view",
+  CONVERSATION_FILTER: "fokus_conversation_filter",
 });
 
 export type StorageKey = (typeof STORAGE_KEYS)[keyof typeof STORAGE_KEYS];

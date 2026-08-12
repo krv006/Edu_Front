@@ -4,6 +4,11 @@ export { DIRECT_STATUS, DIRECT_STATUS_LABELS, directStatusLabel } from "./consta
 export { mapConversationDto, mapConversationPage, mapTeacherDto } from "./lib/conversation.mappers";
 export { conversationKeys } from "./model/conversation.keys";
 export {
+  useConversationFilter,
+  useConversationFilterStore,
+} from "./model/conversation-filter.store";
+export type { ConversationFilter } from "./model/conversation-filter.store";
+export {
   readCachedConversation,
   useConversations,
   useTeachersForDirect,
