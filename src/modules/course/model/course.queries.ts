@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import type { QueryParams } from "@/shared/api";
+import type { CreateChildRequestDto } from "@/modules/auth";
 import { courseApi } from "../api/course.api";
 import type { CourseFormInput, EnrollmentAction, EnrollPayload } from "../api/course.dto";
 
@@ -117,6 +118,28 @@ export function useSearchCourseStudents(courseId: string | null, query: string) 
     queryFn: ({ signal }) => courseApi.searchStudents(courseId as string, term, { signal }),
     enabled: Boolean(courseId) && term.length >= 2,
     staleTime: 15_000,
+  });
+}
+
+/**
+ * Yangi o'quvchi hisobi + shu kursga yozish (bitta amal).
+ *
+ * Xato `onError` da toast qilinmaydi — forma uni maydon ostida ko'rsatadi,
+ * chunki xatolar odatda kiritilgan ma'lumotga tegishli ("username band").
+ */
+export function useCreateCourseStudent() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: ({ courseId, form }: { courseId: string; form: CreateChildRequestDto }) =>
+      courseApi.createStudent(courseId, form),
+    onSuccess: (enrollment) => {
+      client.invalidateQueries({ queryKey: courseKeys.all });
+      toast.success(
+        enrollment?.status === "approved"
+          ? "O‘quvchi yaratildi va kursga qo‘shildi"
+          : "O‘quvchi yaratildi, so‘rov yuborildi"
+      );
+    },
   });
 }
 
