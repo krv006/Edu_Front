@@ -262,7 +262,6 @@ function LessonsPanel({ courseId, lessons = [], loading }: LessonsPanelProps) {
   // Ikkala ko'rinish ham aynan shu amallarni oladi.
   const actions = {
     onJoin: (lesson: Lesson) => navigate(ROUTES.live(lesson.id)),
-    onRecording: (lesson: Lesson) => navigate(ROUTES.recording(lesson.id)),
     onFinish: setFinishTarget,
     onRatings: setRatingsTarget,
     onDelete: setDeleteTarget,

@@ -1,15 +1,17 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import {
   DisconnectButton,
-  GridLayout,
   ParticipantTile,
   RoomAudioRenderer,
   TrackToggle,
   useConnectionState,
+  useLocalParticipantPermissions,
   useParticipants,
+  useRoomContext,
   useTracks,
+  type TrackReferenceOrPlaceholder,
 } from "@livekit/components-react";
-import { ConnectionState, Track } from "livekit-client";
+import { ConnectionState, RoomEvent, Track, type Participant } from "livekit-client";
 import {
   LayoutDashboard,
   Mic,
@@ -21,8 +23,16 @@ import {
   VideoOff,
   X,
 } from "lucide-react";
+import { toast } from "sonner";
 import { BoardPanel } from "@/modules/board";
-import { AttentionCheckDialog, useAttentionCheck, useAllowShare, useFocusTracker } from "@/modules/live";
+import {
+  AttentionCheckDialog,
+  decodeScreenShareRequest,
+  encodeScreenShareRequest,
+  useAllowShare,
+  useAttentionCheck,
+  useFocusTracker,
+} from "@/modules/live";
 import type { Lesson } from "@/shared/types";
 import { Avatar, Button } from "@/shared/ui/legacy";
 
@@ -35,16 +45,138 @@ const CONNECTION_LABELS: Record<string, string> = {
   [ConnectionState.Disconnected]: "Uzildi",
 };
 
+// LiveKit protocol TrackSource.SCREEN_SHARE qiymati. Student tokenida dastlab bu source yo‘q.
+const SCREEN_SHARE_SOURCE = 3;
+
+function CameraTile({
+  track,
+  compact = false,
+}: {
+  track: TrackReferenceOrPlaceholder;
+  compact?: boolean;
+}) {
+  const publication = "publication" in track ? track.publication : undefined;
+  const cameraOff = !publication || publication.isMuted;
+  const name = track.participant.name || track.participant.identity;
+
+  return (
+    <article
+      className={`live-camera-tile ${compact ? "is-compact" : ""} ${cameraOff ? "is-camera-off" : ""}`}
+    >
+      <ParticipantTile trackRef={track} disableSpeakingIndicator={cameraOff} />
+      {cameraOff ? (
+        <div className="live-camera-placeholder" aria-label={`${name} kamerasi o‘chiq`}>
+          <Avatar name={name} size={compact ? "sm" : "md"} />
+        </div>
+      ) : null}
+      <span className="live-camera-name">
+        {track.participant.isLocal ? `${name} (Siz)` : name}
+      </span>
+    </article>
+  );
+}
+
+function StudentShareControl() {
+  const room = useRoomContext();
+  const permissions = useLocalParticipantPermissions();
+  const [requesting, setRequesting] = useState(false);
+  const canShare = Boolean(
+    permissions?.canPublish &&
+      (!permissions.canPublishSources.length ||
+        permissions.canPublishSources.includes(SCREEN_SHARE_SOURCE))
+  );
+
+  if (canShare) {
+    return (
+      <TrackToggle
+        source={Track.Source.ScreenShare}
+        showIcon={false}
+        className="live-control live-control--share"
+        aria-label="Ekranni ulashish"
+      >
+        <MonitorUp size={19} />
+      </TrackToggle>
+    );
+  }
+
+  async function requestShare() {
+    if (requesting) return;
+    setRequesting(true);
+    try {
+      const signal = encodeScreenShareRequest(
+        room.localParticipant.name || room.localParticipant.identity
+      );
+      await room.localParticipant.publishData(signal.payload, {
+        reliable: true,
+        topic: signal.topic,
+      });
+      toast.success("Ekran ulashish so‘rovi o‘qituvchiga yuborildi");
+    } catch {
+      toast.error("So‘rovni yuborib bo‘lmadi");
+    } finally {
+      setRequesting(false);
+    }
+  }
+
+  return (
+    <button
+      type="button"
+      className="live-control live-control--share-request"
+      aria-label="Ekran ulashish uchun ruxsat so‘rash"
+      title="Ekran ulashish uchun ruxsat so‘rash"
+      disabled={requesting}
+      onClick={requestShare}
+    >
+      <MonitorUp size={19} />
+      <span className="live-control-request-dot" aria-hidden="true" />
+    </button>
+  );
+}
+
+function ShareRequestListener({ lessonId, enabled }: { lessonId: string; enabled: boolean }) {
+  const room = useRoomContext();
+  const { mutate: grantShare } = useAllowShare(lessonId);
+
+  useEffect(() => {
+    if (!enabled) return;
+
+    function receive(
+      payload: Uint8Array,
+      participant: Participant | undefined,
+      _kind: unknown,
+      topic?: string
+    ) {
+      const request = decodeScreenShareRequest(payload, topic);
+      if (!request || !participant) return;
+      const identity = participant.identity;
+      const name = request.name || participant.name || identity;
+
+      toast(`${name} ekran ulashmoqchi`, {
+        description: "O‘quvchiga ekran ulashish uchun ruxsat berasizmi?",
+        duration: 12_000,
+        action: {
+          label: "Ruxsat berish",
+          onClick: () => grantShare(identity),
+        },
+      });
+    }
+
+    room.on(RoomEvent.DataReceived, receive);
+    return () => {
+      room.off(RoomEvent.DataReceived, receive);
+    };
+  }, [enabled, grantShare, room]);
+
+  return null;
+}
+
 export interface LiveRoomProps {
   lesson: Lesson;
   isTeacher: boolean;
   onLeave: () => void;
 }
 
-/**
- * `LiveKitRoom` ichida render qilinadi — barcha LiveKit hook'lari shu kontekstga muhtoj.
- * Google Meet uslubi: sahna + yon panel + pastki boshqaruv paneli.
- */
+/** Google Meet uslubidagi sahna, ixcham participantlar va to‘liq ekran doska. */
 export function LiveRoom({ lesson, isTeacher, onLeave }: LiveRoomProps) {
   const [panel, setPanel] = useState<SidePanel>(null);
   const connectionState = useConnectionState();
@@ -59,16 +191,12 @@ export function LiveRoom({ lesson, isTeacher, onLeave }: LiveRoomProps) {
     ],
     { onlySubscribed: false }
   );
+  const screenTracks = tracks.filter((track) => track.source === Track.Source.ScreenShare);
+  const cameraTracks = tracks.filter((track) => track.source === Track.Source.Camera);
+  const activeShare = screenTracks[0] ?? null;
 
-  // Mobil ekranda yon panel ochilganda sahna yashiriladi — joy yetarli bo'lsin.
   const togglePanel = (next: Exclude<SidePanel, null>) =>
     setPanel((current) => (current === next ? null : next));
-
-  /**
-   * Doska yon panelga sig'maydi (asboblar qatori siqilib, gorizontal skroll paydo
-   * bo'ladi), shuning uchun u butun sahnani egallaydi va video chap pastdagi
-   * kichik oynaga tushadi. Ishtirokchilar ro'yxati esa oddiy yon panelligicha qoladi.
-   */
   const boardFull = panel === "board";
 
   return (
@@ -97,29 +225,37 @@ export function LiveRoom({ lesson, isTeacher, onLeave }: LiveRoomProps) {
       </header>
 
       <div className="live-room-body">
-        <main className="live-room-stage">
-          {tracks.length ? (
-            <GridLayout tracks={tracks}>
-              <ParticipantTile />
-            </GridLayout>
-          ) : (
-            <div className="live-room-empty">
-              <Video size={30} />
-              <p>Kamera oqimi hali yo‘q</p>
-            </div>
-          )}
-
-          {/* Kichik oynani bosish doskani yopib videoni qaytaradi. */}
-          {boardFull ? (
-            <button
-              type="button"
-              className="live-room-stage-restore"
-              onClick={() => setPanel(null)}
-              aria-label="Doskani yopish va videoni ochish"
-              title="Doskani yopish"
-            />
-          ) : null}
-        </main>
+        {!boardFull ? (
+          <main className={`live-room-stage ${activeShare ? "has-presentation" : ""}`}>
+            {activeShare ? (
+              <div className="live-presentation-layout">
+                <div className="live-presentation-stage">
+                  <ParticipantTile trackRef={activeShare} />
+                </div>
+                <div className="live-camera-filmstrip" aria-label="Ishtirokchilar videolari">
+                  {cameraTracks.map((track) => (
+                    <CameraTile
+                      key={`${track.participant.identity}-${track.source}`}
+                      track={track}
+                      compact
+                    />
+                  ))}
+                </div>
+              </div>
+            ) : cameraTracks.length ? (
+              <div className="live-camera-grid">
+                {cameraTracks.map((track) => (
+                  <CameraTile key={`${track.participant.identity}-${track.source}`} track={track} />
+                ))}
+              </div>
+            ) : (
+              <div className="live-room-empty">
+                <Video size={30} />
+                <p>Kamera oqimi hali yo‘q</p>
+              </div>
+            )}
+          </main>
+        ) : null}
 
         {panel ? (
           <aside className="live-room-panel" aria-label="Yon panel">
@@ -152,7 +288,6 @@ export function LiveRoom({ lesson, isTeacher, onLeave }: LiveRoomProps) {
       </div>
 
       <footer className="live-room-controls">
-        {/* `showIcon={false}` — aks holda LiveKit o'z ikonkasini bizniki ustiga qo'shadi. */}
         <TrackToggle
           source={Track.Source.Microphone}
           showIcon={false}
@@ -171,14 +306,18 @@ export function LiveRoom({ lesson, isTeacher, onLeave }: LiveRoomProps) {
           <Video size={19} />
           <VideoOff size={19} className="live-control-off" />
         </TrackToggle>
-        <TrackToggle
-          source={Track.Source.ScreenShare}
-          showIcon={false}
-          className="live-control live-control--share"
-          aria-label="Ekranni ulashish"
-        >
-          <MonitorUp size={19} />
-        </TrackToggle>
+        {isTeacher ? (
+          <TrackToggle
+            source={Track.Source.ScreenShare}
+            showIcon={false}
+            className="live-control live-control--share"
+            aria-label="Ekranni ulashish"
+          >
+            <MonitorUp size={19} />
+          </TrackToggle>
+        ) : (
+          <StudentShareControl />
+        )}
 
         <span className="live-control-divider" aria-hidden="true" />
 
@@ -206,12 +345,12 @@ export function LiveRoom({ lesson, isTeacher, onLeave }: LiveRoomProps) {
       </footer>
 
       <RoomAudioRenderer />
+      <ShareRequestListener lessonId={lesson.id} enabled={isTeacher} />
       {!isTeacher ? <AttentionCheckDialog lessonId={lesson.id} check={attention.data} /> : null}
     </div>
   );
 }
 
-/** Ishtirokchilar ro'yxati; o'qituvchiga ekran ulashish ruxsatini berish tugmasi ham shu yerda. */
 function ParticipantsPanel({ lessonId, isTeacher }: { lessonId: string; isTeacher: boolean }) {
   const participants = useParticipants();
   const allowShare = useAllowShare(lessonId);

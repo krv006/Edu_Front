@@ -1,4 +1,4 @@
-import { Pencil, PlayCircle, Star, Trash2, Video } from "lucide-react";
+import { Pencil, Star, Trash2, Video } from "lucide-react";
 import type { Lesson } from "@/shared/types";
 import { Button } from "@/shared/ui/legacy";
 import { isLessonClosed } from "../lib/lesson-status";
@@ -7,7 +7,6 @@ export interface LessonActionsProps {
   lesson: Lesson;
   onJoin: (lesson: Lesson) => void;
   onFinish: (lesson: Lesson) => void;
-  onRecording: (lesson: Lesson) => void;
   onEdit: (lesson: Lesson) => void;
   onDelete: (lesson: Lesson) => void;
   /** Berilsa — tugagan darsda o'quvchilar baholari nishoni ko'rinadi. */
@@ -18,13 +17,12 @@ export interface LessonActionsProps {
 
 /**
  * Dars ustidagi amallar. Kalendar ham, ro'yxat ham shu bitta blokni ishlatadi —
- * "Yakunlash faqat live darsda", "Yozuv faqat tugaganda" qoidalari bir joyda turadi.
+ * "Yakunlash faqat live darsda" qoidasi kalendar va ro‘yxat uchun bir joyda turadi.
  */
 export function LessonActions({
   lesson,
   onJoin,
   onFinish,
-  onRecording,
   onEdit,
   onDelete,
   onRatings,
@@ -45,17 +43,12 @@ export function LessonActions({
         </button>
       ) : null}
 
-      {lesson.status === "finished" ? (
-        <Button size="sm" variant="secondary" onClick={() => onRecording(lesson)}>
-          <PlayCircle size={16} />
-          {compact ? null : " Yozuv"}
-        </Button>
-      ) : (
+      {lesson.status !== "finished" ? (
         <Button size="sm" disabled={isLessonClosed(lesson)} onClick={() => onJoin(lesson)}>
           <Video size={16} />
           {compact ? null : " Kirish"}
         </Button>
-      )}
+      ) : null}
 
       {lesson.status === "live" ? (
         <Button size="sm" variant="secondary" onClick={() => onFinish(lesson)}>

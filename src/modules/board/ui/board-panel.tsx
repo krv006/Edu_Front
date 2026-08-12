@@ -1,10 +1,8 @@
 import { useState, type FormEvent } from "react";
-import { Calculator, Download, FilePlus2, UserCheck } from "lucide-react";
+import { Calculator, Check, FilePlus2, UserCheck, X } from "lucide-react";
 import { toast } from "sonner";
 import { useCourseStudents } from "@/modules/course";
-import { downloadBlob } from "@/shared/lib";
 import { Button, Dialog, DialogContent } from "@/shared/ui/legacy";
-import { boardApi } from "../api/board.api";
 import type { FormulaSolutionDto, Point, StrokeShapeDto } from "../api/board.dto";
 import { BOARD_COLORS, BOARD_TEXT_SIZE, BOARD_WIDTHS } from "../constants/board.constants";
 import { buildStroke } from "../lib/board.geometry";
@@ -47,7 +45,7 @@ export function BoardPanel({ lessonId, courseId }: BoardPanelProps) {
   const [reason, setReason] = useState("");
   const [grantOpen, setGrantOpen] = useState(false);
 
-  // Matn/formula joylashtiriladigan nuqta — dialog shu koordinataga qo'yadi.
+  // Matn/formula editori aynan foydalanuvchi bosgan doska koordinatasida ochiladi.
   const [placement, setPlacement] = useState<{ tool: "text" | "math"; point: Point } | null>(null);
   const [draftText, setDraftText] = useState("");
 
@@ -113,10 +111,6 @@ export function BoardPanel({ lessonId, courseId }: BoardPanelProps) {
     setReason("");
     setReasonOpen(false);
     toast.success("Element o‘chirildi");
-  }
-
-  async function download() {
-    downloadBlob(await boardApi.downloadPdf(lessonId), "doska.pdf");
   }
 
   async function solveFormula(event: FormEvent<HTMLFormElement>) {
@@ -208,9 +202,6 @@ export function BoardPanel({ lessonId, courseId }: BoardPanelProps) {
               <Calculator size={15} /> Yechuvchi
             </Button>
           ) : null}
-          <Button size="sm" variant="secondary" onClick={download}>
-            <Download size={15} /> PDF
-          </Button>
         </div>
       </div>
 
@@ -227,71 +218,74 @@ export function BoardPanel({ lessonId, courseId }: BoardPanelProps) {
         onErase={() => setReasonOpen(true)}
       />
 
-      <svg
-        ref={svgRef}
-        className={`board-canvas board-canvas--${tool}`}
-        viewBox={`0 0 ${state.width} ${state.height}`}
-        onPointerDown={handlePointerDown}
-        onPointerMove={handlePointerMove}
-        onPointerUp={handlePointerUp}
-        onPointerCancel={handlePointerUp}
-      >
-        {active?.strokes.map((stroke) => (
-          <BoardStroke
-            key={stroke.id}
-            stroke={stroke}
-            selected={selected === stroke.id}
-            onSelect={setSelected}
-          />
-        ))}
-        {preview ? (
-          <BoardStroke
-            stroke={{ ...preview, id: "draft" }}
-            selected={false}
-            onSelect={() => undefined}
-          />
-        ) : null}
-      </svg>
+      <div className="board-canvas-wrap">
+        <svg
+          ref={svgRef}
+          className={`board-canvas board-canvas--${tool}`}
+          viewBox={`0 0 ${state.width} ${state.height}`}
+          onPointerDown={handlePointerDown}
+          onPointerMove={handlePointerMove}
+          onPointerUp={handlePointerUp}
+          onPointerCancel={handlePointerUp}
+        >
+          {active?.strokes.map((stroke) => (
+            <BoardStroke
+              key={stroke.id}
+              stroke={stroke}
+              selected={selected === stroke.id}
+              onSelect={setSelected}
+            />
+          ))}
+          {preview ? (
+            <BoardStroke
+              stroke={{ ...preview, id: "draft" }}
+              selected={false}
+              onSelect={() => undefined}
+            />
+          ) : null}
+        </svg>
 
-      <Dialog open={Boolean(placement)} onOpenChange={(open) => !open && setPlacement(null)}>
         {placement ? (
-          <DialogContent
-            title={placement.tool === "math" ? "Formula qo‘shish" : "Matn qo‘shish"}
-            description={
-              placement.tool === "math"
-                ? "MathLive tahrirlagichida formulani yozing."
-                : "Doskaga qo‘yiladigan matnni kiriting."
-            }
+          <form
+            className={`board-inline-editor ${placement.point[0] > state.width * 0.72 ? "is-right" : ""}`}
+            style={{
+              left: `${(placement.point[0] / state.width) * 100}%`,
+              top: `${(placement.point[1] / state.height) * 100}%`,
+            }}
+            onPointerDown={(event) => event.stopPropagation()}
+            onSubmit={placeBlock}
           >
-            <form className="dialog-form" onSubmit={placeBlock}>
-              <label className="field-group">
-                <span>{placement.tool === "math" ? "Formula" : "Matn"}</span>
-                {placement.tool === "math" ? (
-                  <MathFieldInput value={draftText} onChange={setDraftText} />
-                ) : (
-                  <div className="input-shell">
-                    <textarea
-                      autoFocus
-                      rows={3}
-                      value={draftText}
-                      onChange={(event) => setDraftText(event.target.value)}
-                      required
-                    />
-                  </div>
-                )}
-              </label>
-              <div className="dialog-actions">
-                <Button type="button" variant="secondary" onClick={() => setPlacement(null)}>
-                  Bekor
-                </Button>
-                <Button type="submit" loading={addStroke.isPending} disabled={!draftText.trim()}>
-                  Qo‘yish
-                </Button>
-              </div>
-            </form>
-          </DialogContent>
+            <span>{placement.tool === "math" ? "Formula" : "Matn"}</span>
+            {placement.tool === "math" ? (
+              <MathFieldInput value={draftText} onChange={setDraftText} />
+            ) : (
+              <input
+                autoFocus
+                value={draftText}
+                placeholder="Matn yozing…"
+                aria-label="Doskaga matn yozish"
+                onChange={(event) => setDraftText(event.target.value)}
+                onKeyDown={(event) => {
+                  if (event.key === "Escape") setPlacement(null);
+                }}
+              />
+            )}
+            <div className="board-inline-actions">
+              <button type="button" onClick={() => setPlacement(null)} aria-label="Bekor qilish">
+                <X size={15} />
+              </button>
+              <button
+                type="submit"
+                className="is-primary"
+                disabled={!draftText.trim() || addStroke.isPending}
+                aria-label="Doskaga qo‘shish"
+              >
+                <Check size={15} />
+              </button>
+            </div>
+          </form>
         ) : null}
-      </Dialog>
+      </div>
 
       <Dialog open={reasonOpen} onOpenChange={setReasonOpen}>
         {reasonOpen && (
