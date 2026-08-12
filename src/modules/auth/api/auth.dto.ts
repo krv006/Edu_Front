@@ -93,4 +93,9 @@ export interface ProfileFormValues {
   firstName: string;
   lastName: string;
   phone?: string;
+  /**
+   * Login. Backend uni `PATCH /auth/me/` da qabul qiladi, lekin u YAGONA
+   * bo'lishi shart — band bo'lsa 400 qaytadi va forma xatoni ko'rsatadi.
+   */
+  username?: string;
 }

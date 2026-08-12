@@ -4,6 +4,11 @@ export const lessonEndpoints = Object.freeze({
   finish: (id: string) => `/api/v1/lessons/${id}/finish/`,
   /** Yozuv holati (GET) va o'qituvchi tomonidan o'chirish (DELETE). */
   recording: (id: string) => `/api/v1/lessons/${id}/recording/`,
+  /**
+   * Haftalik jadval bo'yicha ko'plab dars yaratish.
+   * Yo'l kurs ostida turadi, lekin natija — darslar, shuning uchun shu yerda.
+   */
+  schedule: (courseId: string) => `/api/v1/courses/${courseId}/schedule/`,
   /** O'quvchi tugagan darsga baho qo'yadi (POST). */
   rate: (id: string) => `/api/v1/lessons/${id}/rate/`,
   /** Shu darsga qo'yilgan baholar ro'yxati (GET). */

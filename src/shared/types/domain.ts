@@ -56,6 +56,8 @@ export interface Conversation {
   typingName?: string | null;
   avatarTone: string;
   memberCount: number;
+  /** Guruh chat rasmi — o'qituvchi o'rnatadi, bo'lmasa `null` (harfli avatar). */
+  imageUrl: string | null;
   /** `GroupWorkspace` kurs ma'lumoti bilan to'ldiradi. */
   subject?: string;
   description?: string;
@@ -78,6 +80,17 @@ export interface MessageReaction {
   reacted: boolean;
 }
 
+/**
+ * Xabarga biriktirilgan fayl. Havola emas, `messageId` saqlanadi: fayl
+ * `/api/v1/chat/files/<messageId>/` dan Authorization header bilan olinadi,
+ * shuning uchun uni to'g'ridan-to'g'ri `<a href>` ga qo'yib bo'lmaydi.
+ */
+export interface MessageAttachment {
+  messageId: string;
+  name: string;
+  mimeType: string;
+}
+
 export interface ChatMessage {
   id: string;
   conversationId: string;
@@ -93,6 +106,8 @@ export interface ChatMessage {
   failed: boolean;
   editedAt?: string | null;
   retryPayload?: SendMessagePayload;
+  /** Doska PDF'i kabi biriktirmalar — backend dars tugagach yuboradi. */
+  attachment?: MessageAttachment;
   /** Backend hozircha reaksiyani qo‘llamaydi — maydon kelajak uchun ochiq qoldirilgan. */
   reactions?: MessageReaction[];
 }
@@ -110,6 +125,8 @@ export interface Course {
   status: string;
   enrollmentStatus: string | null;
   isActive: boolean;
+  /** Til fani — faqat shunda vazifaga "tekshiruv turi" tanlovi beriladi. */
+  isLanguageSubject: boolean;
   createdAt: string | null;
   color: string;
 }
@@ -257,6 +274,9 @@ export interface Assignment {
   hasAttachment: boolean;
   dueAt: string | null;
   skillKey: string;
+  /** Vazifa bog'langan tugagan dars — bog'lanmagan bo'lsa `null`. */
+  lessonId: string | null;
+  lessonTitle: string;
   createdAt: string;
   submissionsCount: number | null;
   mySubmission: Submission | null;

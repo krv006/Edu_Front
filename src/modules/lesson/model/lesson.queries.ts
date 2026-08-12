@@ -3,6 +3,7 @@ import { toast } from "sonner";
 import type { QueryParams } from "@/shared/api";
 import { lessonApi } from "../api/lesson.api";
 import type { LessonFormInput, LessonRatingInput } from "../api/lesson.dto";
+import { addMinutesToTime, toBackendWeekdays, weeksBetween } from "../lib/lesson-schedule";
 
 export const lessonKeys = Object.freeze({
   all: ["lessons"] as const,
@@ -22,6 +23,27 @@ export function useLessons(params: QueryParams = {}, enabled = true) {
     queryFn: ({ signal }) => lessonApi.getAll({ signal, query: params }),
     select: (page) => page.items,
     enabled,
+  });
+}
+
+/** Dars boshlanganini kech sezmaslik uchun — chat ochiq turganda qayta so'raladi. */
+const LIVE_POLL_MS = 20_000;
+
+/**
+ * Kursda hozir jonli dars bormi — chat tepasidagi chiziq uchun.
+ *
+ * Polling shu yerda: dars o'qituvchi kirgan payt LIVE bo'ladi va buni chat
+ * ochiq turgan o'quvchi darhol ko'rishi kerak. Chiziq ko'rinmasa (kurs yo'q)
+ * so'rov ham yuborilmaydi.
+ */
+export function useLiveLesson(courseId: string | null) {
+  const params: QueryParams = { course: courseId, status: "live", page_size: 5 };
+  return useQuery({
+    queryKey: lessonKeys.list(params),
+    queryFn: ({ signal }) => lessonApi.getAll({ signal, query: params }),
+    select: (page) => page.items[0] ?? null,
+    enabled: Boolean(courseId),
+    refetchInterval: LIVE_POLL_MS,
   });
 }
 
@@ -51,26 +73,66 @@ export function useCreateLesson() {
   });
 }
 
+export interface LessonScheduleInput {
+  courseId: string;
+  title: string;
+  /** `HH:mm` */
+  time: string;
+  durationMinutes: number;
+  /** ISO hafta kunlari: 1 = Dushanba … 7 = Yakshanba. */
+  weekdays: number[];
+  /** `YYYY-MM-DD` */
+  startsOn: string;
+  endsOn: string;
+  /** Zaxira usul uchun oldindan hisoblangan sanalar. */
+  dates: string[];
+}
+
 /**
- * Takrorlanuvchi jadval bo'yicha bir nechta dars yaratadi.
+ * Takrorlanuvchi jadval bo'yicha darslar yaratadi.
  *
- * Amal atomik emas, shuning uchun natija ikki qismdan iborat: yaratilganlar
- * va xato berganlar. Foydalanuvchiga ikkalasi ham aytiladi — "hammasi
- * saqlandi" deb noto'g'ri xabar bermaslik uchun.
+ * Avval SERVER endpointi sinaladi (`POST /courses/{id}/schedule/`): u amalni
+ * atomik bajaradi va o'qituvchining barcha kurslari bo'yicha to'qnashuvni
+ * tekshiradi — bu mijoz tomonida imkonsiz, chunki `GET /lessons/` boshqa
+ * o'qituvchining darslarini ko'rsatmaydi.
+ *
+ * Endpoint hali hamma muhitga chiqarilmagan. 404 kelsa, eski usulga —
+ * har sana uchun alohida `POST /lessons/` ga qaytiladi. U atomik emas,
+ * shuning uchun natijada nechtasi saqlanmagani ham aytiladi.
  */
 export function useCreateLessonSchedule() {
   const client = useQueryClient();
   return useMutation({
-    mutationFn: ({ dates, form }: { dates: string[]; form: LessonFormInput }) =>
-      lessonApi.createMany(dates, form),
+    mutationFn: async (input: LessonScheduleInput) => {
+      const viaServer = await lessonApi.createSchedule(input.courseId, {
+        title: input.title,
+        days: toBackendWeekdays(input.weekdays),
+        start_time: input.time,
+        end_time: addMinutesToTime(input.time, input.durationMinutes),
+        weeks: weeksBetween(input.startsOn, input.endsOn),
+        start_date: input.startsOn,
+      });
+
+      if (viaServer) {
+        return { created: viaServer.count, failed: [] as Array<{ date: string; message: string }> };
+      }
+
+      const local = await lessonApi.createMany(input.dates, {
+        courseId: input.courseId,
+        topic: input.title,
+        time: input.time,
+        duration: input.durationMinutes,
+      });
+      return { created: local.created.length, failed: local.failed };
+    },
     onSuccess: ({ created, failed }) => {
       client.invalidateQueries({ queryKey: lessonKeys.all });
       if (!failed.length) {
-        toast.success(`${created.length} ta dars jadvalga qo‘shildi`);
+        toast.success(`${created} ta dars jadvalga qo‘shildi`);
         return;
       }
-      if (created.length) {
-        toast.warning(`${created.length} ta dars qo‘shildi, ${failed.length} tasi saqlanmadi`);
+      if (created) {
+        toast.warning(`${created} ta dars qo‘shildi, ${failed.length} tasi saqlanmadi`);
         return;
       }
       toast.error("Darslarni saqlab bo‘lmadi");

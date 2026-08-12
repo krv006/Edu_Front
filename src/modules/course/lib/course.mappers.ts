@@ -26,6 +26,8 @@ export function mapCourseDto(dto: CourseDto): Course {
     status: dto.my_status ?? "joined",
     enrollmentStatus: dto.my_status ?? null,
     isActive: dto.is_active !== false,
+    // Maydon eski backendda yo'q — bo'lmasa "til fani emas" deb qaraladi.
+    isLanguageSubject: Boolean(dto.is_language_subject),
     createdAt: dto.created_at ?? null,
     color: toneFor(dto.id),
   };

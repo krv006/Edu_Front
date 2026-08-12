@@ -12,5 +12,9 @@ export function mapBoardDto(dto: BoardStateDto): BoardState {
     height: Number(dto.size?.[1] ?? 800),
     subject: dto.subject || "",
     mathEnabled: Boolean(dto.math_enabled),
+    awayStudents: (dto.away_students ?? []).map((item) => ({
+      id: String(item.student_id),
+      name: item.name || "O‘quvchi",
+    })),
   };
 }

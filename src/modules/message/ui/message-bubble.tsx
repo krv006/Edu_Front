@@ -3,6 +3,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useState } from "react";
 import { formatMessageTime } from "@/shared/lib";
 import type { ChatMessage } from "@/shared/types";
+import { MessageAttachment } from "./message-attachment";
 import { MessageText } from "./message-text";
 
 export interface MessageBubbleProps {
@@ -68,9 +69,9 @@ export function MessageBubble({ message, currentUserId = null, onReply, onOpenAc
             <span>{message.replyTo.text}</span>
           </div>
         )}
-        {/* Backend hozircha faqat matnli xabar qaytaradi (mapMessageDto: type="text").
-            Fayl/audio turlari API'da paydo bo'lganda shu yerga qo'shiladi. */}
         {message.text && <MessageText text={message.text} />}
+        {/* Dars tugagach backend doska PDF'ini shu ko'rinishda yuboradi. */}
+        {message.attachment && <MessageAttachment attachment={message.attachment} />}
         <span className="message-meta">
           {message.editedAt && <em>tahrirlangan</em>}
           <time>{formatMessageTime(message.createdAt)}</time>

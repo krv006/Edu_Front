@@ -1,5 +1,6 @@
 export { boardApi } from "./api/board.api";
 export type {
+  AwayStudent,
   BoardSheet,
   BoardState,
   Point,
@@ -21,6 +22,7 @@ export {
   useSolveFormula,
 } from "./model/board.queries";
 export { useBoardRealtime } from "./model/use-board-realtime";
+export { AwayStudentsNotice } from "./ui/away-students-notice";
 export { BoardPanel } from "./ui/board-panel";
 export { BoardStroke } from "./ui/board-stroke";
 export { BoardToolbar } from "./ui/board-toolbar";

@@ -72,6 +72,33 @@ export interface LessonRatingInput {
   description?: string;
 }
 
+/**
+ * `POST /api/v1/courses/{id}/schedule/` tanasi (docs/STAFF_API.md §2).
+ *
+ * `days` — 0..6. Backend Python `datetime.weekday()` tartibida deb qabul
+ * qilinadi: 0 = Dushanba … 6 = Yakshanba. Ilova ichida ISO tartibi (1..7)
+ * ishlatiladi, shuning uchun yuborishdan oldin bittaga kamaytiriladi.
+ */
+export interface LessonScheduleRequestDto {
+  title: string;
+  days: number[];
+  /** `HH:mm` */
+  start_time: string;
+  /** `HH:mm` — boshlanish + davomiylik. */
+  end_time: string;
+  /** 1..52 */
+  weeks: number;
+  /** `YYYY-MM-DD` */
+  start_date: string;
+  note?: string;
+}
+
+/** Jadval javobi: yaratilgan darslar soni va ro'yxati. */
+export interface LessonScheduleResponseDto {
+  count?: number;
+  lessons?: LessonDto[];
+}
+
 /** Dars formasi — `AddLessonDialog` yuboradigan shakl. */
 export interface LessonFormInput {
   courseId?: string | null;

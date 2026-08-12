@@ -9,6 +9,7 @@ export {
   useTeachersForDirect,
   useRequestDirect,
   useRespondDirect,
+  useSetRoomImage,
 } from "./model/use-conversations";
 export { ChatEmptyState } from "./ui/chat-empty-state";
 export { ChatHeader } from "./ui/chat-header";

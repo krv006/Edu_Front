@@ -5,3 +5,5 @@ export { decodeScreenShareRequest, encodeScreenShareRequest } from "./lib/screen
 export { useFocusTracker } from "./lib/use-focus-tracker";
 export { liveKeys, useAllowShare, useAnswerAttention, useAttentionCheck, useLiveToken } from "./model/live.queries";
 export { AttentionCheckDialog } from "./ui/attention-check-dialog";
+export { LessonPreJoin } from "./ui/lesson-pre-join";
+export type { LessonPreJoinChoices, LessonPreJoinProps } from "./ui/lesson-pre-join";

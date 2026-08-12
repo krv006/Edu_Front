@@ -21,14 +21,19 @@ export function useRegisterMutation() {
 
 export function useUpdateProfileMutation() {
   return useMutation({
-    mutationFn: async (values: ProfileFormValues): Promise<AuthUser> =>
-      mapUserDto(
+    mutationFn: async (values: ProfileFormValues): Promise<AuthUser> => {
+      const username = values.username?.trim();
+      return mapUserDto(
         await authApi.updateCurrentUser({
           first_name: values.firstName.trim(),
           last_name: values.lastName.trim(),
           phone: values.phone?.trim() || "",
+          // Faqat haqiqatan o'zgargan bo'lsa yuboriladi — aks holda har
+          // saqlashda backend uni band deb hisoblab qolishi mumkin.
+          ...(username ? { username } : {}),
         })
-      ),
+      );
+    },
     // Server javobi global auth holatiga ko'chiriladi.
     onSuccess: (user) => useAuthStore.getState().setUser(user),
   });

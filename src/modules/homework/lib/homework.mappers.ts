@@ -67,6 +67,8 @@ export function mapAssignmentDto(dto: AssignmentDto): Assignment {
     hasAttachment: Boolean(dto.has_attachment),
     dueAt: dto.due_at,
     skillKey: dto.skill_key || "",
+    lessonId: dto.lesson_id == null ? null : String(dto.lesson_id),
+    lessonTitle: dto.lesson_title || "",
     createdAt: dto.created_at,
     submissionsCount: dto.submissions_count ?? null,
     mySubmission: mapSubmissionDto(dto.my_submission),
@@ -92,6 +94,8 @@ export function mapAssignmentRequest(form: AssignmentFormInput): FormData {
   data.set("body", form.body || form.description || "");
   if (form.dueAt) data.set("due_at", form.dueAt);
   if (form.skillKey) data.set("skill_key", form.skillKey);
+  // Faqat TUGAGAN darsga bog'lasa bo'ladi — aks holda backend 400 qaytaradi.
+  if (form.lessonId) data.set("lesson_id", form.lessonId);
   if (form.extraInstructions) data.set("extra_instructions", form.extraInstructions);
   if (form.file) data.set("attachment", form.file);
   return data;

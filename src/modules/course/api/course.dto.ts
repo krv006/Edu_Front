@@ -11,6 +11,11 @@ export interface CourseDto {
   /** Katalogda: joriy foydalanuvchining shu kursdagi yozilish holati. */
   my_status?: EnrollmentStatus | null;
   is_active?: boolean;
+  /**
+   * Kurs fani til fanimi (`subject` dan avtomatik aniqlanadi, docs/STAFF_API.md §2).
+   * Faqat shunda vazifaga "tekshiruv turi" (writing/reading/…) beriladi.
+   */
+  is_language_subject?: boolean;
   created_at?: string | null;
 }
 

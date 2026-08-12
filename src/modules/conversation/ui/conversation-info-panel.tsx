@@ -1,11 +1,11 @@
-import { useState, type FormEvent } from "react";
-import { Bell, BellOff, Check, Copy, Pencil, ShieldAlert, Trash2, UserRound, UsersRound } from "lucide-react";
+import { useRef, useState, type FormEvent } from "react";
+import { Bell, BellOff, Camera, Check, Copy, Loader2, Pencil, ShieldAlert, Trash2, UserRound, UsersRound } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { storage } from "@/shared/lib";
 import { useAuth } from "@/modules/auth";
 import { useCourseStudents, useDeleteCourse, useUpdateCourse } from "@/modules/course";
-import { DIRECT_STATUS, directStatusLabel, useRespondDirect } from "@/modules/conversation";
+import { DIRECT_STATUS, directStatusLabel, useRespondDirect, useSetRoomImage } from "@/modules/conversation";
 import type { CourseFormInput } from "@/modules/course";
 import type { Conversation } from "@/shared/types";
 import { Avatar, Button, Dialog, DialogContent } from "@/shared/ui/legacy";
@@ -22,7 +22,7 @@ export function ConversationInfoPanel({ conversation, open, onOpenChange }: Conv
   const [muted, setMuted] = useState(() => storage.get(muteKey) === "true"); const [copied, setCopied] = useState(false); const [editOpen, setEditOpen] = useState(false); const [deleteOpen, setDeleteOpen] = useState(false); const [courseForm, setCourseForm] = useState<CourseFormInput>({ title: "", subject: "", description: "" });
   // Panel yopiq turganda ishtirokchilar kerak emas — u har chat ochilganda
   // ortiqcha so'rov yuborardi (panelning o'zi doim mount bo'lib turadi).
-  const members = useCourseStudents(conversation.courseId, { page_size: 20 }, open); const respond = useRespondDirect(); const updateCourse = useUpdateCourse(); const deleteCourse = useDeleteCourse();
+  const members = useCourseStudents(conversation.courseId, { page_size: 20 }, open); const respond = useRespondDirect(); const updateCourse = useUpdateCourse(); const deleteCourse = useDeleteCourse(); const setRoomImage = useSetRoomImage(); const imageRef = useRef<HTMLInputElement>(null);
   function toggleMute() { const next = !muted; setMuted(next); storage.set(muteKey, next); toast.success(next ? "Bildirishnomalar ovozsiz qilindi" : "Bildirishnomalar ovozi yoqildi"); }
   async function copyUsername() { const value = conversation.participant?.username ? `@${conversation.participant.username}` : ""; if (!value) return; await navigator.clipboard.writeText(value); setCopied(true); toast.success("Username nusxalandi"); setTimeout(() => setCopied(false), 1400); }
   function respondDirect(action: DirectAction) { respond.mutate({ roomId: conversation.id, action }, { onSuccess: () => { toast.success(action === "accept" ? "Suhbat qabul qilindi" : "Suhbat bloklandi"); onOpenChange(false); }, onError: (error: Error) => toast.error(error.message) }); }
@@ -31,7 +31,17 @@ export function ConversationInfoPanel({ conversation, open, onOpenChange }: Conv
   function removeCourse() { deleteCourse.mutate(conversation.courseId as string, { onSuccess: () => { setDeleteOpen(false); onOpenChange(false); navigate("/teacher/chats", { replace: true }); }, onError: (error: Error) => toast.error(error.message) }); }
   const teacherGroup = isGroup && user?.role === "TEACHER";
   return <><Dialog open={open} onOpenChange={onOpenChange}>{open ? <DialogContent className="info-sheet" motionPreset="right-sheet" title={conversation.title} description={isGroup ? conversation.subject || "Kurs guruhi" : "Profil ma’lumotlari"}>
-    <div className="info-profile"><Avatar name={conversation.title} tone={conversation.avatarTone} size="lg" /><h3>{conversation.title}</h3><p>{isGroup ? `${members.data?.total ?? conversation.memberCount ?? 0} o‘quvchi` : directStatusLabel(conversation.directStatus, "Shaxsiy suhbat")}</p></div>
+    <div className="info-profile">
+      <span className="info-avatar-slot">
+        <Avatar name={conversation.title} tone={conversation.avatarTone} size="lg" src={conversation.imageUrl} />
+        {/* Guruh rasmini faqat kurs egasi almashtira oladi. */}
+        {teacherGroup ? (<>
+          <input ref={imageRef} type="file" accept="image/png,image/jpeg,image/webp" hidden onChange={(event) => { const file = event.target.files?.[0]; event.target.value = ""; if (file) setRoomImage.mutate({ roomId: conversation.id, image: file }, { onSuccess: () => toast.success("Guruh rasmi yangilandi"), onError: (error: Error) => toast.error(error.message) }); }} />
+          <button type="button" className="info-avatar-edit" aria-label="Guruh rasmini o‘zgartirish" disabled={setRoomImage.isPending} onClick={() => imageRef.current?.click()}>{setRoomImage.isPending ? <Loader2 size={14} className="spin" /> : <Camera size={14} />}</button>
+        </>) : null}
+      </span>
+      <h3>{conversation.title}</h3><p>{isGroup ? `${members.data?.total ?? conversation.memberCount ?? 0} o‘quvchi` : directStatusLabel(conversation.directStatus, "Shaxsiy suhbat")}</p>
+    </div>
     <div className="info-quick-actions"><button className={muted ? "is-active" : ""} onClick={toggleMute}>{muted ? <Bell size={19} /> : <BellOff size={19} />}<span>{muted ? "Ovozni yoqish" : "Ovozsiz qilish"}</span></button>{teacherGroup ? <button onClick={beginEdit}><Pencil size={19} /><span>Kursni tahrirlash</span></button> : null}</div>
     <div className="info-section"><span className="info-section-title">{isGroup ? "GURUH HAQIDA" : "MA’LUMOT"}</span>{isGroup ? <p className="info-description">{conversation.description || "Kurs guruh chati"}</p> : <button className="info-row" onClick={copyUsername}><UserRound size={18} /><span><small>Username · nusxalash uchun bosing</small><strong>@{conversation.participant?.username || "—"}</strong></span>{copied ? <Check size={17} /> : <Copy size={16} />}</button>}</div>
     {isGroup ? <div className="info-section"><span className="info-section-title">ISHTIROKCHILAR</span>{(members.data?.items ?? []).slice(0, 5).map(({ student }) => <div className="member-mini" key={student.id}><Avatar name={student.name} tone={student.avatarTone} size="sm" /><span><strong>{student.name}</strong><small>@{student.username}</small></span></div>)}<div className="member-count"><UsersRound size={16} /> Jami {members.data?.total ?? 0} ishtirokchi</div></div> : null}

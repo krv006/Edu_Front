@@ -2,7 +2,12 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { LiveKitRoom } from "@livekit/components-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "@/modules/auth";
-import { liveApi, useLiveToken } from "@/modules/live";
+import {
+  LessonPreJoin,
+  liveApi,
+  useLiveToken,
+  type LessonPreJoinChoices,
+} from "@/modules/live";
 import { RateLessonDialog, useLesson } from "@/modules/lesson";
 import { LoadingFallback, RouteState } from "@/shared/ui/legacy";
 import { LiveRoom, useLeaveGuard } from "@/widgets/live-room";
@@ -20,6 +25,8 @@ export function LiveLessonPage() {
   const joined = useRef(false);
   const isTeacher = useRef(false);
   const [ratePrompt, setRatePrompt] = useState(false);
+  /** `null` — hali kirishdan oldingi ekranda. */
+  const [choices, setChoices] = useState<LessonPreJoinChoices | null>(null);
 
   const connected = Boolean(token.data);
   // Baholash oynasi ochiq turganda sahifadan chiqish ogohlantirishi keraksiz.
@@ -120,14 +127,28 @@ export function LiveLessonPage() {
     );
   }
 
+  // Kirishdan oldin mikrofon/kamera tanlanadi — xonaga ulanish shundan keyin.
+  if (!choices) {
+    return (
+      <main className="live-page">
+        <LessonPreJoin
+          lesson={lesson.data}
+          userName={user?.name}
+          onJoin={setChoices}
+          onCancel={() => navigate(-1)}
+        />
+      </main>
+    );
+  }
+
   return (
     <main className="live-page">
       <LiveKitRoom
         token={token.data.token}
         serverUrl={token.data.serverUrl}
         connect
-        audio
-        video
+        audio={choices.micOn}
+        video={choices.cameraOn}
         onDisconnected={handleLeave}
       >
         <LiveRoom lesson={lesson.data} isTeacher={token.data.isTeacher} onLeave={handleLeave} />

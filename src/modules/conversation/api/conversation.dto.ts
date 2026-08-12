@@ -16,6 +16,8 @@ export interface ChatRoomDto {
   other_user?: UserDto | null;
   unread?: number;
   updated_at: string;
+  /** Guruh chat rasmi (o'qituvchi o'rnatadi, docs/STAFF_API.md §6). */
+  image_url?: string | null;
 }
 
 /** `GET /api/v1/chat/rooms/teachers/` — direct so'rov yuborish uchun o'qituvchilar. */

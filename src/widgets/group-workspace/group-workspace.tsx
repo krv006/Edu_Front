@@ -29,6 +29,7 @@ import {
   LessonList,
   LessonRatingsDialog,
   LessonViewSwitch,
+  LiveLessonBar,
   useCreateLesson,
   useCreateLessonSchedule,
   useDeleteLesson,
@@ -135,6 +136,8 @@ export function GroupWorkspace({
   return (
     <section className="chat-page group-workspace">
       <ChatHeader conversation={hydrated} />
+      {/* Jonli dars bo'lsa chat tepasida chiziq turadi — Telegram uslubi. */}
+      <LiveLessonBar courseId={courseId} />
       <nav className="group-tabs">
         {TABS.map((tab) => {
           const Icon = tab.icon;
@@ -186,6 +189,7 @@ export function GroupWorkspace({
               courseId={courseId}
               assignments={assignments.data}
               loading={assignments.isLoading}
+              isLanguageSubject={Boolean(course.data?.isLanguageSubject)}
             />
           ) : null}
           {activeTab === "students" ? (
@@ -252,11 +256,23 @@ function LessonsPanel({ courseId, lessons = [], loading }: LessonsPanelProps) {
     });
   }
 
-  function saveSchedule({ dates, ...form }: LessonScheduleDraft) {
-    return createSchedule.mutateAsync({ dates, form: { ...form, courseId } }).then(() => {
-      setDialog(false);
-      setEditing(null);
-    });
+  function saveSchedule(draft: LessonScheduleDraft) {
+    if (!courseId) return Promise.resolve();
+    return createSchedule
+      .mutateAsync({
+        courseId,
+        title: draft.topic,
+        time: draft.time,
+        durationMinutes: Number(draft.duration) || 45,
+        weekdays: draft.weekdays,
+        startsOn: draft.startsOn,
+        endsOn: draft.endsOn,
+        dates: draft.dates,
+      })
+      .then(() => {
+        setDialog(false);
+        setEditing(null);
+      });
   }
 
   // Ikkala ko'rinish ham aynan shu amallarni oladi.
@@ -357,14 +373,24 @@ interface AssignmentsPanelProps {
   courseId: string | null;
   assignments?: Assignment[];
   loading: boolean;
+  /** Til fani bo'lsa vazifaga "tekshiruv turi" tanlovi beriladi. */
+  isLanguageSubject: boolean;
 }
 
-function AssignmentsPanel({ courseId, assignments = [], loading }: AssignmentsPanelProps) {
+function AssignmentsPanel({
+  courseId,
+  assignments = [],
+  loading,
+  isLanguageSubject,
+}: AssignmentsPanelProps) {
   const [dialog, setDialog] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<Assignment | null>(null);
   const [detailId, setDetailId] = useState<string | null>(null);
   const create = useCreateAssignment();
   const remove = useDeleteAssignment();
+
+  // Vazifani darsga bog'lash uchun kurs darslari kerak — faqat dialog ochilganda.
+  const lessons = useLessons({ course: courseId, page_size: 100 }, dialog);
 
   return (
     <div className="group-panel">
@@ -407,6 +433,12 @@ function AssignmentsPanel({ courseId, assignments = [], loading }: AssignmentsPa
                     : "Muddat belgilanmagan"}{" "}
                   · {item.submissionsCount ?? 0} topshirilgan
                 </small>
+                {/* Umumiy ro'yxatda vazifa qaysi darsga tegishli ekani ko'rinsin. */}
+                {item.lessonTitle ? (
+                  <span className="assignment-lesson-tag">
+                    <CalendarDays size={12} /> {item.lessonTitle}
+                  </span>
+                ) : null}
               </div>
               <span className="assignment-subject">{item.subject}</span>
               <Button size="sm" variant="secondary" onClick={() => setDetailId(item.id)}>
@@ -433,6 +465,8 @@ function AssignmentsPanel({ courseId, assignments = [], loading }: AssignmentsPa
       <AddAssignmentDialog
         open={dialog}
         onOpenChange={setDialog}
+        lessons={lessons.data ?? []}
+        isLanguageSubject={isLanguageSubject}
         onCreate={(form) => {
           create.mutateAsync({ ...form, courseId }).then(() => setDialog(false));
         }}

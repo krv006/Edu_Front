@@ -91,6 +91,11 @@ export interface BoardStateDto {
   subject?: string;
   /** Faqat matematika kurslarida `true` — formula vositasi shunga qarab ko'rsatiladi. */
   math_enabled?: boolean;
+  /**
+   * Hozir dars oynasidan chiqib ketgan o'quvchilar (docs/STAFF_API.md §7).
+   * Faqat `is_teacher: true` bo'lganda keladi.
+   */
+  away_students?: Array<{ student_id: string | number; name: string }>;
 }
 
 /** `POST /api/v1/board/<lesson_id>/solve/` javobi (SymPy). */
@@ -106,6 +111,12 @@ export interface BoardSheet {
   strokes: StrokeDto[];
 }
 
+/** Dars oynasidan chiqib ketgan o'quvchi — o'qituvchiga ko'rsatiladi. */
+export interface AwayStudent {
+  id: string;
+  name: string;
+}
+
 export interface BoardState {
   sheets: BoardSheet[];
   canDraw: boolean;
@@ -114,4 +125,6 @@ export interface BoardState {
   height: number;
   subject: string;
   mathEnabled: boolean;
+  /** Faqat o'qituvchida to'ladi; boshqalarda bo'sh massiv. */
+  awayStudents: AwayStudent[];
 }
