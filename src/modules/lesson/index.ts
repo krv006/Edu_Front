@@ -25,6 +25,7 @@ export {
   useLessonRatings,
   useLessonRecording,
   useCreateLesson,
+  useCreateLessonSchedule,
   useDeleteLesson,
   useDeleteRecording,
   useFinishLesson,
@@ -48,6 +49,16 @@ export {
   isLessonClosed,
   lessonStatusMeta,
 } from "./lib/lesson-status";
+export {
+  buildScheduleDates,
+  EVEN_WEEKDAYS,
+  findScheduleConflicts,
+  findScheduleConflictsForDates,
+  MAX_SCHEDULE_LESSONS,
+  ODD_WEEKDAYS,
+  WEEKDAYS,
+} from "./lib/lesson-schedule";
+export type { ConflictQuery, ScheduleInput, Weekday } from "./lib/lesson-schedule";
 export type { LessonStatusMeta } from "./lib/lesson-status";
 export { FinishLessonDialog } from "./ui/finish-lesson-dialog";
 export { LessonActions } from "./ui/lesson-actions";

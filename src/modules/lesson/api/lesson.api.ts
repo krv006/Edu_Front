@@ -1,4 +1,5 @@
 import { API_ERROR_CODES, apiClient, AppError, type RequestOptions } from "@/shared/api";
+import type { Lesson } from "@/shared/types";
 import { lessonEndpoints } from "./lesson.endpoints";
 import type {
   LessonDto,
@@ -41,6 +42,43 @@ export const lessonApi = {
   },
   async update(id: string, form: LessonFormInput) {
     return mapLessonDto(await apiClient.patch<LessonDto>(lessonEndpoints.detail(id), mapLessonRequest(form)));
+  },
+  /**
+   * Takrorlanuvchi jadval — har sana uchun alohida `POST /lessons/`.
+   *
+   * Backendda ommaviy yaratish endpointi yo'q, shuning uchun so'rovlar shu
+   * yerdan yuboriladi. Ular 4 tadan guruhlanadi: 40 ta darsni ketma-ket
+   * yuborish ~16 soniya olardi, hammasini birdan yuborish esa serverni
+   * keraksiz yuklaydi.
+   *
+   * Amal ATOMIK EMAS — bir nechtasi muvaffaqiyatsiz bo'lsa, qolganlari
+   * yaratilgan holicha qoladi, shuning uchun natijada xatolar ham qaytadi.
+   */
+  async createMany(dates: readonly string[], form: LessonFormInput) {
+    const created: Lesson[] = [];
+    const failed: Array<{ date: string; message: string }> = [];
+    const CHUNK = 4;
+
+    for (let index = 0; index < dates.length; index += CHUNK) {
+      const chunk = dates.slice(index, index + CHUNK);
+      const results = await Promise.allSettled(
+        chunk.map((date) =>
+          apiClient
+            .post<LessonDto>(lessonEndpoints.list, mapLessonRequest({ ...form, date }))
+            .then(mapLessonDto)
+        )
+      );
+      results.forEach((result, offset) => {
+        if (result.status === "fulfilled") created.push(result.value);
+        else
+          failed.push({
+            date: chunk[offset],
+            message: result.reason instanceof Error ? result.reason.message : "Xatolik",
+          });
+      });
+    }
+
+    return { created, failed };
   },
   async remove(id: string) {
     await apiClient.delete(lessonEndpoints.detail(id));
