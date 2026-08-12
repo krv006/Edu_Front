@@ -4257,6 +4257,12 @@ body.is-resizing-sidebar {
   gap: 11px;
 }
 
+/* Dialog ichidagi bo'limlar (qidirish / yangi hisob) */
+.dialog-tabs { margin-bottom: 16px; padding: 3px; border: 1px solid var(--border); border-radius: var(--r-md); display: grid; grid-template-columns: 1fr 1fr; gap: 3px; background: var(--surface-subtle); }
+.dialog-tabs button { min-height: 38px; border: 0; border-radius: var(--r-sm); display: inline-flex; gap: 6px; align-items: center; justify-content: center; color: var(--muted-foreground); background: transparent; font: inherit; font-size: var(--fs-sm); font-weight: 700; cursor: pointer; transition: color .16s, background .16s; }
+.dialog-tabs button:hover { color: var(--foreground); }
+.dialog-tabs button.is-active { color: var(--primary-foreground); background: var(--primary); }
+
 /* Dars jadvali: bitta dars / takrorlanuvchi almashtirgichi */
 .schedule-mode { padding: 3px; border: 1px solid var(--border); border-radius: var(--r-md); display: grid; grid-template-columns: 1fr 1fr; gap: 3px; background: var(--surface-subtle); }
 .schedule-mode button { min-height: 38px; border: 0; border-radius: var(--r-sm); display: inline-flex; gap: 6px; align-items: center; justify-content: center; color: var(--muted-foreground); background: transparent; font: inherit; font-size: var(--fs-sm); font-weight: 700; cursor: pointer; transition: color .16s, background .16s; }

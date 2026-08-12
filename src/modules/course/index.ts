@@ -20,6 +20,7 @@ export {
   useCreateCourse,
   useCreateEnrollment,
   useDeleteCourse,
+  useCreateCourseStudent,
   useEnrollStudent,
   useRespondCourseRequest,
   useSearchCourseStudents,

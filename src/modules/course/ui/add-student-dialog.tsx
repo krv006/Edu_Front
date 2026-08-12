@@ -1,13 +1,20 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { Search, UserPlus } from "lucide-react";
 import { Avatar, Button, Dialog, DialogContent } from "@/shared/ui/legacy";
-import { useEnrollStudent, useSearchCourseStudents } from "../model/course.queries";
+import type { CreateChildRequestDto } from "@/modules/auth";
+import {
+  useCreateCourseStudent,
+  useEnrollStudent,
+  useSearchCourseStudents,
+} from "../model/course.queries";
 import type { EnrollmentStatus } from "@/shared/types";
 
 export interface AddStudentDialogProps {
   courseId: string | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  /** Qaysi bo'lim ochiq holda boshlansin — chaqiruvchi tugmaga qarab. */
+  initialTab?: StudentDialogTab;
 }
 
 const enrollLabels: Record<EnrollmentStatus, string> = {
@@ -76,22 +83,183 @@ function AddStudentBody({ courseId }: { courseId: string | null }) {
           ))
         )}
         {!tooShort && !results.isLoading && !results.isError && !items.length ? (
-          <p className="portal-muted">O‘quvchi topilmadi.</p>
+          <p className="portal-muted">O‘quvchi topilmadi — «Yangi hisob» orqali yarating.</p>
         ) : null}
       </div>
     </>
   );
 }
 
-export function AddStudentDialog({ courseId, open, onOpenChange }: AddStudentDialogProps) {
+type StudentDialogTab = "search" | "create";
+
+const EMPTY_STUDENT: CreateChildRequestDto = {
+  username: "",
+  password: "",
+  first_name: "",
+  last_name: "",
+};
+
+/**
+ * Yangi o'quvchi hisobi.
+ *
+ * O'quvchi o'zi ro'yxatdan o'ta olmaydi (`docs/STUDENT_API.md`) — hisobni
+ * o'qituvchi yoki ota-ona yaratadi. Yaratilgan hisob darhol shu kursga
+ * yoziladi, shuning uchun o'qituvchi qayta qidirib o'tirmaydi.
+ */
+function CreateStudentBody({
+  courseId,
+  onCreated,
+}: {
+  courseId: string | null;
+  onCreated: () => void;
+}) {
+  const [form, setForm] = useState<CreateChildRequestDto>(EMPTY_STUDENT);
+  const createStudent = useCreateCourseStudent();
+
+  function update(field: keyof CreateChildRequestDto, value: string) {
+    setForm((current) => ({ ...current, [field]: value }));
+  }
+
+  function submit(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (!courseId) return;
+    createStudent.mutate(
+      { courseId, form: { ...form, username: form.username.trim() } },
+      {
+        onSuccess: () => {
+          setForm(EMPTY_STUDENT);
+          onCreated();
+        },
+      }
+    );
+  }
+
+  const filled =
+    form.username.trim() && form.password.length >= 8 && form.first_name.trim() && form.last_name.trim();
+
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <form className="dialog-form" onSubmit={submit}>
+      <div className="register-name-grid">
+        <label className="field-group">
+          <span>Ism</span>
+          <div className="input-shell">
+            <input
+              autoFocus
+              value={form.first_name}
+              onChange={(event) => update("first_name", event.target.value)}
+              required
+            />
+          </div>
+        </label>
+        <label className="field-group">
+          <span>Familiya</span>
+          <div className="input-shell">
+            <input
+              value={form.last_name}
+              onChange={(event) => update("last_name", event.target.value)}
+              required
+            />
+          </div>
+        </label>
+      </div>
+
+      <label className="field-group">
+        <span>Login</span>
+        <div className="input-shell">
+          <input
+            value={form.username}
+            onChange={(event) => update("username", event.target.value)}
+            placeholder="masalan: ali_valiyev"
+            autoComplete="off"
+            required
+          />
+        </div>
+      </label>
+
+      <label className="field-group">
+        <span>Vaqtinchalik parol</span>
+        <div className="input-shell">
+          <input
+            type="text"
+            value={form.password}
+            onChange={(event) => update("password", event.target.value)}
+            placeholder="Kamida 8 ta belgi"
+            autoComplete="off"
+            minLength={8}
+            required
+          />
+        </div>
+      </label>
+
+      {/* Parol ochiq ko'rsatiladi: o'qituvchi uni o'quvchiga aytib berishi kerak. */}
+      <p className="portal-muted">
+        Parolni o‘quvchiga aytib qo‘ying — u birinchi kirishdan keyin o‘zgartira oladi.
+      </p>
+
+      {createStudent.isError ? (
+        <div className="form-alert">{createStudent.error.message}</div>
+      ) : null}
+
+      <div className="dialog-actions">
+        <Button type="submit" loading={createStudent.isPending} disabled={!filled || !courseId}>
+          <UserPlus size={15} /> Yaratish va kursga qo‘shish
+        </Button>
+      </div>
+    </form>
+  );
+}
+
+export function AddStudentDialog({
+  courseId,
+  open,
+  onOpenChange,
+  initialTab = "search",
+}: AddStudentDialogProps) {
+  const [tab, setTab] = useState<StudentDialogTab>(initialTab);
+
+  return (
+    <Dialog
+      open={open}
+      onOpenChange={(next) => {
+        if (!next) setTab(initialTab);
+        onOpenChange(next);
+      }}
+    >
       {open ? (
         <DialogContent
           title="O‘quvchi qo‘shish"
-          description="Username yoki ism bo‘yicha bazadan qidiring."
+          description={
+            tab === "search"
+              ? "Username yoki ism bo‘yicha bazadan qidiring."
+              : "Hisob yaratiladi va o‘quvchi darhol shu kursga qo‘shiladi."
+          }
         >
-          <AddStudentBody courseId={courseId} />
+          <div className="dialog-tabs" role="tablist">
+            <button
+              type="button"
+              role="tab"
+              aria-selected={tab === "search"}
+              className={tab === "search" ? "is-active" : ""}
+              onClick={() => setTab("search")}
+            >
+              <Search size={15} /> Qidirish
+            </button>
+            <button
+              type="button"
+              role="tab"
+              aria-selected={tab === "create"}
+              className={tab === "create" ? "is-active" : ""}
+              onClick={() => setTab("create")}
+            >
+              <UserPlus size={15} /> Yangi hisob
+            </button>
+          </div>
+
+          {tab === "search" ? (
+            <AddStudentBody courseId={courseId} />
+          ) : (
+            <CreateStudentBody courseId={courseId} onCreated={() => setTab("search")} />
+          )}
         </DialogContent>
       ) : null}
     </Dialog>
