@@ -13,7 +13,7 @@ export interface UseBoardDrawingInit {
   strokeWidth: number;
   enabled: boolean;
   onCommit: (stroke: StrokeShapeDto) => void;
-  /** Matn/formula asboblari bosilganda — dialog ochish uchun nuqta beriladi. */
+  /** Matn/formula asboblari bosilganda — inline editor uchun nuqta beriladi. */
   onPlacePoint: (point: Point) => void;
 }
 
