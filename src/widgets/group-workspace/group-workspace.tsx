@@ -30,6 +30,7 @@ import {
   LessonRatingsDialog,
   LessonViewSwitch,
   useCreateLesson,
+  useCreateLessonSchedule,
   useDeleteLesson,
   useLessons,
   useLessonView,
@@ -51,7 +52,12 @@ import type { ChatController } from "@/modules/message";
 import type { Page } from "@/shared/api";
 import { Avatar, Button, Dialog, DialogContent } from "@/shared/ui/legacy";
 import { ROUTES } from "@/shared/config";
-import { AddAssignmentDialog, AddLessonDialog, type LessonDraft } from "./group-action-dialogs";
+import {
+  AddAssignmentDialog,
+  AddLessonDialog,
+  type LessonDraft,
+  type LessonScheduleDraft,
+} from "./group-action-dialogs";
 
 type TabId = "chat" | "lessons" | "assignments" | "students" | "attendance";
 
@@ -224,9 +230,16 @@ function LessonsPanel({ courseId, lessons = [], loading }: LessonsPanelProps) {
   const [ratingsTarget, setRatingsTarget] = useState<Lesson | null>(null);
   const navigate = useNavigate();
   const create = useCreateLesson();
+  const createSchedule = useCreateLessonSchedule();
   const update = useUpdateLesson();
   const remove = useDeleteLesson();
   const { view, setView } = useLessonView();
+
+  /**
+   * To'qnashuvni tekshirish uchun o'qituvchining BARCHA darslari kerak —
+   * shu kurs emas, hamma kurslari bo'yicha. Faqat dialog ochilganda so'raladi.
+   */
+  const allLessons = useLessons({ page_size: 200 }, dialog);
 
   function save(form: LessonDraft) {
     const payload = { ...form, courseId };
@@ -234,6 +247,13 @@ function LessonsPanel({ courseId, lessons = [], loading }: LessonsPanelProps) {
       ? update.mutateAsync({ id: editing.id, form: payload })
       : create.mutateAsync(payload);
     return request.then(() => {
+      setDialog(false);
+      setEditing(null);
+    });
+  }
+
+  function saveSchedule({ dates, ...form }: LessonScheduleDraft) {
+    return createSchedule.mutateAsync({ dates, form: { ...form, courseId } }).then(() => {
       setDialog(false);
       setEditing(null);
     });
@@ -291,7 +311,9 @@ function LessonsPanel({ courseId, lessons = [], loading }: LessonsPanelProps) {
           if (!open) setEditing(null);
         }}
         initialValues={editing}
+        existingLessons={allLessons.data ?? []}
         onCreate={save}
+        onCreateSchedule={saveSchedule}
       />
       <Dialog
         open={Boolean(deleteTarget)}

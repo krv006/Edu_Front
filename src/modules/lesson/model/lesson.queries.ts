@@ -51,6 +51,33 @@ export function useCreateLesson() {
   });
 }
 
+/**
+ * Takrorlanuvchi jadval bo'yicha bir nechta dars yaratadi.
+ *
+ * Amal atomik emas, shuning uchun natija ikki qismdan iborat: yaratilganlar
+ * va xato berganlar. Foydalanuvchiga ikkalasi ham aytiladi — "hammasi
+ * saqlandi" deb noto'g'ri xabar bermaslik uchun.
+ */
+export function useCreateLessonSchedule() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: ({ dates, form }: { dates: string[]; form: LessonFormInput }) =>
+      lessonApi.createMany(dates, form),
+    onSuccess: ({ created, failed }) => {
+      client.invalidateQueries({ queryKey: lessonKeys.all });
+      if (!failed.length) {
+        toast.success(`${created.length} ta dars jadvalga qo‘shildi`);
+        return;
+      }
+      if (created.length) {
+        toast.warning(`${created.length} ta dars qo‘shildi, ${failed.length} tasi saqlanmadi`);
+        return;
+      }
+      toast.error("Darslarni saqlab bo‘lmadi");
+    },
+  });
+}
+
 export function useUpdateLesson() {
   const client = useQueryClient();
   return useMutation({

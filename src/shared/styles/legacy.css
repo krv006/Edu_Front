@@ -4256,6 +4256,36 @@ body.is-resizing-sidebar {
   grid-template-columns: 1fr 1fr;
   gap: 11px;
 }
+
+/* Dars jadvali: bitta dars / takrorlanuvchi almashtirgichi */
+.schedule-mode { padding: 3px; border: 1px solid var(--border); border-radius: var(--r-md); display: grid; grid-template-columns: 1fr 1fr; gap: 3px; background: var(--surface-subtle); }
+.schedule-mode button { min-height: 38px; border: 0; border-radius: var(--r-sm); display: inline-flex; gap: 6px; align-items: center; justify-content: center; color: var(--muted-foreground); background: transparent; font: inherit; font-size: var(--fs-sm); font-weight: 700; cursor: pointer; transition: color .16s, background .16s; }
+.schedule-mode button:hover { color: var(--foreground); }
+.schedule-mode button.is-active { color: var(--primary-foreground); background: var(--primary); }
+
+.field-block { display: grid; gap: 9px; }
+.field-block-label { color: var(--foreground); font-size: var(--fs-md); font-weight: 700; }
+
+.weekday-presets { display: flex; gap: 7px; flex-wrap: wrap; }
+.weekday-presets button { padding: 6px 12px; border: 1px solid var(--border); border-radius: var(--r-full); color: var(--muted-foreground); background: var(--surface); font: inherit; font-size: var(--fs-xs); font-weight: 700; cursor: pointer; transition: color .16s, border-color .16s, background .16s; }
+.weekday-presets button:hover { border-color: var(--border-accent-strong); color: var(--foreground); }
+.weekday-presets button.is-active { color: var(--primary-text); border-color: var(--border-accent-strong); background: var(--primary-tint); }
+
+.weekday-picker { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 5px; }
+.weekday-picker button { min-height: 40px; border: 1px solid var(--border); border-radius: var(--r-sm); color: var(--muted-foreground); background: var(--surface); font: inherit; font-size: var(--fs-xs); font-weight: 800; cursor: pointer; transition: color .16s, border-color .16s, background .16s; }
+.weekday-picker button:hover { border-color: var(--border-accent-strong); }
+.weekday-picker button.is-active { color: var(--primary-foreground); border-color: var(--primary); background: var(--primary); }
+
+.schedule-summary { margin: 0; padding: 10px 12px; border-radius: var(--r-sm); color: var(--muted-foreground); background: var(--surface-subtle); font-size: var(--fs-sm); }
+.schedule-summary strong { color: var(--foreground); }
+.schedule-summary.is-empty { color: var(--warning-strong); background: var(--warning-soft); }
+
+.schedule-conflict { padding: 11px 13px; border: 1px solid var(--destructive-soft-border); border-radius: var(--r-md); display: flex; gap: 10px; align-items: flex-start; background: var(--destructive-soft); }
+.schedule-conflict > svg { flex: 0 0 auto; margin-top: 1px; color: var(--destructive-strong); }
+.schedule-conflict > div { min-width: 0; display: grid; gap: 5px; }
+.schedule-conflict strong { color: var(--destructive-strong); font-size: var(--fs-md); }
+.schedule-conflict ul { margin: 0; padding-left: 16px; display: grid; gap: 3px; color: var(--foreground); font-size: var(--fs-sm); }
+.schedule-conflict small { color: var(--muted-foreground); font-size: var(--fs-xs); }
 .rich-assignment-field {
   border: 1px solid var(--border-strong);
   border-radius: var(--r-sm);

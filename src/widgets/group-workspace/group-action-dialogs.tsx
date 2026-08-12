@@ -1,7 +1,8 @@
-import { useRef, useState, type FormEvent } from "react";
+import { useMemo, useRef, useState, type FormEvent } from "react";
 import { motion } from "framer-motion";
 import {
   Bold,
+  CalendarDays,
   FileUp,
   GraduationCap,
   Hourglass,
@@ -9,18 +10,41 @@ import {
   Link,
   List,
   Paperclip,
+  Repeat,
+  TriangleAlert,
   Underline,
 } from "lucide-react";
 import { Button, Dialog, DialogContent } from "@/shared/ui/legacy";
 import { DatePicker, SelectPicker, TimePicker } from "@/shared/ui/legacy/form-pickers";
+import {
+  buildScheduleDates,
+  EVEN_WEEKDAYS,
+  findScheduleConflicts,
+  findScheduleConflictsForDates,
+  MAX_SCHEDULE_LESSONS,
+  ODD_WEEKDAYS,
+  WEEKDAYS,
+} from "@/modules/lesson";
 import type { Lesson } from "@/shared/types";
 
 export interface LessonDraft { topic: string; date: string; time: string; duration: string }
+
+/** Takrorlanuvchi jadval — bo'lsa, dialog bitta emas, bir nechta dars yaratadi. */
+export interface LessonScheduleDraft extends LessonDraft {
+  dates: string[];
+}
 
 export interface AddLessonDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onCreate: (values: LessonDraft) => void;
+  /** Takrorlanuvchi rejim — berilmasa, rejim almashtirgichi ko'rsatilmaydi. */
+  onCreateSchedule?: (values: LessonScheduleDraft) => void;
+  /**
+   * O'qituvchining barcha darslari (hamma kurslari bo'yicha) — vaqt
+   * to'qnashuvini tekshirish uchun. Bo'sh bo'lsa ogohlantirish chiqmaydi.
+   */
+  existingLessons?: readonly Lesson[];
   initialValues?: Lesson | null;
 }
 
@@ -47,28 +71,100 @@ const SKILL_OPTIONS = [
   { value: "speaking", label: "Speaking" },
 ];
 
-export function AddLessonDialog({ open, onOpenChange, onCreate, initialValues = null }: AddLessonDialogProps) {
+function todayString(): string {
+  return new Date().toISOString().slice(0, 10);
+}
+
+/** Bir oy keyingi sana — takrorlanuvchi jadval uchun oqilona standart oxir. */
+function monthLaterString(): string {
+  const date = new Date();
+  date.setMonth(date.getMonth() + 1);
+  return date.toISOString().slice(0, 10);
+}
+
+const DATE_LABEL = new Intl.DateTimeFormat("uz-UZ", { day: "numeric", month: "short" });
+
+export function AddLessonDialog({
+  open,
+  onOpenChange,
+  onCreate,
+  onCreateSchedule,
+  existingLessons = [],
+  initialValues = null,
+}: AddLessonDialogProps) {
   const [form, setForm] = useState<LessonDraft>(() => ({
     topic: initialValues?.topic ?? "",
     date: initialValues?.date ?? "",
     time: initialValues?.time ?? "18:30",
     duration: String(initialValues?.durationMinutes ?? initialValues?.duration ?? "45"),
   }));
+  const [repeat, setRepeat] = useState(false);
+  const [weekdays, setWeekdays] = useState<number[]>([...ODD_WEEKDAYS]);
+  const [range, setRange] = useState(() => ({ from: todayString(), to: monthLaterString() }));
+
+  // Tahrirlashda takrorlanish ma'nosiz — bitta mavjud dars o'zgartiriladi.
+  const canRepeat = Boolean(onCreateSchedule) && !initialValues;
+  const isRepeating = canRepeat && repeat;
+  const duration = Number(form.duration) || 45;
+
+  const dates = useMemo(
+    () =>
+      isRepeating
+        ? buildScheduleDates({ startsOn: range.from, endsOn: range.to, weekdays })
+        : [],
+    [isRepeating, range.from, range.to, weekdays]
+  );
+
+  /** Bitta dars uchun — tanlangan vaqtda band bo'lgan darslar. */
+  const singleConflicts = useMemo(() => {
+    if (isRepeating || !form.date) return [];
+    return findScheduleConflicts(existingLessons, {
+      date: form.date,
+      time: form.time,
+      durationMinutes: duration,
+      excludeLessonId: initialValues?.id ?? null,
+    });
+  }, [isRepeating, existingLessons, form.date, form.time, duration, initialValues]);
+
+  /** Takrorlanuvchi jadval uchun — qaysi sanalarda band. */
+  const scheduleConflicts = useMemo(
+    () => (isRepeating ? findScheduleConflictsForDates(existingLessons, dates, form.time, duration) : []),
+    [isRepeating, existingLessons, dates, form.time, duration]
+  );
 
   function update(field: keyof LessonDraft, value: string) {
     setForm((current) => ({ ...current, [field]: value }));
   }
 
+  function toggleWeekday(value: number) {
+    setWeekdays((current) =>
+      current.includes(value) ? current.filter((day) => day !== value) : [...current, value].sort()
+    );
+  }
+
+  function reset() {
+    setForm({ topic: "", date: "", time: "18:30", duration: "45" });
+    setRepeat(false);
+    setWeekdays([...ODD_WEEKDAYS]);
+    setRange({ from: todayString(), to: monthLaterString() });
+  }
+
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!form.topic.trim() || !form.time) return;
-    onCreate({
-      ...form,
-      date: form.date || new Date().toISOString().slice(0, 10),
-    });
-    setForm({ topic: "", date: "", time: "18:30", duration: "45" });
+
+    if (isRepeating) {
+      if (!dates.length) return;
+      onCreateSchedule?.({ ...form, dates });
+    } else {
+      onCreate({ ...form, date: form.date || todayString() });
+    }
+    reset();
     onOpenChange(false);
   }
+
+  const sameDays = (a: readonly number[], b: readonly number[]) =>
+    a.length === b.length && a.every((day, index) => day === b[index]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -93,26 +189,137 @@ export function AddLessonDialog({ open, onOpenChange, onCreate, initialValues = 
                 placeholder="Masalan: Present Simple — amaliyot"
               />
             </label>
-            <div className="form-grid-two">
-              <DatePicker
-                label="Sana · ixtiyoriy"
-                value={form.date}
-                onChange={(value) => update("date", value)}
-                optional
+
+            {canRepeat ? (
+              <div className="schedule-mode" role="radiogroup" aria-label="Dars turi">
+                <button
+                  type="button"
+                  role="radio"
+                  aria-checked={!repeat}
+                  className={repeat ? "" : "is-active"}
+                  onClick={() => setRepeat(false)}
+                >
+                  <CalendarDays size={15} /> Bitta dars
+                </button>
+                <button
+                  type="button"
+                  role="radio"
+                  aria-checked={repeat}
+                  className={repeat ? "is-active" : ""}
+                  onClick={() => setRepeat(true)}
+                >
+                  <Repeat size={15} /> Takrorlanuvchi
+                </button>
+              </div>
+            ) : null}
+
+            {isRepeating ? (
+              <>
+                <div className="field-block">
+                  <span className="field-block-label">Hafta kunlari</span>
+                  <div className="weekday-presets">
+                    <button
+                      type="button"
+                      className={sameDays(weekdays, ODD_WEEKDAYS) ? "is-active" : ""}
+                      onClick={() => setWeekdays([...ODD_WEEKDAYS])}
+                    >
+                      Toq kunlar
+                    </button>
+                    <button
+                      type="button"
+                      className={sameDays(weekdays, EVEN_WEEKDAYS) ? "is-active" : ""}
+                      onClick={() => setWeekdays([...EVEN_WEEKDAYS])}
+                    >
+                      Juft kunlar
+                    </button>
+                  </div>
+                  <div className="weekday-picker">
+                    {WEEKDAYS.map((day) => (
+                      <button
+                        key={day.value}
+                        type="button"
+                        aria-pressed={weekdays.includes(day.value)}
+                        aria-label={day.label}
+                        className={weekdays.includes(day.value) ? "is-active" : ""}
+                        onClick={() => toggleWeekday(day.value)}
+                      >
+                        {day.short}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                <div className="form-grid-two">
+                  <DatePicker
+                    label="Boshlanish sanasi"
+                    value={range.from}
+                    onChange={(value) => setRange((current) => ({ ...current, from: value }))}
+                  />
+                  <DatePicker
+                    label="Tugash sanasi"
+                    value={range.to}
+                    onChange={(value) => setRange((current) => ({ ...current, to: value }))}
+                  />
+                </div>
+              </>
+            ) : (
+              <div className="form-grid-two">
+                <DatePicker
+                  label="Sana · ixtiyoriy"
+                  value={form.date}
+                  onChange={(value) => update("date", value)}
+                  optional
+                />
+                <TimePicker
+                  label="Boshlanish vaqti"
+                  value={form.time}
+                  onChange={(value) => update("time", value)}
+                />
+              </div>
+            )}
+
+            {isRepeating ? (
+              <div className="form-grid-two">
+                <TimePicker
+                  label="Boshlanish vaqti"
+                  value={form.time}
+                  onChange={(value) => update("time", value)}
+                />
+                <SelectPicker
+                  label="Davomiyligi"
+                  icon={Hourglass}
+                  value={form.duration}
+                  onChange={(value) => update("duration", value)}
+                  options={DURATION_OPTIONS}
+                />
+              </div>
+            ) : (
+              <SelectPicker
+                label="Davomiyligi"
+                icon={Hourglass}
+                value={form.duration}
+                onChange={(value) => update("duration", value)}
+                options={DURATION_OPTIONS}
               />
-              <TimePicker
-                label="Boshlanish vaqti"
-                value={form.time}
-                onChange={(value) => update("time", value)}
-              />
-            </div>
-            <SelectPicker
-              label="Davomiyligi"
-              icon={Hourglass}
-              value={form.duration}
-              onChange={(value) => update("duration", value)}
-              options={DURATION_OPTIONS}
-            />
+            )}
+
+            {isRepeating ? (
+              <p className={`schedule-summary ${dates.length ? "" : "is-empty"}`}>
+                {dates.length ? (
+                  <>
+                    <strong>{dates.length} ta dars</strong> yaratiladi
+                    {dates.length >= MAX_SCHEDULE_LESSONS ? " (chegara)" : ""} · birinchisi{" "}
+                    {DATE_LABEL.format(new Date(dates[0]))}, oxirgisi{" "}
+                    {DATE_LABEL.format(new Date(dates[dates.length - 1]))}
+                  </>
+                ) : (
+                  "Tanlangan oraliqda mos kun yo‘q — kunlarni yoki sanalarni o‘zgartiring."
+                )}
+              </p>
+            ) : null}
+
+            <ConflictNotice single={singleConflicts} schedule={scheduleConflicts} />
+
             <div className="dialog-actions">
               <Button
                 type="button"
@@ -121,14 +328,72 @@ export function AddLessonDialog({ open, onOpenChange, onCreate, initialValues = 
               >
                 Bekor qilish
               </Button>
-              <Button type="submit" disabled={!form.topic.trim()}>
-                {initialValues ? "O‘zgarishlarni saqlash" : "Darsni saqlash"}
+              <Button
+                type="submit"
+                disabled={!form.topic.trim() || (isRepeating && !dates.length)}
+              >
+                {initialValues
+                  ? "O‘zgarishlarni saqlash"
+                  : isRepeating
+                    ? `${dates.length} ta darsni saqlash`
+                    : "Darsni saqlash"}
               </Button>
             </div>
           </motion.form>
         </DialogContent>
       )}
     </Dialog>
+  );
+}
+
+/**
+ * Vaqt to'qnashuvi ogohlantirishi.
+ *
+ * Ataylab BLOKLAMAYDI: frontend faqat shu o'qituvchining darslarini ko'radi,
+ * shuning uchun "to'qnashuv yo'q" degan xulosa to'liq ishonchli emas.
+ * Qaror o'qituvchining o'ziga qoldiriladi, haqiqiy cheklov server tomonda
+ * bo'lishi kerak.
+ */
+function ConflictNotice({
+  single,
+  schedule,
+}: {
+  single: Lesson[];
+  schedule: Array<{ date: string; conflicts: Lesson[] }>;
+}) {
+  if (!single.length && !schedule.length) return null;
+
+  return (
+    <div className="schedule-conflict" role="alert">
+      <TriangleAlert size={16} />
+      <div>
+        {single.length ? (
+          <>
+            <strong>Bu vaqtda darsingiz bor</strong>
+            <ul>
+              {single.map((lesson) => (
+                <li key={lesson.id}>
+                  {lesson.courseTitle} · {lesson.title} — {lesson.time} ({lesson.durationMinutes} daq)
+                </li>
+              ))}
+            </ul>
+          </>
+        ) : (
+          <>
+            <strong>{schedule.length} ta sanada darsingiz bor</strong>
+            <ul>
+              {schedule.slice(0, 4).map(({ date, conflicts }) => (
+                <li key={date}>
+                  {DATE_LABEL.format(new Date(date))} — {conflicts[0].courseTitle} ({conflicts[0].time})
+                </li>
+              ))}
+              {schedule.length > 4 ? <li>va yana {schedule.length - 4} ta</li> : null}
+            </ul>
+          </>
+        )}
+        <small>O‘sha vaqtda boshqa guruhda dars o‘tolmaysiz — vaqtni o‘zgartiring.</small>
+      </div>
+    </div>
   );
 }
 
