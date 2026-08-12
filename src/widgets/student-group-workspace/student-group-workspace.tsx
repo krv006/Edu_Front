@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { BookOpen, CalendarDays, CheckCircle2, Clock3, ListChecks, Paperclip, PlayCircle, Star } from "lucide-react";
+import { BookOpen, CalendarDays, CheckCircle2, ListChecks, Paperclip } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 import { ChatHeader } from "@/modules/conversation";
@@ -13,11 +13,13 @@ import {
   useSubmitHomework,
 } from "@/modules/homework";
 import {
-  isLessonClosed,
+  LessonCalendar,
+  LessonList,
+  LessonViewSwitch,
   LiveLessonBar,
   RateLessonDialog,
-  RatingSummary,
   useLessons,
+  useLessonView,
 } from "@/modules/lesson";
 import type {
   Assignment,
@@ -158,6 +160,11 @@ export function StudentGroupWorkspace({
 }
 
 // ─── Darslar (ko‘rish + tugagan darsni baholash) ────────────────────────────
+/**
+ * O'qituvchidagi bilan AYNAN bir xil ko'rinish: ro'yxat ⇄ kalendar
+ * almashtirgichi va o'sha komponentlar. Farq faqat amallar to'plamida —
+ * o'quvchi darsni tahrirlay, o'chira yoki yakunlay olmaydi.
+ */
 function StudentLessons({
   lessons = [],
   loading,
@@ -169,13 +176,13 @@ function StudentLessons({
 }) {
   const navigate = useNavigate();
   const [rateTarget, setRateTarget] = useState<Lesson | null>(null);
+  const { view, setView } = useLessonView();
 
-  if (loading)
-    return (
-      <div className="student-tab-loading">
-        <span />
-      </div>
-    );
+  const actions = {
+    onJoin: (lesson: Lesson) => navigate(ROUTES.live(lesson.id)),
+    onRecording: (lesson: Lesson) => navigate(ROUTES.recording(lesson.id)),
+    onRate: setRateTarget,
+  };
 
   return (
     <div className="group-panel student-readonly-panel">
@@ -184,46 +191,20 @@ function StudentLessons({
           <span>KURS DARSLARI</span>
           <h2>Darslar</h2>
         </div>
+        <div className="group-panel-tools">
+          <LessonViewSwitch view={view} onChange={setView} />
+        </div>
       </div>
-      <div className="student-workspace-list">
-        {lessons.map((lesson) => (
-          <article key={lesson.id}>
-            <span className="workspace-list-icon">
-              <CalendarDays size={20} />
-            </span>
-            <div>
-              <strong>{lesson.title}</strong>
-              <p>
-                {lesson.date} · {lesson.time} · <Clock3 size={14} /> {lesson.durationMinutes} daqiqa
-              </p>
-            </div>
-            {lesson.status === "finished" ? (
-              <>
-                <RatingSummary average={lesson.avgRating} count={lesson.ratingCount} compact />
-                <Button size="sm" variant="secondary" onClick={() => setRateTarget(lesson)}>
-                  <Star size={16} /> Baholash
-                </Button>
-                <Button
-                  size="sm"
-                  variant="secondary"
-                  onClick={() => navigate(ROUTES.recording(lesson.id))}
-                >
-                  <PlayCircle size={16} /> Yozuv
-                </Button>
-              </>
-            ) : (
-              <Button
-                size="sm"
-                disabled={isLessonClosed(lesson)}
-                onClick={() => navigate(ROUTES.live(lesson.id))}
-              >
-                Darsga kirish
-              </Button>
-            )}
-          </article>
-        ))}
-        {!lessons.length ? <p className="portal-muted">Dars rejalashtirilmagan.</p> : null}
-      </div>
+
+      {loading ? (
+        <div className="student-tab-loading">
+          <span />
+        </div>
+      ) : view === "calendar" ? (
+        <LessonCalendar lessons={lessons} {...actions} />
+      ) : (
+        <LessonList lessons={lessons} {...actions} />
+      )}
 
       <RateLessonDialog
         lesson={rateTarget}
