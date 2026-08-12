@@ -11,17 +11,18 @@
 
 :root {
   /* --- Brend ---
-     Brend rangi — ko'k #2B7FFF. U FON sifatida ishlatiladi (tugma, aktiv holat),
-     shuning uchun ustidagi matn QORONG'I: oq matn bu ko'kda atigi 3.76:1 berardi
-     (AA'dan past), qorong'i matn esa 5.04:1. */
+     Tugma va aktiv holat foni #1A66E0 — brend ko'kining to'qroq pog'onasi.
+     Aynan shu qiymat tanlangani uchun ustidagi matn OQ bo'la oladi (5.22:1).
+     Yorug'roq #2B7FFF da oq matn atigi 3.76:1 berardi va o'qilmasdi;
+     u endi faqat MATN/IKONKA rangi sifatida ishlatiladi (--primary-text). */
   --background: #f5f7fa;
   --foreground: #1a1f26;
   --surface: #ffffff;
   --surface-elevated: #ffffff;
 
-  --primary: #2b7fff;
-  --primary-hover: #1f6ff0;
-  --primary-foreground: #08111c;
+  --primary: #1a66e0;
+  --primary-hover: #1557bf;
+  --primary-foreground: #ffffff;
   --primary-soft: #e8f1ff;
   /* Yuza ustidagi MATN sifatidagi brend rangi — alohida, to'qroq qiymat.
      --primary o'zi oq fonda atigi 3.76:1 berardi; bu esa 5.13:1. */
@@ -62,8 +63,8 @@
   --sidebar: #101720;
   --sidebar-muted: #8b98a5;
   --sidebar-foreground: #e6edf3;
-  --sidebar-primary: #2b7fff;
-  --sidebar-primary-foreground: #08111c;
+  --sidebar-primary: #1a66e0;
+  --sidebar-primary-foreground: #ffffff;
   --sidebar-accent: #192739;
   --sidebar-accent-foreground: #ffffff;
   --sidebar-border: #232c36;
@@ -159,10 +160,12 @@
   --surface: #161c23;
   --surface-elevated: #1b242e;
 
-  /* Brend ko'k ikkala mavzuda ham bir xil — matni qorong'i (5.04:1). */
-  --primary: #2b7fff;
-  --primary-hover: #4d91ff;
-  --primary-foreground: #08111c;
+  /* Tugma foni ikkala mavzuda bir xil — oq matn bilan 5.22:1.
+     Hover qorong'ida YORUG'ROQ bo'ladi (fondan ajralib tursin), lekin oq
+     matn baribir AA saqlaydi: #1F6FF0 -> 4.57:1. */
+  --primary: #1a66e0;
+  --primary-hover: #1f6ff0;
+  --primary-foreground: #ffffff;
   --primary-soft: #192739;
   /* Matn/ikonka uchun yorug'roq ko'k: eng yomon holatda (aktiv tab ustida)
      4.90:1. --primary o'zi u yerda atigi 4.01:1 berardi. */
@@ -188,8 +191,11 @@
   --input: #26313d;
   --ring: #4d91ff;
 
-  --destructive: #f0616f;
-  --destructive-foreground: #1a0a0d;
+  /* Tugma foni — oq matn bilan 4.88:1. Avval yorug' #f0616f edi va ustidagi
+     matn qora bo'lishga majbur qilardi. Qizil MATN uchun alohida
+     --destructive-strong bor, u yorug'ligicha qoladi. */
+  --destructive: #cd3a4b;
+  --destructive-foreground: #ffffff;
   --success: #35c493;
   --warning: #f0ac57;
 
