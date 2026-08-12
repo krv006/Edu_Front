@@ -4290,6 +4290,60 @@ body > .ML__keyboard,
   gap: 11px;
 }
 
+/* Vazifa qaysi darsga tegishli */
+.assignment-lesson-tag { margin-top: 6px; padding: 3px 9px; border-radius: var(--r-full); display: inline-flex; gap: 5px; align-items: center; color: var(--primary-text); background: var(--primary-tint); font-size: var(--fs-2xs); font-weight: 700; }
+
+/* Xabarga biriktirilgan fayl (doska PDF'i) */
+.message-attachment { margin-top: 8px; padding: 9px 11px; border: 1px solid var(--border); border-radius: var(--r-md); display: flex; gap: 10px; align-items: center; width: 100%; color: var(--foreground); background: var(--surface-subtle); font: inherit; text-align: left; cursor: pointer; transition: border-color .16s, background .16s; }
+.message-attachment:hover:not(:disabled) { border-color: var(--border-accent-strong); background: var(--primary-tint); }
+.message-attachment:disabled { cursor: default; opacity: .75; }
+.message-attachment-icon { width: 34px; height: 34px; flex: 0 0 auto; border-radius: var(--r-sm); display: grid; place-items: center; color: var(--primary-foreground); background: var(--primary); }
+.message-attachment-body { min-width: 0; flex: 1; display: grid; gap: 2px; }
+.message-attachment-body strong { overflow: hidden; font-size: var(--fs-sm); text-overflow: ellipsis; white-space: nowrap; }
+.message-attachment-body small { color: var(--muted-foreground); font-size: var(--fs-2xs); }
+
+/* Chat tepasidagi "dars ketmoqda" chizig'i */
+.live-lesson-bar { padding: 9px 16px; border-bottom: 1px solid var(--border); display: flex; gap: 10px; align-items: center; background: var(--success-soft); }
+.live-lesson-bar-dot { width: 8px; height: 8px; flex: 0 0 auto; border-radius: var(--r-full); background: var(--success-strong); animation: pulse 1.4s infinite; }
+.live-lesson-bar-text { min-width: 0; flex: 1; display: grid; gap: 1px; }
+.live-lesson-bar-text strong { color: var(--success-strong); font-size: var(--fs-sm); }
+.live-lesson-bar-text small { overflow: hidden; color: var(--muted-foreground); font-size: var(--fs-2xs); text-overflow: ellipsis; white-space: nowrap; }
+.live-lesson-bar button { min-height: 32px; padding: 0 13px; border: 0; border-radius: var(--r-full); display: inline-flex; gap: 6px; align-items: center; color: var(--primary-foreground); background: var(--primary); font: inherit; font-size: var(--fs-xs); font-weight: 800; cursor: pointer; }
+.live-lesson-bar button:hover { background: var(--primary-hover); }
+
+/* Darsga kirishdan oldingi ekran */
+.pre-join { height: 100dvh; padding: 20px; display: grid; place-items: center; background: var(--background); }
+.pre-join-card { width: min(940px, 100%); padding: 20px; border: 1px solid var(--border); border-radius: var(--r-xl); display: grid; gap: 22px; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); align-items: center; background: var(--surface); box-shadow: var(--shadow-float); }
+.pre-join-preview { position: relative; aspect-ratio: 16 / 10; border-radius: var(--r-lg); overflow: hidden; background: #0d1217; }
+.pre-join-preview video { width: 100%; height: 100%; object-fit: cover; transform: scaleX(-1); }
+.pre-join-placeholder { height: 100%; display: grid; gap: 10px; place-content: center; justify-items: center; color: #8b98a5; }
+.pre-join-placeholder p { margin: 0; font-size: var(--fs-sm); }
+.pre-join-toggles { position: absolute; right: 0; bottom: 12px; left: 0; display: flex; gap: 10px; justify-content: center; }
+.pre-join-toggles button { width: 44px; height: 44px; border: 1px solid rgb(255 255 255 / .16); border-radius: var(--r-full); display: grid; place-items: center; color: #fff; background: rgb(13 18 23 / .72); cursor: pointer; transition: background .16s; }
+.pre-join-toggles button:hover { background: rgb(13 18 23 / .9); }
+.pre-join-toggles button.is-off { color: #ffb3bd; border-color: #5d2030; background: #3a1520; }
+.pre-join-info { display: grid; gap: 10px; }
+.pre-join-info h1 { margin: 4px 0 0; font-size: var(--fs-5xl); letter-spacing: -.03em; }
+.pre-join-info > p { margin: 0; color: var(--muted-foreground); font-size: var(--fs-md); }
+.pre-join-actions { margin-top: 8px; display: flex; gap: 9px; }
+
+/* Darsdan chiqib ketganlar — jonli dars chekkasida */
+.away-students { position: absolute; right: 16px; bottom: 96px; z-index: 7; max-width: 280px; padding: 9px 12px; border: 1px solid #5d2030; border-radius: var(--r-md); display: flex; gap: 9px; align-items: flex-start; color: #ffb3bd; background: rgb(58 21 32 / .94); }
+.away-students > svg { flex: 0 0 auto; margin-top: 1px; }
+.away-students > div { min-width: 0; display: grid; gap: 2px; }
+.away-students strong { font-size: var(--fs-xs); }
+.away-students span { overflow-wrap: anywhere; color: #e6edf3; font-size: var(--fs-2xs); }
+
+/* Guruh rasmini almashtirish */
+.info-avatar-slot { position: relative; display: inline-block; }
+.info-avatar-edit { position: absolute; right: -2px; bottom: -2px; width: 28px; height: 28px; border: 2px solid var(--surface); border-radius: var(--r-full); display: grid; place-items: center; color: var(--primary-foreground); background: var(--primary); cursor: pointer; }
+.info-avatar-edit:hover:not(:disabled) { background: var(--primary-hover); }
+.info-avatar-edit:disabled { cursor: default; opacity: .7; }
+
+@media (max-width: 860px) {
+  .pre-join-card { grid-template-columns: minmax(0, 1fr); }
+}
+
 /* Dialog ichidagi bo'limlar (qidirish / yangi hisob) */
 .dialog-tabs { margin-bottom: 16px; padding: 3px; border: 1px solid var(--border); border-radius: var(--r-md); display: grid; grid-template-columns: 1fr 1fr; gap: 3px; background: var(--surface-subtle); }
 .dialog-tabs button { min-height: 38px; border: 0; border-radius: var(--r-sm); display: inline-flex; gap: 6px; align-items: center; justify-content: center; color: var(--muted-foreground); background: transparent; font: inherit; font-size: var(--fs-sm); font-weight: 700; cursor: pointer; transition: color .16s, background .16s; }

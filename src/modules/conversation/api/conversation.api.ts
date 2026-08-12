@@ -31,6 +31,14 @@ export const conversationApi = {
     }
     return room;
   },
+  /** Guruh chat rasmi — faqat o'qituvchi, faqat o'z kurs guruhida. */
+  async setRoomImage(roomId: string, image: File): Promise<Conversation> {
+    const body = new FormData();
+    body.set("image", image);
+    return mapConversationDto(
+      await apiClient.post<ChatRoomDto>(conversationEndpoints.roomImage(roomId), body)
+    );
+  },
   async getTeachers(options?: RequestOptions) {
     const items = await apiClient.get<DirectTeacherDto[]>(conversationEndpoints.teachers, options);
     return items.map(mapTeacherDto);

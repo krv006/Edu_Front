@@ -7,6 +7,8 @@ import type {
   LessonRatingDto,
   LessonRatingInput,
   LessonRecordingDto,
+  LessonScheduleRequestDto,
+  LessonScheduleResponseDto,
 } from "./lesson.dto";
 import {
   mapLessonDto,
@@ -54,6 +56,32 @@ export const lessonApi = {
    * Amal ATOMIK EMAS — bir nechtasi muvaffaqiyatsiz bo'lsa, qolganlari
    * yaratilgan holicha qoladi, shuning uchun natijada xatolar ham qaytadi.
    */
+  /**
+   * Haftalik jadval — server tomonda (docs/STAFF_API.md §2).
+   *
+   * Server amalni atomik bajaradi va o'qituvchining BARCHA kurslari bo'yicha
+   * vaqt to'qnashuvini tekshiradi — bu mijoz tomonida umuman imkonsiz, chunki
+   * `GET /lessons/` boshqa o'qituvchining darslarini ko'rsatmaydi.
+   *
+   * Endpoint hali barcha muhitlarga chiqarilmagan: 404 kelsa, chaqiruvchi
+   * eski (mijoz tomonidagi) usulga qaytadi, shuning uchun `null` qaytariladi.
+   */
+  async createSchedule(
+    courseId: string,
+    payload: LessonScheduleRequestDto
+  ): Promise<{ count: number; lessons: Lesson[] } | null> {
+    try {
+      const dto = await apiClient.post<LessonScheduleResponseDto>(
+        lessonEndpoints.schedule(courseId),
+        payload
+      );
+      const lessons = (dto?.lessons ?? []).map(mapLessonDto);
+      return { count: Number(dto?.count ?? lessons.length), lessons };
+    } catch (error) {
+      if (error instanceof AppError && error.status === 404) return null;
+      throw error;
+    }
+  },
   async createMany(dates: readonly string[], form: LessonFormInput) {
     const created: Lesson[] = [];
     const failed: Array<{ date: string; message: string }> = [];

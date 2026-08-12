@@ -27,6 +27,7 @@ export function ConversationItem({ conversation, active, basePath = "/teacher/ch
       <Avatar
         name={conversation.title}
         tone={conversation.avatarTone}
+        src={conversation.imageUrl}
         size="lg"
         status={
           conversation.type === "direct" ? conversation.status : undefined

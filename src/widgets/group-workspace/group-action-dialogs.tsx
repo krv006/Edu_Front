@@ -29,9 +29,19 @@ import type { Lesson } from "@/shared/types";
 
 export interface LessonDraft { topic: string; date: string; time: string; duration: string }
 
-/** Takrorlanuvchi jadval — bo'lsa, dialog bitta emas, bir nechta dars yaratadi. */
+/**
+ * Takrorlanuvchi jadval — bo'lsa, dialog bitta emas, bir nechta dars yaratadi.
+ *
+ * `dates` server endpointi mavjud bo'lmagan muhitlar uchun zaxira: u yerda
+ * har sana bo'yicha alohida dars yaratiladi. Server ishlaganda esa
+ * `weekdays` + oraliq yuboriladi.
+ */
 export interface LessonScheduleDraft extends LessonDraft {
   dates: string[];
+  /** ISO hafta kunlari: 1 = Dushanba … 7 = Yakshanba. */
+  weekdays: number[];
+  startsOn: string;
+  endsOn: string;
 }
 
 export interface AddLessonDialogProps {
@@ -48,12 +58,19 @@ export interface AddLessonDialogProps {
   initialValues?: Lesson | null;
 }
 
-interface AssignmentDraft { title: string; description: string; dueAt: string; skillKey: string; grading: string }
+interface AssignmentDraft { title: string; description: string; dueAt: string; skillKey: string; grading: string; lessonId: string }
 
 export interface AddAssignmentDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onCreate: (values: AssignmentDraft & { body: string; extraInstructions: string; file: File | null }) => void;
+  /**
+   * Vazifani bog'lash mumkin bo'lgan darslar. Backend FAQAT tugagan darsni
+   * qabul qiladi, shuning uchun ro'yxat shu yerda ham filtrlanadi.
+   */
+  lessons?: readonly Lesson[];
+  /** Til fani bo'lmasa "tekshiruv turi" tanlovi umuman ko'rsatilmaydi. */
+  isLanguageSubject?: boolean;
 }
 
 const DURATION_OPTIONS = [
@@ -155,7 +172,13 @@ export function AddLessonDialog({
 
     if (isRepeating) {
       if (!dates.length) return;
-      onCreateSchedule?.({ ...form, dates });
+      onCreateSchedule?.({
+        ...form,
+        dates,
+        weekdays,
+        startsOn: range.from,
+        endsOn: range.to,
+      });
     } else {
       onCreate({ ...form, date: form.date || todayString() });
     }
@@ -397,16 +420,37 @@ function ConflictNotice({
   );
 }
 
-export function AddAssignmentDialog({ open, onOpenChange, onCreate }: AddAssignmentDialogProps) {
-  const [form, setForm] = useState<AssignmentDraft>({
-    title: "",
-    description: "",
-    dueAt: "",
-    skillKey: "",
-    grading: "",
-  });
+const EMPTY_ASSIGNMENT: AssignmentDraft = {
+  title: "",
+  description: "",
+  dueAt: "",
+  skillKey: "",
+  grading: "",
+  lessonId: "",
+};
+
+export function AddAssignmentDialog({
+  open,
+  onOpenChange,
+  onCreate,
+  lessons = [],
+  isLanguageSubject = false,
+}: AddAssignmentDialogProps) {
+  const [form, setForm] = useState<AssignmentDraft>(EMPTY_ASSIGNMENT);
   const [file, setFile] = useState<File | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+
+  /** Backend faqat tugagan darsni qabul qiladi — eng yangisi tepada. */
+  const lessonOptions = useMemo(() => {
+    const finished = lessons
+      .filter((lesson) => lesson.status === "finished")
+      .sort((a, b) => b.startsAt.localeCompare(a.startsAt))
+      .map((lesson) => ({
+        value: lesson.id,
+        label: `${lesson.title} · ${lesson.date}`,
+      }));
+    return [{ value: "", label: "Darsga bog‘lanmagan" }, ...finished];
+  }, [lessons]);
 
   function update(field: keyof AssignmentDraft, value: string) {
     setForm((current) => ({ ...current, [field]: value }));
@@ -415,14 +459,15 @@ export function AddAssignmentDialog({ open, onOpenChange, onCreate }: AddAssignm
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!form.title.trim() || !form.description.trim()) return;
-    onCreate({ ...form, body: form.description, extraInstructions: form.grading, file });
-    setForm({
-      title: "",
-      description: "",
-      dueAt: "",
-      skillKey: "",
-      grading: "",
+    onCreate({
+      ...form,
+      // Til fani bo'lmasa tanlov ko'rsatilmagan — eskirgan qiymat ketmasin.
+      skillKey: isLanguageSubject ? form.skillKey : "",
+      body: form.description,
+      extraInstructions: form.grading,
+      file,
     });
+    setForm(EMPTY_ASSIGNMENT);
     setFile(null);
     onOpenChange(false);
   }
@@ -504,14 +549,36 @@ export function AddAssignmentDialog({ open, onOpenChange, onCreate }: AddAssignm
                 includeTime
                 optional
               />
-              <SelectPicker
-                label="Tekshiruv turi"
-                icon={GraduationCap}
-                value={form.skillKey}
-                onChange={(value) => update("skillKey", value)}
-                options={SKILL_OPTIONS}
-              />
+              {/* Tekshiruv turi faqat til fanida ma'noli (docs/STAFF_API.md §2). */}
+              {isLanguageSubject ? (
+                <SelectPicker
+                  label="Tekshiruv turi"
+                  icon={GraduationCap}
+                  value={form.skillKey}
+                  onChange={(value) => update("skillKey", value)}
+                  options={SKILL_OPTIONS}
+                />
+              ) : (
+                <SelectPicker
+                  label="Qaysi dars uchun"
+                  icon={CalendarDays}
+                  value={form.lessonId}
+                  onChange={(value) => update("lessonId", value)}
+                  options={lessonOptions}
+                />
+              )}
             </div>
+
+            {/* Til fanida ikkala tanlov ham kerak — dars tanlovi alohida qatorda. */}
+            {isLanguageSubject ? (
+              <SelectPicker
+                label="Qaysi dars uchun"
+                icon={CalendarDays}
+                value={form.lessonId}
+                onChange={(value) => update("lessonId", value)}
+                options={lessonOptions}
+              />
+            ) : null}
             <label>
               <span>Baholash izohi — ixtiyoriy</span>
               <input

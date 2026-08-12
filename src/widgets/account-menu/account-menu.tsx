@@ -49,7 +49,12 @@ export function AccountMenu({
   const [editing, setEditing] = useState(false);
   const [loginsOpen, setLoginsOpen] = useState(false);
   const [inboxOpen, setInboxOpen] = useState(false);
-  const [draft, setDraft] = useState<ProfileFormValues>({ firstName: "", lastName: "", phone: "" });
+  const [draft, setDraft] = useState<ProfileFormValues>({
+    firstName: "",
+    lastName: "",
+    phone: "",
+    username: "",
+  });
 
   function selectItem(id: MenuItemId) {
     if (id === "profile") {
@@ -218,6 +223,22 @@ export function AccountMenu({
                   </label>
                 </div>
                 <label className="field-group">
+                  <span>Login</span>
+                  <div className="input-shell">
+                    <input
+                      value={draft.username}
+                      autoComplete="off"
+                      onChange={(event) => setDraft((value) => ({ ...value, username: event.target.value }))}
+                      required
+                    />
+                  </div>
+                </label>
+                {/* Login yagona bo'lishi shart — band bo'lsa backend 400 beradi. */}
+                <p className="portal-muted">
+                  Login yagona bo‘lishi kerak. O‘zgartirsangiz, keyingi safar shu login bilan
+                  kirasiz.
+                </p>
+                <label className="field-group">
                   <span>Telefon</span>
                   <div className="input-shell">
                     <input
@@ -227,6 +248,9 @@ export function AccountMenu({
                     />
                   </div>
                 </label>
+                {updateProfile.isError ? (
+                  <div className="form-alert">{updateProfile.error.message}</div>
+                ) : null}
                 <div className="dialog-actions">
                   <Button type="button" variant="secondary" onClick={() => setEditing(false)}>
                     Bekor
@@ -265,6 +289,7 @@ export function AccountMenu({
                       firstName: user?.firstName || "",
                       lastName: user?.lastName || "",
                       phone: user?.phone || "",
+                      username: user?.username || "",
                     });
                     setEditing(true);
                   }}

@@ -24,7 +24,7 @@ import {
   X,
 } from "lucide-react";
 import { toast } from "sonner";
-import { BoardPanel } from "@/modules/board";
+import { AwayStudentsNotice, BoardPanel } from "@/modules/board";
 import {
   AttentionCheckDialog,
   decodeScreenShareRequest,
@@ -343,6 +343,9 @@ export function LiveRoom({ lesson, isTeacher, onLeave }: LiveRoomProps) {
           <span>Chiqish</span>
         </DisconnectButton>
       </footer>
+
+      {/* Chekkada, dialogsiz — o'qituvchini dars o'tayotganda bo'lmasin. */}
+      <AwayStudentsNotice lessonId={lesson.id} enabled={isTeacher} />
 
       <RoomAudioRenderer />
       <ShareRequestListener lessonId={lesson.id} enabled={isTeacher} />

@@ -63,6 +63,9 @@ export interface AssignmentDto {
   has_attachment?: boolean;
   due_at: string | null;
   skill_key?: string;
+  /** Vazifa qaysi TUGAGAN darsga tegishli (docs/STAFF_API.md §8). Bo'lmasligi mumkin. */
+  lesson_id?: string | number | null;
+  lesson_title?: string | null;
   created_at: string;
   submissions_count?: number | null;
   my_submission?: SubmissionDto | null;
@@ -78,6 +81,8 @@ export interface AssignmentFormInput {
   body?: string;
   dueAt?: string;
   skillKey?: string;
+  /** Tugagan darsga bog'lash — ixtiyoriy. */
+  lessonId?: string | null;
   extraInstructions?: string;
   file?: File | null;
 }

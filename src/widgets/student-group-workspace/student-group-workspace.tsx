@@ -12,7 +12,13 @@ import {
   useSubmission,
   useSubmitHomework,
 } from "@/modules/homework";
-import { isLessonClosed, RateLessonDialog, RatingSummary, useLessons } from "@/modules/lesson";
+import {
+  isLessonClosed,
+  LiveLessonBar,
+  RateLessonDialog,
+  RatingSummary,
+  useLessons,
+} from "@/modules/lesson";
 import type {
   Assignment,
   ChatMessage,
@@ -80,6 +86,8 @@ export function StudentGroupWorkspace({
   return (
     <section className="chat-page group-workspace student-group-workspace">
       <ChatHeader conversation={conversation} backTo="/student/chats" />
+      {/* Jonli dars bo'lsa chat tepasida chiziq turadi — Telegram uslubi. */}
+      <LiveLessonBar courseId={courseId} />
       <nav className="group-tabs">
         {TABS.map((tab) => {
           const Icon = tab.icon;

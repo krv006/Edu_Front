@@ -35,6 +35,13 @@ export const messageApi = {
       : payload.text;
     return mapMessageDto(await apiClient.post<MessageDto>(messageEndpoints.send(roomId), { text }));
   },
+  /** Biriktirma auth talab qiladi, shuning uchun blob sifatida olinadi. */
+  downloadFile(messageId: string, options?: RequestOptions) {
+    return apiClient.get<Blob>(messageEndpoints.file(messageId), {
+      ...options,
+      responseType: "blob",
+    });
+  },
   update: () => unsupported("Xabarni tahrirlash"),
   remove: () => unsupported("Xabarni o‘chirish"),
   toggleReaction: () => unsupported("Reaksiya"),

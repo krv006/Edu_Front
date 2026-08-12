@@ -135,6 +135,37 @@ export function findScheduleConflicts(
   });
 }
 
+/** Backend `days` ni 0..6 (0 = Dushanba) kutadi, ilova ichida ISO 1..7. */
+export function toBackendWeekdays(weekdays: readonly number[]): number[] {
+  return [...weekdays].sort((a, b) => a - b).map((day) => day - 1);
+}
+
+/** Backendning eng katta qiymati — 52 hafta. */
+export const MAX_SCHEDULE_WEEKS = 52;
+
+/**
+ * Sana oralig'ini hafta soniga aylantiradi.
+ *
+ * Foydalanuvchi "dan–gacha" tanlaydi, backend esa `start_date` + `weeks`
+ * kutadi. Yuqoriga yaxlitlanadi — oxirgi hafta to'liq bo'lmasa ham, undagi
+ * kunlar tushib qolmasligi kerak.
+ */
+export function weeksBetween(startsOn: string, endsOn: string): number {
+  const start = parseDate(startsOn);
+  const end = parseDate(endsOn);
+  if (!start || !end || end < start) return 0;
+  const days = Math.floor((end.getTime() - start.getTime()) / 86_400_000) + 1;
+  return Math.min(MAX_SCHEDULE_WEEKS, Math.max(1, Math.ceil(days / 7)));
+}
+
+/** `HH:mm` + daqiqa → `HH:mm`. Sutkadan oshsa 23:59 da to'xtaydi. */
+export function addMinutesToTime(time: string, minutes: number): string {
+  const [hours, mins] = (time || "").split(":").map(Number);
+  if (Number.isNaN(hours) || Number.isNaN(mins)) return time;
+  const total = Math.min(23 * 60 + 59, hours * 60 + mins + (minutes || 0));
+  return `${String(Math.floor(total / 60)).padStart(2, "0")}:${String(total % 60).padStart(2, "0")}`;
+}
+
 /** Jadvaldagi har bir sana uchun to'qnashuvlar — bittasi ham o'tkazib yuborilmasin. */
 export function findScheduleConflictsForDates(
   lessons: readonly Lesson[],

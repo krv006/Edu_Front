@@ -1,4 +1,9 @@
-import { normalizePagination, type Page, type PaginationOptions } from "@/shared/api";
+import {
+  normalizeMediaUrl,
+  normalizePagination,
+  type Page,
+  type PaginationOptions,
+} from "@/shared/api";
 import type { Conversation } from "@/shared/types";
 import type { ChatRoomDto, DirectTeacher, DirectTeacherDto } from "../api/conversation.dto";
 
@@ -34,6 +39,8 @@ export function mapConversationDto(dto: ChatRoomDto): Conversation {
     typing: false,
     avatarTone: toneFor(dto.id),
     memberCount: 0,
+    // `<img src>` uchun to'liq havola kerak — apiClient bazasi qo'llanadi.
+    imageUrl: normalizeMediaUrl(dto.image_url),
   };
 }
 

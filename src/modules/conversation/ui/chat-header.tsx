@@ -32,6 +32,7 @@ export function ChatHeader({ conversation, backTo = "/teacher/chats" }: ChatHead
           <Avatar
             name={conversation.title}
             tone={conversation.avatarTone}
+            src={conversation.imageUrl}
             size="md"
             status={
               conversation.type === "direct" ? conversation.status : undefined

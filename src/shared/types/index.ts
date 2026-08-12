@@ -26,6 +26,7 @@ export type {
   LessonRecording,
   LessonRecordingStatus,
   LessonStatus,
+  MessageAttachment,
   MessageReaction,
   PresenceStatus,
   MessageReply,

@@ -24,6 +24,7 @@ export {
   useLessonPage,
   useLessonRatings,
   useLessonRecording,
+  useLiveLesson,
   useCreateLesson,
   useCreateLessonSchedule,
   useDeleteLesson,
@@ -50,13 +51,17 @@ export {
   lessonStatusMeta,
 } from "./lib/lesson-status";
 export {
+  addMinutesToTime,
   buildScheduleDates,
   EVEN_WEEKDAYS,
   findScheduleConflicts,
   findScheduleConflictsForDates,
   MAX_SCHEDULE_LESSONS,
+  MAX_SCHEDULE_WEEKS,
   ODD_WEEKDAYS,
+  toBackendWeekdays,
   WEEKDAYS,
+  weeksBetween,
 } from "./lib/lesson-schedule";
 export type { ConflictQuery, ScheduleInput, Weekday } from "./lib/lesson-schedule";
 export type { LessonStatusMeta } from "./lib/lesson-status";
@@ -67,6 +72,7 @@ export { LessonList } from "./ui/lesson-list";
 export { LessonRatingForm } from "./ui/lesson-rating-form";
 export type { LessonRatingFormProps } from "./ui/lesson-rating-form";
 export { LessonRatingsDialog } from "./ui/lesson-ratings-dialog";
+export { LiveLessonBar } from "./ui/live-lesson-bar";
 export { LessonRecordingPlayer } from "./ui/lesson-recording-player";
 export { LessonViewSwitch } from "./ui/lesson-view-switch";
 export { RateLessonDialog } from "./ui/rate-lesson-dialog";

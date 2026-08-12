@@ -47,6 +47,16 @@ export function useRequestDirect() {
   });
 }
 
+/** Guruh chat rasmini o'rnatish (o'qituvchi). */
+export function useSetRoomImage() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: ({ roomId, image }: { roomId: string; image: File }) =>
+      conversationApi.setRoomImage(roomId, image),
+    onSuccess: () => client.invalidateQueries({ queryKey: conversationKeys.all }),
+  });
+}
+
 export function useRespondDirect() {
   const client = useQueryClient();
   return useMutation({

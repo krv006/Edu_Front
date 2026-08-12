@@ -24,6 +24,13 @@ export function mapMessageDto(dto: MessageDto): ChatMessage {
     status: "sent",
     pending: false,
     failed: false,
+    attachment: dto.file_url
+      ? {
+          messageId: String(dto.id),
+          name: dto.file_name || "Fayl",
+          mimeType: dto.file_type || "",
+        }
+      : undefined,
   };
 }
 
