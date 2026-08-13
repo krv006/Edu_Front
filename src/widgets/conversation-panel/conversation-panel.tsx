@@ -1,9 +1,10 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Mail, Menu, MessagesSquare, Plus, Search, UserRound, UsersRound, X } from "lucide-react";
+import { Plus, Search, X } from "lucide-react";
 import { useParams } from "react-router-dom";
 import {
   ConversationItem,
+  matchesConversationFilter,
   NewConversationDialog,
   useConversationFilter,
   useConversations,
@@ -13,37 +14,31 @@ import { NotificationBell } from "@/modules/notification";
 import { Avatar } from "@/shared/ui/legacy";
 import { useAuth } from "@/modules/auth";
 import { StudentEnrollmentDialog } from "@/modules/student";
-import { AccountMenu } from "@/widgets/account-menu";
-import type { Conversation, ConversationRole } from "@/shared/types";
+import type { ConversationRole } from "@/shared/types";
 
-
-/** Telegram uslubidagi chap panel: ikonka tepada, yozuv ostida. */
-const FILTERS: Array<{ id: ConversationFilter; label: string; icon: typeof MessagesSquare }> = [
-  { id: "all", label: "Barchasi", icon: MessagesSquare },
-  { id: "direct", label: "Shaxsiy", icon: UserRound },
-  { id: "group", label: "Guruhlar", icon: UsersRound },
-  { id: "unread", label: "O‘qilmagan", icon: Mail },
+/**
+ * Suhbat turlari — ro'yxat tepasidagi tugmachalar (Teams uslubi).
+ * Ular BO'LIM emas, filtr: shuning uchun ustunda emas, shu yerda turadi.
+ */
+const FILTERS: Array<{ id: ConversationFilter; label: string }> = [
+  { id: "all", label: "Barchasi" },
+  { id: "direct", label: "Shaxsiy" },
+  { id: "group", label: "Guruhlar" },
+  { id: "unread", label: "O‘qilmagan" },
 ];
-
-/** Filtr shartini bitta joyda saqlaymiz — ro'yxat ham, nishoncha ham shundan foydalanadi. */
-function matchesFilter(conversation: Conversation, filter: ConversationFilter): boolean {
-  if (filter === "all") return true;
-  if (filter === "unread") return conversation.unreadCount > 0;
-  return conversation.type === filter;
-}
 
 export interface ConversationPanelProps {
   role?: ConversationRole;
+  /** Menyu layout darajasida turadi — panel faqat ochilishini so'raydi. */
+  onOpenMenu: () => void;
 }
 
-export function ConversationPanel({ role = "teacher" }: ConversationPanelProps) {
+export function ConversationPanel({ role = "teacher", onOpenMenu }: ConversationPanelProps) {
   const [search, setSearch] = useState("");
   // Panel qayta mount bo'lganda ham tanlov saqlanib qolishi kerak — shuning
   // uchun komponentdan tashqarida (izohi store faylida).
   const { filter, setFilter } = useConversationFilter();
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [menuOpen, setMenuOpen] = useState(false);
-  const [profileOpen, setProfileOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
   const { conversationId } = useParams();
@@ -58,21 +53,10 @@ export function ConversationPanel({ role = "teacher" }: ConversationPanelProps) 
         const searchMatches = `${item.title} ${item.lastMessage}`
           .toLowerCase()
           .includes(search.toLowerCase());
-        return searchMatches && matchesFilter(item, filter);
+        return searchMatches && matchesConversationFilter(item, filter);
       }),
     [data, search, filter]
   );
-
-  /** Har bo'lim yonidagi nishoncha — o'qilmagan suhbatlar soni. */
-  const unreadByFilter = useMemo(() => {
-    const counts = {} as Record<ConversationFilter, number>;
-    for (const item of FILTERS) {
-      counts[item.id] = data.filter(
-        (conversation) => conversation.unreadCount > 0 && matchesFilter(conversation, item.id)
-      ).length;
-    }
-    return counts;
-  }, [data]);
 
   useEffect(() => {
     if (!searchOpen) return undefined;
@@ -87,42 +71,9 @@ export function ConversationPanel({ role = "teacher" }: ConversationPanelProps) 
 
   return (
     <section
-      className={`conversation-panel ${
-        conversationId ? "has-active-chat" : ""
-      }`}
+      className={`conversation-panel ${conversationId ? "has-active-chat" : ""}`}
       aria-label="Suhbatlar ro‘yxati"
     >
-      {/* Telegram uslubidagi chap panel — ikonka tepada, yozuv ostida. */}
-      <nav className="conversation-rail" aria-label="Suhbat turlari">
-        {/* Yozuvsiz — hamburger o'zi tushunarli, yorlig'i faqat aria uchun. */}
-        <button
-          className="conversation-rail-menu"
-          onClick={() => setMenuOpen(true)}
-          aria-label="Profil menyusini ochish"
-        >
-          <Menu size={24} />
-        </button>
-
-        {FILTERS.map((item) => {
-          const Icon = item.icon;
-          const active = filter === item.id;
-          const unread = unreadByFilter[item.id] ?? 0;
-          return (
-            <button
-              key={item.id}
-              className={active ? "is-active" : ""}
-              aria-current={active ? "page" : undefined}
-              onClick={() => setFilter(item.id)}
-            >
-              <Icon size={24} />
-              <span>{item.label}</span>
-              {unread ? <i className="conversation-rail-badge">{unread}</i> : null}
-            </button>
-          );
-        })}
-      </nav>
-
-      <div className="conversation-panel-body">
       <div className="conversation-panel-header">
         <div className="panel-topbar">
           <div className="panel-search-zone" ref={searchRef}>
@@ -171,20 +122,24 @@ export function ConversationPanel({ role = "teacher" }: ConversationPanelProps) 
             </AnimatePresence>
           </div>
           <NotificationBell enabled={Boolean(user)} />
-          <button
-            className="panel-account"
-            onClick={() => setMenuOpen(true)}
-            aria-label="Profil menyusi"
-          >
-            <Avatar
-              name={user?.name ?? "Teacher"}
-              tone="violet"
-              size="sm"
-              status="online"
-            />
+          <button className="panel-account" onClick={onOpenMenu} aria-label="Profil menyusi">
+            <Avatar name={user?.name ?? "Teacher"} tone="violet" size="sm" status="online" />
           </button>
         </div>
 
+        <div className="conversation-filter-pills" role="tablist" aria-label="Suhbat turlari">
+          {FILTERS.map((item) => (
+            <button
+              key={item.id}
+              role="tab"
+              aria-selected={filter === item.id}
+              className={filter === item.id ? "is-active" : ""}
+              onClick={() => setFilter(item.id)}
+            >
+              {item.label}
+            </button>
+          ))}
+        </div>
       </div>
 
       <div className="conversation-list">
@@ -234,30 +189,21 @@ export function ConversationPanel({ role = "teacher" }: ConversationPanelProps) 
         )}
       </div>
 
-        <motion.button
-          className="new-conversation-fab"
-          onClick={() => setDialogOpen(true)}
-          aria-label={isTeacher ? "Yangi guruh yoki suhbat yaratish" : "O‘qituvchi yoki kurs topish"}
-          whileHover={{ y: -3, scale: 1.03 }}
-          whileTap={{ scale: 0.94 }}
-        >
-          <Plus size={18} />
-        </motion.button>
-      </div>
+      <motion.button
+        className="new-conversation-fab"
+        onClick={() => setDialogOpen(true)}
+        aria-label={isTeacher ? "Yangi guruh yoki suhbat yaratish" : "O‘qituvchi yoki kurs topish"}
+        whileHover={{ y: -3, scale: 1.03 }}
+        whileTap={{ scale: 0.94 }}
+      >
+        <Plus size={18} />
+      </motion.button>
 
       {isTeacher ? (
         <NewConversationDialog open={dialogOpen} onOpenChange={setDialogOpen} />
       ) : (
         <StudentEnrollmentDialog open={dialogOpen} onOpenChange={setDialogOpen} />
       )}
-      <AccountMenu
-        open={menuOpen}
-        onOpenChange={setMenuOpen}
-        profileOpen={profileOpen}
-        onProfileOpenChange={setProfileOpen}
-        roleLabel={isTeacher ? "O‘qituvchi" : "O‘quvchi"}
-        workspaceLabel={isTeacher ? "Teacher workspace" : "Student workspace"}
-      />
     </section>
   );
 }

@@ -69,6 +69,8 @@ const LiveLessonPage = lazy(() => import("@/pages/live/live-lesson-page").then((
 const DesignSystemPage = lazy(() => import("@/pages/design-system/design-system-page").then((module) => ({ default: module.DesignSystemPage })));
 const BoardPage = lazy(() => import("@/pages/board/board-page").then((module) => ({ default: module.BoardPage })));
 const RecordingPage = lazy(() => import("@/pages/recording/recording-page").then((module) => ({ default: module.RecordingPage })));
+const SchedulePage = lazy(() => import("@/pages/schedule/schedule-page").then((module) => ({ default: module.SchedulePage })));
+const AiPage = lazy(() => import("@/pages/ai/ai-page").then((module) => ({ default: module.AiPage })));
 
 type ChunkLoader = () => Promise<unknown>;
 
@@ -145,6 +147,10 @@ export function AppRouter() {
                     element={<TeacherLayout />}
                   >
                     <Route index element={<ChatsPage />} />
+                    {/* Statik yo'llar dinamikdan ustun turadi — "schedule"
+                        hech qachon suhbat id'si sifatida talqin qilinmaydi. */}
+                    <Route path="schedule" element={<SchedulePage />} />
+                    <Route path="ai" element={<AiPage />} />
                     <Route
                       path=":conversationId"
                       element={<ConversationPage />}
@@ -182,6 +188,10 @@ export function AppRouter() {
                     element={<StudentLayout />}
                   >
                     <Route index element={<ChatsPage />} />
+                    {/* Statik yo'llar dinamikdan ustun turadi — "schedule"
+                        hech qachon suhbat id'si sifatida talqin qilinmaydi. */}
+                    <Route path="schedule" element={<SchedulePage />} />
+                    <Route path="ai" element={<AiPage />} />
                     <Route
                       path=":conversationId"
                       element={<StudentConversationPage />}
