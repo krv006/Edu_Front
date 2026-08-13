@@ -4,6 +4,7 @@ export { DIRECT_STATUS, DIRECT_STATUS_LABELS, directStatusLabel } from "./consta
 export { mapConversationDto, mapConversationPage, mapTeacherDto } from "./lib/conversation.mappers";
 export { conversationKeys } from "./model/conversation.keys";
 export {
+  matchesConversationFilter,
   useConversationFilter,
   useConversationFilterStore,
 } from "./model/conversation-filter.store";
@@ -20,4 +21,6 @@ export { ChatEmptyState } from "./ui/chat-empty-state";
 export { ChatHeader } from "./ui/chat-header";
 export { ConversationInfoPanel } from "./ui/conversation-info-panel";
 export { ConversationItem } from "./ui/conversation-item";
+export { ConversationRail } from "./ui/conversation-rail";
+export type { ConversationRailProps, ConversationSection } from "./ui/conversation-rail";
 export { NewConversationDialog } from "./ui/new-conversation-dialog";

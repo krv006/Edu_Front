@@ -657,25 +657,46 @@ button:disabled {
 }
 
 /* Conversations */
-/* Panel ikki ustun: chapda turlar paneli (Telegram uslubi), o'ngda ro'yxat. */
 .conversation-panel {
   min-width: 0;
   height: 100%;
   border-right: 1px solid var(--border);
   background: var(--surface);
   display: flex;
-  overflow: hidden;
-}
-.conversation-panel-body {
-  position: relative;
-  min-width: 0;
-  flex: 1;
-  display: flex;
   flex-direction: column;
   overflow: hidden;
 }
 
-/* Suhbat turlari — ikonka tepada, yozuv ostida */
+/* Suhbat turlari — ro'yxat tepasidagi tugmachalar (Teams uslubi) */
+.conversation-filter-pills {
+  margin-top: 12px;
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+.conversation-filter-pills button {
+  padding: 6px 13px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-full);
+  color: var(--muted-foreground);
+  background: var(--surface);
+  font: inherit;
+  font-size: var(--fs-xs);
+  font-weight: 700;
+  cursor: pointer;
+  transition: color .16s, border-color .16s, background .16s;
+}
+.conversation-filter-pills button:hover {
+  color: var(--foreground);
+  border-color: var(--border-accent-strong);
+}
+.conversation-filter-pills button.is-active {
+  color: var(--primary-foreground);
+  border-color: var(--primary);
+  background: var(--primary);
+}
+
+/* Asosiy bo'limlar ustuni — ikonka tepada, yozuv ostida */
 .conversation-rail {
   width: 76px;
   flex: 0 0 auto;
@@ -1811,6 +1832,10 @@ button:disabled {
   .conversation-panel.has-active-chat {
     display: none;
   }
+  /* Suhbat ochilganda ustun ham yashirinadi — chat butun ekranni oladi */
+  .teacher-shell.has-conversation .conversation-rail {
+    display: none;
+  }
   .conversation-rail {
     width: 100%;
     flex-direction: row;
@@ -2597,10 +2622,29 @@ button:disabled {
   }
 }
 
-/* Telegram-inspired teacher navigation and message interactions */
+/* Teams uslubi: bo'limlar ustuni | suhbatlar | tortish dastasi | asosiy */
 .teacher-shell,
 .teacher-shell.is-sidebar-collapsed {
-  grid-template-columns: var(--conversation-width, 368px) 6px minmax(0, 1fr);
+  grid-template-columns: 76px var(--conversation-width, 368px) 6px minmax(0, 1fr);
+}
+/* Har bola o'z ustunida turadi.
+   Bu SHART: `display: none` element grid oqimidan butunlay chiqadi va qolgan
+   bolalar birinchi bo'sh ustunlarga suriladi — asosiy maydon 0 kenglikdagi
+   ustunga tushib, ko'rinmay qolardi. */
+.conversation-shell > .conversation-rail { grid-column: 1; }
+.conversation-shell > .conversation-panel { grid-column: 2; }
+.conversation-shell > .conversation-resize-handle { grid-column: 3; }
+.conversation-shell > .teacher-main { grid-column: 4; }
+
+/* Kalendar va AI bo'limlari: suhbatlar ustuni yopiladi, mazmun butun
+   maydonni oladi. Bo'limlar ustuni qoladi — usiz qaytib bo'lmasdi. */
+.teacher-shell.is-wide-section,
+.teacher-shell.is-wide-section.is-sidebar-collapsed {
+  grid-template-columns: 76px 0 0 minmax(0, 1fr);
+}
+.teacher-shell.is-wide-section .conversation-panel,
+.teacher-shell.is-wide-section .conversation-resize-handle {
+  display: none;
 }
 
 .conversation-resize-handle {
@@ -3140,7 +3184,11 @@ body.is-resizing-sidebar {
 @media (max-width: 1120px) and (min-width: 769px) {
   .teacher-shell,
   .teacher-shell.is-sidebar-collapsed {
-    grid-template-columns: var(--conversation-width, 340px) 6px minmax(0, 1fr);
+    grid-template-columns: 76px var(--conversation-width, 340px) 6px minmax(0, 1fr);
+  }
+  .teacher-shell.is-wide-section,
+  .teacher-shell.is-wide-section.is-sidebar-collapsed {
+    grid-template-columns: 76px 0 0 minmax(0, 1fr);
   }
 }
 
@@ -4305,6 +4353,17 @@ body > .ML__keyboard,
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 11px;
+}
+
+/* Kalendar va AI bo'limlari — butun maydonni egallaydigan sahifalar */
+.schedule-page { height: 100%; padding: 22px 24px; display: flex; flex-direction: column; gap: 18px; overflow-y: auto; }
+.schedule-page-head { display: flex; gap: 16px; align-items: flex-end; justify-content: space-between; flex-wrap: wrap; }
+.schedule-page-head h1 { margin: 5px 0 3px; font-size: var(--fs-6xl); letter-spacing: -.03em; }
+.schedule-page-head p { margin: 0; color: var(--muted-foreground); font-size: var(--fs-md); }
+.schedule-page-body { min-height: 0; flex: 1; }
+
+@media (max-width: 640px) {
+  .schedule-page { padding: 16px 12px; }
 }
 
 /* Vazifa qaysi darsga tegishli */

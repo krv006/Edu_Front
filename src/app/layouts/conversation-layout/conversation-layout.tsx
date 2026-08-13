@@ -1,7 +1,9 @@
 import { useEffect, useState, type CSSProperties, type KeyboardEvent, type PointerEvent } from "react";
 import { motion } from "framer-motion";
-import { Outlet, useParams } from "react-router-dom";
+import { Outlet, useLocation, useParams } from "react-router-dom";
+import { ConversationRail, type ConversationSection } from "@/modules/conversation";
 import { ConversationPanel } from "@/widgets/conversation-panel";
+import { AccountMenu } from "@/widgets/account-menu";
 import { STORAGE_KEYS } from "@/shared/constants";
 import { storage } from "@/shared/lib";
 import type { ConversationRole } from "@/shared/types";
@@ -17,8 +19,21 @@ const MIN_WIDTH = 300;
 const MAX_WIDTH = 480;
 const DEFAULT_WIDTH = 368;
 
+/** Yo'ldan bo'limni aniqlaymiz — bo'lim holati URL'da turadi. */
+function sectionFromPath(pathname: string): ConversationSection {
+  if (pathname.endsWith("/schedule")) return "schedule";
+  if (pathname.endsWith("/ai")) return "ai";
+  return "chat";
+}
+
 export function ConversationLayout({ role = "teacher" }: { role?: ConversationRole }) {
   const { conversationId } = useParams();
+  const { pathname } = useLocation();
+  const [menuOpen, setMenuOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
+  const section = sectionFromPath(pathname);
+  /** Chatdan boshqa bo'limda suhbatlar ustuni yopiladi. */
+  const wideSection = section !== "chat";
   const storageKey = WIDTH_KEYS[role] ?? WIDTH_KEYS.teacher;
   const [panelWidth, setPanelWidth] = useState(() => {
     const saved = Number(storage.get(storageKey));
@@ -62,10 +77,13 @@ export function ConversationLayout({ role = "teacher" }: { role?: ConversationRo
 
   return (
     <div
-      className={`teacher-shell conversation-shell conversation-shell--${role} ${resizing ? "is-resizing" : ""}`}
+      className={`teacher-shell conversation-shell conversation-shell--${role} ${resizing ? "is-resizing" : ""} ${wideSection ? "is-wide-section" : ""} ${conversationId ? "has-conversation" : ""}`}
       style={{ "--conversation-width": `${panelWidth}px` } as CSSProperties}
     >
-      <ConversationPanel role={role} />
+      {/* Ustun paneldan TASHQARIDA: kalendar va AI bo'limlarida suhbatlar
+          ustuni yopiladi, ustun esa qolishi kerak — aks holda qaytib bo'lmaydi. */}
+      <ConversationRail role={role} section={section} onOpenMenu={() => setMenuOpen(true)} />
+      <ConversationPanel role={role} onOpenMenu={() => setMenuOpen(true)} />
       <div
         className="conversation-resize-handle"
         role="separator"
@@ -78,7 +96,11 @@ export function ConversationLayout({ role = "teacher" }: { role?: ConversationRo
       >
         <span />
       </div>
-      <main className={`teacher-main conversation-main ${conversationId ? "has-conversation" : ""}`}>
+      <main
+        className={`teacher-main conversation-main ${
+          conversationId || wideSection ? "has-conversation" : ""
+        }`}
+      >
         {/*
           `AnimatePresence mode="wait"` ataylab olib tashlandi: u eski sahifa
           chiqib ketmaguncha yangisini umuman mount qilmasdi, ya'ni har suhbat
@@ -86,7 +108,7 @@ export function ConversationLayout({ role = "teacher" }: { role?: ConversationRo
           Endi yangi sahifa darhol mount bo'lib, joyida ochiladi.
         */}
         <motion.div
-          key={conversationId ?? "empty"}
+          key={wideSection ? section : (conversationId ?? "empty")}
           className="route-motion"
           initial={{ opacity: 0, x: 4 }}
           animate={{ opacity: 1, x: 0 }}
@@ -95,6 +117,16 @@ export function ConversationLayout({ role = "teacher" }: { role?: ConversationRo
           <Outlet />
         </motion.div>
       </main>
+
+      {/* Menyu ustundagi tugmadan ochiladi, shuning uchun u ham shu yerda. */}
+      <AccountMenu
+        open={menuOpen}
+        onOpenChange={setMenuOpen}
+        profileOpen={profileOpen}
+        onProfileOpenChange={setProfileOpen}
+        roleLabel={role === "teacher" ? "O‘qituvchi" : "O‘quvchi"}
+        workspaceLabel={role === "teacher" ? "Teacher workspace" : "Student workspace"}
+      />
     </div>
   );
 }

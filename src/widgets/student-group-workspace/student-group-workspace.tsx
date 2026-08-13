@@ -4,6 +4,7 @@ import { BookOpen, CalendarDays, CheckCircle2, ListChecks, Paperclip } from "luc
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 import { ChatHeader } from "@/modules/conversation";
+import { useCourse } from "@/modules/course";
 import { MessageComposer, MessageList } from "@/modules/message";
 import {
   HomeworkResultDialog,
@@ -73,6 +74,22 @@ export function StudentGroupWorkspace({
   const lessons = useLessons({ course: courseId, page_size: 100 }, active === "lessons");
   const assignments = useAssignments(courseId, active === "assignments");
 
+  /**
+   * O'quvchi guruh a'zolari ro'yxatini ko'ra olmaydi
+   * (`GET /courses/{id}/students/` faqat o'qituvchi va adminga ochiq), lekin
+   * kurs ma'lumotida `student_count` bor va u barcha rollarga beriladi —
+   * shundan a'zolar SONI olinadi.
+   */
+  const course = useCourse(courseId);
+
+  const hydrated: Conversation = {
+    ...conversation,
+    title: course.data?.title ?? conversation.title,
+    subject: course.data?.subject,
+    description: course.data?.description,
+    memberCount: course.data?.studentCount ?? conversation.memberCount,
+  };
+
   async function send(payload: SendMessagePayload) {
     try {
       await sendMessage.mutateAsync({
@@ -87,7 +104,7 @@ export function StudentGroupWorkspace({
 
   return (
     <section className="chat-page group-workspace student-group-workspace">
-      <ChatHeader conversation={conversation} backTo="/student/chats" />
+      <ChatHeader conversation={hydrated} backTo="/student/chats" />
       {/* Jonli dars bo'lsa chat tepasida chiziq turadi — Telegram uslubi. */}
       <LiveLessonBar courseId={courseId} />
       <nav className="group-tabs">
@@ -119,7 +136,7 @@ export function StudentGroupWorkspace({
           {active === "chat" ? (
             <MessageList
               messages={messages.data}
-              conversation={conversation}
+              conversation={hydrated}
               loading={messages.isLoading}
               error={messages.isError}
               onRetry={messages.refetch}
