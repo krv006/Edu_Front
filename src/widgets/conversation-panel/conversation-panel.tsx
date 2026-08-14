@@ -14,6 +14,7 @@ import {
   type ConversationFilter,
   type DirectTeacher,
 } from "@/modules/conversation";
+import { useLiveLessons } from "@/modules/lesson";
 import { NotificationBell } from "@/modules/notification";
 import { Avatar } from "@/shared/ui/legacy";
 import { useAuth } from "@/modules/auth";
@@ -64,6 +65,16 @@ export function ConversationPanel({ role = "teacher", onOpenMenu }: Conversation
   const peopleEnabled = !isTeacher && query.length >= 2;
   const teachers = useTeachersForDirect(peopleEnabled);
   const requestDirect = useRequestDirect();
+
+  /**
+   * Qaysi guruhda dars ketyapti — chatga kirmasdan ko'rinishi uchun.
+   * Dars kurs bilan bog'langan, chat ham: bog'lovchi kalit `courseId`.
+   */
+  const liveLessons = useLiveLessons(Boolean(user)).data;
+  const liveCourses = useMemo(
+    () => new Set((liveLessons ?? []).map((lesson) => lesson.courseId)),
+    [liveLessons]
+  );
 
   const visible = useMemo(
     () =>
@@ -218,6 +229,7 @@ export function ConversationPanel({ role = "teacher", onOpenMenu }: Conversation
               conversation={conversation}
               active={conversation.id === conversationId}
               basePath={basePath}
+              live={Boolean(conversation.courseId && liveCourses.has(conversation.courseId))}
             />
           ))}
         {people.length ? (
