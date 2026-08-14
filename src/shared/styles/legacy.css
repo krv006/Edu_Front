@@ -4465,6 +4465,8 @@ body > .ML__keyboard,
 .pre-join-toggles button { width: 44px; height: 44px; border: 1px solid rgb(255 255 255 / .16); border-radius: var(--r-full); display: grid; place-items: center; color: #fff; background: rgb(13 18 23 / .72); cursor: pointer; transition: background .16s; }
 .pre-join-toggles button:hover { background: rgb(13 18 23 / .9); }
 .pre-join-toggles button.is-off { color: #ffb3bd; border-color: #5d2030; background: #3a1520; }
+/* Ruxsat yo'q — "buzuq" emas, shunchaki hozir bo'lmaydi degan ko'rinish. */
+.pre-join-toggles button:disabled { opacity: .5; cursor: not-allowed; }
 .pre-join-info { display: grid; gap: 10px; }
 .pre-join-info h1 { margin: 4px 0 0; font-size: var(--fs-5xl); letter-spacing: -.03em; }
 .pre-join-info > p { margin: 0; color: var(--muted-foreground); font-size: var(--fs-md); }
