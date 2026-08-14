@@ -1,5 +1,6 @@
 export const authEndpoints = Object.freeze({
   login: "/api/v1/auth/login/",
+  logout: "/api/v1/auth/logout/",
   refresh: "/api/v1/auth/token/refresh/",
   me: "/api/v1/auth/me/",
   register: "/api/v1/auth/register/",
@@ -8,6 +9,5 @@ export const authEndpoints = Object.freeze({
   requestLink: "/api/v1/auth/links/request/",
   respondLink: (id: string) => `/api/v1/auth/links/${id}/respond/`,
   consents: "/api/v1/auth/consents/",
-  /** Kirishlar tarixi; ota-ona `?student=<id>` bilan bolasinikini oladi. */
   logins: "/api/v1/auth/logins/",
 });

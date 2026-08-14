@@ -14,6 +14,19 @@ import type {
 
 export const authApi = {
   // login/refresh — Authorization sarlavhasisiz va 401 da qayta urinishsiz yuboriladi.
+  /**
+   * Sessiyani server tomonda yopadi — refresh token bekor qilinadi.
+   *
+   * `skipRefresh`: access token allaqachon eskirgan bo'lsa, 401 ni ushlab
+   * yangilashga urinish ma'nosiz — biz baribir chiqmoqchimiz.
+   */
+  logout(refreshToken: string | null) {
+    return apiClient.post(
+      authEndpoints.logout,
+      refreshToken ? { refresh: refreshToken } : {},
+      { skipRefresh: true }
+    );
+  },
   login(dto: LoginRequestDto) {
     return apiClient.post<TokenPairDto>(authEndpoints.login, dto, {
       skipAuth: true,

@@ -91,9 +91,25 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
     }
   },
 
+  /**
+   * Chiqish: avval serverga aytamiz (refresh token bekor qilinsin), keyin
+   * lokal holatni tozalaymiz.
+   *
+   * So'rov xatosi ATAYLAB YUTILADI: tarmoq uzilgan, token eskirgan yoki
+   * endpoint hali chiqarilmagan bo'lishi mumkin — bularning hech biri
+   * foydalanuvchini tizimda ushlab qolishga sabab emas. Shuning uchun
+   * tokenlar `finally` da, har qanday holatda tozalanadi.
+   */
   async logout() {
-    tokenStorage.clearTokens();
-    set({ user: null, status: AUTH_STATUS.ANONYMOUS, error: null });
+    const refreshToken = tokenStorage.getRefreshToken();
+    try {
+      await authApi.logout(refreshToken);
+    } catch {
+      // Sababi muhim emas — chiqish baribir davom etadi.
+    } finally {
+      tokenStorage.clearTokens();
+      set({ user: null, status: AUTH_STATUS.ANONYMOUS, error: null });
+    }
   },
 
   setUser(user) {
