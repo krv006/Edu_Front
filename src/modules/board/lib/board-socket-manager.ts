@@ -3,11 +3,19 @@ import type { StrokeDto, StrokeInput } from "../api/board.dto";
 
 export type { SocketState };
 
-/** Doska kanalidan keladigan hodisalar — docs/PROJECT.md §5.2. */
+/**
+ * Doska kanalidan keladigan hodisalar — docs/PROJECT.md §5.2.
+ *
+ * `mic_request` / `mic_granted` doskaga aloqador emas, lekin dars davomida
+ * ochiq turgan yagona kanal shu bo'lgani uchun backend ularni ham shu yerdan
+ * yuboradi (MIC_REQUEST_GRANT.md §"Qanday ishlaydi").
+ */
 export type BoardSocketEvent =
   | { type: "stroke"; sheet: number; stroke: StrokeDto }
   | { type: "erase"; sheet: number; strokeIds: string[]; by: string; reason: string }
   | { type: "sheet"; index: number }
+  | { type: "mic_request"; studentId: string; name: string }
+  | { type: "mic_granted"; studentId: string }
   | { type: "error"; detail: string };
 
 interface RawBoardEvent {
@@ -18,6 +26,8 @@ interface RawBoardEvent {
   by?: string;
   reason?: string;
   index?: number | string;
+  student_id?: string | number;
+  name?: string;
   detail?: string;
 }
 
@@ -40,6 +50,12 @@ export function parseBoardEvent(raw: unknown): BoardSocketEvent | null {
       };
     case "sheet":
       return { type: "sheet", index: Number(event.index ?? 0) };
+    case "mic_request":
+      return event.student_id
+        ? { type: "mic_request", studentId: String(event.student_id), name: event.name ?? "" }
+        : null;
+    case "mic_granted":
+      return event.student_id ? { type: "mic_granted", studentId: String(event.student_id) } : null;
     case "error":
       return { type: "error", detail: event.detail || "Doska ulanishida xatolik" };
     default:

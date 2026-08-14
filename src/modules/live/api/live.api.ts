@@ -37,6 +37,20 @@ export const liveApi = {
     return apiClient.post(liveEndpoints.allowShare, { lesson_id: lessonId, identity });
   },
 
+  /**
+   * Mikrofon so'rovi (MIC_REQUEST_GRANT.md). O'quvchi darsga mikrofonsiz kiradi;
+   * so'rov o'qituvchi ekraniga doska kanali orqali chiqadi.
+   */
+  async requestMic(lessonId: string) {
+    return apiClient.post(liveEndpoints.requestMic, { lesson_id: lessonId });
+  },
+
+  /** O'qituvchi ruxsati — LiveKit darajasida o'quvchi gapira oladigan bo'ladi. */
+  async grantMic(lessonId: string, studentId: string) {
+    await apiClient.post(liveEndpoints.grantMic, { lesson_id: lessonId, student_id: studentId });
+    return studentId;
+  },
+
  
   async invite(lessonId: string, studentId?: string) {
     const dto = await apiClient.post<{ invited?: number } | null>(liveEndpoints.invite, {

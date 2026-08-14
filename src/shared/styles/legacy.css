@@ -5672,6 +5672,7 @@ body > .ML__keyboard,
   flex-wrap: wrap;
 }
 .live-control {
+  position: relative;
   display: inline-flex;
   align-items: center;
   gap: 7px;
@@ -5698,6 +5699,31 @@ body > .ML__keyboard,
 .live-control--share[data-lk-enabled="true"] { background: #192739; border-color: #2c4a6b; color: #8cbbff; }
 .live-control--share-request { position: relative; }
 .live-control-request-dot { position: absolute; top: 5px; right: 5px; width: 7px; height: 7px; border-radius: 50%; background: #f0ac57; box-shadow: 0 0 0 2px #161c23; }
+/* Mikrofon o'chiq, lekin bu xato emas — ruxsat so'rash mumkin degan holat. */
+.live-control--mic-request { position: relative; background: #2b2417; border-color: #4d3f22; color: #f0ac57; }
+.live-control--mic-request:hover:not(:disabled) { background: #3a301d; }
+.live-control--mic-request:disabled { opacity: 0.65; cursor: progress; }
+.live-control-corner { position: absolute; right: 6px; bottom: 5px; }
+.live-control-badge {
+  position: absolute;
+  top: 3px;
+  right: 6px;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: var(--r-full);
+  display: grid;
+  place-items: center;
+  background: #f0ac57;
+  box-shadow: 0 0 0 2px #161c23;
+  color: #241a08;
+  font-size: var(--fs-2xs);
+  font-weight: 800;
+}
+/* Ishtirokchilar panelidagi "gapirmoqchi" ro'yxati — eng tepada turadi. */
+.live-mic-requests { display: grid; gap: 8px; padding-bottom: 10px; border-bottom: 1px solid #26313d; }
+.live-mic-requests h4 { display: flex; align-items: center; gap: 6px; color: #f0ac57; font-size: var(--fs-sm); font-weight: 750; }
+.live-mic-requests article { border-color: #4d3f22; background: #241d12; }
 .live-control--leave { background: var(--destructive); border-color: transparent; color: #fff; }
 .live-control--leave:hover { background: #b72f40; }
 .live-control-divider { width: 1px; height: 26px; background: #26313d; margin: 0 4px; }

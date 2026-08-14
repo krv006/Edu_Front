@@ -21,6 +21,7 @@ export {
   useGrantDraw,
   useSolveFormula,
 } from "./model/board.queries";
+export { useBoardChannel } from "./model/use-board-channel";
 export { useBoardRealtime } from "./model/use-board-realtime";
 export { AwayStudentsNotice } from "./ui/away-students-notice";
 export { BoardPanel } from "./ui/board-panel";
