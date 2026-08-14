@@ -47,6 +47,25 @@ export function useLiveLesson(courseId: string | null) {
   });
 }
 
+/**
+ * Barcha kurslardagi jonli darslar — suhbatlar ro'yxatidagi belgi uchun.
+ *
+ * Bitta so'rov: har bir guruh uchun alohida so'rasak, 20 ta chat 20 ta so'rov
+ * bo'lardi. Backend ro'yxatni foydalanuvchiga tegishli kurslar bilan cheklaydi,
+ * shuning uchun qaytgan `courseId` lar bevosita chat qatorlariga tushadi.
+ */
+export function useLiveLessons(enabled = true) {
+  const params: QueryParams = { status: "live", page_size: 50 };
+  return useQuery({
+    queryKey: lessonKeys.list(params),
+    queryFn: ({ signal }) => lessonApi.getAll({ signal, query: params }),
+    // Server filtri e'tiborga olinmasa ham xato belgi chiqmasin.
+    select: (page) => page.items.filter((lesson) => lesson.status === "live"),
+    enabled,
+    refetchInterval: LIVE_POLL_MS,
+  });
+}
+
 export function useLessonPage(params: QueryParams = {}) {
   return useQuery({
     queryKey: lessonKeys.list(params),

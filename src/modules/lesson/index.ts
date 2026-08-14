@@ -25,6 +25,7 @@ export {
   useLessonRatings,
   useLessonRecording,
   useLiveLesson,
+  useLiveLessons,
   useCreateLesson,
   useCreateLessonSchedule,
   useDeleteLesson,
