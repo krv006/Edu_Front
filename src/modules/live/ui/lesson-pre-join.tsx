@@ -40,8 +40,13 @@ export function LessonPreJoin({
   onJoin,
   onCancel,
 }: LessonPreJoinProps) {
-  const [micOn, setMicOn] = useState(micAllowed);
-  const [cameraOn, setCameraOn] = useState(true);
+  /*
+   * Ikkalasi ham o'chiq boshlanadi: darsga kirayotgan odam o'zi ko'rinishni va
+   * ovozni ataylab yoqsin. Kutilmaganda efirga tushib qolish — eng yoqimsiz
+   * holat, ayniqsa bir sinf bola oldida.
+   */
+  const [micOn, setMicOn] = useState(false);
+  const [cameraOn, setCameraOn] = useState(false);
   const [deviceError, setDeviceError] = useState<string | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
 
@@ -113,11 +118,15 @@ export function LessonPreJoin({
           )}
 
           <div className="pre-join-toggles">
+            {/* Token ruxsat bermasa yoqib bo'lmaydi — bosilsa ham xonada
+                uzatilmaydi, shuning uchun tugmani ochiq qoldirib aldamaymiz. */}
             <button
               type="button"
               className={micOn ? "" : "is-off"}
               aria-pressed={micOn}
               aria-label={micOn ? "Mikrofonni o‘chirish" : "Mikrofonni yoqish"}
+              disabled={!micAllowed}
+              title={micAllowed ? undefined : "Mikrofon uchun darsda ruxsat so‘raysiz"}
               onClick={toggleMic}
             >
               {micOn ? <Mic size={19} /> : <MicOff size={19} />}
