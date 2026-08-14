@@ -18,6 +18,8 @@ import {
   MicOff,
   MonitorUp,
   PhoneOff,
+  UserRoundPlus,
+  UserRoundX,
   Users,
   Video,
   VideoOff,
@@ -29,8 +31,10 @@ import {
   AttentionCheckDialog,
   decodeScreenShareRequest,
   encodeScreenShareRequest,
+  LessonInviteDialog,
   useAllowShare,
   useAttentionCheck,
+  useBanFromLesson,
   useFocusTracker,
 } from "@/modules/live";
 import type { Lesson } from "@/shared/types";
@@ -176,9 +180,9 @@ export interface LiveRoomProps {
   onLeave: () => void;
 }
 
-/** Google Meet uslubidagi sahna, ixcham participantlar va to‘liq ekran doska. */
 export function LiveRoom({ lesson, isTeacher, onLeave }: LiveRoomProps) {
   const [panel, setPanel] = useState<SidePanel>(null);
+  const [inviteOpen, setInviteOpen] = useState(false);
   const connectionState = useConnectionState();
   const participants = useParticipants();
   const attention = useAttentionCheck(lesson.id, !isTeacher);
@@ -218,6 +222,16 @@ export function LiveRoom({ lesson, isTeacher, onLeave }: LiveRoomProps) {
           <span className="live-room-count">
             <Users size={15} /> {participants.length}
           </span>
+          {isTeacher ? (
+            <button
+              className="icon-button"
+              onClick={() => setInviteOpen(true)}
+              aria-label="Darsga taklif qilish"
+              title="Darsga taklif qilish"
+            >
+              <UserRoundPlus size={19} />
+            </button>
+          ) : null}
           <button className="icon-button" onClick={onLeave} aria-label="Darsdan chiqish">
             <X size={19} />
           </button>
@@ -344,8 +358,16 @@ export function LiveRoom({ lesson, isTeacher, onLeave }: LiveRoomProps) {
         </DisconnectButton>
       </footer>
 
-      {/* Chekkada, dialogsiz — o'qituvchini dars o'tayotganda bo'lmasin. */}
       <AwayStudentsNotice lessonId={lesson.id} enabled={isTeacher} />
+
+      {isTeacher ? (
+        <LessonInviteDialog
+          lessonId={lesson.id}
+          courseId={lesson.courseId}
+          open={inviteOpen}
+          onOpenChange={setInviteOpen}
+        />
+      ) : null}
 
       <RoomAudioRenderer />
       <ShareRequestListener lessonId={lesson.id} enabled={isTeacher} />
@@ -357,6 +379,7 @@ export function LiveRoom({ lesson, isTeacher, onLeave }: LiveRoomProps) {
 function ParticipantsPanel({ lessonId, isTeacher }: { lessonId: string; isTeacher: boolean }) {
   const participants = useParticipants();
   const allowShare = useAllowShare(lessonId);
+  const ban = useBanFromLesson(lessonId);
 
   return (
     <div className="live-participants">
@@ -368,14 +391,27 @@ function ParticipantsPanel({ lessonId, isTeacher }: { lessonId: string; isTeache
             <small>{participant.isLocal ? "Siz" : "Ishtirokchi"}</small>
           </div>
           {isTeacher && !participant.isLocal ? (
-            <Button
-              size="sm"
-              variant="secondary"
-              loading={allowShare.isPending}
-              onClick={() => allowShare.mutate(participant.identity)}
-            >
-              <MonitorUp size={15} /> Ruxsat
-            </Button>
+            <>
+              <Button
+                size="sm"
+                variant="secondary"
+                loading={allowShare.isPending}
+                onClick={() => allowShare.mutate(participant.identity)}
+              >
+                <MonitorUp size={15} /> Ruxsat
+              </Button>
+              {/* LiveKit identity — backend token'da o'quvchi id'si sifatida
+                  beriladi, ban ham shu id'ni kutadi. */}
+              <button
+                className="icon-button destructive-icon"
+                aria-label={`${participant.name || participant.identity}ni darsdan chetlashtirish`}
+                title="Darsdan chetlashtirish"
+                disabled={ban.isPending}
+                onClick={() => ban.mutate(participant.identity)}
+              >
+                <UserRoundX size={16} />
+              </button>
+            </>
           ) : null}
         </article>
       ))}

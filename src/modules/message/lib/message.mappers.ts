@@ -37,6 +37,8 @@ export function mapMessageDto(dto: MessageDto): ChatMessage {
 export type ParsedSocketEvent =
   | { type: "message"; message: ChatMessage }
   | { type: "typing"; userId: string; name: string }
+  /** Foydalanuvchi kursdan chiqarildi — server socketni 4403 bilan yopadi. */
+  | { type: "removed" }
   | { type: "error"; detail: string };
 
 export function parseSocketEvent(raw: unknown): ParsedSocketEvent | null {
@@ -44,13 +46,16 @@ export function parseSocketEvent(raw: unknown): ParsedSocketEvent | null {
     | { type?: string; message?: MessageDto; user_id?: string | number; name?: string; detail?: string }
     | null;
 
-  if (!event || !["message", "typing", "error"].includes(event.type ?? "")) return null;
+  if (!event || !["message", "typing", "removed", "error"].includes(event.type ?? "")) return null;
   if (event.type === "message" && event.message) {
     return { type: "message", message: mapMessageDto(event.message) };
   }
   if (event.type === "typing") {
     return { type: "typing", userId: String(event.user_id), name: event.name ?? "" };
   }
+  // Kursdan chiqarilgan (docs/LIVE_MODERATION_API.md §3) — server shundan
+  // keyin ulanishni 4403 bilan yopadi.
+  if (event.type === "removed") return { type: "removed" };
   return { type: "error", detail: event.detail || "WebSocket xatosi" };
 }
 

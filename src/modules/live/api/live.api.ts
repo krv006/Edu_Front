@@ -36,4 +36,27 @@ export const liveApi = {
   async allowShare(lessonId: string, identity: string) {
     return apiClient.post(liveEndpoints.allowShare, { lesson_id: lessonId, identity });
   },
+
+ 
+  async invite(lessonId: string, studentId?: string) {
+    const dto = await apiClient.post<{ invited?: number } | null>(liveEndpoints.invite, {
+      lesson_id: lessonId,
+      ...(studentId ? { student_id: studentId } : {}),
+    });
+    return Number(dto?.invited ?? 0);
+  },
+
+  /** Darsdan chetlashtirish: xonadan uzadi va qayta kirishni bloklaydi. */
+  async ban(lessonId: string, studentId: string) {
+    await apiClient.post(liveEndpoints.ban, { lesson_id: lessonId, student_id: studentId });
+    return studentId;
+  },
+
+  async unban(lessonId: string, studentId: string) {
+    const dto = await apiClient.post<{ unbanned?: boolean } | null>(liveEndpoints.unban, {
+      lesson_id: lessonId,
+      student_id: studentId,
+    });
+    return Boolean(dto?.unbanned);
+  },
 };

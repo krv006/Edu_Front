@@ -3,7 +3,17 @@ export type { AttentionCheck, FocusKind, FocusResult, RoomToken } from "./api/li
 export { mapAttentionDto, mapFocusDto, mapRoomTokenDto } from "./lib/live.mappers";
 export { decodeScreenShareRequest, encodeScreenShareRequest } from "./lib/screen-share-signal";
 export { useFocusTracker } from "./lib/use-focus-tracker";
-export { liveKeys, useAllowShare, useAnswerAttention, useAttentionCheck, useLiveToken } from "./model/live.queries";
+export {
+  liveKeys,
+  useAllowShare,
+  useAnswerAttention,
+  useAttentionCheck,
+  useBanFromLesson,
+  useInviteToLesson,
+  useLiveToken,
+  useUnbanFromLesson,
+} from "./model/live.queries";
 export { AttentionCheckDialog } from "./ui/attention-check-dialog";
+export { LessonInviteDialog } from "./ui/lesson-invite-dialog";
 export { LessonPreJoin } from "./ui/lesson-pre-join";
 export type { LessonPreJoinChoices, LessonPreJoinProps } from "./ui/lesson-pre-join";

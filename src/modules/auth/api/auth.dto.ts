@@ -14,6 +14,8 @@ export const userDtoSchema = z.object({
   role: z.string(),
   phone: z.string().nullable().optional(),
   invite_code: z.string().nullable().optional(),
+  /** Profil rasmi — `PATCH /auth/me/` orqali yuklanadi. */
+  avatar: z.string().nullable().optional(),
 });
 
 /** `GET /api/v1/auth/logins/` — bitta kirish yozuvi (paginatsiyasiz massiv). */

@@ -1,14 +1,18 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Plus, Search, X } from "lucide-react";
-import { useParams } from "react-router-dom";
+import { Plus, Search, UserRoundPlus, X } from "lucide-react";
+import { useNavigate, useParams } from "react-router-dom";
+import { toast } from "sonner";
 import {
   ConversationItem,
   matchesConversationFilter,
   NewConversationDialog,
   useConversationFilter,
   useConversations,
+  useRequestDirect,
+  useTeachersForDirect,
   type ConversationFilter,
+  type DirectTeacher,
 } from "@/modules/conversation";
 import { NotificationBell } from "@/modules/notification";
 import { Avatar } from "@/shared/ui/legacy";
@@ -42,10 +46,24 @@ export function ConversationPanel({ role = "teacher", onOpenMenu }: Conversation
   const [searchOpen, setSearchOpen] = useState(false);
   const searchRef = useRef<HTMLDivElement>(null);
   const { conversationId } = useParams();
+  const navigate = useNavigate();
   const { user } = useAuth();
   const { data = [], isLoading, isError, refetch } = useConversations(role);
   const isTeacher = role === "teacher";
   const basePath = isTeacher ? "/teacher/chats" : "/student/chats";
+
+  /**
+   * Telegram uslubi: qidiruvda mavjud suhbatlardan tashqari ODAM ham topiladi.
+   *
+   * O'quvchi uchun `GET /chat/rooms/teachers/` ishlatiladi — bu unga ochiq
+   * yagona odam ro'yxati. O'qituvchida bunday qidiruv yo'q: shaxsiy suhbatni
+   * faqat o'quvchi boshlay oladi (backend o'qituvchidan so'rovni qabul
+   * qilmaydi), shuning uchun unga topilgan odam bilan qiladigan ish qolmaydi.
+   */
+  const query = search.trim();
+  const peopleEnabled = !isTeacher && query.length >= 2;
+  const teachers = useTeachersForDirect(peopleEnabled);
+  const requestDirect = useRequestDirect();
 
   const visible = useMemo(
     () =>
@@ -57,6 +75,38 @@ export function ConversationPanel({ role = "teacher", onOpenMenu }: Conversation
       }),
     [data, search, filter]
   );
+
+  /** Allaqachon suhbati borlar ro'yxatda chiqadi — ularni takrorlamaymiz. */
+  const people = useMemo(() => {
+    if (!peopleEnabled) return [];
+    const lowered = query.toLowerCase();
+    const existing = new Set(data.map((item) => item.participantId).filter(Boolean));
+    return (teachers.data ?? []).filter(
+      (teacher) =>
+        !existing.has(teacher.id) &&
+        `${teacher.name} ${teacher.username}`.toLowerCase().includes(lowered)
+    );
+  }, [peopleEnabled, query, data, teachers.data]);
+
+  function startDirect(teacher: DirectTeacher) {
+    if (teacher.roomId) {
+      navigate(`${basePath}/${teacher.roomId}`);
+      return;
+    }
+    requestDirect.mutate(teacher.id, {
+      onSuccess: (room) => {
+        toast.success(
+          room.directStatus === "active"
+            ? "Suhbat ochildi"
+            : "So‘rov yuborildi — o‘qituvchi tasdiqlashi kerak"
+        );
+        setSearch("");
+        setSearchOpen(false);
+        if (room.directStatus === "active") navigate(`${basePath}/${room.id}`);
+      },
+      onError: (error: Error) => toast.error(error.message),
+    });
+  }
 
   useEffect(() => {
     if (!searchOpen) return undefined;
@@ -170,7 +220,29 @@ export function ConversationPanel({ role = "teacher", onOpenMenu }: Conversation
               basePath={basePath}
             />
           ))}
-        {!isLoading && !isError && visible.length === 0 && (
+        {people.length ? (
+          <>
+            <span className="conversation-list-label">ODAMLAR</span>
+            {people.map((teacher) => (
+              <button
+                key={teacher.id}
+                type="button"
+                className="conversation-person"
+                disabled={requestDirect.isPending}
+                onClick={() => startDirect(teacher)}
+              >
+                <Avatar name={teacher.name} size="lg" />
+                <span>
+                  <strong>{teacher.name}</strong>
+                  <small>@{teacher.username}</small>
+                </span>
+                <UserRoundPlus size={17} />
+              </button>
+            ))}
+          </>
+        ) : null}
+
+        {!isLoading && !isError && visible.length === 0 && !people.length && (
           <div className="panel-state panel-state--empty">
             <span>
               <Search size={22} />

@@ -1,3 +1,4 @@
+import { normalizeMediaUrl } from "@/shared/api";
 import { normalizeRole } from "@/modules/permission";
 import type { Role } from "@/shared/constants";
 import type { AuthUser, LoginCredentials } from "@/shared/types";
@@ -33,6 +34,8 @@ export function mapUserDto(dto: unknown): AuthUser {
     role: normalizeRole(parsed.role) as Role,
     phone: parsed.phone ?? null,
     inviteCode: parsed.invite_code ?? null,
+    // `<img src>` uchun to'liq havola kerak — apiClient bazasi qo'llanadi.
+    avatarUrl: normalizeMediaUrl(parsed.avatar),
     email: null,
     status: "online",
   };

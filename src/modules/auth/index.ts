@@ -18,7 +18,11 @@ export { LoginHistoryDialog } from "./ui/login-history-dialog";
 export { describeUserAgent } from "./lib/describe-user-agent";
 export { useAuth, useCurrentUser, useIsAuthenticated } from "./model/use-auth";
 export { loginSchema, registerSchema } from "./model/auth.schemas";
-export { useRegisterMutation, useUpdateProfileMutation } from "./model/auth.mutations";
+export {
+  useRegisterMutation,
+  useUpdateAvatarMutation,
+  useUpdateProfileMutation,
+} from "./model/auth.mutations";
 export { mapLoginRequest, mapTokenPairDto, mapUserDto } from "./lib/auth.mappers";
 export { resolveHomeRoute } from "./lib/resolve-home-route";
 export { LoginForm } from "./ui/login-form";
