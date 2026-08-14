@@ -6,6 +6,7 @@ export {
   MICROPHONE_SOURCE,
   SCREEN_SHARE_SOURCE,
 } from "./lib/live-permissions";
+export { MIC_TRACK, tokenAllowsTrack } from "./lib/live-token";
 export { decodeScreenShareRequest, encodeScreenShareRequest } from "./lib/screen-share-signal";
 export { useFocusTracker } from "./lib/use-focus-tracker";
 export {
@@ -14,6 +15,7 @@ export {
   useAnswerAttention,
   useAttentionCheck,
   useBanFromLesson,
+  useDenyMic,
   useGrantMic,
   useInviteToLesson,
   useLiveToken,

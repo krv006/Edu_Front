@@ -72,6 +72,15 @@ export function useGrantMic(lessonId: string) {
   });
 }
 
+export function useDenyMic(lessonId: string) {
+  return useMutation({
+    mutationFn: (studentId: string) => liveApi.denyMic(lessonId, studentId),
+    onSuccess: (denied) =>
+      toast.success(denied ? "So‘rov rad etildi" : "So‘rov allaqachon yopilgan"),
+    onError: (error) => toast.error(micError(error, "Bu darsning o‘qituvchisi emassiz.")),
+  });
+}
+
 function moderationError(error: unknown): string {
   if (error instanceof AppError && error.status === 404) {
     return "Bu imkoniyat serverda hali yoqilmagan.";

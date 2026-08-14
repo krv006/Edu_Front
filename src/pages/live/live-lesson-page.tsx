@@ -1,10 +1,13 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { LiveKitRoom } from "@livekit/components-react";
 import { useNavigate, useParams } from "react-router-dom";
+import { toast } from "sonner";
 import { useAuth } from "@/modules/auth";
 import {
   LessonPreJoin,
   liveApi,
+  MIC_TRACK,
+  tokenAllowsTrack,
   useLiveToken,
   type LessonPreJoinChoices,
 } from "@/modules/live";
@@ -134,7 +137,8 @@ export function LiveLessonPage() {
         <LessonPreJoin
           lesson={lesson.data}
           userName={user?.name}
-          defaultMicOn={token.data.isTeacher}
+          micAllowed={tokenAllowsTrack(token.data.token, MIC_TRACK)}
+          isTeacher={token.data.isTeacher}
           onJoin={setChoices}
           onCancel={() => navigate(-1)}
         />
@@ -151,6 +155,15 @@ export function LiveLessonPage() {
         audio={choices.micOn}
         video={choices.cameraOn}
         onDisconnected={handleLeave}
+        // Qurilma ochilmasa LiveKit uni jimgina o'tkazib yuboradi va mikrofon
+        // sababsiz o'chiq qolganday tuyuladi — buni aytib qo'yamiz.
+        onMediaDeviceFailure={(_failure, kind) =>
+          toast.error(
+            kind === "audioinput"
+              ? "Mikrofonni ochib bo‘lmadi — boshqa dastur band qilgan bo‘lishi mumkin"
+              : "Kamerani ochib bo‘lmadi — boshqa dastur band qilgan bo‘lishi mumkin"
+          )
+        }
       >
         <LiveRoom lesson={lesson.data} isTeacher={token.data.isTeacher} onLeave={handleLeave} />
       </LiveKitRoom>

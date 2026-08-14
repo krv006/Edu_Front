@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { usePreviewTracks } from "@livekit/components-react";
 import { Track, type LocalVideoTrack } from "livekit-client";
 import { Mic, MicOff, Video, VideoOff } from "lucide-react";
@@ -14,10 +14,12 @@ export interface LessonPreJoinProps {
   lesson: Lesson;
   userName?: string;
   /**
-   * O'quvchi darsga mikrofonsiz kiradi (MIC_REQUEST_GRANT.md) — gapirish uchun
-   * darsda ruxsat so'raydi. O'qituvchida esa odatdagidek yoqiq.
+   * Token mikrofonni uzatishga ruxsat beradimi (MIC_REQUEST_GRANT.md).
+   * O'quvchida odatda `false` — u darsda ruxsat so'raydi.
    */
-  defaultMicOn?: boolean;
+  micAllowed?: boolean;
+  /** Ruxsat yo'qligining sababi rolga qarab boshqacha tushuntiriladi. */
+  isTeacher?: boolean;
   onJoin: (choices: LessonPreJoinChoices) => void;
   onCancel: () => void;
 }
@@ -33,18 +35,32 @@ export interface LessonPreJoinProps {
 export function LessonPreJoin({
   lesson,
   userName,
-  defaultMicOn = true,
+  micAllowed = true,
+  isTeacher = false,
   onJoin,
   onCancel,
 }: LessonPreJoinProps) {
-  const [micOn, setMicOn] = useState(defaultMicOn);
+  const [micOn, setMicOn] = useState(micAllowed);
   const [cameraOn, setCameraOn] = useState(true);
   const [deviceError, setDeviceError] = useState<string | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
 
-  const tracks = usePreviewTracks({ audio: micOn, video: cameraOn }, (error) =>
-    setDeviceError(error.message)
+  /*
+   * DIQQAT: `usePreviewTracks` ichida bog'liqlik ro'yxati
+   * `[JSON.stringify(options), onError, ...]`. Ya'ni `onError` har renderda
+   * yangi funksiya bo'lsa, effekt har renderda qayta ishga tushadi: treklar
+   * to'xtatilib qaytadan ochiladi, bu esa setState orqali yana renderni
+   * keltirib chiqaradi. Natija — kamera lipillab, ko'rinish qora qolardi.
+   * Shuning uchun ikkala argument ham barqaror bo'lishi shart.
+   */
+  const handleDeviceError = useCallback(
+    // Xabari bo'sh xato ham ko'rinishi kerak — aks holda tugmalar sababsiz
+    // ishlamayotgandek tuyuladi.
+    (error: Error) => setDeviceError(error.message || "qurilma topilmadi"),
+    []
   );
+  const trackOptions = useMemo(() => ({ audio: micOn, video: cameraOn }), [micOn, cameraOn]);
+  const tracks = usePreviewTracks(trackOptions, handleDeviceError);
 
   const videoTrack = tracks?.find((track) => track.kind === Track.Kind.Video) as
     | LocalVideoTrack
@@ -58,6 +74,19 @@ export function LessonPreJoin({
       videoTrack.detach(element);
     };
   }, [videoTrack]);
+
+  /**
+   * Xonaga ulanishdan oldin ko'rish treklarini QO'LDA to'xtatamiz.
+   *
+   * React ularni unmount paytida baribir to'xtatadi, lekin bu `LiveKitRoom`
+   * qurilmani so'rayotgan payt bilan bir vaqtga tushadi. Mikrofonni tizim
+   * odatda eksklyuziv beradi, shuning uchun aynan u band bo'lib qoladi va dars
+   * ichida o'chiq holda qolardi — kamera esa ochilaverardi.
+   */
+  function join() {
+    tracks?.forEach((track) => track.stop());
+    onJoin({ micOn, cameraOn });
+  }
 
   /** Qurilma qayta so'ralganda eski xato osilib qolmasin. */
   function toggleMic() {
@@ -116,10 +145,22 @@ export function LessonPreJoin({
             </div>
           ) : null}
 
+          {/*
+            O'qituvchining mikrofoni hech qachon cheklanmasligi kerak — bu holat
+            server tokeni noto'g'ri kelganini bildiradi, foydalanuvchining
+            xatosi emas. Shuning uchun ogohlantirish, oddiy izoh emas.
+          */}
+          {!micAllowed && isTeacher ? (
+            <div className="form-alert">
+              Server tokenida mikrofon ruxsati yo‘q — darsda gapira olmaysiz. Bu kutilmagan
+              holat, texnik jamoaga xabar bering.
+            </div>
+          ) : null}
+
           <p className="portal-muted">
             {micOn ? "Mikrofon yoqilgan" : "Mikrofon o‘chiq"} ·{" "}
             {cameraOn ? "kamera yoqilgan" : "kamera o‘chiq"}.{" "}
-            {defaultMicOn
+            {micAllowed || isTeacher
               ? "Darsga kirgandan keyin ham o‘zgartirishingiz mumkin."
               : "Darsda gapirish uchun o‘qituvchidan ruxsat so‘raysiz."}
           </p>
@@ -128,7 +169,7 @@ export function LessonPreJoin({
             <Button variant="secondary" onClick={onCancel}>
               Bekor qilish
             </Button>
-            <Button onClick={() => onJoin({ micOn, cameraOn })}>Darsga kirish</Button>
+            <Button onClick={join}>Darsga kirish</Button>
           </div>
         </div>
       </div>
