@@ -13,6 +13,7 @@ import {
 } from "@livekit/components-react";
 import { ConnectionState, RoomEvent, Track, type Participant } from "livekit-client";
 import {
+  Hand,
   LayoutDashboard,
   Mic,
   MicOff,
@@ -29,13 +30,19 @@ import { toast } from "sonner";
 import { AwayStudentsNotice, BoardPanel } from "@/modules/board";
 import {
   AttentionCheckDialog,
+  canPublishSource,
   decodeScreenShareRequest,
   encodeScreenShareRequest,
   LessonInviteDialog,
+  MICROPHONE_SOURCE,
+  SCREEN_SHARE_SOURCE,
   useAllowShare,
   useAttentionCheck,
   useBanFromLesson,
   useFocusTracker,
+  useMicSignals,
+  useRequestMic,
+  type MicRequest,
 } from "@/modules/live";
 import type { Lesson } from "@/shared/types";
 import { Avatar, Button } from "@/shared/ui/legacy";
@@ -48,9 +55,6 @@ const CONNECTION_LABELS: Record<string, string> = {
   [ConnectionState.Reconnecting]: "Qayta ulanmoqda…",
   [ConnectionState.Disconnected]: "Uzildi",
 };
-
-// LiveKit protocol TrackSource.SCREEN_SHARE qiymati. Student tokenida dastlab bu source yo‘q.
-const SCREEN_SHARE_SOURCE = 3;
 
 function CameraTile({
   track,
@@ -80,15 +84,50 @@ function CameraTile({
   );
 }
 
+/**
+ * O'quvchi mikrofoni (MIC_REQUEST_GRANT.md): darsga o'chiq holda kiradi va
+ * gapirish uchun o'qituvchidan ruxsat so'raydi. Ruxsat berilgach LiveKit
+ * huquqlari yangilanadi va shu yerning o'zi odatdagi tugmaga aylanadi.
+ */
+function StudentMicControl({ lessonId }: { lessonId: string }) {
+  const permissions = useLocalParticipantPermissions();
+  const request = useRequestMic(lessonId);
+  const canSpeak = canPublishSource(permissions, MICROPHONE_SOURCE);
+
+  if (canSpeak) {
+    return (
+      <TrackToggle
+        source={Track.Source.Microphone}
+        showIcon={false}
+        className="live-control"
+        aria-label="Mikrofon"
+      >
+        <Mic size={19} />
+        <MicOff size={19} className="live-control-off" />
+      </TrackToggle>
+    );
+  }
+
+  return (
+    <button
+      type="button"
+      className="live-control live-control--mic-request"
+      aria-label="Gapirish uchun ruxsat so‘rash"
+      title="Gapirish uchun ruxsat so‘rash"
+      disabled={request.isPending}
+      onClick={() => request.mutate()}
+    >
+      <MicOff size={19} />
+      <Hand size={13} className="live-control-corner" aria-hidden="true" />
+    </button>
+  );
+}
+
 function StudentShareControl() {
   const room = useRoomContext();
   const permissions = useLocalParticipantPermissions();
   const [requesting, setRequesting] = useState(false);
-  const canShare = Boolean(
-    permissions?.canPublish &&
-      (!permissions.canPublishSources.length ||
-        permissions.canPublishSources.includes(SCREEN_SHARE_SOURCE))
-  );
+  const canShare = canPublishSource(permissions, SCREEN_SHARE_SOURCE);
 
   if (canShare) {
     return (
@@ -186,6 +225,7 @@ export function LiveRoom({ lesson, isTeacher, onLeave }: LiveRoomProps) {
   const connectionState = useConnectionState();
   const participants = useParticipants();
   const attention = useAttentionCheck(lesson.id, !isTeacher);
+  const mic = useMicSignals(lesson.id, isTeacher);
   useFocusTracker(lesson.id, !isTeacher);
 
   const tracks = useTracks(
@@ -294,7 +334,13 @@ export function LiveRoom({ lesson, isTeacher, onLeave }: LiveRoomProps) {
               {panel === "board" ? (
                 <BoardPanel lessonId={lesson.id} courseId={lesson.courseId} />
               ) : (
-                <ParticipantsPanel lessonId={lesson.id} isTeacher={isTeacher} />
+                <ParticipantsPanel
+                  lessonId={lesson.id}
+                  isTeacher={isTeacher}
+                  micRequests={mic.requests}
+                  onGrantMic={mic.grant.mutate}
+                  grantPending={mic.grant.isPending}
+                />
               )}
             </div>
           </aside>
@@ -302,15 +348,19 @@ export function LiveRoom({ lesson, isTeacher, onLeave }: LiveRoomProps) {
       </div>
 
       <footer className="live-room-controls">
-        <TrackToggle
-          source={Track.Source.Microphone}
-          showIcon={false}
-          className="live-control"
-          aria-label="Mikrofon"
-        >
-          <Mic size={19} />
-          <MicOff size={19} className="live-control-off" />
-        </TrackToggle>
+        {isTeacher ? (
+          <TrackToggle
+            source={Track.Source.Microphone}
+            showIcon={false}
+            className="live-control"
+            aria-label="Mikrofon"
+          >
+            <Mic size={19} />
+            <MicOff size={19} className="live-control-off" />
+          </TrackToggle>
+        ) : (
+          <StudentMicControl lessonId={lesson.id} />
+        )}
         <TrackToggle
           source={Track.Source.Camera}
           showIcon={false}
@@ -346,10 +396,18 @@ export function LiveRoom({ lesson, isTeacher, onLeave }: LiveRoomProps) {
         <button
           className={`live-control ${panel === "people" ? "is-active" : ""}`}
           onClick={() => togglePanel("people")}
-          aria-label="Ishtirokchilar"
+          aria-label={
+            mic.requests.length
+              ? `Ishtirokchilar — ${mic.requests.length} ta mikrofon so‘rovi`
+              : "Ishtirokchilar"
+          }
           aria-pressed={panel === "people"}
         >
           <Users size={19} />
+          {/* So'rov kelganini o'qituvchi panelni ochmasdan ham sezishi kerak. */}
+          {mic.requests.length ? (
+            <span className="live-control-badge">{mic.requests.length}</span>
+          ) : null}
         </button>
 
         <DisconnectButton className="live-control live-control--leave">
@@ -376,13 +434,46 @@ export function LiveRoom({ lesson, isTeacher, onLeave }: LiveRoomProps) {
   );
 }
 
-function ParticipantsPanel({ lessonId, isTeacher }: { lessonId: string; isTeacher: boolean }) {
+interface ParticipantsPanelProps {
+  lessonId: string;
+  isTeacher: boolean;
+  micRequests: MicRequest[];
+  onGrantMic: (studentId: string) => void;
+  grantPending: boolean;
+}
+
+function ParticipantsPanel({
+  lessonId,
+  isTeacher,
+  micRequests,
+  onGrantMic,
+  grantPending,
+}: ParticipantsPanelProps) {
   const participants = useParticipants();
   const allowShare = useAllowShare(lessonId);
   const ban = useBanFromLesson(lessonId);
 
   return (
     <div className="live-participants">
+      {micRequests.length ? (
+        <section className="live-mic-requests" aria-label="Mikrofon so‘ragan o‘quvchilar">
+          <h4>
+            <Hand size={14} /> Gapirmoqchi ({micRequests.length})
+          </h4>
+          {micRequests.map((request) => (
+            <article key={request.studentId}>
+              <Avatar name={request.name} size="sm" />
+              <div>
+                <strong>{request.name}</strong>
+                <small>Mikrofon so‘rayapti</small>
+              </div>
+              <Button size="sm" loading={grantPending} onClick={() => onGrantMic(request.studentId)}>
+                Ruxsat berish
+              </Button>
+            </article>
+          ))}
+        </section>
+      ) : null}
       {participants.map((participant) => (
         <article key={participant.identity}>
           <Avatar name={participant.name || participant.identity} size="sm" />

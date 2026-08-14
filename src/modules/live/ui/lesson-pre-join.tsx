@@ -13,6 +13,11 @@ export interface LessonPreJoinChoices {
 export interface LessonPreJoinProps {
   lesson: Lesson;
   userName?: string;
+  /**
+   * O'quvchi darsga mikrofonsiz kiradi (MIC_REQUEST_GRANT.md) — gapirish uchun
+   * darsda ruxsat so'raydi. O'qituvchida esa odatdagidek yoqiq.
+   */
+  defaultMicOn?: boolean;
   onJoin: (choices: LessonPreJoinChoices) => void;
   onCancel: () => void;
 }
@@ -25,8 +30,14 @@ export interface LessonPreJoinProps {
  * u LiveKit xonasidan mustaqil ravishda lokal trek ochadi va komponent
  * yo'q qilinganda o'zi to'xtatadi (kamera chirog'i o'chadi).
  */
-export function LessonPreJoin({ lesson, userName, onJoin, onCancel }: LessonPreJoinProps) {
-  const [micOn, setMicOn] = useState(true);
+export function LessonPreJoin({
+  lesson,
+  userName,
+  defaultMicOn = true,
+  onJoin,
+  onCancel,
+}: LessonPreJoinProps) {
+  const [micOn, setMicOn] = useState(defaultMicOn);
   const [cameraOn, setCameraOn] = useState(true);
   const [deviceError, setDeviceError] = useState<string | null>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -107,8 +118,10 @@ export function LessonPreJoin({ lesson, userName, onJoin, onCancel }: LessonPreJ
 
           <p className="portal-muted">
             {micOn ? "Mikrofon yoqilgan" : "Mikrofon o‘chiq"} ·{" "}
-            {cameraOn ? "kamera yoqilgan" : "kamera o‘chiq"}. Darsga kirgandan keyin ham
-            o‘zgartirishingiz mumkin.
+            {cameraOn ? "kamera yoqilgan" : "kamera o‘chiq"}.{" "}
+            {defaultMicOn
+              ? "Darsga kirgandan keyin ham o‘zgartirishingiz mumkin."
+              : "Darsda gapirish uchun o‘qituvchidan ruxsat so‘raysiz."}
           </p>
 
           <div className="pre-join-actions">

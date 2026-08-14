@@ -134,6 +134,7 @@ export function LiveLessonPage() {
         <LessonPreJoin
           lesson={lesson.data}
           userName={user?.name}
+          defaultMicOn={token.data.isTeacher}
           onJoin={setChoices}
           onCancel={() => navigate(-1)}
         />

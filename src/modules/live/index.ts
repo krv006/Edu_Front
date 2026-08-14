@@ -1,6 +1,11 @@
 export { liveApi } from "./api/live.api";
 export type { AttentionCheck, FocusKind, FocusResult, RoomToken } from "./api/live.dto";
 export { mapAttentionDto, mapFocusDto, mapRoomTokenDto } from "./lib/live.mappers";
+export {
+  canPublishSource,
+  MICROPHONE_SOURCE,
+  SCREEN_SHARE_SOURCE,
+} from "./lib/live-permissions";
 export { decodeScreenShareRequest, encodeScreenShareRequest } from "./lib/screen-share-signal";
 export { useFocusTracker } from "./lib/use-focus-tracker";
 export {
@@ -9,10 +14,14 @@ export {
   useAnswerAttention,
   useAttentionCheck,
   useBanFromLesson,
+  useGrantMic,
   useInviteToLesson,
   useLiveToken,
+  useRequestMic,
   useUnbanFromLesson,
 } from "./model/live.queries";
+export { useMicSignals } from "./model/use-mic-signals";
+export type { MicRequest } from "./model/use-mic-signals";
 export { AttentionCheckDialog } from "./ui/attention-check-dialog";
 export { LessonInviteDialog } from "./ui/lesson-invite-dialog";
 export { LessonPreJoin } from "./ui/lesson-pre-join";

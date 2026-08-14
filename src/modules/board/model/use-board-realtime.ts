@@ -1,9 +1,11 @@
-import { useEffect, useMemo, useState } from "react";
+import { useCallback } from "react";
 import { useQueryClient } from "@tanstack/react-query";
-import type { SocketState } from "@/shared/api";
 import type { BoardState, StrokeDto } from "../api/board.dto";
-import { BoardSocketManager, type BoardSocketEvent } from "../lib/board-socket-manager";
+import type { BoardSocketEvent } from "../lib/board-socket-manager";
 import { boardKeys } from "./board.queries";
+import { useBoardChannel } from "./use-board-channel";
+
+const BOARD_STATE_EVENTS = new Set<BoardSocketEvent["type"]>(["stroke", "erase", "sheet"]);
 
 /** Sahifadagi stroke ro'yxatini o'zgartiradigan sof yordamchi. */
 function updateSheet(
@@ -53,29 +55,18 @@ function applyEvent(state: BoardState | undefined, event: BoardSocketEvent): Boa
  */
 export function useBoardRealtime(lessonId: string, enabled = true) {
   const queryClient = useQueryClient();
-  const [state, setState] = useState<SocketState>("idle");
 
-  const socket = useMemo(
-    () =>
-      enabled && lessonId
-        ? new BoardSocketManager({
-            lessonId,
-            onState: setState,
-            onEvent: (event) => {
-              if (event.type === "error") return;
-              queryClient.setQueryData<BoardState>(boardKeys.state(lessonId), (current) =>
-                applyEvent(current, event)
-              );
-            },
-          })
-        : null,
-    [enabled, lessonId, queryClient]
+  const handleEvent = useCallback(
+    (event: BoardSocketEvent) => {
+      // Kanal doskadan tashqari signallarni ham olib keladi (mikrofon so'rovi) —
+      // ular doska holatiga tegishli emas.
+      if (!BOARD_STATE_EVENTS.has(event.type)) return;
+      queryClient.setQueryData<BoardState>(boardKeys.state(lessonId), (current) =>
+        applyEvent(current, event)
+      );
+    },
+    [lessonId, queryClient]
   );
 
-  useEffect(() => {
-    socket?.start();
-    return () => socket?.stop();
-  }, [socket]);
-
-  return { socket, state, connected: state === "connected" };
+  return useBoardChannel(lessonId, enabled, handleEvent);
 }

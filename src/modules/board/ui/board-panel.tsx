@@ -62,7 +62,7 @@ export function BoardPanel({ lessonId, courseId }: BoardPanelProps) {
    * Kanal yopiq bo'lsa REST `POST .../stroke/` ishlatiladi (docs: ikkalasi teng kuchli).
    */
   function commitStroke(stroke: StrokeShapeDto) {
-    if (!realtime.socket?.sendStroke(sheet, stroke)) addStroke.mutate({ sheet, stroke });
+    if (!realtime.sendStroke(sheet, stroke)) addStroke.mutate({ sheet, stroke });
   }
 
   const { svgRef, draft, handlePointerDown, handlePointerMove, handlePointerUp } = useBoardDrawing({

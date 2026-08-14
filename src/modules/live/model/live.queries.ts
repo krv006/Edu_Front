@@ -44,6 +44,34 @@ export function useAllowShare(lessonId: string) {
 }
 
 
+/**
+ * Mikrofon so'rovi/ruxsati (MIC_REQUEST_GRANT.md §"Xato holatlari").
+ * 403 ning sababi tomonga qarab boshqacha, shuning uchun matn tashqaridan.
+ */
+function micError(error: unknown, forbidden: string): string {
+  if (error instanceof AppError) {
+    if (error.status === 404) return "Mikrofon so‘rovi serverda hali yoqilmagan.";
+    if (error.status === 403) return forbidden;
+  }
+  return error instanceof Error ? error.message : "Amalni bajarib bo‘lmadi";
+}
+
+export function useRequestMic(lessonId: string) {
+  return useMutation({
+    mutationFn: () => liveApi.requestMic(lessonId),
+    onSuccess: () => toast.success("So‘rov yuborildi — o‘qituvchi ruxsatini kuting"),
+    onError: (error) => toast.error(micError(error, "Siz bu kursga yozilmagansiz.")),
+  });
+}
+
+export function useGrantMic(lessonId: string) {
+  return useMutation({
+    mutationFn: (studentId: string) => liveApi.grantMic(lessonId, studentId),
+    onSuccess: () => toast.success("Mikrofon ruxsati berildi"),
+    onError: (error) => toast.error(micError(error, "Bu darsning o‘qituvchisi emassiz.")),
+  });
+}
+
 function moderationError(error: unknown): string {
   if (error instanceof AppError && error.status === 404) {
     return "Bu imkoniyat serverda hali yoqilmagan.";
