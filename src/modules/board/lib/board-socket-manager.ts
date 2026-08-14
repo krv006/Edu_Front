@@ -16,6 +16,7 @@ export type BoardSocketEvent =
   | { type: "sheet"; index: number }
   | { type: "mic_request"; studentId: string; name: string }
   | { type: "mic_granted"; studentId: string }
+  | { type: "mic_denied"; studentId: string }
   | { type: "error"; detail: string };
 
 interface RawBoardEvent {
@@ -56,6 +57,8 @@ export function parseBoardEvent(raw: unknown): BoardSocketEvent | null {
         : null;
     case "mic_granted":
       return event.student_id ? { type: "mic_granted", studentId: String(event.student_id) } : null;
+    case "mic_denied":
+      return event.student_id ? { type: "mic_denied", studentId: String(event.student_id) } : null;
     case "error":
       return { type: "error", detail: event.detail || "Doska ulanishida xatolik" };
     default:

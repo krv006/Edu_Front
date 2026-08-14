@@ -51,6 +51,18 @@ export const liveApi = {
     return studentId;
   },
 
+  /**
+   * So'rovni rad etish: mikrofon berilmaydi, so'rov navbatdan chiqadi.
+   * `denied:false` — navbatda bunday so'rov topilmadi (allaqachon yopilgan).
+   */
+  async denyMic(lessonId: string, studentId: string) {
+    const dto = await apiClient.post<{ denied?: boolean } | null>(liveEndpoints.denyMic, {
+      lesson_id: lessonId,
+      student_id: studentId,
+    });
+    return Boolean(dto?.denied);
+  },
+
  
   async invite(lessonId: string, studentId?: string) {
     const dto = await apiClient.post<{ invited?: number } | null>(liveEndpoints.invite, {
