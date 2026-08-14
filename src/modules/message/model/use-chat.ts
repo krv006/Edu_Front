@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useNavigate } from "react-router-dom";
+import { toast } from "sonner";
 import { conversationApi, conversationKeys, readCachedConversation } from "@/modules/conversation";
 import type { ChatMessage, ConversationRole, SendMessagePayload } from "@/shared/types";
 import { messageApi } from "../api/message.api";
@@ -26,6 +28,7 @@ export function useChat(
   { role = "teacher", senderId = null }: UseChatOptions = {}
 ) {
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const messagesKey = useMemo(
     () => messageKeys.all(conversationId ?? "", role),
     [conversationId, role]
@@ -71,10 +74,22 @@ export function useChat(
                 setTyping(event.name);
                 globalThis.setTimeout(() => setTyping(null), TYPING_RESET_MS);
               }
+              /*
+               * Kursdan chiqarildik: server socketni baribir yopadi, lekin
+               * foydalanuvchi nima bo'lganini bilishi va ochiq chatda qolib
+               * ketmasligi kerak. Ro'yxat ham yangilanadi — guruh yo'qoladi.
+               */
+              if (event.type === "removed") {
+                toast.error("Siz bu guruhdan chiqarildingiz");
+                queryClient.invalidateQueries({ queryKey: conversationKeys.all });
+                navigate(role === "teacher" ? "/teacher/chats" : "/student/chats", {
+                  replace: true,
+                });
+              }
             },
           })
         : null,
-    [conversationId, messagesKey, queryClient, senderId]
+    [conversationId, messagesKey, navigate, queryClient, role, senderId]
   );
 
   useEffect(() => {

@@ -11,6 +11,8 @@ export interface AuthUser {
   role: Role;
   phone: string | null;
   inviteCode: string | null;
+  /** Profil rasmi (to'liq havola) — bo'lmasa harfli avatar ko'rsatiladi. */
+  avatarUrl: string | null;
   email: string | null;
   status: string;
 }

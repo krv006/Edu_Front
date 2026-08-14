@@ -32,6 +32,15 @@ export const authApi = {
   updateCurrentUser(dto: Partial<RegisterRequestDto>) {
     return apiClient.patch<AuthUserDto>(authEndpoints.me, dto);
   },
+  /**
+   * Profil rasmi — multipart, shuning uchun alohida chaqiruv.
+   * Bo'sh `File` yuborilmaydi: rasmni o'chirish uchun bo'sh satr yuboriladi.
+   */
+  updateAvatar(avatar: File | null) {
+    const body = new FormData();
+    body.set("avatar", avatar ?? "");
+    return apiClient.patch<AuthUserDto>(authEndpoints.me, body);
+  },
   register(dto: RegisterRequestDto) {
     return apiClient.post(authEndpoints.register, dto, { skipAuth: true, skipRefresh: true });
   },

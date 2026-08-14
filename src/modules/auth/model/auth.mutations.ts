@@ -38,3 +38,12 @@ export function useUpdateProfileMutation() {
     onSuccess: (user) => useAuthStore.getState().setUser(user),
   });
 }
+
+/** Profil rasmi — `null` yuborilsa rasm o'chiriladi. */
+export function useUpdateAvatarMutation() {
+  return useMutation({
+    mutationFn: async (avatar: File | null): Promise<AuthUser> =>
+      mapUserDto(await authApi.updateAvatar(avatar)),
+    onSuccess: (user) => useAuthStore.getState().setUser(user),
+  });
+}

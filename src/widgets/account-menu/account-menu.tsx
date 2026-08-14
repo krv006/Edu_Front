@@ -1,11 +1,12 @@
-import { useState, type FormEvent } from "react";
+import { useRef, useState, type FormEvent } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Bell, ChevronRight, Copy, History, LogOut, Phone, Settings, ShieldCheck, UserRound, X } from "lucide-react";
+import { Bell, Camera, ChevronRight, Copy, History, Loader2, LogOut, Phone, Settings, ShieldCheck, UserRound, X } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import {
   LoginHistoryDialog,
   useAuth,
+  useUpdateAvatarMutation,
   useUpdateProfileMutation,
   type ProfileFormValues,
 } from "@/modules/auth";
@@ -46,6 +47,8 @@ export function AccountMenu({
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const updateProfile = useUpdateProfileMutation();
+  const updateAvatar = useUpdateAvatarMutation();
+  const avatarRef = useRef<HTMLInputElement>(null);
   const [editing, setEditing] = useState(false);
   const [loginsOpen, setLoginsOpen] = useState(false);
   const [inboxOpen, setInboxOpen] = useState(false);
@@ -128,7 +131,7 @@ export function AccountMenu({
                 </button>
               </div>
               <button className="teacher-menu-profile" onClick={() => selectItem("profile")}>
-                <Avatar name={user?.name ?? roleLabel} tone="violet" size="lg" status="online" />
+                <Avatar name={user?.name ?? roleLabel} tone="violet" size="lg" status="online" src={user?.avatarUrl} />
                 <span>
                   <strong>{user?.name}</strong>
                   <small>{roleLabel} · Onlayn</small>
@@ -190,7 +193,44 @@ export function AccountMenu({
               initial={{ opacity: 0, scale: 0.96 }}
               animate={{ opacity: 1, scale: 1 }}
             >
-              <Avatar name={user?.name ?? roleLabel} tone="violet" size="lg" status="online" />
+              {/* Rasmni faqat egasi almashtiradi (`PATCH /auth/me/`). */}
+              <span className="info-avatar-slot">
+                <Avatar
+                  name={user?.name ?? roleLabel}
+                  tone="violet"
+                  size="lg"
+                  status="online"
+                  src={user?.avatarUrl}
+                />
+                <input
+                  ref={avatarRef}
+                  type="file"
+                  accept="image/png,image/jpeg,image/webp"
+                  hidden
+                  onChange={(event) => {
+                    const file = event.target.files?.[0];
+                    event.target.value = "";
+                    if (!file) return;
+                    updateAvatar.mutate(file, {
+                      onSuccess: () => toast.success("Profil rasmi yangilandi"),
+                      onError: (error: Error) => toast.error(error.message),
+                    });
+                  }}
+                />
+                <button
+                  type="button"
+                  className="info-avatar-edit"
+                  aria-label="Profil rasmini o‘zgartirish"
+                  disabled={updateAvatar.isPending}
+                  onClick={() => avatarRef.current?.click()}
+                >
+                  {updateAvatar.isPending ? (
+                    <Loader2 size={14} className="spin" />
+                  ) : (
+                    <Camera size={14} />
+                  )}
+                </button>
+              </span>
               <h3>{user?.name}</h3>
               <p>{roleLabel}</p>
               <span>
