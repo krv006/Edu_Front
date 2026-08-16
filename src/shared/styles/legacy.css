@@ -4445,6 +4445,18 @@ body > .ML__keyboard,
 .message-attachment-body strong { overflow: hidden; font-size: var(--fs-sm); text-overflow: ellipsis; white-space: nowrap; }
 .message-attachment-body small { color: var(--muted-foreground); font-size: var(--fs-2xs); }
 
+/* Faylni platforma ichida ko'rish oynasi — hujjat uchun keng joy kerak. */
+.file-viewer-dialog { width: min(94vw, 940px); max-height: 92dvh; display: grid; grid-template-rows: auto 1fr auto; gap: 14px; overflow: hidden; }
+.file-viewer-body { min-height: 0; border: 1px solid var(--border); border-radius: var(--r-md); display: grid; place-items: center; overflow: auto; background: var(--surface-subtle); user-select: none; -webkit-user-drag: none; }
+.file-viewer-dialog .dialog-actions { align-items: center; }
+.file-viewer-note { margin-right: auto; color: var(--muted-foreground); font-size: var(--fs-2xs); }
+.file-viewer-body iframe { width: 100%; height: min(72dvh, 900px); border: 0; }
+.file-viewer-body img { max-width: 100%; max-height: min(72dvh, 900px); object-fit: contain; }
+.file-viewer-body video { max-width: 100%; max-height: min(72dvh, 900px); }
+.file-viewer-body audio { width: min(100%, 420px); margin: 24px; }
+.file-viewer-state { padding: 44px 22px; display: grid; gap: 10px; justify-items: center; color: var(--muted-foreground); text-align: center; }
+.file-viewer-state p { margin: 0; font-size: var(--fs-sm); }
+
 /* Chat tepasidagi "dars ketmoqda" chizig'i */
 .live-lesson-bar { padding: 9px 16px; border-bottom: 1px solid var(--border); display: flex; gap: 10px; align-items: center; background: var(--success-soft); }
 .live-lesson-bar-dot { width: 8px; height: 8px; flex: 0 0 auto; border-radius: var(--r-full); background: var(--success-strong); animation: pulse 1.4s infinite; }
