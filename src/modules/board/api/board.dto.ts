@@ -96,6 +96,13 @@ export interface BoardStateDto {
    * Faqat `is_teacher: true` bo'lganda keladi.
    */
   away_students?: Array<{ student_id: string | number; name: string }>;
+  /**
+   * Mikrofon so‘ragan va hali javob olmagan o‘quvchilar, FIFO tartibida
+   * (FRONTEND_TODO.md §"Yangi maydon"). Faqat `is_teacher: true` bo‘lganda
+   * keladi: sahifa ochilganda navbat shundan tiklanadi, aks holda WS
+   * ulanishidan oldin kelgan so‘rovlar yo‘qolib ketardi.
+   */
+  pending_mic_requests?: Array<{ student_id: string | number; name: string }>;
 }
 
 /** `POST /api/v1/board/<lesson_id>/solve/` javobi (SymPy). */
@@ -117,6 +124,12 @@ export interface AwayStudent {
   name: string;
 }
 
+/** Mikrofon so‘rovi navbatidagi o‘quvchi (FIFO). */
+export interface PendingMicRequest {
+  id: string;
+  name: string;
+}
+
 export interface BoardState {
   sheets: BoardSheet[];
   canDraw: boolean;
@@ -127,4 +140,6 @@ export interface BoardState {
   mathEnabled: boolean;
   /** Faqat o'qituvchida to'ladi; boshqalarda bo'sh massiv. */
   awayStudents: AwayStudent[];
+  /** Mikrofon navbatida turgan o‘quvchi — faqat o‘qituvchida to‘ladi. */
+  pendingMicRequests: PendingMicRequest[];
 }

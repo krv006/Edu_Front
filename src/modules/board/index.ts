@@ -3,6 +3,7 @@ export type {
   AwayStudent,
   BoardSheet,
   BoardState,
+  PendingMicRequest,
   Point,
   StrokeDto,
   StrokeInput,
