@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { LiveKitRoom } from "@livekit/components-react";
+import { DisconnectReason } from "livekit-client";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
 import { useAuth } from "@/modules/auth";
@@ -154,7 +155,16 @@ export function LiveLessonPage() {
         connect
         audio={choices.micOn}
         video={choices.cameraOn}
-        onDisconnected={handleLeave}
+        onDisconnected={(reason) => {
+          /*
+           * Chetlashtirilganda LiveKit xonani jimgina yopadi va dars sababsiz
+           * tugagandek tuyuladi (FRONTEND_TODO.md §"Ban qilinganda").
+           */
+          if (reason === DisconnectReason.PARTICIPANT_REMOVED) {
+            toast.error("Siz darsdan chetlashtirildingiz");
+          }
+          handleLeave();
+        }}
         // Qurilma ochilmasa LiveKit uni jimgina o'tkazib yuboradi va mikrofon
         // sababsiz o'chiq qolganday tuyuladi — buni aytib qo'yamiz.
         onMediaDeviceFailure={(_failure, kind) =>

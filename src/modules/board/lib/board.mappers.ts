@@ -16,5 +16,9 @@ export function mapBoardDto(dto: BoardStateDto): BoardState {
       id: String(item.student_id),
       name: item.name || "O‘quvchi",
     })),
+    pendingMicRequests: (dto.pending_mic_requests ?? []).map((item) => ({
+      id: String(item.student_id),
+      name: item.name || "O‘quvchi",
+    })),
   };
 }

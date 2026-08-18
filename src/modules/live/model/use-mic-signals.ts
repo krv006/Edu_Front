@@ -1,7 +1,7 @@
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useLocalParticipantPermissions, useRoomContext } from "@livekit/components-react";
 import { toast } from "sonner";
-import { useBoardChannel, type BoardSocketEvent } from "@/modules/board";
+import { useBoard, useBoardChannel, type BoardSocketEvent } from "@/modules/board";
 import { canPublishSource, MICROPHONE_SOURCE } from "../lib/live-permissions";
 import { useDenyMic, useGrantMic, useRequestMic } from "./live.queries";
 
@@ -28,9 +28,31 @@ export function useMicSignals(lessonId: string, isTeacher: boolean) {
   const deny = useDenyMic(lessonId);
   const request = useRequestMic(lessonId);
 
-  const [requests, setRequests] = useState<MicRequest[]>([]);
+  /** Kanal orqali kelgan so'rovlar — kelish tartibida. */
+  const [live, setLive] = useState<MicRequest[]>([]);
+  /** Javob berilganlar: eskirgan ro'yxat ularni qaytarib chiqarmasligi uchun. */
+  const [answered, setAnswered] = useState<string[]>([]);
   /** O'quvchida: so'rov yuborilgan, javob kutilmoqda (takror so'rash bloklanadi). */
   const [waiting, setWaiting] = useState(false);
+
+  /*
+   * Boshlang'ich navbat doska holatidan olinadi: o'qituvchi darsga kech
+   * qo'shilsa yoki sahifani yangilasa, WS ulanishidan oldin kelgan so'rovlar
+   * yo'qolib ketmasligi kerak. So'rov kaliti `AwayStudentsNotice` bilan bir xil,
+   * ya'ni qo'shimcha trafik yo'q.
+   */
+  const board = useBoard(lessonId, { enabled: isTeacher });
+  const pending = board.data?.pendingMicRequests;
+
+  const requests = useMemo(() => {
+    if (!isTeacher) return [];
+    const queue = new Map<string, MicRequest>();
+    // Server ro'yxati oldin: u FIFO tartibida keladi va eng ishonchli manba.
+    for (const item of pending ?? []) queue.set(item.id, { studentId: item.id, name: item.name });
+    for (const item of live) if (!queue.has(item.studentId)) queue.set(item.studentId, item);
+    for (const studentId of answered) queue.delete(studentId);
+    return [...queue.values()];
+  }, [isTeacher, pending, live, answered]);
 
   const canSpeak = canPublishSource(permissions, MICROPHONE_SOURCE);
   /** Ruxsat keldi-yu, LiveKit huquqlari hali yetib kelmadi — yetganda yoqamiz. */
@@ -55,9 +77,9 @@ export function useMicSignals(lessonId: string, isTeacher: boolean) {
         // O'quvchiga boshqa o'quvchining so'rovi ko'rinmasligi kerak.
         if (!isTeacher) return;
         const incoming: MicRequest = { studentId: event.studentId, name: event.name || "O‘quvchi" };
-        setRequests((current) =>
-          // Bitta o'quvchi bir vaqtda bitta so'rovga ega — takrorini qo'shmaymiz.
-          // Yangisi oxiriga qo'shiladi: navbat kelish tartibida turadi.
+        // Javob berilgandan keyin qayta so'rashi mumkin — eski javobni unutamiz.
+        setAnswered((current) => current.filter((id) => id !== incoming.studentId));
+        setLive((current) =>
           current.some((item) => item.studentId === incoming.studentId)
             ? current
             : [...current, incoming]
@@ -74,7 +96,9 @@ export function useMicSignals(lessonId: string, isTeacher: boolean) {
       if (event.type !== "mic_granted" && event.type !== "mic_denied") return;
 
       // Ikkala javob ham so'rovni navbatdan chiqaradi.
-      setRequests((current) => current.filter((item) => item.studentId !== event.studentId));
+      setAnswered((current) =>
+        current.includes(event.studentId) ? current : [...current, event.studentId]
+      );
       if (!isMine(event.studentId)) return;
       setWaiting(false);
 
