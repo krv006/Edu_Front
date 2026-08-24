@@ -5445,6 +5445,24 @@ body > .ML__keyboard,
 .hw-badge { display: inline-flex; align-items: center; gap: 5px; padding: 6px 10px; border-radius: var(--r-full); background: var(--surface); border: 1px solid var(--border); font-size: var(--fs-xs); font-weight: 700; color: var(--muted-foreground); }
 .hw-badge--warn { color: var(--warning-strong); background: var(--warning-soft); border-color: var(--warning); }
 .hw-result-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+/* O‘qituvchi AI bahosini tuzatayotgan holat. */
+.hw-score--edit { flex-direction: row; gap: 10px; }
+.hw-score-field { display: grid; gap: 4px; }
+.hw-score-field > span { color: var(--muted-foreground); font-size: var(--fs-2xs); font-weight: 700; }
+.hw-score-field > input {
+  width: 110px;
+  min-height: 38px;
+  padding: 0 10px;
+  border: 1px solid var(--border-strong);
+  border-radius: var(--r-sm);
+  color: var(--foreground);
+  background: var(--surface);
+  font: inherit;
+  font-size: var(--fs-md);
+  font-weight: 700;
+}
+.hw-score-field > input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(43, 127, 255, 0.11); }
+.hw-question-body .hw-score-field { margin-bottom: 10px; }
 
 .hw-result-state { display: grid; justify-items: center; gap: 10px; padding: 26px 16px; border: 1px dashed var(--border); border-radius: var(--r-lg); color: var(--muted-foreground); text-align: center; }
 .hw-result-state p { margin: 0; font-size: var(--fs-md); }
