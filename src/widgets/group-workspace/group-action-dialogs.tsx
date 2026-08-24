@@ -15,7 +15,7 @@ import {
   Underline,
 } from "lucide-react";
 import { Button, Dialog, DialogContent } from "@/shared/ui/legacy";
-import { DatePicker, SelectPicker, TimePicker } from "@/shared/ui/legacy/form-pickers";
+import { DatePicker, DurationPicker, SelectPicker, TimePicker } from "@/shared/ui/legacy/form-pickers";
 import {
   buildScheduleDates,
   EVEN_WEEKDAYS,
@@ -73,12 +73,8 @@ export interface AddAssignmentDialogProps {
   isLanguageSubject?: boolean;
 }
 
-const DURATION_OPTIONS = [
-  { value: "30", label: "30 daqiqa" },
-  { value: "45", label: "45 daqiqa" },
-  { value: "60", label: "60 daqiqa" },
-  { value: "90", label: "90 daqiqa" },
-];
+/** Tez tanlash uchun tayyor davomiyliklar; boshqa qiymat qo‘lda yoziladi. */
+const DURATION_OPTIONS = [30, 45, 60, 90];
 
 const SKILL_OPTIONS = [
   { value: "", label: "Umumiy vazifa" },
@@ -308,7 +304,7 @@ export function AddLessonDialog({
                   value={form.time}
                   onChange={(value) => update("time", value)}
                 />
-                <SelectPicker
+                <DurationPicker
                   label="Davomiyligi"
                   icon={Hourglass}
                   value={form.duration}
@@ -317,7 +313,7 @@ export function AddLessonDialog({
                 />
               </div>
             ) : (
-              <SelectPicker
+              <DurationPicker
                 label="Davomiyligi"
                 icon={Hourglass}
                 value={form.duration}

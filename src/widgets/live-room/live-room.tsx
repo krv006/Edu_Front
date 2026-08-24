@@ -181,6 +181,9 @@ function StudentShareControl() {
     return (
       <TrackToggle
         source={Track.Source.ScreenShare}
+        // Ekran bilan birga uning OVOZI ham uzatiladi: aks holda video darsi
+        // yoki taqdimotdagi tovush o'quvchilarga umuman yetib bormaydi.
+        captureOptions={{ audio: true }}
         showIcon={false}
         className="live-control live-control--share"
         aria-label="Ekranni ulashish"
@@ -418,6 +421,7 @@ export function LiveRoom({ lesson, isTeacher, onLeave }: LiveRoomProps) {
         {isTeacher ? (
           <TrackToggle
             source={Track.Source.ScreenShare}
+            captureOptions={{ audio: true }}
             showIcon={false}
             className="live-control live-control--share"
             aria-label="Ekranni ulashish"
