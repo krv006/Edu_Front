@@ -18,11 +18,12 @@ import {
   ChevronLeft,
   ChevronRight,
   ChevronUp,
+  Hourglass,
   Clock3,
 } from "lucide-react";
 
 type IconComponent = ComponentType<{ size?: number | string; className?: string }>;
-type AnchorRef = RefObject<HTMLButtonElement | null>;
+type AnchorRef = RefObject<HTMLElement | null>;
 
 const MONTHS = [
   "Yanvar", "Fevral", "Mart", "Aprel", "May", "Iyun",
@@ -156,7 +157,8 @@ function FloatingPicker({ open, onClose, anchorRef, children, labelledBy, classN
 }
 
 interface PickerTriggerProps {
-  anchorRef: AnchorRef;
+  /** Tugmaning o‘zi — `AnchorRef` dan torroq: u faqat joylashuvni o‘lchaydi. */
+  anchorRef: RefObject<HTMLButtonElement | null>;
   open: boolean;
   onClick: () => void;
   icon: IconComponent;
@@ -409,6 +411,132 @@ function TimeControl({ value, onChange, compact = false }: TimeControlProps) {
         ))}
       </div>
     </div>
+  );
+}
+
+export interface DurationPickerProps {
+  label: string;
+  /** Daqiqa, matn ko‘rinishida — forma qiymatlarni shunday saqlaydi. */
+  value: string;
+  onChange: (value: string) => void;
+  icon?: IconComponent;
+  /** Tayyor tanlovlar (daqiqa). */
+  options?: readonly number[];
+  min?: number;
+  max?: number;
+}
+
+const DEFAULT_DURATIONS = [30, 45, 60, 90] as const;
+
+/**
+ * Davomiylik maydoni: qiymatni QO‘LDA yozish ham, tayyor tanlovdan olish ham
+ * mumkin. Ro‘yxatda yo‘q davomiylik (masalan 25 yoki 120 daqiqa) uchun
+ * select yaramaydi, faqat input esa har safar raqam terishga majbur qiladi.
+ *
+ * Qiymat faqat fokus ketganda tuzatiladi — terish paytida emas: “9” yozib
+ * “90” qilmoqchi bo‘lgan odamning raqami sakrab ketmasligi kerak.
+ */
+export function DurationPicker({
+  label,
+  value,
+  onChange,
+  icon: Icon = Hourglass,
+  options = DEFAULT_DURATIONS,
+  min = 5,
+  max = 480,
+}: DurationPickerProps) {
+  const [open, setOpen] = useState(false);
+  const anchorRef = useRef<HTMLDivElement>(null);
+  const labelId = useId();
+
+  /** Chegaradan chiqqan yoki bo‘sh qiymat fokus ketganda tuzatiladi. */
+  function commit() {
+    const parsed = Number.parseInt(value, 10);
+    if (!Number.isFinite(parsed)) {
+      onChange(String(options[0] ?? min));
+      return;
+    }
+    const clamped = String(Math.min(max, Math.max(min, parsed)));
+    if (clamped !== value) onChange(clamped);
+  }
+
+  return (
+    <FieldShell label={label} icon={Icon} labelId={labelId}>
+      <div
+        ref={anchorRef}
+        className={`form-picker-trigger duration-picker${open ? " is-open" : ""}${value ? " has-value" : ""}`}
+      >
+        <span className="form-picker-trigger-icon">
+          <Icon size={17} />
+        </span>
+        <input
+          className="duration-picker-input"
+          inputMode="numeric"
+          aria-labelledby={labelId}
+          value={value}
+          onChange={(event) => onChange(event.target.value.replace(/\D/g, ""))}
+          onBlur={commit}
+          onKeyDown={(event) => {
+            if (event.key === "Enter") {
+              event.preventDefault();
+              commit();
+            }
+          }}
+        />
+        <span className="duration-picker-unit">daqiqa</span>
+        <button
+          type="button"
+          className="duration-picker-toggle"
+          aria-label="Tayyor davomiyliklar"
+          aria-expanded={open}
+          aria-haspopup="dialog"
+          onClick={() => setOpen((current) => !current)}
+        >
+          <ChevronDown className="form-picker-chevron" size={16} />
+        </button>
+      </div>
+
+      <FloatingPicker
+        open={open}
+        onClose={() => setOpen(false)}
+        anchorRef={anchorRef}
+        labelledBy={labelId}
+        className="select-picker-popover"
+      >
+        <div className="picker-mini-heading">
+          <span>Tanlov</span>
+          <strong>{label}</strong>
+        </div>
+        <div className="select-picker-options" role="listbox" aria-labelledby={labelId}>
+          {options.map((minutes, index) => {
+            const active = String(minutes) === value;
+            return (
+              <motion.button
+                key={minutes}
+                type="button"
+                role="option"
+                aria-selected={active}
+                className={active ? "is-selected" : ""}
+                onClick={() => {
+                  onChange(String(minutes));
+                  setOpen(false);
+                }}
+                initial={{ opacity: 0, x: -5 }}
+                animate={{ opacity: 1, x: 0 }}
+                transition={{ delay: index * 0.025 }}
+              >
+                <span>{minutes} daqiqa</span>
+                {active ? (
+                  <i>
+                    <Check size={14} />
+                  </i>
+                ) : null}
+              </motion.button>
+            );
+          })}
+        </div>
+      </FloatingPicker>
+    </FieldShell>
   );
 }
 

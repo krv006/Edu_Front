@@ -1,10 +1,10 @@
 import { useRef, useState, type FormEvent } from "react";
-import { Bell, BellOff, Camera, Check, Copy, Loader2, Pencil, ShieldAlert, Trash2, UserRound, UsersRound } from "lucide-react";
+import { Bell, BellOff, Camera, Check, Copy, Loader2, Pencil, ShieldAlert, Trash2, UserRound } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { storage } from "@/shared/lib";
 import { useAuth } from "@/modules/auth";
-import { useCourseStudents, useDeleteCourse, useUpdateCourse } from "@/modules/course";
+import { useCourse, useDeleteCourse, useUpdateCourse } from "@/modules/course";
 import { DIRECT_STATUS, directStatusLabel, useRespondDirect, useSetRoomImage } from "@/modules/conversation";
 import type { CourseFormInput } from "@/modules/course";
 import type { Conversation } from "@/shared/types";
@@ -20,9 +20,9 @@ export interface ConversationInfoPanelProps {
 export function ConversationInfoPanel({ conversation, open, onOpenChange }: ConversationInfoPanelProps) {
   const { user } = useAuth(); const navigate = useNavigate(); const isGroup = conversation.type === "group"; const muteKey = `fokus_muted_${conversation.id}`;
   const [muted, setMuted] = useState(() => storage.get(muteKey) === "true"); const [copied, setCopied] = useState(false); const [editOpen, setEditOpen] = useState(false); const [deleteOpen, setDeleteOpen] = useState(false); const [courseForm, setCourseForm] = useState<CourseFormInput>({ title: "", subject: "", description: "" });
-  // Panel yopiq turganda ishtirokchilar kerak emas — u har chat ochilganda
-  // ortiqcha so'rov yuborardi (panelning o'zi doim mount bo'lib turadi).
-  const members = useCourseStudents(conversation.courseId, { page_size: 20 }, open); const respond = useRespondDirect(); const updateCourse = useUpdateCourse(); const deleteCourse = useDeleteCourse(); const setRoomImage = useSetRoomImage(); const imageRef = useRef<HTMLInputElement>(null);
+  // O'quvchiga guruh a'zolari ko'rinmaydi, lekin darsni KIM o'tishini bilishi kerak.
+  // `null` — panel yopiq: aks holda har chat ochilganda ortiqcha so'rov ketardi.
+  const course = useCourse(open ? conversation.courseId : null); const respond = useRespondDirect(); const updateCourse = useUpdateCourse(); const deleteCourse = useDeleteCourse(); const setRoomImage = useSetRoomImage(); const imageRef = useRef<HTMLInputElement>(null);
   function toggleMute() { const next = !muted; setMuted(next); storage.set(muteKey, next); toast.success(next ? "Bildirishnomalar ovozsiz qilindi" : "Bildirishnomalar ovozi yoqildi"); }
   async function copyUsername() { const value = conversation.participant?.username ? `@${conversation.participant.username}` : ""; if (!value) return; await navigator.clipboard.writeText(value); setCopied(true); toast.success("Username nusxalandi"); setTimeout(() => setCopied(false), 1400); }
   function respondDirect(action: DirectAction) { respond.mutate({ roomId: conversation.id, action }, { onSuccess: () => { toast.success(action === "accept" ? "Suhbat qabul qilindi" : "Suhbat bloklandi"); onOpenChange(false); }, onError: (error: Error) => toast.error(error.message) }); }
@@ -40,11 +40,12 @@ export function ConversationInfoPanel({ conversation, open, onOpenChange }: Conv
           <button type="button" className="info-avatar-edit" aria-label="Guruh rasmini o‘zgartirish" disabled={setRoomImage.isPending} onClick={() => imageRef.current?.click()}>{setRoomImage.isPending ? <Loader2 size={14} className="spin" /> : <Camera size={14} />}</button>
         </>) : null}
       </span>
-      <h3>{conversation.title}</h3><p>{isGroup ? `${members.data?.total ?? conversation.memberCount ?? 0} o‘quvchi` : directStatusLabel(conversation.directStatus, "Shaxsiy suhbat")}</p>
+      <h3>{conversation.title}</h3><p>{isGroup ? `${conversation.memberCount ?? 0} o‘quvchi` : directStatusLabel(conversation.directStatus, "Shaxsiy suhbat")}</p>
     </div>
     <div className="info-quick-actions"><button className={muted ? "is-active" : ""} onClick={toggleMute}>{muted ? <Bell size={19} /> : <BellOff size={19} />}<span>{muted ? "Ovozni yoqish" : "Ovozsiz qilish"}</span></button>{teacherGroup ? <button onClick={beginEdit}><Pencil size={19} /><span>Kursni tahrirlash</span></button> : null}</div>
     <div className="info-section"><span className="info-section-title">{isGroup ? "GURUH HAQIDA" : "MA’LUMOT"}</span>{isGroup ? <p className="info-description">{conversation.description || "Kurs guruh chati"}</p> : <button className="info-row" onClick={copyUsername}><UserRound size={18} /><span><small>Username · nusxalash uchun bosing</small><strong>@{conversation.participant?.username || "—"}</strong></span>{copied ? <Check size={17} /> : <Copy size={16} />}</button>}</div>
-    {isGroup ? <div className="info-section"><span className="info-section-title">ISHTIROKCHILAR</span>{(members.data?.items ?? []).slice(0, 5).map(({ student }) => <div className="member-mini" key={student.id}><Avatar name={student.name} tone={student.avatarTone} size="sm" /><span><strong>{student.name}</strong><small>@{student.username}</small></span></div>)}<div className="member-count"><UsersRound size={16} /> Jami {members.data?.total ?? conversation.memberCount ?? 0} ishtirokchi</div></div> : null}
+    {/* O‘qituvchi — kurs egasiga o‘z ismini ko‘rsatishdan ma’no yo‘q. */}
+    {isGroup && !teacherGroup ? <div className="info-section"><span className="info-section-title">O‘QITUVCHI</span>{course.data ? <div className="member-mini"><Avatar name={course.data.teacher} tone={course.data.teacherUser?.avatarTone} size="sm" /><span><strong>{course.data.teacher}</strong>{course.data.teacherUser?.username ? <small>@{course.data.teacherUser.username}</small> : null}</span></div> : <p className="info-description">{course.isLoading ? "Yuklanmoqda…" : "Ma’lumot yo‘q"}</p>}</div> : null}
     {/* Backend DirectStatusEnum: pending | active | blocked (/api/schema/). */}
     {!isGroup && user?.role === "TEACHER" && conversation.directStatus === DIRECT_STATUS.PENDING ? <Button loading={respond.isPending} onClick={() => respondDirect("accept")}><Check size={18} /> Suhbatni qabul qilish</Button> : null}
     {!isGroup && user?.role === "TEACHER" && conversation.directStatus !== DIRECT_STATUS.BLOCKED ? <Button variant="ghost" className="block-button" loading={respond.isPending} onClick={() => respondDirect("block")}><ShieldAlert size={18} /> Foydalanuvchini bloklash</Button> : null}
