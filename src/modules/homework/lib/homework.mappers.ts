@@ -51,6 +51,7 @@ export function mapSubmissionDto(dto: SubmissionDto | null | undefined): Submiss
     createdAt: dto.created_at,
     checkedAt: dto.checked_at,
     result: mapAiResultDto(dto.result),
+    rawResult: (dto.result as Record<string, unknown> | null | undefined) ?? null,
   };
 }
 

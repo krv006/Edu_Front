@@ -4,7 +4,7 @@ import { toast } from "sonner";
 import { downloadBlob } from "@/shared/lib";
 import type { Submission } from "@/shared/types";
 import { homeworkApi } from "../api/homework.api";
-import type { AssignmentFormInput } from "../api/homework.dto";
+import type { AssignmentFormInput, SubmissionReviewInput } from "../api/homework.dto";
 
 const POLL_INTERVAL_MS = 2500;
 const DEFAULT_MAX_POLLING_MS = 5 * 60_000;
@@ -117,6 +117,26 @@ export function useRecheckSubmission() {
       if (submission) client.setQueryData(homeworkKeys.submission(submission.id), submission);
       client.invalidateQueries({ queryKey: homeworkKeys.all });
       toast.success("Qayta tekshirish boshlandi");
+    },
+    onError: (error: Error) => toast.error(error.message),
+  });
+}
+
+/**
+ * O‘qituvchi AI bahosini tuzatadi.
+ *
+ * Javob — yangilangan topshiriq, shuning uchun keshga to‘g‘ridan-to‘g‘ri
+ * yoziladi: oyna qayta so‘rov kutmasdan yangi bahoni ko‘rsatadi.
+ */
+export function useReviewSubmission() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, input }: { id: string; input: SubmissionReviewInput }) =>
+      homeworkApi.review(id, input),
+    onSuccess: (submission) => {
+      if (submission) client.setQueryData(homeworkKeys.submission(submission.id), submission);
+      client.invalidateQueries({ queryKey: homeworkKeys.all });
+      toast.success("Baho yangilandi");
     },
     onError: (error: Error) => toast.error(error.message),
   });

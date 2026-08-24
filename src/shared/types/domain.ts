@@ -254,6 +254,14 @@ export interface Submission {
   createdAt: string;
   checkedAt: string | null;
   result: AiResult | null;
+  /**
+   * Serverdan kelgan AI natijasining ASL JSON’i.
+   *
+   * O‘qituvchi bahoni tuzatganda shu obyekt tahrirlanib qaytariladi. Domen
+   * ko‘rinishidan qayta yig‘sak, mapper bilmaydigan maydonlar (AI yangi
+   * kalit qo‘shsa) jimgina yo‘qolib ketardi.
+   */
+  rawResult: Record<string, unknown> | null;
 }
 
 export interface AssignmentStats {

@@ -1,7 +1,12 @@
 import { apiClient, type RequestOptions } from "@/shared/api";
 import type { Submission } from "@/shared/types";
 import { homeworkEndpoints } from "./homework.endpoints";
-import type { AssignmentDto, AssignmentFormInput, SubmissionDto } from "./homework.dto";
+import type {
+  AssignmentDto,
+  AssignmentFormInput,
+  SubmissionDto,
+  SubmissionReviewInput,
+} from "./homework.dto";
 import { mapAssignmentDto, mapAssignmentRequest, mapSubmissionDto } from "../lib/homework.mappers";
 import { validateHomeworkFile } from "../lib/homework-validation";
 
@@ -46,5 +51,16 @@ export const homeworkApi = {
   },
   async recheck(id: string) {
     return mapSubmissionDto(await apiClient.post<SubmissionDto>(homeworkEndpoints.recheck(id), {}));
+  },
+  /**
+   * O‘qituvchi AI bahosini tuzatadi. Faqat berilgan maydonlar yuboriladi:
+   * bo‘sh qoldirilgani serverdagi qiymatni o‘chirib yubormasligi kerak.
+   */
+  async review(id: string, input: SubmissionReviewInput) {
+    const body: Record<string, unknown> = {};
+    if (input.overallScore !== undefined) body.overall_score = input.overallScore;
+    if (input.grade !== undefined) body.grade = input.grade;
+    if (input.result !== undefined) body.result = input.result;
+    return mapSubmissionDto(await apiClient.post<SubmissionDto>(homeworkEndpoints.review(id), body));
   },
 };

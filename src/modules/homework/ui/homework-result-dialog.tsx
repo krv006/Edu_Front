@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   AlertTriangle,
   CheckCircle2,
@@ -5,6 +6,7 @@ import {
   Download,
   Lightbulb,
   ListChecks,
+  PencilLine,
   RefreshCw,
   Sparkles,
   TriangleAlert,
@@ -13,6 +15,7 @@ import { Button, Dialog, DialogContent } from "@/shared/ui/legacy";
 import {
   useDownloadSubmissionFile,
   useRecheckSubmission,
+  useReviewSubmission,
   useSubmission,
 } from "../model/homework.queries";
 import type { AiQuestion, Submission } from "@/shared/types";
@@ -25,6 +28,8 @@ export interface HomeworkResultDialogProps {
   onOpenChange: (open: boolean) => void;
   canRecheck?: boolean;
   canDownloadFile?: boolean;
+  /** O‘qituvchi AI bahosini tuzata oladimi. */
+  canReview?: boolean;
   title?: string;
 }
 
@@ -51,7 +56,19 @@ function ChipList({ icon: Icon, title, items, tone }: { icon: ComponentType<{ si
   );
 }
 
-function QuestionCard({ question, index }: { question: AiQuestion; index: number }) {
+function QuestionCard({
+  question,
+  index,
+  scoreDraft,
+  onScoreChange,
+}: {
+  question: AiQuestion;
+  index: number;
+  /** `undefined` — tahrirlash rejimi yoqilmagan. */
+  scoreDraft?: string;
+  onScoreChange?: (value: string) => void;
+}) {
+  const editing = scoreDraft !== undefined;
   const number = question.questionNumber ?? index + 1;
   const mistakes = (question.mistakes ?? []).map(asText).filter(Boolean);
   const suggestions = (question.suggestions ?? []).map(asText).filter(Boolean);
@@ -59,7 +76,7 @@ function QuestionCard({ question, index }: { question: AiQuestion; index: number
   const correct = asText(question.correctAnswer) || asText(question.expectedSolution);
 
   return (
-    <details className="hw-question" open={index === 0}>
+    <details className="hw-question" open={editing || index === 0}>
       <summary>
         <span className="hw-question-number">{number}</span>
         <span className="hw-question-title">
@@ -73,6 +90,18 @@ function QuestionCard({ question, index }: { question: AiQuestion; index: number
         </span>
       </summary>
       <div className="hw-question-body">
+        {/* Ball aynan shu yerda: `summary` ichidagi input bosilganda savol
+            yopilib-ochilib ketardi. */}
+        {editing ? (
+          <label className="hw-score-field">
+            <span>Ball</span>
+            <input
+              inputMode="numeric"
+              value={scoreDraft}
+              onChange={(event) => onScoreChange?.(event.target.value.replace(/[^\d]/g, ""))}
+            />
+          </label>
+        ) : null}
         {question.studentAnswer ? (
           <p>
             <span className="hw-label">O‘quvchi javobi</span>
@@ -134,6 +163,7 @@ export function HomeworkResultDialog({
   onOpenChange,
   canRecheck = false,
   canDownloadFile = false,
+  canReview = false,
   title = "AI tekshiruv natijasi",
 }: HomeworkResultDialogProps) {
   const query = useSubmission(open ? submissionId : null, {
@@ -141,7 +171,68 @@ export function HomeworkResultDialog({
   });
   const recheck = useRecheckSubmission();
   const download = useDownloadSubmissionFile();
+  const review = useReviewSubmission();
   const submission = query.data ?? initial;
+
+  /** `null` — tahrirlash rejimi yopiq. Kalitlar — savol tartib raqami. */
+  const [draft, setDraft] = useState<{
+    score: string;
+    grade: string;
+    questions: Record<string, string>;
+  } | null>(null);
+
+  function beginEdit() {
+    if (!submission) return;
+    setDraft({
+      score: submission.overallScore == null ? "" : String(submission.overallScore),
+      grade: submission.grade ?? "",
+      questions: Object.fromEntries(
+        (submission.result?.questions ?? []).map((item, index) => [
+          String(index),
+          item.score == null ? "" : String(item.score),
+        ])
+      ),
+    });
+  }
+
+  /**
+   * Tahrirlangan natija ASL JSON asosida yig‘iladi: mapper bilmaydigan
+   * maydonlar (AI yangi kalit qo‘shsa) saqlanib qolishi kerak.
+   */
+  function buildResult(edited: NonNullable<typeof draft>, score: number | null) {
+    const raw = submission?.rawResult;
+    if (!raw) return undefined;
+    const questions = Array.isArray(raw.questions) ? raw.questions : null;
+    return {
+      ...raw,
+      overall_score: score,
+      grade: edited.grade,
+      ...(questions
+        ? {
+            questions: questions.map((item, index) => {
+              const value = edited.questions[String(index)];
+              if (value === undefined) return item;
+              return {
+                ...(item as Record<string, unknown>),
+                score: value.trim() === "" ? null : Number(value),
+              };
+            }),
+          }
+        : {}),
+    };
+  }
+
+  function saveReview() {
+    if (!submission || !draft) return;
+    const score = draft.score.trim() === "" ? null : Number(draft.score);
+    review.mutate(
+      {
+        id: submission.id,
+        input: { overallScore: score, grade: draft.grade, result: buildResult(draft, score) },
+      },
+      { onSuccess: () => setDraft(null) }
+    );
+  }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
@@ -163,13 +254,36 @@ export function HomeworkResultDialog({
           ) : (
             <div className="hw-result">
               <header className="hw-result-head">
-                <div className="hw-score">
-                  <strong>
-                    {submission.overallScore ?? "—"}
-                    <small>ball</small>
-                  </strong>
-                  <span>{submission.grade || "Baho yo‘q"}</span>
-                </div>
+                {draft ? (
+                  <div className="hw-score hw-score--edit">
+                    <label className="hw-score-field">
+                      <span>Umumiy ball</span>
+                      <input
+                        inputMode="numeric"
+                        autoFocus
+                        value={draft.score}
+                        onChange={(event) =>
+                          setDraft({ ...draft, score: event.target.value.replace(/[^\d]/g, "") })
+                        }
+                      />
+                    </label>
+                    <label className="hw-score-field">
+                      <span>Baho</span>
+                      <input
+                        value={draft.grade}
+                        onChange={(event) => setDraft({ ...draft, grade: event.target.value })}
+                      />
+                    </label>
+                  </div>
+                ) : (
+                  <div className="hw-score">
+                    <strong>
+                      {submission.overallScore ?? "—"}
+                      <small>ball</small>
+                    </strong>
+                    <span>{submission.grade || "Baho yo‘q"}</span>
+                  </div>
+                )}
                 <div className="hw-result-badges">
                   {submission.isLate ? (
                     <span className="hw-badge hw-badge--warn">
@@ -187,6 +301,23 @@ export function HomeworkResultDialog({
                   ) : null}
                 </div>
                 <div className="hw-result-actions">
+                  {canReview && draft ? (
+                    <>
+                      <Button size="sm" variant="secondary" onClick={() => setDraft(null)}>
+                        Bekor
+                      </Button>
+                      <Button size="sm" loading={review.isPending} onClick={saveReview}>
+                        Saqlash
+                      </Button>
+                    </>
+                  ) : null}
+                  {/* Tuzatish faqat tekshiruv tugagach mantiqiy — AI hali
+                      ishlayotgan bo‘lsa natijasi ustiga yozib yuborardi. */}
+                  {canReview && !draft && submission.status === "done" ? (
+                    <Button size="sm" variant="secondary" onClick={beginEdit}>
+                      <PencilLine size={15} /> Bahoni tuzatish
+                    </Button>
+                  ) : null}
                   {canDownloadFile ? (
                     <Button
                       size="sm"
@@ -269,6 +400,17 @@ export function HomeworkResultDialog({
                       key={question.questionNumber ?? index}
                       question={question}
                       index={index}
+                      scoreDraft={draft?.questions[String(index)]}
+                      onScoreChange={(value) =>
+                        setDraft((current) =>
+                          current
+                            ? {
+                                ...current,
+                                questions: { ...current.questions, [String(index)]: value },
+                              }
+                            : current
+                        )
+                      }
                     />
                   ))}
                 </section>

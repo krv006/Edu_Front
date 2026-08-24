@@ -203,6 +203,7 @@ export function AssignmentDetailDialog({ assignmentId, open, onOpenChange }: Ass
         }}
         canRecheck
         canDownloadFile
+        canReview
       />
     </>
   );

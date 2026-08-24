@@ -45,6 +45,18 @@ export interface SubmissionDto {
   result?: AiResultDto | null;
 }
 
+/**
+ * O‘qituvchining AI bahosini tuzatishi
+ * (`POST /homework/submissions/{id}/review/`). Har uchala maydon ixtiyoriy —
+ * faqat o‘zgartirilgani yuboriladi.
+ */
+export interface SubmissionReviewInput {
+  overallScore?: number | null;
+  grade?: string;
+  /** AI natijasining TO‘LIQ tahrirlangan JSON’i (serverdan kelgan shaklda). */
+  result?: Record<string, unknown> | null;
+}
+
 export interface AssignmentStatsDto {
   students_count?: number | null;
   submitted_count?: number | null;
