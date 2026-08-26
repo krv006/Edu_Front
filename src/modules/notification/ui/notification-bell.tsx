@@ -1,11 +1,14 @@
 import { useState } from "react";
 import { Bell } from "lucide-react";
 import { useNotificationFeed } from "../model/use-notification-feed";
+import type { NotificationLink } from "../api/notification.dto";
 import { NotificationInboxDialog } from "./notification-inbox-dialog";
 
 export interface NotificationBellProps {
   /** Auth bo'lmaganda so'rov yubormaymiz. */
   enabled?: boolean;
+  /** Xabar bog'langan obyektni ochadi (masalan uy vazifasi). */
+  onOpenLink?: (link: NotificationLink) => void;
 }
 
 /**
@@ -14,9 +17,9 @@ export interface NotificationBellProps {
  * Backendda bildirishnoma moduli bo'lmasa (`available: false`) — hech narsa
  * ko'rsatilmaydi; foydalanuvchi buzuq tugmani ko'rmaydi.
  */
-export function NotificationBell({ enabled = true }: NotificationBellProps) {
+export function NotificationBell({ enabled = true, onOpenLink }: NotificationBellProps) {
   const [open, setOpen] = useState(false);
-  const { available, unreadCount } = useNotificationFeed(enabled);
+  const { available, unreadCount } = useNotificationFeed(enabled, onOpenLink);
 
   if (!available) return null;
 
@@ -34,7 +37,7 @@ export function NotificationBell({ enabled = true }: NotificationBellProps) {
         ) : null}
       </button>
 
-      <NotificationInboxDialog open={open} onOpenChange={setOpen} />
+      <NotificationInboxDialog open={open} onOpenChange={setOpen} onOpenLink={onOpenLink} />
     </>
   );
 }

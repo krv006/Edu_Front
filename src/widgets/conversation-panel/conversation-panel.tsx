@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
 import { AnimatePresence, motion } from "framer-motion";
 import { Plus, Search, UserRoundPlus, X } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
@@ -15,7 +16,8 @@ import {
   type DirectTeacher,
 } from "@/modules/conversation";
 import { useLiveLessons } from "@/modules/lesson";
-import { NotificationBell } from "@/modules/notification";
+import { homeworkApi, homeworkKeys } from "@/modules/homework";
+import { NotificationBell, type NotificationLink } from "@/modules/notification";
 import { Avatar } from "@/shared/ui/legacy";
 import { useAuth } from "@/modules/auth";
 import { StudentEnrollmentDialog } from "@/modules/student";
@@ -98,6 +100,33 @@ export function ConversationPanel({ role = "teacher", onOpenMenu }: Conversation
         `${teacher.name} ${teacher.username}`.toLowerCase().includes(lowered)
     );
   }, [peopleEnabled, query, data, teachers.data]);
+
+  /*
+   * Bildirishnomadagi havolani ochish.
+   *
+   * Xabar faqat vazifa id'sini beradi, vazifa esa o'z guruh chatining
+   * "Vazifalar" bo'limida yashaydi. Shuning uchun avval vazifa olinadi
+   * (`courseId` uchun), so'ng shu kursning suhbati topiladi.
+   */
+  const queryClient = useQueryClient();
+
+  async function openNotificationLink(link: NotificationLink) {
+    if (link.type !== "assignment") return;
+    try {
+      const assignment = await queryClient.fetchQuery({
+        queryKey: homeworkKeys.assignment(link.id),
+        queryFn: ({ signal }) => homeworkApi.getAssignment(link.id, { signal }),
+      });
+      const room = data.find((item) => item.courseId === assignment.courseId);
+      if (!room) {
+        toast.error("Vazifa guruhi topilmadi");
+        return;
+      }
+      navigate(`${basePath}/${room.id}?tab=assignments&assignment=${link.id}`);
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : "Vazifani ochib bo‘lmadi");
+    }
+  }
 
   function startDirect(teacher: DirectTeacher) {
     if (teacher.roomId) {
@@ -182,7 +211,7 @@ export function ConversationPanel({ role = "teacher", onOpenMenu }: Conversation
               )}
             </AnimatePresence>
           </div>
-          <NotificationBell enabled={Boolean(user)} />
+          <NotificationBell enabled={Boolean(user)} onOpenLink={openNotificationLink} />
           <button className="panel-account" onClick={onOpenMenu} aria-label="Profil menyusi">
             <Avatar name={user?.name ?? "Teacher"} tone="violet" size="sm" status="online" />
           </button>

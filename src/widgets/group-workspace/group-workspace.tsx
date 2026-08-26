@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   BookOpen,
@@ -377,6 +377,20 @@ interface AssignmentsPanelProps {
   isLanguageSubject: boolean;
 }
 
+/**
+ * Bildirishnomadan kelingan vazifani ko'rsatadi: ro'yxatda ajratib qo'yadi va
+ * ekranga suradi. Ro'yxat kechroq yuklanishi mumkin, shuning uchun element
+ * paydo bo'lgach qidiriladi.
+ */
+function useAssignmentHighlight(assignmentId: string | null, ready: boolean) {
+  useEffect(() => {
+    if (!assignmentId || !ready) return;
+    document
+      .querySelector(`[data-assignment-id="${CSS.escape(assignmentId)}"]`)
+      ?.scrollIntoView({ block: "center", behavior: "smooth" });
+  }, [assignmentId, ready]);
+}
+
 function AssignmentsPanel({
   courseId,
   assignments = [],
@@ -386,6 +400,10 @@ function AssignmentsPanel({
   const [dialog, setDialog] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<Assignment | null>(null);
   const [detailId, setDetailId] = useState<string | null>(null);
+  /* Havola vazifani ajratib ko'rsatadi, dialogni o'zi ochmaydi. */
+  const [assignmentParams] = useSearchParams();
+  const highlightId = assignmentParams.get("assignment");
+  useAssignmentHighlight(highlightId, (assignments?.length ?? 0) > 0);
   const create = useCreateAssignment();
   const remove = useDeleteAssignment();
 
@@ -414,7 +432,8 @@ function AssignmentsPanel({
           {assignments.map((item) => (
             <motion.article
               key={item.id}
-              className="assignment-card"
+              data-assignment-id={item.id}
+              className={`assignment-card ${item.id === highlightId ? "is-highlighted" : ""}`}
               initial={{ opacity: 0, y: 8 }}
               animate={{ opacity: 1, y: 0 }}
             >

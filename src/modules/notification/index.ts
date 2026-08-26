@@ -2,6 +2,7 @@ export { notificationApi } from "./api/notification.api";
 export { notificationEndpoints } from "./api/notification.endpoints";
 export type {
   InboxNotification,
+  NotificationLink,
   NotificationDto,
   NotificationRecipientDto,
   NotificationRecipientRow,
