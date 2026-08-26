@@ -1,19 +1,26 @@
-import { BellOff, Check, Megaphone, UserRound } from "lucide-react";
+import { ArrowRight, BellOff, Check, Megaphone, UserRound } from "lucide-react";
 import { formatDateTime } from "@/shared/lib";
 import { Button, Dialog, DialogContent, LoadingFallback, RouteState } from "@/shared/ui/legacy";
 import {
   useMarkNotificationRead,
   useNotificationInbox,
 } from "../model/notification.queries";
+import type { NotificationLink } from "../api/notification.dto";
 import { NotificationHtml } from "./notification-html";
 
 export interface NotificationInboxDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  /** Xabar biror obyektga bog‘langan bo‘lsa — o‘sha yerga olib boradi. */
+  onOpenLink?: (link: NotificationLink) => void;
 }
 
 /** Foydalanuvchining bildirishnomalar qutisi (docs/COMPLETED_WORK.md §2). */
-export function NotificationInboxDialog({ open, onOpenChange }: NotificationInboxDialogProps) {
+export function NotificationInboxDialog({
+  open,
+  onOpenChange,
+  onOpenLink,
+}: NotificationInboxDialogProps) {
   const inbox = useNotificationInbox({ page_size: 30 }, open);
   const markRead = useMarkNotificationRead();
   const items = inbox.data?.items ?? [];
@@ -62,7 +69,24 @@ export function NotificationInboxDialog({ open, onOpenChange }: NotificationInbo
                     <NotificationHtml html={item.html} />
                   </div>
 
-                  {item.isRead ? (
+                  {/*
+                    Havolasi bor xabarda "o‘qidim" ortiqcha: o‘quvchiga kerak
+                    bo‘lgani — vazifaning o‘zi. O‘tish paytida o‘qilgan deb
+                    ham belgilanadi, ya’ni bir bosishda ikkalasi bajariladi.
+                  */}
+                  {item.link && onOpenLink ? (
+                    <Button
+                      size="sm"
+                      variant={item.isRead ? "ghost" : "secondary"}
+                      onClick={() => {
+                        if (!item.isRead) markRead.mutate(item.notificationId);
+                        onOpenLink(item.link as NotificationLink);
+                        onOpenChange(false);
+                      }}
+                    >
+                      Vazifaga o‘tish <ArrowRight size={15} />
+                    </Button>
+                  ) : item.isRead ? (
                     <span className="notification-read" title="O‘qilgan">
                       <Check size={15} />
                     </span>

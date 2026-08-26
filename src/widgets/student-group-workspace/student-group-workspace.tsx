@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { BookOpen, CalendarDays, CheckCircle2, ListChecks, Paperclip } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
@@ -300,8 +300,29 @@ function SubmissionStatus({
   );
 }
 
+/**
+ * Bildirishnomadan kelingan vazifani ko'rsatadi: ro'yxatda ajratib qo'yadi va
+ * ekranga suradi. Ro'yxat kechroq yuklanishi mumkin, shuning uchun element
+ * paydo bo'lgach qidiriladi.
+ */
+function useAssignmentHighlight(assignmentId: string | null, ready: boolean) {
+  useEffect(() => {
+    if (!assignmentId || !ready) return;
+    document
+      .querySelector(`[data-assignment-id="${CSS.escape(assignmentId)}"]`)
+      ?.scrollIntoView({ block: "center", behavior: "smooth" });
+  }, [assignmentId, ready]);
+}
+
 function StudentAssignments({ assignments = [], loading }: { assignments?: Assignment[]; loading: boolean }) {
   const [selected, setSelected] = useState<Assignment | null>(null);
+  /*
+   * Bildirishnomadagi havola vazifani KO'RSATADI, lekin topshirish oynasini
+   * o'zi ochmaydi: o'quvchi avval vazifani o'qib, keyin o'zi qaror qiladi.
+   */
+  const [params] = useSearchParams();
+  const highlightId = params.get("assignment");
+  useAssignmentHighlight(highlightId, assignments.length > 0);
   const [file, setFile] = useState<File | null>(null);
   const [resultOf, setResultOf] = useState<Submission | null>(null);
   const submit = useSubmitHomework();
@@ -323,7 +344,11 @@ function StudentAssignments({ assignments = [], loading }: { assignments?: Assig
       </div>
       <div className="student-workspace-list">
         {assignments.map((item) => (
-          <article key={item.id}>
+          <article
+            key={item.id}
+            data-assignment-id={item.id}
+            className={item.id === highlightId ? "is-highlighted" : ""}
+          >
             <span className="workspace-list-icon">
               <ListChecks size={20} />
             </span>

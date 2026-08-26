@@ -10,6 +10,9 @@ export interface NotificationDto {
   /** `nh3` bilan tozalangan HTML — faqat formatlash teglari. */
   description: string;
   target_type: NotificationTarget;
+  /** Xabar nimaga tegishli: "assignment" — uy vazifasi. Bo‘lmasligi mumkin. */
+  link_type?: string | null;
+  link_id?: string | null;
   created_at: string;
 }
 
@@ -55,6 +58,12 @@ export interface NotificationSender {
   role: string;
 }
 
+/** Xabar bosilganda ochiladigan obyekt. */
+export interface NotificationLink {
+  type: string;
+  id: string;
+}
+
 export interface InboxNotification {
   /** Inbox qatorining (`NotificationRecipient`) id'si — ro'yxat kaliti uchun. */
   id: string;
@@ -66,6 +75,8 @@ export interface InboxNotification {
   targetType: NotificationTarget;
   isRead: boolean;
   readAt: string | null;
+  /** `null` — xabar hech qayerga olib bormaydi. */
+  link: NotificationLink | null;
   createdAt: string;
 }
 

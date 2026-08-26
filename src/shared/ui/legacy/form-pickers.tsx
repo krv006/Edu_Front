@@ -10,6 +10,7 @@ import {
   type RefObject,
 } from "react";
 import { createPortal } from "react-dom";
+import { FocusScope } from "@radix-ui/react-focus-scope";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   CalendarDays,
@@ -76,7 +77,15 @@ interface FloatingPickerProps {
   className?: string;
 }
 
-/** Dialog ichida ham to‘g‘ri joylashishi uchun `document.body` ga portal qilinadi. */
+/**
+ * Dialog ichida ham to‘g‘ri joylashishi uchun `document.body` ga portal qilinadi.
+ *
+ * Ana shu portal tufayli panel dialogning fokus doirasidan TASHQARIDA qoladi:
+ * Radix dialogi fokusni o‘z ichiga qaytarib tortadi va paneldagi maydonga
+ * hech narsa yozib bo‘lmaydi. Shuning uchun panel o‘z `FocusScope` iga
+ * o‘raladi — u ochilganda dialogning tuzog‘i vaqtincha to‘xtaydi (Radix fokus
+ * doiralari stek bo‘lib ishlaydi), yopilganda o‘z-o‘zidan tiklanadi.
+ */
 function FloatingPicker({ open, onClose, anchorRef, children, labelledBy, className = "" }: FloatingPickerProps) {
   const panelRef = useRef<HTMLDivElement>(null);
   const [position, setPosition] = useState<PanelPosition>({ left: 12, top: 12, width: 320, origin: "top" });
@@ -137,6 +146,14 @@ function FloatingPicker({ open, onClose, anchorRef, children, labelledBy, classN
   return createPortal(
     <AnimatePresence>
       {open ? (
+        <FocusScope
+          asChild
+          trapped
+          /* Ochilishi bilan fokus ko'chmasin: sichqoncha bilan ishlayotgan
+             odam uchun bu kutilmagan sakrash bo'lardi. */
+          onMountAutoFocus={(event) => event.preventDefault()}
+          onUnmountAutoFocus={(event) => event.preventDefault()}
+        >
         <motion.div
           ref={panelRef}
           className={`form-picker-popover ${className}`}
@@ -150,6 +167,7 @@ function FloatingPicker({ open, onClose, anchorRef, children, labelledBy, classN
         >
           {children}
         </motion.div>
+        </FocusScope>
       ) : null}
     </AnimatePresence>,
     document.body
@@ -357,6 +375,58 @@ interface TimeControlProps {
   compact?: boolean;
 }
 
+/**
+ * Vaqtning bir bo‘lagi (soat yoki daqiqa): o‘qlar bilan ham, QO‘LDA yozib ham
+ * o‘zgartiriladi.
+ *
+ * Terish paytida qiymat tashqariga berilmaydi — aks holda “20” yozmoqchi
+ * bo‘lgan odam “2” ni bosishi bilan raqam “02” ga aylanib ketardi. Shuning
+ * uchun mahalliy nusxa faqat fokus turgan vaqt yashaydi.
+ */
+function TimeField({
+  value,
+  max,
+  label,
+  onCommit,
+}: {
+  value: number;
+  max: number;
+  label: string;
+  onCommit: (next: number) => void;
+}) {
+  const [draft, setDraft] = useState<string | null>(null);
+
+  function commit() {
+    if (draft === null) return;
+    const parsed = Number.parseInt(draft, 10);
+    setDraft(null);
+    if (!Number.isFinite(parsed)) return;
+    onCommit(Math.min(max, Math.max(0, parsed)));
+  }
+
+  return (
+    <input
+      className="time-field"
+      inputMode="numeric"
+      maxLength={2}
+      aria-label={label}
+      value={draft ?? pad(value)}
+      onFocus={(event) => {
+        setDraft(pad(value));
+        event.target.select();
+      }}
+      onChange={(event) => setDraft(event.target.value.replace(/\D/g, "").slice(0, 2))}
+      onBlur={commit}
+      onKeyDown={(event) => {
+        if (event.key !== "Enter") return;
+        event.preventDefault();
+        commit();
+        event.currentTarget.blur();
+      }}
+    />
+  );
+}
+
 function TimeControl({ value, onChange, compact = false }: TimeControlProps) {
   const time = getTimeValue(value);
   const [hour, minute] = time.split(":").map(Number);
@@ -378,9 +448,7 @@ function TimeControl({ value, onChange, compact = false }: TimeControlProps) {
           <button type="button" onClick={() => updateTime(hour + 1, minute)} aria-label="Soatni oshirish">
             <ChevronUp size={17} />
           </button>
-          <motion.strong key={`h-${hour}`} initial={{ opacity: 0, y: -7 }} animate={{ opacity: 1, y: 0 }}>
-            {pad(hour)}
-          </motion.strong>
+          <TimeField value={hour} max={23} label="Soat" onCommit={(next) => updateTime(next, minute)} />
           <button type="button" onClick={() => updateTime(hour - 1, minute)} aria-label="Soatni kamaytirish">
             <ChevronDown size={17} />
           </button>
@@ -390,9 +458,7 @@ function TimeControl({ value, onChange, compact = false }: TimeControlProps) {
           <button type="button" onClick={() => shiftMinute(5)} aria-label="Daqiqani oshirish">
             <ChevronUp size={17} />
           </button>
-          <motion.strong key={`m-${minute}`} initial={{ opacity: 0, y: -7 }} animate={{ opacity: 1, y: 0 }}>
-            {pad(minute)}
-          </motion.strong>
+          <TimeField value={minute} max={59} label="Daqiqa" onCommit={(next) => updateTime(hour, next)} />
           <button type="button" onClick={() => shiftMinute(-5)} aria-label="Daqiqani kamaytirish">
             <ChevronDown size={17} />
           </button>

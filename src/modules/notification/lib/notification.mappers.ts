@@ -5,6 +5,7 @@ import type {
   InboxNotification,
   NotificationRecipientDto,
   NotificationRecipientRow,
+  NotificationLink,
   NotificationRecipientRowDto,
   NotificationSender,
   SendNotificationDto,
@@ -16,6 +17,14 @@ import type {
 function displayName(user: UserDto | null | undefined): string {
   if (!user) return "Tizim";
   return [user.first_name, user.last_name].filter(Boolean).join(" ") || user.username || "Tizim";
+}
+
+/** Ikkala maydon ham kelgandagina havola bo‘ladi — yarmi bilan hech qayerga bormaymiz. */
+export function mapNotificationLink(
+  type: string | null | undefined,
+  id: string | null | undefined
+): NotificationLink | null {
+  return type && id ? { type, id: String(id) } : null;
 }
 
 function mapSender(user: UserDto | null | undefined): NotificationSender | null {
@@ -38,6 +47,7 @@ export function mapInboxNotificationDto(dto: NotificationRecipientDto): InboxNot
     targetType: dto.notification?.target_type ?? "user",
     isRead: Boolean(dto.is_read),
     readAt: dto.read_at ?? null,
+    link: mapNotificationLink(dto.notification?.link_type, dto.notification?.link_id),
     createdAt: dto.created_at ?? dto.notification?.created_at ?? "",
   };
 }
