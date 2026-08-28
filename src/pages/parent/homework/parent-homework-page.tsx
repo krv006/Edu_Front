@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { formatDayTime } from "@/shared/lib";
 import { CheckCircle2, Clock3, ListChecks } from "lucide-react";
 import { HomeworkResultDialog } from "@/modules/homework";
 import type { Submission } from "@/shared/types";
@@ -15,7 +16,7 @@ function SubmissionPill({
   if (!submission) return <span className="grade-pill">Topshirilmagan</span>;
   if (submission.status === "done")
     return (
-      <button className="grade-pill grade-pill--button" onClick={() => onOpen(submission)} aria-label="AI tahlilini ochish">
+      <button className="grade-pill grade-pill--button" onClick={() => onOpen(submission)} aria-label="Natijani ochish">
         <CheckCircle2 size={15} /> {submission.overallScore} ball · {submission.grade}
       </button>
     );
@@ -62,7 +63,7 @@ export function ParentHomeworkPage() {
         <div>
           <span className="portal-eyebrow">VAZIFALAR</span>
           <h1>{selectedChild.name}</h1>
-          <p>Topshiriqlar va AI tekshiruv natijalari.</p>
+          <p>Topshiriqlar va tekshiruv natijalari.</p>
         </div>
       </div>
       <section className="portal-card parent-homework-list">
@@ -74,7 +75,7 @@ export function ParentHomeworkPage() {
               <small>
                 {item.courseTitle} ·{" "}
                 {item.dueAt
-                  ? new Intl.DateTimeFormat("uz-UZ", { dateStyle: "medium", timeStyle: "short" }).format(new Date(item.dueAt))
+                  ? formatDayTime(item.dueAt)
                   : "Muddat yo‘q"}
               </small>
             </div>
@@ -95,7 +96,7 @@ export function ParentHomeworkPage() {
         open={Boolean(resultOf)}
         onOpenChange={(open) => { if (!open) setResultOf(null); }}
         canDownloadFile
-        title={`${selectedChild.name} — AI tahlili`}
+        title={`${selectedChild.name} — tekshiruv natijasi`}
       />
     </div>
   );

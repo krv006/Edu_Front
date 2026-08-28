@@ -7,6 +7,8 @@ export type { FileKind } from "./file-kind";
 export {
   formatConversationTime,
   formatDateTime,
+  formatDay,
+  formatDayTime,
   formatDuration,
   formatMessageTime,
 } from "./date";

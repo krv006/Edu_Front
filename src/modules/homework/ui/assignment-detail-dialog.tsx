@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { formatDayTime } from "@/shared/lib";
 import {
   BarChart3,
   CheckCircle2,
@@ -107,10 +108,7 @@ export function AssignmentDetailDialog({ assignmentId, open, onOpenChange }: Ass
               data
                 ? `${data.courseTitle ?? ""}${
                     data.dueAt
-                      ? ` · Muddat: ${new Intl.DateTimeFormat("uz-UZ", {
-                          dateStyle: "medium",
-                          timeStyle: "short",
-                        }).format(new Date(data.dueAt))}`
+                      ? ` · Muddat: ${formatDayTime(data.dueAt)}`
                       : " · Muddat belgilanmagan"
                   }`
                 : "Yuklanmoqda…"

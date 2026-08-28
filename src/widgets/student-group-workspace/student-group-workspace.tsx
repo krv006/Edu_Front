@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { formatDayTime } from "@/shared/lib";
 import { AnimatePresence, motion } from "framer-motion";
 import { BookOpen, CalendarDays, CheckCircle2, CircleAlert, ListChecks, Paperclip } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
@@ -299,7 +300,7 @@ function SubmissionStatus({
     <button
       className={`grade-pill grade-pill--button${tone}`}
       onClick={() => onOpen(data)}
-      aria-label="AI tahlilini ochish"
+      aria-label="Natijani ochish"
     >
       {label}
     </button>
@@ -352,10 +353,7 @@ function StudentAssignments({ assignments = [], loading }: { assignments?: Assig
         {assignments.map((item) => {
           const overdue = isAssignmentOverdue(item);
           const deadlineLabel = item.dueAt
-            ? new Intl.DateTimeFormat("uz-UZ", {
-                dateStyle: "medium",
-                timeStyle: "short",
-              }).format(new Date(item.dueAt))
+            ? formatDayTime(item.dueAt)
             : null;
 
           return (
@@ -441,7 +439,7 @@ function StudentAssignments({ assignments = [], loading }: { assignments?: Assig
           if (!open) setResultOf(null);
         }}
         canDownloadFile
-        title="Vazifangiz bo‘yicha AI tahlili"
+        title="Vazifangiz bo‘yicha natija"
       />
     </div>
   );

@@ -1,9 +1,10 @@
 import { useState } from "react";
+import { formatDayTime } from "@/shared/lib";
 import {
   AlertTriangle,
   CheckCircle2,
   Clock3,
-  Download,
+  Eye,
   Lightbulb,
   ListChecks,
   PencilLine,
@@ -12,8 +13,9 @@ import {
   TriangleAlert,
 } from "lucide-react";
 import { Button, Dialog, DialogContent } from "@/shared/ui/legacy";
+import { FileViewer } from "@/shared/ui/file-viewer";
+import { homeworkApi } from "../api/homework.api";
 import {
-  useDownloadSubmissionFile,
   useRecheckSubmission,
   useReviewSubmission,
   useSubmission,
@@ -170,7 +172,8 @@ export function HomeworkResultDialog({
     poll: initial?.status !== "done",
   });
   const recheck = useRecheckSubmission();
-  const download = useDownloadSubmissionFile();
+  /* Topshirilgan ish yuklab olinmaydi — oyna ichida ochiladi. */
+  const [fileOpen, setFileOpen] = useState(false);
   const review = useReviewSubmission();
   const submission = query.data ?? initial;
 
@@ -243,7 +246,7 @@ export function HomeworkResultDialog({
           description={
             submission?.studentName
               ? `${submission.studentName} · ${submission.fileName ?? ""}`
-              : "Gemini savolma-savol baholadi."
+              : "Topshiriq natijasi."
           }
         >
           {!submission ? (
@@ -293,10 +296,7 @@ export function HomeworkResultDialog({
                   {submission.checkedAt ? (
                     <span className="hw-badge">
                       <CheckCircle2 size={13} />
-                      {new Intl.DateTimeFormat("uz-UZ", {
-                        dateStyle: "medium",
-                        timeStyle: "short",
-                      }).format(new Date(submission.checkedAt))}
+                      {formatDayTime(submission.checkedAt)}
                     </span>
                   ) : null}
                 </div>
@@ -319,18 +319,8 @@ export function HomeworkResultDialog({
                     </Button>
                   ) : null}
                   {canDownloadFile ? (
-                    <Button
-                      size="sm"
-                      variant="secondary"
-                      loading={download.isPending}
-                      onClick={() =>
-                        download.mutate({
-                          id: submission.id,
-                          fileName: submission.fileName,
-                        })
-                      }
-                    >
-                      <Download size={15} /> Fayl
+                    <Button size="sm" variant="secondary" onClick={() => setFileOpen(true)}>
+                      <Eye size={15} /> Faylni ko‘rish
                     </Button>
                   ) : null}
                   {canRecheck ? (
@@ -350,7 +340,7 @@ export function HomeworkResultDialog({
               {submission.status === "checking" ? (
                 <div className="hw-result-state">
                   <Sparkles size={26} className="spin" />
-                  <p>AI tekshirmoqda… natija tayyor bo‘lishi bilan yangilanadi.</p>
+                  <p>Tekshirilmoqda… natija tayyor bo‘lishi bilan yangilanadi.</p>
                 </div>
               ) : null}
 
@@ -417,12 +407,21 @@ export function HomeworkResultDialog({
               ) : submission.status === "done" ? (
                 <div className="hw-result-state">
                   <ListChecks size={26} />
-                  <p>AI savollarni ajrata olmadi — faqat umumiy baho mavjud.</p>
+                  <p>Savollar bo‘yicha tafsilot yo‘q — faqat umumiy baho.</p>
                 </div>
               ) : null}
             </div>
           )}
         </DialogContent>
+      ) : null}
+
+      {submission ? (
+        <FileViewer
+          open={fileOpen}
+          onOpenChange={setFileOpen}
+          name={submission.fileName || "Topshiriq"}
+          load={(signal) => homeworkApi.downloadSubmission(submission.id, { signal })}
+        />
       ) : null}
     </Dialog>
   );

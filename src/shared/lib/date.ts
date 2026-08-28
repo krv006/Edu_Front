@@ -18,6 +18,27 @@ export function formatDateTime(value: string | number | Date): string {
 }
 
 /**
+ * To‘liq sana va vaqt: `28-avgust, 23:30`.
+ *
+ * `Intl` ning `uz-UZ` ma’lumoti brauzerlarda to‘liq emas — u `2026 M08 28`
+ * kabi natija beradi. Shuning uchun hamma joyda date-fns ning o‘zbek lokali
+ * ishlatiladi. Yil faqat joriy yildan farq qilsa ko‘rsatiladi: odatda u
+ * ortiqcha shovqin, uzoq sanada esa zarur.
+ */
+export function formatDayTime(value: string | number | Date): string {
+  const date = new Date(value);
+  const pattern =
+    date.getFullYear() === new Date().getFullYear() ? "d-MMMM, HH:mm" : "d-MMMM yyyy, HH:mm";
+  // Oy nomi gap o‘rtasida kichik harf bilan yoziladi.
+  return format(date, pattern, { locale: uz }).toLowerCase();
+}
+
+/** Vaqtsiz sana: `28-avgust 2026`. */
+export function formatDay(value: string | number | Date): string {
+  return format(new Date(value), "d-MMMM yyyy", { locale: uz }).toLowerCase();
+}
+
+/**
  * Soniyani o'zbekcha qisqa davomiylikka aylantiradi: `45s`, `2m 05s`, `1s 12m`.
  * Fokus jurnali ham, video yozuv uzunligi ham shu formatdan foydalanadi.
  */
