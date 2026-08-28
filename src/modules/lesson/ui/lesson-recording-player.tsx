@@ -55,7 +55,9 @@ export function LessonRecordingPlayer({
         <p>
           {recording.status === "recording"
             ? "Dars yozib olinmoqda — tugagach shu yerda ochiladi."
-            : "Yozuv tayyorlanmoqda — tayyor bo‘lishi bilan shu yerda ochiladi."}
+            : recording.status === "merging"
+              ? "Audio va video birlashtirilmoqda — bu biroz vaqt olishi mumkin."
+              : "Yozuv tayyorlanmoqda — tayyor bo‘lishi bilan shu yerda ochiladi."}
         </p>
       </div>
     );

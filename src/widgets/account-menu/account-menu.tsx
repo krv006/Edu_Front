@@ -233,7 +233,7 @@ export function AccountMenu({
               </span>
               <h3>{user?.name}</h3>
               <p>{roleLabel}</p>
-              <span>
+              <span className="teacher-profile-verified">
                 <ShieldCheck size={14} /> Tasdiqlangan profil
               </span>
             </motion.div>

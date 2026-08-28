@@ -1,0 +1,265 @@
+import { AppError } from "@/shared/api";
+import { lessonApi } from "../api/lesson.api";
+
+const CHUNK_INTERVAL_MS = 30_000;
+const MAX_RETRY_DELAY_MS = 30_000;
+const MIME_CANDIDATES = ["audio/webm;codecs=opus", "audio/webm"] as const;
+
+export type TeacherAudioRecordingPhase =
+  | "idle"
+  | "recording"
+  | "uploading"
+  | "retrying"
+  | "stopped"
+  | "unsupported"
+  | "error";
+
+export interface TeacherAudioRecordingSnapshot {
+  phase: TeacherAudioRecordingPhase;
+  pendingChunks: number;
+  uploadedChunks: number;
+  error: string | null;
+}
+
+type SnapshotListener = (snapshot: TeacherAudioRecordingSnapshot) => void;
+
+function chooseMimeType(): string | undefined {
+  if (typeof MediaRecorder === "undefined") return undefined;
+  return MIME_CANDIDATES.find((mime) => MediaRecorder.isTypeSupported(mime));
+}
+
+function isRetryableUpload(error: unknown): boolean {
+  if (!(error instanceof AppError)) return true;
+  return error.status === 0 || error.status === 408 || error.status === 429 || error.status >= 500;
+}
+
+function wait(milliseconds: number): Promise<void> {
+  return new Promise((resolve) => globalThis.setTimeout(resolve, milliseconds));
+}
+
+function waitUntilOnline(): Promise<void> {
+  if (typeof navigator === "undefined" || navigator.onLine) return Promise.resolve();
+  return new Promise((resolve) => {
+    globalThis.addEventListener("online", () => resolve(), { once: true });
+  });
+}
+
+/**
+ * Bitta darsning teacher-browser audio sessiyasi.
+ *
+ * Blob navbati faqat server 204 qaytargach `shift()` qilinadi. Tarmoq uzilsa
+ * navbat xotirada qoladi va online bo‘lgach exponential backoff bilan davom etadi.
+ */
+export class TeacherAudioRecordingSession {
+  readonly lessonId: string;
+
+  private audioContext: AudioContext | null = null;
+  private destination: MediaStreamAudioDestinationNode | null = null;
+  private recorder: MediaRecorder | null = null;
+  private sources = new Map<string, MediaStreamAudioSourceNode>();
+  private pendingChunks: Blob[] = [];
+  private listeners = new Set<SnapshotListener>();
+  private uploadLoop: Promise<void> | null = null;
+  private stopPromise: Promise<void> | null = null;
+  private resolveStopped: (() => void) | null = null;
+  private startedAt: string | null = null;
+  private firstChunkUploaded = false;
+  private uploadedChunks = 0;
+  private phase: TeacherAudioRecordingPhase = "idle";
+  private error: string | null = null;
+
+  constructor(lessonId: string) {
+    this.lessonId = lessonId;
+  }
+
+  get snapshot(): TeacherAudioRecordingSnapshot {
+    return {
+      phase: this.phase,
+      pendingChunks: this.pendingChunks.length,
+      uploadedChunks: this.uploadedChunks,
+      error: this.error,
+    };
+  }
+
+  subscribe(listener: SnapshotListener): () => void {
+    this.listeners.add(listener);
+    listener(this.snapshot);
+    return () => this.listeners.delete(listener);
+  }
+
+  start(): void {
+    if (this.recorder || this.phase === "recording") return;
+    if (typeof MediaRecorder === "undefined") {
+      this.setState("unsupported", "Bu brauzer dars audiosini yozishni qo‘llamaydi");
+      return;
+    }
+
+    const AudioContextConstructor =
+      globalThis.AudioContext ??
+      (globalThis as typeof globalThis & { webkitAudioContext?: typeof AudioContext })
+        .webkitAudioContext;
+    if (!AudioContextConstructor) {
+      this.setState("unsupported", "Bu brauzer Web Audio API’ni qo‘llamaydi");
+      return;
+    }
+
+    try {
+      this.audioContext = new AudioContextConstructor();
+      this.destination = this.audioContext.createMediaStreamDestination();
+      const mimeType = chooseMimeType();
+      this.recorder = new MediaRecorder(
+        this.destination.stream,
+        mimeType ? { mimeType, audioBitsPerSecond: 128_000 } : { audioBitsPerSecond: 128_000 }
+      );
+      this.recorder.ondataavailable = (event) => {
+        if (event.data.size > 0) this.enqueue(event.data);
+      };
+      this.recorder.onerror = () => {
+        this.setState("error", "Dars audiosini yozishda brauzer xatosi yuz berdi");
+      };
+      this.recorder.onstop = () => this.resolveStopped?.();
+
+      // Backend video bilan sinxronlash uchun aynan recorder boshlangan vaqtni kutadi.
+      this.startedAt = new Date().toISOString();
+      this.recorder.start(CHUNK_INTERVAL_MS);
+      this.setState("recording", null);
+
+      if (this.audioContext.state === "suspended") {
+        void this.audioContext.resume().catch(() => undefined);
+      }
+    } catch (error) {
+      this.setState(
+        "error",
+        error instanceof Error ? error.message : "Dars audiosini yozib bo‘lmadi"
+      );
+    }
+  }
+
+  /** LiveKit publikatsiyalari o‘zgarganda mixer source-larini yangilaydi. */
+  syncTracks(tracks: readonly MediaStreamTrack[]): void {
+    if (!this.audioContext || !this.destination) return;
+    const currentIds = new Set(tracks.filter((track) => track.readyState === "live").map((track) => track.id));
+
+    this.sources.forEach((source, id) => {
+      if (currentIds.has(id)) return;
+      source.disconnect();
+      this.sources.delete(id);
+    });
+
+    tracks.forEach((track) => {
+      if (track.kind !== "audio" || track.readyState !== "live" || this.sources.has(track.id)) return;
+      const source = this.audioContext?.createMediaStreamSource(new MediaStream([track]));
+      if (!source || !this.destination) return;
+      source.connect(this.destination);
+      this.sources.set(track.id, source);
+    });
+  }
+
+  async stopAndFlush(): Promise<void> {
+    if (this.phase === "unsupported") return;
+
+    if (this.recorder && this.recorder.state !== "inactive") {
+      if (!this.stopPromise) {
+        this.stopPromise = new Promise((resolve) => {
+          this.resolveStopped = resolve;
+        });
+        this.recorder.stop();
+      }
+      await this.stopPromise;
+    }
+
+    await this.drainUploads();
+    this.sources.forEach((source) => source.disconnect());
+    this.sources.clear();
+    await this.audioContext?.close().catch(() => undefined);
+    this.audioContext = null;
+    this.destination = null;
+    this.recorder = null;
+    this.setState("stopped", null);
+  }
+
+  private enqueue(chunk: Blob): void {
+    this.pendingChunks.push(chunk);
+    this.setState("uploading", null);
+    void this.drainUploads().catch(() => undefined);
+  }
+
+  private drainUploads(): Promise<void> {
+    if (!this.pendingChunks.length) return Promise.resolve();
+    if (this.uploadLoop) return this.uploadLoop;
+
+    this.uploadLoop = this.uploadPendingChunks().finally(() => {
+      this.uploadLoop = null;
+    });
+    return this.uploadLoop;
+  }
+
+  private async uploadPendingChunks(): Promise<void> {
+    let attempt = 0;
+    while (this.pendingChunks.length) {
+      const chunk = this.pendingChunks[0];
+      if (!chunk) return;
+      try {
+        await lessonApi.uploadRecordingAudio(
+          this.lessonId,
+          chunk,
+          this.firstChunkUploaded ? undefined : (this.startedAt ?? undefined)
+        );
+        // Faqat muvaffaqiyatli 204 dan keyin blob xotiradan chiqariladi.
+        this.pendingChunks.shift();
+        this.firstChunkUploaded = true;
+        this.uploadedChunks += 1;
+        attempt = 0;
+        this.setState(this.recorder?.state === "recording" ? "recording" : "uploading", null);
+      } catch (error) {
+        this.error = error instanceof Error ? error.message : "Audio bo‘lagini yuklab bo‘lmadi";
+        if (!isRetryableUpload(error)) {
+          this.setState("error", this.error);
+          throw error;
+        }
+
+        this.setState("retrying", this.error);
+        await waitUntilOnline();
+        const delay = Math.min(1_000 * 2 ** attempt, MAX_RETRY_DELAY_MS);
+        attempt += 1;
+        await wait(delay);
+      }
+    }
+  }
+
+  private setState(phase: TeacherAudioRecordingPhase, error: string | null): void {
+    this.phase = phase;
+    this.error = error;
+    const snapshot = this.snapshot;
+    this.listeners.forEach((listener) => listener(snapshot));
+  }
+}
+
+const sessionsByLesson = new Map<string, Set<TeacherAudioRecordingSession>>();
+
+export function createTeacherAudioRecording(lessonId: string): TeacherAudioRecordingSession {
+  const session = new TeacherAudioRecordingSession(lessonId);
+  const sessions = sessionsByLesson.get(lessonId) ?? new Set<TeacherAudioRecordingSession>();
+  sessions.add(session);
+  sessionsByLesson.set(lessonId, sessions);
+  return session;
+}
+
+export function releaseTeacherAudioRecording(session: TeacherAudioRecordingSession): void {
+  void session
+    .stopAndFlush()
+    .then(() => {
+      const sessions = sessionsByLesson.get(session.lessonId);
+      sessions?.delete(session);
+      if (!sessions?.size) sessionsByLesson.delete(session.lessonId);
+    })
+    // Xato bo‘lsa session va bloblar registryda qoladi — finish bosilganda yana uriniladi.
+    .catch(() => undefined);
+}
+
+/** Finish mutation shu promise tugamaguncha lesson va finalize endpointlarini chaqirmaydi. */
+export async function flushTeacherAudioRecording(lessonId: string): Promise<void> {
+  const sessions = [...(sessionsByLesson.get(lessonId) ?? [])];
+  await Promise.all(sessions.map((session) => session.stopAndFlush()));
+  sessionsByLesson.delete(lessonId);
+}

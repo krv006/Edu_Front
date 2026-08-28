@@ -24,7 +24,7 @@ export function FinishLessonDialog({ lesson, onOpenChange }: FinishLessonDialogP
       {lesson ? (
         <DialogContent
           title="Darsni yakunlash"
-          description={`“${lesson.title}” darsini yakunlamoqchimisiz?`}
+          description={`“${lesson.title}” darsini yakunlamoqchimisiz? Oxirgi audio bo‘lagi xavfsiz yuborilgach dars yopiladi.`}
         >
           <div className="dialog-actions">
             <Button type="button" variant="secondary" onClick={() => onOpenChange(false)}>

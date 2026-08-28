@@ -137,6 +137,18 @@ export const lessonApi = {
     await apiClient.delete(lessonEndpoints.recording(id));
     return id;
   },
+  async uploadRecordingAudio(id: string, chunk: Blob, startedAt?: string) {
+    const formData = new FormData();
+    formData.append("chunk", chunk, `lesson-${id}-${Date.now()}.webm`);
+    if (startedAt) formData.append("started_at", startedAt);
+    await apiClient.post<void>(lessonEndpoints.recordingAudio(id), formData, {
+      // 10 MB gacha bo‘lgan chunk sekin tarmoqda standart so‘rovdan uzoqroq ketishi mumkin.
+      timeoutMs: 60_000,
+    });
+  },
+  async finalizeRecordingAudio(id: string) {
+    await apiClient.post<void>(lessonEndpoints.finalizeRecordingAudio(id));
+  },
   /**
    * Dars bahosi. Backend faqat tugagan darsni va faqat shu kursga yozilgan
    * o'quvchini qabul qiladi — qolgan hollarda 400/403 keladi va xabar formada

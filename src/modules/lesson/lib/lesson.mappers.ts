@@ -52,7 +52,7 @@ export function mapLessonPage(dto: unknown, options?: PaginationOptions): Page<L
   return { ...page, items: page.items.map(mapLessonDto) };
 }
 
-const RECORDING_STATUSES: LessonRecordingStatus[] = ["recording", "completed", "failed"];
+const RECORDING_STATUSES: LessonRecordingStatus[] = ["recording", "merging", "completed", "failed"];
 
 export function mapLessonRecordingDto(dto: LessonRecordingDto): LessonRecording {
   const status = RECORDING_STATUSES.includes(dto.status as LessonRecordingStatus)

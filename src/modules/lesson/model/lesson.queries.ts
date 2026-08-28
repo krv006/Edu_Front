@@ -1,7 +1,8 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
-import type { QueryParams } from "@/shared/api";
+import { AppError, type QueryParams } from "@/shared/api";
 import { lessonApi } from "../api/lesson.api";
+import { flushTeacherAudioRecording } from "../lib/teacher-audio-recording";
 import type { LessonFormInput, LessonRatingInput } from "../api/lesson.dto";
 import { addMinutesToTime, toBackendWeekdays, weeksBetween } from "../lib/lesson-schedule";
 
@@ -184,8 +185,19 @@ export function useDeleteLesson() {
 export function useFinishLesson() {
   const client = useQueryClient();
   return useMutation({
-    mutationFn: ({ id, recordingTitle }: { id: string; recordingTitle?: string }) =>
-      lessonApi.finish(id, recordingTitle),
+    mutationFn: async ({ id, recordingTitle }: { id: string; recordingTitle?: string }) => {
+      // Oxirgi MediaRecorder bo‘lagi serverga yetmasdan darsni yopmaymiz.
+      await flushTeacherAudioRecording(id);
+      const lesson = await lessonApi.finish(id, recordingTitle);
+      try {
+        await lessonApi.finalizeRecordingAudio(id);
+      } catch (error) {
+        // Audio yozib olinmagan/qo‘llab-quvvatlanmagan brauzerda backend 400 beradi.
+        // Bunda video-only fallback ishlaydi va darsni yakunlangan deb hisoblash xavfsiz.
+        if (!(error instanceof AppError && error.status === 400)) throw error;
+      }
+      return lesson;
+    },
     onSuccess: () => {
       client.invalidateQueries({ queryKey: lessonKeys.all });
       toast.success("Dars yakunlandi — yozuv guruh chatiga tushadi");
@@ -201,7 +213,10 @@ export function useLessonRecording(id: string | null) {
     // Havola 3 soatlik va imzolangan — keshdan eskirgan URL bilan pleer ochilib qolmasin.
     staleTime: 0,
     // Dars davomida egress hali yozmoqda — tayyor bo'lgunicha kuzatib turamiz.
-    refetchInterval: (query) => (query.state.data?.status === "recording" ? RECORDING_POLL_MS : false),
+    refetchInterval: (query) =>
+      query.state.data?.status === "recording" || query.state.data?.status === "merging"
+        ? RECORDING_POLL_MS
+        : false,
   });
 }
 

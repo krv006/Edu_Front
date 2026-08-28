@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import {
   DisconnectButton,
   ParticipantTile,
@@ -29,6 +29,10 @@ import {
 import { toast } from "sonner";
 import { AwayStudentsNotice, BoardPanel } from "@/modules/board";
 import {
+  useTeacherAudioRecording,
+  type TeacherAudioRecordingSnapshot,
+} from "@/modules/lesson";
+import {
   AttentionCheckDialog,
   canPublishSource,
   decodeScreenShareRequest,
@@ -53,6 +57,16 @@ const CONNECTION_LABELS: Record<string, string> = {
   [ConnectionState.Connected]: "Ulandi",
   [ConnectionState.Reconnecting]: "Qayta ulanmoqda…",
   [ConnectionState.Disconnected]: "Uzildi",
+};
+
+const AUDIO_RECORDING_LABELS: Record<TeacherAudioRecordingSnapshot["phase"], string> = {
+  idle: "Audio tayyorlanmoqda",
+  recording: "Audio yozilmoqda",
+  uploading: "Audio yuborilmoqda",
+  retrying: "Audio navbatda",
+  stopped: "Audio saqlandi",
+  unsupported: "Audio yozuv mavjud emas",
+  error: "Audio yozuvda xato",
 };
 
 function CameraTile({
@@ -286,6 +300,25 @@ export function LiveRoom({ lesson, isTeacher, onLeave }: LiveRoomProps) {
     ],
     { onlySubscribed: false }
   );
+  const audioTrackReferences = useTracks(
+    [Track.Source.Microphone, Track.Source.ScreenShareAudio],
+    { onlySubscribed: false }
+  );
+  const audioMediaTracks = useMemo(
+    () =>
+      audioTrackReferences.flatMap((trackReference) => {
+        const mediaTrack = trackReference.publication.track?.mediaStreamTrack;
+        return mediaTrack ? [mediaTrack] : [];
+      }),
+    [audioTrackReferences]
+  );
+  const audioRecording = useTeacherAudioRecording(
+    lesson.id,
+    audioMediaTracks,
+    // Reconnecting paytida recorder uzilib, yangi `started_at` bilan ikkinchi
+    // sessiya ochilmasin. Faqat xona butunlay uzilganda cleanup qilamiz.
+    isTeacher && connectionState !== ConnectionState.Disconnected
+  );
   const screenTracks = tracks.filter((track) => track.source === Track.Source.ScreenShare);
   const cameraTracks = tracks.filter((track) => track.source === Track.Source.Camera);
   const activeShare = screenTracks[0] ?? null;
@@ -310,6 +343,21 @@ export function LiveRoom({ lesson, isTeacher, onLeave }: LiveRoomProps) {
           </div>
         </div>
         <div className="live-room-topbar-actions">
+          {isTeacher ? (
+            <span
+              className={`live-audio-recording live-audio-recording--${audioRecording.phase}`}
+              title={audioRecording.error ?? AUDIO_RECORDING_LABELS[audioRecording.phase]}
+              role={audioRecording.phase === "error" ? "alert" : "status"}
+            >
+              <span className="live-audio-recording-dot" aria-hidden="true" />
+              <span>{AUDIO_RECORDING_LABELS[audioRecording.phase]}</span>
+              {audioRecording.pendingChunks ? (
+                <b aria-label={`${audioRecording.pendingChunks} ta bo‘lak navbatda`}>
+                  {audioRecording.pendingChunks}
+                </b>
+              ) : null}
+            </span>
+          ) : null}
           <span className="live-room-count">
             <Users size={15} /> {participants.length}
           </span>

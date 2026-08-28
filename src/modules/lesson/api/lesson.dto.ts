@@ -25,7 +25,7 @@ export interface LessonRequestDto {
 }
 
 /** `status`: egress hali yozmoqda / tugadi / xato (docs/COMPLETED_WORK.md §1). */
-export type RecordingStatusDto = "recording" | "completed" | "failed";
+export type RecordingStatusDto = "recording" | "merging" | "completed" | "failed";
 
 /**
  * `GET /api/v1/lessons/<id>/recording/` javobi.

@@ -35,6 +35,11 @@ export {
   useUpdateLesson,
 } from "./model/lesson.queries";
 export { useLessonView, useLessonViewStore } from "./model/lesson-view.store";
+export { useTeacherAudioRecording } from "./model/use-teacher-audio-recording";
+export type {
+  TeacherAudioRecordingPhase,
+  TeacherAudioRecordingSnapshot,
+} from "./lib/teacher-audio-recording";
 export type { LessonView } from "./model/lesson-view.store";
 export {
   buildMonthGrid,

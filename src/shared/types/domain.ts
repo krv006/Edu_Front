@@ -151,7 +151,7 @@ export interface CourseStudentSearchResult extends DomainUser {
 export type LessonStatus = "scheduled" | "live" | "finished" | "cancelled";
 
 /** `recording` — egress hali dars davomida yozmoqda (docs/COMPLETED_WORK.md §1). */
-export type LessonRecordingStatus = "recording" | "completed" | "failed";
+export type LessonRecordingStatus = "recording" | "merging" | "completed" | "failed";
 
 /**
  * Dars video yozuvi. `streamUrl` — 3 soatlik imzolangan havola, doimiy URL emas:

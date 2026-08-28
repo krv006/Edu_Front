@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { BookOpen, CalendarDays, CheckCircle2, ListChecks, Paperclip } from "lucide-react";
+import { BookOpen, CalendarDays, CheckCircle2, CircleAlert, ListChecks, Paperclip } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 import { ChatHeader } from "@/modules/conversation";
@@ -44,6 +44,12 @@ const TABS: Array<{ id: TabId; label: string; icon: typeof BookOpen }> = [
 
 const SPEAKING_ACCEPT = ".pdf,.png,.jpg,.jpeg,.webp,.docx,.mp3,.wav,.m4a,.ogg";
 const DEFAULT_ACCEPT = ".pdf,.png,.jpg,.jpeg,.webp,.docx";
+
+function isAssignmentOverdue(assignment: Assignment): boolean {
+  if (!assignment.dueAt || assignment.mySubmission) return false;
+  const deadline = Date.parse(assignment.dueAt);
+  return Number.isFinite(deadline) && deadline < Date.now();
+}
 
 export interface StudentGroupWorkspaceProps {
   conversation: Conversation;
@@ -343,36 +349,47 @@ function StudentAssignments({ assignments = [], loading }: { assignments?: Assig
         </div>
       </div>
       <div className="student-workspace-list">
-        {assignments.map((item) => (
-          <article
-            key={item.id}
-            data-assignment-id={item.id}
-            className={item.id === highlightId ? "is-highlighted" : ""}
-          >
-            <span className="workspace-list-icon">
-              <ListChecks size={20} />
-            </span>
-            <div>
-              <strong>{item.title}</strong>
-              <p>
-                {item.dueAt
-                  ? `Muddat: ${new Intl.DateTimeFormat("uz-UZ", {
-                      dateStyle: "medium",
-                      timeStyle: "short",
-                    }).format(new Date(item.dueAt))}`
-                  : "Muddat yo‘q"}
-              </p>
-            </div>
-            <AttachmentButton assignment={item} />
-            {item.mySubmission ? (
-              <SubmissionStatus initial={item.mySubmission} onOpen={setResultOf} />
-            ) : (
-              <Button size="sm" onClick={() => setSelected(item)}>
-                Topshirish
-              </Button>
-            )}
-          </article>
-        ))}
+        {assignments.map((item) => {
+          const overdue = isAssignmentOverdue(item);
+          const deadlineLabel = item.dueAt
+            ? new Intl.DateTimeFormat("uz-UZ", {
+                dateStyle: "medium",
+                timeStyle: "short",
+              }).format(new Date(item.dueAt))
+            : null;
+
+          return (
+            <article
+              key={item.id}
+              data-assignment-id={item.id}
+              className={`${item.id === highlightId ? "is-highlighted " : ""}${overdue ? "is-overdue" : ""}`.trim()}
+            >
+              <span className="workspace-list-icon">
+                <ListChecks size={20} />
+              </span>
+              <div>
+                <strong>{item.title}</strong>
+                <p className={overdue ? "is-overdue" : ""}>
+                  {deadlineLabel
+                    ? `${overdue ? "Muddat tugagan" : "Muddat"}: ${deadlineLabel}`
+                    : "Muddat yo‘q"}
+                </p>
+              </div>
+              <AttachmentButton assignment={item} />
+              {item.mySubmission ? (
+                <SubmissionStatus initial={item.mySubmission} onOpen={setResultOf} />
+              ) : overdue ? (
+                <span className="assignment-missed-pill" role="status">
+                  <CircleAlert size={15} /> Topshirilmagan
+                </span>
+              ) : (
+                <Button size="sm" onClick={() => setSelected(item)}>
+                  Topshirish
+                </Button>
+              )}
+            </article>
+          );
+        })}
         {!assignments.length ? <p className="portal-muted">Vazifa yo‘q.</p> : null}
       </div>
 
@@ -397,12 +414,17 @@ function StudentAssignments({ assignments = [], loading }: { assignments?: Assig
               />
               <Button
                 loading={submit.isPending}
-                disabled={!file}
-                onClick={() =>
-                  submit
+                disabled={!file || isAssignmentOverdue(selected)}
+                onClick={() => {
+                  if (isAssignmentOverdue(selected)) {
+                    toast.error("Topshirish muddati tugagan");
+                    setSelected(null);
+                    return;
+                  }
+                  void submit
                     .mutateAsync({ assignmentId: selected.id, file, skillKey: selected.skillKey })
-                    .then(() => setSelected(null))
-                }
+                    .then(() => setSelected(null));
+                }}
               >
                 Yuborish
               </Button>
