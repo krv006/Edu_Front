@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { formatDayTime } from "@/shared/lib";
 import { CheckCircle2, Clock3, ListChecks } from "lucide-react";
 import { HomeworkResultDialog } from "@/modules/homework";
 import type { Submission } from "@/shared/types";
@@ -75,7 +74,7 @@ export function ParentHomeworkPage() {
               <small>
                 {item.courseTitle} ·{" "}
                 {item.dueAt
-                  ? formatDayTime(item.dueAt)
+                  ? new Intl.DateTimeFormat("uz-UZ", { dateStyle: "medium", timeStyle: "short" }).format(new Date(item.dueAt))
                   : "Muddat yo‘q"}
               </small>
             </div>
