@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import { formatDayTime } from "@/shared/lib";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   BookOpen,
@@ -445,10 +446,7 @@ function AssignmentsPanel({
                 <p>{item.description}</p>
                 <small>
                   {item.dueAt
-                    ? `Muddat: ${new Intl.DateTimeFormat("uz-UZ", {
-                        dateStyle: "medium",
-                        timeStyle: "short",
-                      }).format(new Date(item.dueAt))}`
+                    ? `Muddat: ${formatDayTime(item.dueAt)}`
                     : "Muddat belgilanmagan"}{" "}
                   · {item.submissionsCount ?? 0} topshirilgan
                 </small>
