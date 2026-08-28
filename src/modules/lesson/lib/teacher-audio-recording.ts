@@ -2,6 +2,13 @@ import { AppError } from "@/shared/api";
 import { lessonApi } from "../api/lesson.api";
 
 const CHUNK_INTERVAL_MS = 30_000;
+/**
+ * Birinchi bo‘lak alohida, ertaroq so‘raladi.
+ *
+ * Aks holda quvur ishlayotgani faqat 30 soniyadan keyin bilinardi va undan
+ * qisqa dars (yoki sinov) serverga umuman hech narsa yubormasdi.
+ */
+const FIRST_CHUNK_MS = 5_000;
 const MAX_RETRY_DELAY_MS = 30_000;
 const MIME_CANDIDATES = ["audio/webm;codecs=opus", "audio/webm"] as const;
 
@@ -62,6 +69,8 @@ export class TeacherAudioRecordingSession {
   private uploadLoop: Promise<void> | null = null;
   private stopPromise: Promise<void> | null = null;
   private resolveStopped: (() => void) | null = null;
+  private keepAlive: { oscillator: OscillatorNode; gain: GainNode } | null = null;
+  private firstChunkTimer: ReturnType<typeof globalThis.setTimeout> | null = null;
   private startedAt: string | null = null;
   private firstChunkUploaded = false;
   private uploadedChunks = 0;
@@ -119,20 +128,50 @@ export class TeacherAudioRecordingSession {
       };
       this.recorder.onstop = () => this.resolveStopped?.();
 
+      /*
+       * Kontekst to‘xtagan bo‘lsa MediaRecorder namuna olmaydi va bo‘sh
+       * bo‘laklar keladi — ular esa yuborilmaydi. Shuning uchun yozishdan
+       * OLDIN uyg‘otamiz.
+       */
+      if (this.audioContext.state === "suspended") {
+        void this.audioContext.resume().catch(() => undefined);
+      }
+      this.attachSilence();
+
       // Backend video bilan sinxronlash uchun aynan recorder boshlangan vaqtni kutadi.
       this.startedAt = new Date().toISOString();
       this.recorder.start(CHUNK_INTERVAL_MS);
       this.setState("recording", null);
 
-      if (this.audioContext.state === "suspended") {
-        void this.audioContext.resume().catch(() => undefined);
-      }
+      this.firstChunkTimer = globalThis.setTimeout(() => {
+        this.firstChunkTimer = null;
+        if (this.recorder?.state === "recording") this.recorder.requestData();
+      }, FIRST_CHUNK_MS);
     } catch (error) {
       this.setState(
         "error",
         error instanceof Error ? error.message : "Dars audiosini yozib bo‘lmadi"
       );
     }
+  }
+
+  /**
+   * Eshitilmaydigan doimiy manba.
+   *
+   * Aralashtirgichga hech nima ulanmagan bo‘lsa (o‘qituvchi mikrofoni o‘chiq,
+   * o‘quvchilar hali kirmagan) ba’zi brauzerlar umuman namuna bermaydi va
+   * bo‘laklar bo‘sh chiqadi. Nol kuchaytirishli osilator oqimni tirik
+   * saqlaydi — yozuvda eshitilmaydi.
+   */
+  private attachSilence(): void {
+    if (!this.audioContext || !this.destination || this.keepAlive) return;
+    const oscillator = this.audioContext.createOscillator();
+    const gain = this.audioContext.createGain();
+    gain.gain.value = 0;
+    oscillator.connect(gain);
+    gain.connect(this.destination);
+    oscillator.start();
+    this.keepAlive = { oscillator, gain };
   }
 
   /** LiveKit publikatsiyalari o‘zgarganda mixer source-larini yangilaydi. */
@@ -158,6 +197,11 @@ export class TeacherAudioRecordingSession {
   async stopAndFlush(): Promise<void> {
     if (this.phase === "unsupported") return;
 
+    if (this.firstChunkTimer) {
+      globalThis.clearTimeout(this.firstChunkTimer);
+      this.firstChunkTimer = null;
+    }
+
     if (this.recorder && this.recorder.state !== "inactive") {
       if (!this.stopPromise) {
         this.stopPromise = new Promise((resolve) => {
@@ -169,6 +213,10 @@ export class TeacherAudioRecordingSession {
     }
 
     await this.drainUploads();
+    this.keepAlive?.oscillator.stop();
+    this.keepAlive?.oscillator.disconnect();
+    this.keepAlive?.gain.disconnect();
+    this.keepAlive = null;
     this.sources.forEach((source) => source.disconnect());
     this.sources.clear();
     await this.audioContext?.close().catch(() => undefined);
