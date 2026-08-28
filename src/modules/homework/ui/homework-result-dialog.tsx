@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { formatDayTime } from "@/shared/lib";
 import {
   AlertTriangle,
   CheckCircle2,
@@ -296,7 +295,10 @@ export function HomeworkResultDialog({
                   {submission.checkedAt ? (
                     <span className="hw-badge">
                       <CheckCircle2 size={13} />
-                      {formatDayTime(submission.checkedAt)}
+                      {new Intl.DateTimeFormat("uz-UZ", {
+                        dateStyle: "medium",
+                        timeStyle: "short",
+                      }).format(new Date(submission.checkedAt))}
                     </span>
                   ) : null}
                 </div>
