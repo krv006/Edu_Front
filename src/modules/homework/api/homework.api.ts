@@ -4,10 +4,16 @@ import { homeworkEndpoints } from "./homework.endpoints";
 import type {
   AssignmentDto,
   AssignmentFormInput,
+  HomeworkReportDto,
   SubmissionDto,
   SubmissionReviewInput,
 } from "./homework.dto";
-import { mapAssignmentDto, mapAssignmentRequest, mapSubmissionDto } from "../lib/homework.mappers";
+import {
+  mapAssignmentDto,
+  mapAssignmentRequest,
+  mapHomeworkReportDto,
+  mapSubmissionDto,
+} from "../lib/homework.mappers";
 import { validateHomeworkFile } from "../lib/homework-validation";
 
 export const homeworkApi = {
@@ -62,5 +68,17 @@ export const homeworkApi = {
     if (input.grade !== undefined) body.grade = input.grade;
     if (input.result !== undefined) body.result = input.result;
     return mapSubmissionDto(await apiClient.post<SubmissionDto>(homeworkEndpoints.review(id), body));
+  },
+  /**
+   * Reyting: har kurs bo'yicha berilgan/topshirilgan/o'rtacha ball.
+   * `studentId` — ota-ona bog'langan bolasinikini so'raganda; o'quvchi
+   * o'zinikini so'rasa berilmaydi (backend joriy foydalanuvchini oladi).
+   */
+  async getReport(studentId?: string | null, options: RequestOptions = {}) {
+    const dto = await apiClient.get<HomeworkReportDto>(homeworkEndpoints.report, {
+      ...options,
+      query: studentId ? { student: studentId } : undefined,
+    });
+    return mapHomeworkReportDto(dto);
   },
 };

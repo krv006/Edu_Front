@@ -71,6 +71,8 @@ const BoardPage = lazy(() => import("@/pages/board/board-page").then((module) =>
 const RecordingPage = lazy(() => import("@/pages/recording/recording-page").then((module) => ({ default: module.RecordingPage })));
 const SchedulePage = lazy(() => import("@/pages/schedule/schedule-page").then((module) => ({ default: module.SchedulePage })));
 const AiPage = lazy(() => import("@/pages/ai/ai-page").then((module) => ({ default: module.AiPage })));
+const StudentReportPage = lazy(() => import("@/pages/student/report/student-report-page").then((module) => ({ default: module.StudentReportPage })));
+const ParentReportPage = lazy(() => import("@/pages/parent/report/parent-report-page").then((module) => ({ default: module.ParentReportPage })));
 
 type ChunkLoader = () => Promise<unknown>;
 
@@ -177,7 +179,7 @@ export function AppRouter() {
                   />
                   <Route
                     path={ROUTES.student.grades}
-                    element={<Navigate to={ROUTES.student.chats} replace />}
+                    element={<Navigate to={`${ROUTES.student.chats}/report`} replace />}
                   />
                   <Route
                     path={ROUTES.student.schedule}
@@ -192,6 +194,7 @@ export function AppRouter() {
                         hech qachon suhbat id'si sifatida talqin qilinmaydi. */}
                     <Route path="schedule" element={<SchedulePage />} />
                     <Route path="ai" element={<AiPage />} />
+                    <Route path="report" element={<StudentReportPage />} />
                     <Route
                       path=":conversationId"
                       element={<StudentConversationPage />}
@@ -214,6 +217,7 @@ export function AppRouter() {
                       element={<ParentAttendancePage />}
                     />
                     <Route path="homework" element={<ParentHomeworkPage />} />
+                    <Route path="grades" element={<ParentReportPage />} />
                   </Route>
                 </Route>
 
