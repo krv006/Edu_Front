@@ -175,7 +175,12 @@ export function LiveLessonPage() {
           )
         }
       >
-        <LiveRoom lesson={lesson.data} isTeacher={token.data.isTeacher} onLeave={handleLeave} />
+        <LiveRoom
+          lesson={lesson.data}
+          isTeacher={token.data.isTeacher}
+          screenStream={choices.screenStream ?? null}
+          onLeave={handleLeave}
+        />
       </LiveKitRoom>
     </main>
   );
