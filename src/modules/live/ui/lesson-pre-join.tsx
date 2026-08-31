@@ -2,12 +2,19 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { usePreviewTracks } from "@livekit/components-react";
 import { Track, type LocalVideoTrack } from "livekit-client";
 import { Mic, MicOff, Video, VideoOff } from "lucide-react";
+import { toast } from "sonner";
 import type { Lesson } from "@/shared/types";
 import { Avatar, Button } from "@/shared/ui/legacy";
 
 export interface LessonPreJoinChoices {
   micOn: boolean;
   cameraOn: boolean;
+  /**
+   * O'qituvchining ekran/tab yozuvi (`getDisplayMedia`) — dars videosini
+   * serverga yuklash uchun. Faqat o'qituvchida so'raladi, va faqat ruxsat
+   * berilsa mavjud bo'ladi (`undefined` — rad etilgan yoki o'quvchi).
+   */
+  screenStream?: MediaStream;
 }
 
 export interface LessonPreJoinProps {
@@ -48,6 +55,7 @@ export function LessonPreJoin({
   const [micOn, setMicOn] = useState(false);
   const [cameraOn, setCameraOn] = useState(false);
   const [deviceError, setDeviceError] = useState<string | null>(null);
+  const [joining, setJoining] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
   /*
@@ -87,10 +95,34 @@ export function LessonPreJoin({
    * qurilmani so'rayotgan payt bilan bir vaqtga tushadi. Mikrofonni tizim
    * odatda eksklyuziv beradi, shuning uchun aynan u band bo'lib qoladi va dars
    * ichida o'chiq holda qolardi — kamera esa ochilaverardi.
+   *
+   * O'qituvchi uchun `getDisplayMedia` ham aynan shu yerda, klik'ning o'zi
+   * ichida so'raladi — brauzer transient activation'ni faqat sinxron chaqiruv
+   * bosqichida hisobga oladi, `useEffect` ichida so'ralsa jimgina rad etadi.
    */
-  function join() {
+  async function join() {
     tracks?.forEach((track) => track.stop());
-    onJoin({ micOn, cameraOn });
+
+    if (!isTeacher) {
+      onJoin({ micOn, cameraOn });
+      return;
+    }
+
+    setJoining(true);
+    try {
+      const screenStream = await navigator.mediaDevices.getDisplayMedia({
+        video: { frameRate: 15 },
+        audio: false,
+      });
+      onJoin({ micOn, cameraOn, screenStream });
+    } catch {
+      // Rad etildi yoki brauzer qo'llamaydi — audio baribir yoziladi, faqat
+      // video-tomon yo'qoladi (backend fallback: audio-only bilan yakunlaydi).
+      toast.error("Ekran ulashishga ruxsat berilmadi — dars videosi yozilmaydi");
+      onJoin({ micOn, cameraOn });
+    } finally {
+      setJoining(false);
+    }
   }
 
   /** Qurilma qayta so'ralganda eski xato osilib qolmasin. */
@@ -166,6 +198,13 @@ export function LessonPreJoin({
             </div>
           ) : null}
 
+          {isTeacher ? (
+            <p className="portal-muted">
+              Dars yozib olinishi uchun brauzer ekran ulashishni so‘raydi — ochilgan oynada{" "}
+              <strong>“Joriy tab” (This Tab)</strong>ni tanlang.
+            </p>
+          ) : null}
+
           <p className="portal-muted">
             {micOn ? "Mikrofon yoqilgan" : "Mikrofon o‘chiq"} ·{" "}
             {cameraOn ? "kamera yoqilgan" : "kamera o‘chiq"}.{" "}
@@ -175,10 +214,12 @@ export function LessonPreJoin({
           </p>
 
           <div className="pre-join-actions">
-            <Button variant="secondary" onClick={onCancel}>
+            <Button variant="secondary" onClick={onCancel} disabled={joining}>
               Bekor qilish
             </Button>
-            <Button onClick={join}>Darsga kirish</Button>
+            <Button onClick={join} loading={joining}>
+              Darsga kirish
+            </Button>
           </div>
         </div>
       </div>

@@ -3,6 +3,7 @@ import { toast } from "sonner";
 import { AppError, type QueryParams } from "@/shared/api";
 import { lessonApi } from "../api/lesson.api";
 import { flushTeacherAudioRecording } from "../lib/teacher-audio-recording";
+import { flushTeacherVideoRecording } from "../lib/teacher-video-recording";
 import type { LessonFormInput, LessonRatingInput } from "../api/lesson.dto";
 import { addMinutesToTime, toBackendWeekdays, weeksBetween } from "../lib/lesson-schedule";
 
@@ -14,7 +15,7 @@ export const lessonKeys = Object.freeze({
   ratings: (id: string) => ["lessons", "ratings", id] as const,
 });
 
-/** Egress MP4 ni yozib tugatguncha holat `processing` — shu vaqtda sekin polling qilamiz. */
+/** Server video+audio bo‘laklarini birlashtirib tugatguncha holat `merging` — shu vaqtda sekin polling qilamiz. */
 const RECORDING_POLL_MS = 15_000;
 
 /** `enabled` — chaqiruvchi ko'rinmayotgan bo'lim uchun so'rov yubormasligi mumkin. */
@@ -186,16 +187,22 @@ export function useFinishLesson() {
   const client = useQueryClient();
   return useMutation({
     mutationFn: async ({ id, recordingTitle }: { id: string; recordingTitle?: string }) => {
-      // Oxirgi MediaRecorder bo‘lagi serverga yetmasdan darsni yopmaymiz.
-      await flushTeacherAudioRecording(id);
+      // Oxirgi MediaRecorder bo‘laklari serverga yetmasdan darsni yopmaymiz.
+      await Promise.all([flushTeacherAudioRecording(id), flushTeacherVideoRecording(id)]);
       const lesson = await lessonApi.finish(id, recordingTitle);
-      try {
-        await lessonApi.finalizeRecordingAudio(id);
-      } catch (error) {
-        // Audio yozib olinmagan/qo‘llab-quvvatlanmagan brauzerda backend 400 beradi.
-        // Bunda video-only fallback ishlaydi va darsni yakunlangan deb hisoblash xavfsiz.
-        if (!(error instanceof AppError && error.status === 400)) throw error;
-      }
+      // Tartib muhim emas — backend har birini mustaqil qabul qiladi va
+      // ikkalasi ham kelgach fonda birlashtirishni boshlaydi.
+      const results = await Promise.allSettled([
+        lessonApi.finalizeRecordingAudio(id),
+        lessonApi.finalizeRecordingVideo(id),
+      ]);
+      // Bitta tur umuman yozib olinmagan/qo‘llab-quvvatlanmagan brauzerda backend
+      // 400 beradi — bu holda ikkinchi tur bilan fallback ishlaydi, xato emas.
+      results.forEach((result) => {
+        if (result.status === "rejected" && !(result.reason instanceof AppError && result.reason.status === 400)) {
+          throw result.reason;
+        }
+      });
       return lesson;
     },
     onSuccess: () => {
@@ -212,7 +219,7 @@ export function useLessonRecording(id: string | null) {
     enabled: Boolean(id),
     // Havola 3 soatlik va imzolangan — keshdan eskirgan URL bilan pleer ochilib qolmasin.
     staleTime: 0,
-    // Dars davomida egress hali yozmoqda — tayyor bo'lgunicha kuzatib turamiz.
+    // Dars davomida o'qituvchi brauzerida hali yozilmoqda — tayyor bo'lgunicha kuzatib turamiz.
     refetchInterval: (query) =>
       query.state.data?.status === "recording" || query.state.data?.status === "merging"
         ? RECORDING_POLL_MS

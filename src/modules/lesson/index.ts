@@ -40,6 +40,11 @@ export type {
   TeacherAudioRecordingPhase,
   TeacherAudioRecordingSnapshot,
 } from "./lib/teacher-audio-recording";
+export { useTeacherVideoRecording } from "./model/use-teacher-video-recording";
+export type {
+  TeacherVideoRecordingPhase,
+  TeacherVideoRecordingSnapshot,
+} from "./lib/teacher-video-recording";
 export type { LessonView } from "./model/lesson-view.store";
 export {
   buildMonthGrid,

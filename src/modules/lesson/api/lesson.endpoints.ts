@@ -8,6 +8,10 @@ export const lessonEndpoints = Object.freeze({
   recordingAudio: (id: string) => `/api/v1/lessons/${id}/recording/audio/`,
   /** Barcha audio bo‘laklari yuklangach video bilan birlashtirishni boshlaydi. */
   finalizeRecordingAudio: (id: string) => `/api/v1/lessons/${id}/recording/audio/finalize/`,
+  /** O‘qituvchi brauzerida (`getDisplayMedia`) yozilgan ekran bo‘laklari. */
+  recordingVideo: (id: string) => `/api/v1/lessons/${id}/recording/video/`,
+  /** Barcha video bo‘laklari yuklangach audio bilan birlashtirishni boshlaydi. */
+  finalizeRecordingVideo: (id: string) => `/api/v1/lessons/${id}/recording/video/finalize/`,
   /**
    * Haftalik jadval bo'yicha ko'plab dars yaratish.
    * Yo'l kurs ostida turadi, lekin natija — darslar, shuning uchun shu yerda.

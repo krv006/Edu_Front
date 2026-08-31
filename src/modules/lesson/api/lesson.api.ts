@@ -149,6 +149,18 @@ export const lessonApi = {
   async finalizeRecordingAudio(id: string) {
     await apiClient.post<void>(lessonEndpoints.finalizeRecordingAudio(id));
   },
+  async uploadRecordingVideo(id: string, chunk: Blob, startedAt?: string) {
+    const formData = new FormData();
+    formData.append("chunk", chunk, `lesson-${id}-${Date.now()}.webm`);
+    if (startedAt) formData.append("started_at", startedAt);
+    await apiClient.post<void>(lessonEndpoints.recordingVideo(id), formData, {
+      // Video bo‘lagi (50 MB gacha) audio bo‘lagidan sezilarli katta bo‘lishi mumkin.
+      timeoutMs: 120_000,
+    });
+  },
+  async finalizeRecordingVideo(id: string) {
+    await apiClient.post<void>(lessonEndpoints.finalizeRecordingVideo(id));
+  },
   /**
    * Dars bahosi. Backend faqat tugagan darsni va faqat shu kursga yozilgan
    * o'quvchini qabul qiladi — qolgan hollarda 400/403 keladi va xabar formada

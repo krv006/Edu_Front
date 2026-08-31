@@ -30,7 +30,9 @@ import { toast } from "sonner";
 import { AwayStudentsNotice, BoardPanel } from "@/modules/board";
 import {
   useTeacherAudioRecording,
+  useTeacherVideoRecording,
   type TeacherAudioRecordingSnapshot,
+  type TeacherVideoRecordingSnapshot,
 } from "@/modules/lesson";
 import {
   AttentionCheckDialog,
@@ -67,6 +69,16 @@ const AUDIO_RECORDING_LABELS: Record<TeacherAudioRecordingSnapshot["phase"], str
   stopped: "Audio saqlandi",
   unsupported: "Audio yozuv mavjud emas",
   error: "Audio yozuvda xato",
+};
+
+const VIDEO_RECORDING_LABELS: Record<TeacherVideoRecordingSnapshot["phase"], string> = {
+  idle: "Video tayyorlanmoqda",
+  recording: "Video yozilmoqda",
+  uploading: "Video yuborilmoqda",
+  retrying: "Video navbatda",
+  stopped: "Video saqlandi",
+  unsupported: "Video yozuv mavjud emas",
+  error: "Video yozuvda xato",
 };
 
 function CameraTile({
@@ -281,10 +293,12 @@ function ShareRequestListener({ lessonId, enabled }: { lessonId: string; enabled
 export interface LiveRoomProps {
   lesson: Lesson;
   isTeacher: boolean;
+  /** Pre-join'da `getDisplayMedia` orqali olingan ekran oqimi (faqat o'qituvchida, ruxsat berilgan bo'lsa). */
+  screenStream?: MediaStream | null;
   onLeave: () => void;
 }
 
-export function LiveRoom({ lesson, isTeacher, onLeave }: LiveRoomProps) {
+export function LiveRoom({ lesson, isTeacher, screenStream = null, onLeave }: LiveRoomProps) {
   const [panel, setPanel] = useState<SidePanel>(null);
   const [inviteOpen, setInviteOpen] = useState(false);
   const connectionState = useConnectionState();
@@ -317,6 +331,11 @@ export function LiveRoom({ lesson, isTeacher, onLeave }: LiveRoomProps) {
     audioMediaTracks,
     // Reconnecting paytida recorder uzilib, yangi `started_at` bilan ikkinchi
     // sessiya ochilmasin. Faqat xona butunlay uzilganda cleanup qilamiz.
+    isTeacher && connectionState !== ConnectionState.Disconnected
+  );
+  const videoRecording = useTeacherVideoRecording(
+    lesson.id,
+    screenStream,
     isTeacher && connectionState !== ConnectionState.Disconnected
   );
   const screenTracks = tracks.filter((track) => track.source === Track.Source.ScreenShare);
@@ -354,6 +373,21 @@ export function LiveRoom({ lesson, isTeacher, onLeave }: LiveRoomProps) {
               {audioRecording.pendingChunks ? (
                 <b aria-label={`${audioRecording.pendingChunks} ta bo‘lak navbatda`}>
                   {audioRecording.pendingChunks}
+                </b>
+              ) : null}
+            </span>
+          ) : null}
+          {isTeacher && screenStream ? (
+            <span
+              className={`live-video-recording live-video-recording--${videoRecording.phase}`}
+              title={videoRecording.error ?? VIDEO_RECORDING_LABELS[videoRecording.phase]}
+              role={videoRecording.phase === "error" ? "alert" : "status"}
+            >
+              <span className="live-video-recording-dot" aria-hidden="true" />
+              <span>{VIDEO_RECORDING_LABELS[videoRecording.phase]}</span>
+              {videoRecording.pendingChunks ? (
+                <b aria-label={`${videoRecording.pendingChunks} ta bo‘lak navbatda`}>
+                  {videoRecording.pendingChunks}
                 </b>
               ) : null}
             </span>
