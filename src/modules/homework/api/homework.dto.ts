@@ -85,6 +85,37 @@ export interface AssignmentDto {
   stats?: AssignmentStatsDto | null;
 }
 
+/**
+ * `GET /api/v1/homework/report/` javobi — backend bu shaklni hujjatlashtirmagan,
+ * shuning uchun bir nechta ehtimoliy maydon nomi (alias) qabul qilinadi
+ * (`lib/homework.mappers.ts#mapHomeworkReportDto`). Haqiqiy javobni ko'rgach
+ * ortiqcha aliaslarni olib tashlang.
+ */
+export interface HomeworkCourseReportDto {
+  course_id?: string | number;
+  id?: string | number;
+  course_title?: string;
+  title?: string;
+  course_name?: string;
+  assigned_count?: number | null;
+  assignments_count?: number | null;
+  total_assignments?: number | null;
+  submitted_count?: number | null;
+  submissions_count?: number | null;
+  avg_score?: number | null;
+  average_score?: number | null;
+}
+
+export type HomeworkReportDto =
+  | HomeworkCourseReportDto[]
+  | {
+      courses?: HomeworkCourseReportDto[];
+      results?: HomeworkCourseReportDto[];
+      overall?: HomeworkCourseReportDto;
+      summary?: HomeworkCourseReportDto;
+      total?: HomeworkCourseReportDto;
+    };
+
 /** `AddAssignmentDialog` yuboradigan forma. */
 export interface AssignmentFormInput {
   courseId: string | null;

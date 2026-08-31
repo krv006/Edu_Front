@@ -302,6 +302,27 @@ export interface AssignmentFormValues {
   file?: File | null;
 }
 
+/** `GET /api/v1/homework/report/` — bitta kurs yoki umumiy qator uchun ko'rsatkichlar. */
+export interface HomeworkReportSummary {
+  assignedCount: number;
+  submittedCount: number;
+  /** 0-100, `assignedCount` bo'lmasa 0. */
+  submissionRate: number;
+  /** Faqat o'qituvchi tasdiqlagan (DONE) baholarning o'rtachasi — `null` hali baho yo'q bo'lsa. */
+  averageScore: number | null;
+}
+
+export interface CourseHomeworkReport extends HomeworkReportSummary {
+  courseId: string;
+  courseTitle: string;
+}
+
+/** O'quvchining reytingi: har bir kurs bo'yicha va barcha fanlar bo'yicha yagona ko'rsatkich. */
+export interface HomeworkReport {
+  courses: CourseHomeworkReport[];
+  overall: HomeworkReportSummary;
+}
+
 // ─── Davomat ────────────────────────────────────────────────────────────────
 
 /** O'quvchi dars oynasidan chiqib turgan bitta oraliq. */

@@ -14,6 +14,7 @@ export const homeworkKeys = Object.freeze({
   assignments: (courseId: string | null) => ["homework", "assignments", courseId] as const,
   assignment: (id: string) => ["homework", "assignment", id] as const,
   submission: (id: string) => ["homework", "submission", id] as const,
+  report: (studentId?: string | null) => ["homework", "report", studentId ?? "me"] as const,
 });
 
 /** AI tekshiruvi `checking` holatida ekan polling davom etadi, ammo cheklangan vaqt ichida. */
@@ -64,6 +65,19 @@ export function useSubmission(
           )
         : false,
     refetchOnWindowFocus: true,
+  });
+}
+
+/**
+ * O'quvchining reytingi. `studentId` berilmasa backend joriy foydalanuvchini
+ * oladi (o'quvchi o'zinikini ko'radi); ota-ona bog'langan bolasi uchun
+ * `enabled` odatda `selectedChildId` borligiga qarab beriladi.
+ */
+export function useHomeworkReport(studentId?: string | null, enabled = true) {
+  return useQuery({
+    queryKey: homeworkKeys.report(studentId),
+    queryFn: ({ signal }) => homeworkApi.getReport(studentId, { signal }),
+    enabled,
   });
 }
 

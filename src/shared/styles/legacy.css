@@ -3746,6 +3746,15 @@ body > .ML__keyboard,
 .portal-metric--amber > span { color: var(--tone-amber-fg); background: var(--tone-amber-bg); }
 .portal-metric--emerald > span { color: var(--tone-emerald-fg); background: var(--tone-emerald-bg); }
 .portal-metric--rose > span { color: var(--tone-rose-fg); background: var(--tone-rose-bg); }
+.homework-report { display: grid; gap: 18px; }
+.homework-report-list { padding: 20px; display: grid; gap: 4px; }
+.homework-report-row { padding: 14px 4px; border-bottom: 1px solid var(--border); display: grid; gap: 8px; }
+.homework-report-row:last-child { border-bottom: 0; }
+.homework-report-row-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.homework-report-row-head strong { font-size: var(--fs-md); }
+.homework-report-progress { height: 8px; border-radius: var(--r-full); overflow: hidden; background: var(--primary-soft); }
+.homework-report-progress > span { display: block; height: 100%; border-radius: var(--r-full); background: var(--primary); transition: width .2s ease; }
+.homework-report-row small { color: var(--muted-foreground); font-size: var(--fs-2xs); }
 .student-dashboard-grid { display: grid; grid-template-columns: 1.2fr .8fr; gap: 18px; align-items: start; }
 .portal-card { border: 1px solid var(--border); border-radius: var(--r-xl); background: var(--surface); box-shadow: 0 12px 34px rgb(var(--shadow-rgb) / .045); }
 .next-lesson-card, .student-task-card, .parent-recent-card { padding: 22px; }

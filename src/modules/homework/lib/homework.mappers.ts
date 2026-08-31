@@ -1,8 +1,10 @@
-import type { AiResult, Assignment, Submission } from "@/shared/types";
+import type { AiResult, Assignment, CourseHomeworkReport, HomeworkReport, HomeworkReportSummary, Submission } from "@/shared/types";
 import type {
   AiResultDto,
   AssignmentDto,
   AssignmentFormInput,
+  HomeworkCourseReportDto,
+  HomeworkReportDto,
   SubmissionDto,
 } from "../api/homework.dto";
 
@@ -84,6 +86,65 @@ export function mapAssignmentDto(dto: AssignmentDto): Assignment {
         }
       : null,
   };
+}
+
+function pickCount(...values: Array<number | null | undefined>): number {
+  for (const value of values) {
+    if (typeof value === "number" && Number.isFinite(value)) return value;
+  }
+  return 0;
+}
+
+function pickScore(...values: Array<number | null | undefined>): number | null {
+  for (const value of values) {
+    if (typeof value === "number" && Number.isFinite(value)) return value;
+  }
+  return null;
+}
+
+function summarize(assignedCount: number, submittedCount: number, averageScore: number | null): HomeworkReportSummary {
+  return {
+    assignedCount,
+    submittedCount,
+    submissionRate: assignedCount > 0 ? Math.round((submittedCount / assignedCount) * 100) : 0,
+    averageScore,
+  };
+}
+
+function mapCourseReportDto(dto: HomeworkCourseReportDto): CourseHomeworkReport {
+  return {
+    courseId: String(dto.course_id ?? dto.id ?? ""),
+    courseTitle: dto.course_title ?? dto.title ?? dto.course_name ?? "",
+    ...summarize(
+      pickCount(dto.assigned_count, dto.assignments_count, dto.total_assignments),
+      pickCount(dto.submitted_count, dto.submissions_count),
+      pickScore(dto.avg_score, dto.average_score)
+    ),
+  };
+}
+
+/**
+ * `overall` (yagona umumiy ko'rsatkich) backend qaytarsa o'sha ishlatiladi,
+ * aks holda kurslar ro'yxatidan hisoblanadi — o'rtacha ball topshirilgan
+ * vazifalar soniga qarab tortilgan (ko'p vazifali fan natijaga ko'proq ta'sir qiladi).
+ */
+export function mapHomeworkReportDto(dto: HomeworkReportDto | null | undefined): HomeworkReport {
+  const rows: HomeworkCourseReportDto[] = Array.isArray(dto) ? dto : (dto?.courses ?? dto?.results ?? []);
+  const courses = rows.map(mapCourseReportDto);
+
+  const overallDto = !Array.isArray(dto) ? (dto?.overall ?? dto?.summary ?? dto?.total) : undefined;
+  if (overallDto) return { courses, overall: mapCourseReportDto(overallDto) };
+
+  const assignedCount = courses.reduce((sum, item) => sum + item.assignedCount, 0);
+  const submittedCount = courses.reduce((sum, item) => sum + item.submittedCount, 0);
+  const scored = courses.filter((item) => item.averageScore != null && item.submittedCount > 0);
+  const weightTotal = scored.reduce((sum, item) => sum + item.submittedCount, 0);
+  const averageScore =
+    weightTotal > 0
+      ? scored.reduce((sum, item) => sum + (item.averageScore as number) * item.submittedCount, 0) / weightTotal
+      : null;
+
+  return { courses, overall: summarize(assignedCount, submittedCount, averageScore) };
 }
 
 /** Vazifa multipart bilan yuboriladi — matn ham, biriktirilgan fayl ham bitta so'rovda. */

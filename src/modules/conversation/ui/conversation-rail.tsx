@@ -1,21 +1,28 @@
-import { CalendarDays, Menu, MessagesSquare, Sparkles } from "lucide-react";
+import { CalendarDays, Menu, MessagesSquare, Sparkles, Trophy } from "lucide-react";
 import { useNavigate, useResolvedPath } from "react-router-dom";
 import type { ConversationRole } from "@/shared/types";
 import { useConversations } from "../model/use-conversations";
 
 /** Ustundagi asosiy bo'lim — Teams uslubi: ikonka tepada, yozuv ostida. */
-export type ConversationSection = "chat" | "schedule" | "ai";
+export type ConversationSection = "chat" | "schedule" | "ai" | "report";
 
-const SECTIONS: Array<{
+type SectionItem = {
   id: ConversationSection;
   label: string;
   icon: typeof MessagesSquare;
   /** Suhbatlar bo'limiga nisbatan yo'l; bo'sh bo'lsa — o'zi. */
   path: string;
-}> = [
+};
+
+const SECTIONS: SectionItem[] = [
   { id: "chat", label: "Chat", icon: MessagesSquare, path: "" },
   { id: "schedule", label: "Kalendar", icon: CalendarDays, path: "/schedule" },
   { id: "ai", label: "AI", icon: Sparkles, path: "/ai" },
+];
+
+/** Reyting faqat o'quvchida — o'qituvchining o'z bahosi yo'q. */
+const STUDENT_ONLY_SECTIONS: SectionItem[] = [
+  { id: "report", label: "Reyting", icon: Trophy, path: "/report" },
 ];
 
 export interface ConversationRailProps {
@@ -39,6 +46,7 @@ export function ConversationRail({ role, section, onOpenMenu }: ConversationRail
   const { data = [] } = useConversations(role);
   const basePath = role === "teacher" ? "/teacher/chats" : "/student/chats";
   const chatsPath = useResolvedPath(basePath).pathname;
+  const sections = role === "student" ? [...SECTIONS, ...STUDENT_ONLY_SECTIONS] : SECTIONS;
 
   /** Chat yonidagi nishoncha — o'qilmagan suhbatlar soni. */
   const unreadChats = data.filter((conversation) => conversation.unreadCount > 0).length;
@@ -54,7 +62,7 @@ export function ConversationRail({ role, section, onOpenMenu }: ConversationRail
         <Menu size={24} />
       </button>
 
-      {SECTIONS.map((item) => {
+      {sections.map((item) => {
         const Icon = item.icon;
         const active = section === item.id;
         return (
