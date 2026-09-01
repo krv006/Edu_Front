@@ -8,6 +8,14 @@ import { Avatar, Button } from "@/shared/ui/legacy";
 export interface LessonPreJoinChoices {
   micOn: boolean;
   cameraOn: boolean;
+  /**
+   * O'qituvchining ekran/tab yozuvi (`getDisplayMedia`) — dars videosini
+   * serverga yuklash uchun. Faqat o'qituvchida bo'ladi (o'quvchida hech
+   * qachon so'ralmaydi — `undefined`). O'qituvchi uchun bu maydon
+   * majburiy: ruxsat berilmasa yoki brauzer qo'llamasa, `join()`
+   * `onJoin`ni umuman chaqirmaydi — dars videosiz boshlanmasin.
+   */
+  screenStream?: MediaStream;
 }
 
 export interface LessonPreJoinProps {
@@ -48,6 +56,8 @@ export function LessonPreJoin({
   const [micOn, setMicOn] = useState(false);
   const [cameraOn, setCameraOn] = useState(false);
   const [deviceError, setDeviceError] = useState<string | null>(null);
+  const [screenShareError, setScreenShareError] = useState<string | null>(null);
+  const [joining, setJoining] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
 
   /*
@@ -88,15 +98,43 @@ export function LessonPreJoin({
    * odatda eksklyuziv beradi, shuning uchun aynan u band bo'lib qoladi va dars
    * ichida o'chiq holda qolardi — kamera esa ochilaverardi.
    *
-   * Video yozuvi endi shu yerda SO'RALMAYDI — u darsning ichidagi "Ekranni
-   * ulashish" tugmasi orqali PUBLISH qilingan trekdan olinadi (bir xil
-   * tugma — ham talabalarga ko'rsatish, ham yozib olish uchun). Shunday
-   * qilib, o'qituvchi ekranini kirishda EMAS, darsning istalgan payti
-   * ulashsa ham — video baribir yoziladi.
+   * O'qituvchi uchun `getDisplayMedia` ham aynan shu yerda, klik'ning o'zi
+   * ichida so'raladi — brauzer transient activation'ni faqat sinxron chaqiruv
+   * bosqichida hisobga oladi, `useEffect` ichida so'ralsa jimgina rad etadi.
+   *
+   * Video yozuvi MAJBURIY: ruxsat berilmasa (yoki brauzer qo'llamasa),
+   * `onJoin` chaqirilmaydi va o'qituvchi darsga kira olmaydi — chala
+   * (videosiz) yozuv umuman bo'lmasligi kerak. Xato ko'rsatiladi va
+   * "Darsga kirish" qayta bosilsa, brauzer yana so'raydi.
    */
-  function join() {
+  async function join() {
     tracks?.forEach((track) => track.stop());
-    onJoin({ micOn, cameraOn });
+
+    if (!isTeacher) {
+      onJoin({ micOn, cameraOn });
+      return;
+    }
+
+    if (typeof navigator.mediaDevices?.getDisplayMedia !== "function") {
+      setScreenShareError("Bu brauzer ekran ulashishni qo‘llamaydi — boshqa brauzerdan urinib ko‘ring.");
+      return;
+    }
+
+    setJoining(true);
+    setScreenShareError(null);
+    try {
+      const screenStream = await navigator.mediaDevices.getDisplayMedia({
+        video: { frameRate: 15 },
+        audio: false,
+      });
+      onJoin({ micOn, cameraOn, screenStream });
+    } catch {
+      setScreenShareError(
+        "Ekran ulashishga ruxsat berilmadi — dars video yozuvi uchun bu shart. Qayta urinib ko‘ring."
+      );
+    } finally {
+      setJoining(false);
+    }
   }
 
   /** Qurilma qayta so'ralganda eski xato osilib qolmasin. */
@@ -172,10 +210,17 @@ export function LessonPreJoin({
             </div>
           ) : null}
 
+          {screenShareError ? (
+            <div className="form-alert" role="alert">
+              {screenShareError}
+            </div>
+          ) : null}
+
           {isTeacher ? (
             <p className="portal-muted">
-              Dars video sifatida yozilishi uchun darsda <strong>“Ekranni ulashish”</strong>{" "}
-              tugmasini bosing — istalgan payt, hatto dars boshlangandan keyin ham.
+              Dars yozib olinishi uchun brauzer ekran ulashishni so‘raydi — ochilgan oynada{" "}
+              <strong>“Joriy tab” (This Tab)</strong>ni tanlang. Ruxsat berilmasa darsga kira
+              olmaysiz.
             </p>
           ) : null}
 
@@ -188,10 +233,12 @@ export function LessonPreJoin({
           </p>
 
           <div className="pre-join-actions">
-            <Button variant="secondary" onClick={onCancel}>
+            <Button variant="secondary" onClick={onCancel} disabled={joining}>
               Bekor qilish
             </Button>
-            <Button onClick={join}>Darsga kirish</Button>
+            <Button onClick={join} loading={joining}>
+              Darsga kirish
+            </Button>
           </div>
         </div>
       </div>

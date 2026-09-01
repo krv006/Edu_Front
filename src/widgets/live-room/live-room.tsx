@@ -293,10 +293,21 @@ function ShareRequestListener({ lessonId, enabled }: { lessonId: string; enabled
 export interface LiveRoomProps {
   lesson: Lesson;
   isTeacher: boolean;
+  /**
+   * Pre-join'da `getDisplayMedia` orqali olingan, o'qituvchining butun
+   * ekrani/tabi — dars video yozuvi shundan olinadi. QASDDAN "Ekranni
+   * ulashish" (`Track.Source.ScreenShare`, pastda) trekidan MUSTAQIL:
+   * o'qituvchining butun ko'rinishini suratga oladi (kim ulashsa ham —
+   * boshqa ishtirokchining ekrani, kamerasi — hammasi yoziladi), faqat
+   * o'qituvchining o'z chiquvchi trekini emas. Pre-join uni MAJBURIY
+   * qiladi (ruxsat berilmasa kirish bloklanadi), shuning uchun bu yerda
+   * har doim mavjud.
+   */
+  screenStream: MediaStream | null;
   onLeave: () => void;
 }
 
-export function LiveRoom({ lesson, isTeacher, onLeave }: LiveRoomProps) {
+export function LiveRoom({ lesson, isTeacher, screenStream, onLeave }: LiveRoomProps) {
   const [panel, setPanel] = useState<SidePanel>(null);
   const [inviteOpen, setInviteOpen] = useState(false);
   const connectionState = useConnectionState();
@@ -329,26 +340,6 @@ export function LiveRoom({ lesson, isTeacher, onLeave }: LiveRoomProps) {
   const activeShare = screenTracks[0] ?? null;
 
   /*
-   * Video yozuvi endi o'qituvchining pre-join'dagi alohida `getDisplayMedia`
-   * chaqiruvidan EMAS, balki aynan shu — pastdagi "Ekranni ulashish"
-   * tugmasi (`Track.Source.ScreenShare`) — orqali PUBLISH qilingan trekdan
-   * olinadi. Ilgari ikkalasi mustaqil edi: agar o'qituvchi kirishda ekran
-   * ulashishni rad etsa, keyin darsda "Ekranni ulashish"ni yoqsa ham video
-   * UMUMAN yozilmasdi (talabalarga ko'rinardi, lekin yozuvga ulanmagandi).
-   * Endi ikkalasi bitta — tugma bosilgan payt (darsning boshida ham,
-   * o'rtasida ham) yozuv ham boshlanadi.
-   */
-  const localScreenShareTrack = screenTracks.find((track) => track.participant.isLocal);
-  const localScreenMediaTrack =
-    localScreenShareTrack && "publication" in localScreenShareTrack
-      ? localScreenShareTrack.publication?.track?.mediaStreamTrack
-      : undefined;
-  const videoRecordingStream = useMemo(
-    () => (localScreenMediaTrack ? new MediaStream([localScreenMediaTrack]) : null),
-    [localScreenMediaTrack]
-  );
-
-  /*
    * `connectionState` ilgari shu yerda tekshirilardi ("Reconnecting paytida
    * ikkinchi sessiya ochilmasin" niyati bilan), lekin amalda LiveKit
    * ulanishi qisqa muddatga `Disconnected` holatiga TUSHIB QAYTGANDA ham,
@@ -361,7 +352,7 @@ export function LiveRoom({ lesson, isTeacher, onLeave }: LiveRoomProps) {
    * haqiqatan tugaganda (komponent unmount) to'xtaydi.
    */
   const audioRecording = useTeacherAudioRecording(lesson.id, audioMediaTracks, isTeacher);
-  const videoRecording = useTeacherVideoRecording(lesson.id, videoRecordingStream, isTeacher);
+  const videoRecording = useTeacherVideoRecording(lesson.id, screenStream, isTeacher);
 
   const togglePanel = (next: Exclude<SidePanel, null>) =>
     setPanel((current) => (current === next ? null : next));
@@ -398,7 +389,7 @@ export function LiveRoom({ lesson, isTeacher, onLeave }: LiveRoomProps) {
               ) : null}
             </span>
           ) : null}
-          {isTeacher && videoRecordingStream ? (
+          {isTeacher && screenStream ? (
             <span
               className={`live-video-recording live-video-recording--${videoRecording.phase}`}
               title={videoRecording.error ?? VIDEO_RECORDING_LABELS[videoRecording.phase]}
