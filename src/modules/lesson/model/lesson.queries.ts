@@ -15,8 +15,18 @@ export const lessonKeys = Object.freeze({
   ratings: (id: string) => ["lessons", "ratings", id] as const,
 });
 
-/** Server video+audio bo‘laklarini birlashtirib tugatguncha holat `merging` — shu vaqtda sekin polling qilamiz. */
+/**
+ * Dars hali yozilayotganda holat `recording` — bu soatlab davom etishi
+ * mumkin, tez-tez so'rash shart emas.
+ */
 const RECORDING_POLL_MS = 15_000;
+/**
+ * Video+audio birlashtirilayotganda holat `merging` — bu `-c copy` bilan
+ * (qayta kodlashsiz) bir necha soniyada tugaydi, shuning uchun TEZ so'raymiz
+ * — aks holda foydalanuvchi tayyor bo'lgan yozuvni ko'rish uchun keraksiz
+ * uzoq (eski qiymatda 15s gacha) kutib turishi mumkin edi.
+ */
+const MERGING_POLL_MS = 2_000;
 
 /** `enabled` — chaqiruvchi ko'rinmayotgan bo'lim uchun so'rov yubormasligi mumkin. */
 export function useLessons(params: QueryParams = {}, enabled = true) {
@@ -220,10 +230,13 @@ export function useLessonRecording(id: string | null) {
     // Havola 3 soatlik va imzolangan — keshdan eskirgan URL bilan pleer ochilib qolmasin.
     staleTime: 0,
     // Dars davomida o'qituvchi brauzerida hali yozilmoqda — tayyor bo'lgunicha kuzatib turamiz.
-    refetchInterval: (query) =>
-      query.state.data?.status === "recording" || query.state.data?.status === "merging"
-        ? RECORDING_POLL_MS
-        : false,
+    // `merging` tezroq so'raladi — bu bosqich juda qisqa (bir necha soniya).
+    refetchInterval: (query) => {
+      const status = query.state.data?.status;
+      if (status === "merging") return MERGING_POLL_MS;
+      if (status === "recording") return RECORDING_POLL_MS;
+      return false;
+    },
   });
 }
 
