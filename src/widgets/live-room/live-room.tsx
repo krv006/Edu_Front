@@ -293,12 +293,10 @@ function ShareRequestListener({ lessonId, enabled }: { lessonId: string; enabled
 export interface LiveRoomProps {
   lesson: Lesson;
   isTeacher: boolean;
-  /** Pre-join'da `getDisplayMedia` orqali olingan ekran oqimi (faqat o'qituvchida, ruxsat berilgan bo'lsa). */
-  screenStream?: MediaStream | null;
   onLeave: () => void;
 }
 
-export function LiveRoom({ lesson, isTeacher, screenStream = null, onLeave }: LiveRoomProps) {
+export function LiveRoom({ lesson, isTeacher, onLeave }: LiveRoomProps) {
   const [panel, setPanel] = useState<SidePanel>(null);
   const [inviteOpen, setInviteOpen] = useState(false);
   const connectionState = useConnectionState();
@@ -326,21 +324,44 @@ export function LiveRoom({ lesson, isTeacher, screenStream = null, onLeave }: Li
       }),
     [audioTrackReferences]
   );
-  const audioRecording = useTeacherAudioRecording(
-    lesson.id,
-    audioMediaTracks,
-    // Reconnecting paytida recorder uzilib, yangi `started_at` bilan ikkinchi
-    // sessiya ochilmasin. Faqat xona butunlay uzilganda cleanup qilamiz.
-    isTeacher && connectionState !== ConnectionState.Disconnected
-  );
-  const videoRecording = useTeacherVideoRecording(
-    lesson.id,
-    screenStream,
-    isTeacher && connectionState !== ConnectionState.Disconnected
-  );
   const screenTracks = tracks.filter((track) => track.source === Track.Source.ScreenShare);
   const cameraTracks = tracks.filter((track) => track.source === Track.Source.Camera);
   const activeShare = screenTracks[0] ?? null;
+
+  /*
+   * Video yozuvi endi o'qituvchining pre-join'dagi alohida `getDisplayMedia`
+   * chaqiruvidan EMAS, balki aynan shu — pastdagi "Ekranni ulashish"
+   * tugmasi (`Track.Source.ScreenShare`) — orqali PUBLISH qilingan trekdan
+   * olinadi. Ilgari ikkalasi mustaqil edi: agar o'qituvchi kirishda ekran
+   * ulashishni rad etsa, keyin darsda "Ekranni ulashish"ni yoqsa ham video
+   * UMUMAN yozilmasdi (talabalarga ko'rinardi, lekin yozuvga ulanmagandi).
+   * Endi ikkalasi bitta — tugma bosilgan payt (darsning boshida ham,
+   * o'rtasida ham) yozuv ham boshlanadi.
+   */
+  const localScreenShareTrack = screenTracks.find((track) => track.participant.isLocal);
+  const localScreenMediaTrack =
+    localScreenShareTrack && "publication" in localScreenShareTrack
+      ? localScreenShareTrack.publication?.track?.mediaStreamTrack
+      : undefined;
+  const videoRecordingStream = useMemo(
+    () => (localScreenMediaTrack ? new MediaStream([localScreenMediaTrack]) : null),
+    [localScreenMediaTrack]
+  );
+
+  /*
+   * `connectionState` ilgari shu yerda tekshirilardi ("Reconnecting paytida
+   * ikkinchi sessiya ochilmasin" niyati bilan), lekin amalda LiveKit
+   * ulanishi qisqa muddatga `Disconnected` holatiga TUSHIB QAYTGANDA ham,
+   * bu `enabled`ni yolg'onga aylantirib, recorder sessiyasini TO'LIQ qayta
+   * boshlatib yuborardi — natijada bir nechta mustaqil WebM segmenti xom
+   * ulanib, yakuniy faylda ikkinchi segmentdan keyin qidirish/pauza qotib
+   * qolardi (production, 2026-09-01). Yozib olish LiveKit ulanishiga
+   * bog'liq emas (video — brauzerning o'zi, audio — mahalliy mikser),
+   * shuning uchun endi faqat `isTeacher`ga qaraymiz — sessiya faqat dars
+   * haqiqatan tugaganda (komponent unmount) to'xtaydi.
+   */
+  const audioRecording = useTeacherAudioRecording(lesson.id, audioMediaTracks, isTeacher);
+  const videoRecording = useTeacherVideoRecording(lesson.id, videoRecordingStream, isTeacher);
 
   const togglePanel = (next: Exclude<SidePanel, null>) =>
     setPanel((current) => (current === next ? null : next));
@@ -377,7 +398,7 @@ export function LiveRoom({ lesson, isTeacher, screenStream = null, onLeave }: Li
               ) : null}
             </span>
           ) : null}
-          {isTeacher && screenStream ? (
+          {isTeacher && videoRecordingStream ? (
             <span
               className={`live-video-recording live-video-recording--${videoRecording.phase}`}
               title={videoRecording.error ?? VIDEO_RECORDING_LABELS[videoRecording.phase]}

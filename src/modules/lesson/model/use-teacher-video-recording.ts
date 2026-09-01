@@ -14,9 +14,13 @@ const INITIAL_SNAPSHOT: TeacherVideoRecordingSnapshot = {
 };
 
 /**
- * `stream` — `getDisplayMedia` orqali pre-join gesture ichida oldindan
- * olingan ekran oqimi (`null` bo'lsa o'qituvchi ruxsat bermagan yoki hali
- * so'ralmagan — bu holda video yozuvi shunchaki ishlamaydi, audio davom etadi).
+ * `stream` — o'qituvchining LiveKit'ga PUBLISH qilingan "Ekranni ulashish"
+ * trekidan olingan oqim (`null` bo'lsa ekran ulashish hali yoqilmagan yoki
+ * o'chirilgan — bu holda video yozuvi shunchaki ishlamaydi, audio davom
+ * etadi). Trek darsning istalgan vaqtida yoqilishi/o'chirilishi mumkin —
+ * har safar `stream` `null`dan haqiqiy oqimga o'tganda yangi yozuv sessiyasi
+ * boshlanadi (backend bunday ko'p-segmentli fayllarni birlashtirish paytida
+ * to'g'ri ulaydi).
  */
 export function useTeacherVideoRecording(
   lessonId: string,
