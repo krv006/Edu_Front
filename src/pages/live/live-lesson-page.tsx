@@ -31,6 +31,25 @@ export function LiveLessonPage() {
   const [ratePrompt, setRatePrompt] = useState(false);
   /** `null` — hali kirishdan oldingi ekranda. */
   const [choices, setChoices] = useState<LessonPreJoinChoices | null>(null);
+  /**
+   * O'quvchi "Darsga kirish"ni bosgandan keyin LiveKit'ga darhol EMAS,
+   * tasodifiy kichik kechikish (0-1.5s) bilan ulanadi. Sabab: bitta darsda
+   * 20+ o'quvchi bir xil soniyada ulansa, LiveKit serverida CPU keskin
+   * portlaydi ("thundering herd" — production'da o'lchangan, 2026-09-02:
+   * bir vaqtdagi ulanish barqaror holatdan 3-5 baravar yuqori CPU beradi).
+   * Tasodifiy yoyish bilan bu portlash yumshaydi, foydalanuvchi esa
+   * amalda hech narsani sezmaydi (bir necha soniyalik "ulanmoqda" holati
+   * baribir tabiiy). O'qituvchi kutilmaydi — dars boshlanishi kechikmasin.
+   */
+  const [readyToConnect, setReadyToConnect] = useState(false);
+
+  // O'qituvchi hech qachon kutmaydi — faqat o'quvchi uchun kechikish quyida.
+  useEffect(() => {
+    if (!choices || token.data?.isTeacher) return;
+    const delay = Math.random() * 1500;
+    const timer = globalThis.setTimeout(() => setReadyToConnect(true), delay);
+    return () => globalThis.clearTimeout(timer);
+  }, [choices, token.data?.isTeacher]);
 
   const connected = Boolean(token.data);
   // Baholash oynasi ochiq turganda sahifadan chiqish ogohlantirishi keraksiz.
@@ -143,6 +162,15 @@ export function LiveLessonPage() {
           onJoin={setChoices}
           onCancel={() => navigate(-1)}
         />
+      </main>
+    );
+  }
+
+  // Tasodifiy kechikish hali tugamagan (yuqoridagi izohga qarang).
+  if (!readyToConnect && !token.data.isTeacher) {
+    return (
+      <main className="live-page">
+        <LoadingFallback label="Dars xonasiga ulanmoqda" />
       </main>
     );
   }
