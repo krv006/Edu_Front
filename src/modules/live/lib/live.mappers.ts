@@ -8,7 +8,13 @@ import type {
 } from "../api/live.dto";
 
 export function mapRoomTokenDto(dto: RoomTokenDto): RoomToken {
-  return { token: dto.token, serverUrl: dto.url, roomName: dto.room, isTeacher: Boolean(dto.is_teacher) };
+  return {
+    token: dto.token,
+    serverUrl: dto.url,
+    roomName: dto.room,
+    isTeacher: Boolean(dto.is_teacher),
+    joinDelayMs: Number(dto.join_delay_ms ?? 0),
+  };
 }
 
 export function mapAttentionDto(dto: AttentionResponseDto | null | undefined): AttentionCheck | null {

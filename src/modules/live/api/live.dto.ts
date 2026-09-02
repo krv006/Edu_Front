@@ -4,6 +4,12 @@ export interface RoomTokenDto {
   url: string;
   room: string;
   is_teacher: boolean;
+  /**
+   * Server hisoblagan FIFO ulanish navbati kechikishi (millisekund) —
+   * o'qituvchida har doim 0. Bir darsga qisqa vaqtda ko'p o'quvchi
+   * ulanganda LiveKit'da CPU portlashini yumshatish uchun (2026-09-02).
+   */
+  join_delay_ms?: number;
 }
 
 /** `GET /api/v1/live/attention/` javobi — tekshiruv bo'lmasa `check` null. */
@@ -49,6 +55,8 @@ export interface RoomToken {
   serverUrl: string;
   roomName: string;
   isTeacher: boolean;
+  /** Serverning FIFO navbati kechikishi (ms) — `LiveKitRoom`ga ulanishdan oldin shuncha kutiladi. */
+  joinDelayMs: number;
 }
 
 export interface AttentionCheck {

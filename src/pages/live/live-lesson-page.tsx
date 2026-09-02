@@ -33,23 +33,24 @@ export function LiveLessonPage() {
   const [choices, setChoices] = useState<LessonPreJoinChoices | null>(null);
   /**
    * O'quvchi "Darsga kirish"ni bosgandan keyin LiveKit'ga darhol EMAS,
-   * tasodifiy kichik kechikish (0-1.5s) bilan ulanadi. Sabab: bitta darsda
-   * 20+ o'quvchi bir xil soniyada ulansa, LiveKit serverida CPU keskin
-   * portlaydi ("thundering herd" — production'da o'lchangan, 2026-09-02:
-   * bir vaqtdagi ulanish barqaror holatdan 3-5 baravar yuqori CPU beradi).
-   * Tasodifiy yoyish bilan bu portlash yumshaydi, foydalanuvchi esa
-   * amalda hech narsani sezmaydi (bir necha soniyalik "ulanmoqda" holati
-   * baribir tabiiy). O'qituvchi kutilmaydi — dars boshlanishi kechikmasin.
+   * server bergan `joinDelayMs` (FIFO navbat kechikishi) o'tgandan keyin
+   * ulanadi. Sabab: bitta darsda 20+ o'quvchi qisqa vaqt ichida ulansa,
+   * LiveKit'da CPU keskin portlaydi ("thundering herd" — production'da
+   * o'lchangan, 2026-09-02). Tasodifiy kechikish sinovda buni YOMONLASHTIRDI
+   * (tasodifiy qiymatlar bir-biriga yaqin tushib qolishi mumkin) — shuning
+   * uchun server FIFO tartibda, bir vaqtda faqat bir nechta kishini
+   * (partiya) o'tkazadigan navbat hisoblaydi (`apps/live/services.py`,
+   * `_compute_join_delay_ms`). Foydalanuvchi buni amalda sezmaydi (bir
+   * necha soniyalik "ulanmoqda" holati baribir tabiiy). O'qituvchida
+   * `joinDelayMs` har doim 0.
    */
   const [readyToConnect, setReadyToConnect] = useState(false);
 
-  // O'qituvchi hech qachon kutmaydi — faqat o'quvchi uchun kechikish quyida.
   useEffect(() => {
-    if (!choices || token.data?.isTeacher) return;
-    const delay = Math.random() * 1500;
-    const timer = globalThis.setTimeout(() => setReadyToConnect(true), delay);
+    if (!choices || !token.data || token.data.joinDelayMs <= 0) return;
+    const timer = globalThis.setTimeout(() => setReadyToConnect(true), token.data.joinDelayMs);
     return () => globalThis.clearTimeout(timer);
-  }, [choices, token.data?.isTeacher]);
+  }, [choices, token.data]);
 
   const connected = Boolean(token.data);
   // Baholash oynasi ochiq turganda sahifadan chiqish ogohlantirishi keraksiz.
@@ -166,8 +167,8 @@ export function LiveLessonPage() {
     );
   }
 
-  // Tasodifiy kechikish hali tugamagan (yuqoridagi izohga qarang).
-  if (!readyToConnect && !token.data.isTeacher) {
+  // Navbat kechikishi hali tugamagan (yuqoridagi izohga qarang).
+  if (!readyToConnect && token.data.joinDelayMs > 0) {
     return (
       <main className="live-page">
         <LoadingFallback label="Dars xonasiga ulanmoqda" />
