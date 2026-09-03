@@ -12,5 +12,5 @@ export const registerSchema = z.object({
   firstName: z.string().trim().min(1, "Ismni kiriting"),
   lastName: z.string().trim().min(1, "Familiyani kiriting"),
   phone: z.string().trim().optional(),
-  role: z.enum(["teacher", "parent"]),
+  role: z.enum(["teacher", "parent", "student"]),
 });

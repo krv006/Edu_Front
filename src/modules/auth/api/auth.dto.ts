@@ -83,7 +83,7 @@ export interface RegisterFormValues {
   firstName: string;
   lastName: string;
   phone?: string;
-  role: "teacher" | "parent";
+  role: "teacher" | "parent" | "student";
 }
 
 export interface TokenPair {
