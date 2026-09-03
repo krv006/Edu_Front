@@ -1,7 +1,16 @@
 import { useEffect, useState } from "react";
 import { formatDayTime } from "@/shared/lib";
 import { AnimatePresence, motion } from "framer-motion";
-import { BookOpen, CalendarDays, CheckCircle2, CircleAlert, ListChecks, Paperclip } from "lucide-react";
+import {
+  BookOpen,
+  CalendarDays,
+  CheckCircle2,
+  CircleAlert,
+  FileQuestion,
+  History,
+  ListChecks,
+  Paperclip,
+} from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 import { ChatHeader } from "@/modules/conversation";
@@ -23,11 +32,13 @@ import {
   useLessons,
   useLessonView,
 } from "@/modules/lesson";
+import { QuizAttemptDialog, QuizAttemptsDialog, useQuizzes } from "@/modules/quiz";
 import type {
   Assignment,
   ChatMessage,
   Conversation,
   Lesson,
+  QuizSummary,
   SendMessagePayload,
   Submission,
 } from "@/shared/types";
@@ -35,12 +46,13 @@ import type { ChatController } from "@/modules/message";
 import { ROUTES } from "@/shared/config";
 import { Button, Dialog, DialogContent } from "@/shared/ui/legacy";
 
-type TabId = "chat" | "lessons" | "assignments";
+type TabId = "chat" | "lessons" | "assignments" | "quizzes";
 
 const TABS: Array<{ id: TabId; label: string; icon: typeof BookOpen }> = [
   { id: "chat", label: "Chat", icon: BookOpen },
   { id: "lessons", label: "Darslar", icon: CalendarDays },
   { id: "assignments", label: "Vazifalar", icon: ListChecks },
+  { id: "quizzes", label: "Testlar", icon: FileQuestion },
 ];
 
 const SPEAKING_ACCEPT = ".pdf,.png,.jpg,.jpeg,.webp,.docx,.mp3,.wav,.m4a,.ogg";
@@ -80,6 +92,7 @@ export function StudentGroupWorkspace({
   // ochish uchun ular kutilib turilmasin.
   const lessons = useLessons({ course: courseId, page_size: 100 }, active === "lessons");
   const assignments = useAssignments(courseId, active === "assignments");
+  const quizzes = useQuizzes(courseId, active === "quizzes");
 
   /**
    * O'quvchi guruh a'zolari ro'yxatini ko'ra olmaydi
@@ -165,6 +178,9 @@ export function StudentGroupWorkspace({
           ) : null}
           {active === "assignments" ? (
             <StudentAssignments assignments={assignments.data} loading={assignments.isLoading} />
+          ) : null}
+          {active === "quizzes" ? (
+            <StudentQuizzes quizzes={quizzes.data} loading={quizzes.isLoading} />
           ) : null}
         </motion.div>
       </AnimatePresence>
@@ -440,6 +456,93 @@ function StudentAssignments({ assignments = [], loading }: { assignments?: Assig
         }}
         canDownloadFile
         title="Vazifangiz bo‘yicha natija"
+      />
+    </div>
+  );
+}
+
+// ─── Testlar ──────────────────────────────────────────────────────────────
+/** Bildirishnomadan kelingan testni ajratib ko'rsatadi (`useAssignmentHighlight`ga o'xshash). */
+function useQuizHighlight(quizId: string | null, ready: boolean) {
+  useEffect(() => {
+    if (!quizId || !ready) return;
+    document
+      .querySelector(`[data-quiz-id="${CSS.escape(quizId)}"]`)
+      ?.scrollIntoView({ block: "center", behavior: "smooth" });
+  }, [quizId, ready]);
+}
+
+function StudentQuizzes({ quizzes = [], loading }: { quizzes?: QuizSummary[]; loading: boolean }) {
+  const [attemptOf, setAttemptOf] = useState<QuizSummary | null>(null);
+  const [historyOf, setHistoryOf] = useState<QuizSummary | null>(null);
+  const [params] = useSearchParams();
+  const highlightId = params.get("quiz");
+  useQuizHighlight(highlightId, quizzes.length > 0);
+
+  if (loading)
+    return (
+      <div className="student-tab-loading">
+        <span />
+      </div>
+    );
+
+  return (
+    <div className="group-panel student-readonly-panel">
+      <div className="group-panel-head">
+        <div>
+          <span>KURS TESTLARI</span>
+          <h2>Testlar</h2>
+        </div>
+      </div>
+      <div className="student-workspace-list">
+        {quizzes.map((item) => {
+          const deadlineLabel = item.dueAt ? formatDayTime(item.dueAt) : null;
+          return (
+            <article
+              key={item.id}
+              data-quiz-id={item.id}
+              className={item.id === highlightId ? "is-highlighted" : ""}
+            >
+              <span className="workspace-list-icon">
+                <FileQuestion size={20} />
+              </span>
+              <div>
+                <strong>{item.title}</strong>
+                <p>
+                  {deadlineLabel ? `Muddat: ${deadlineLabel}` : "Muddat yo‘q"} · {item.questionCount} ta
+                  savol
+                </p>
+              </div>
+              <button
+                className="icon-button"
+                aria-label="Urinishlar tarixi"
+                onClick={() => setHistoryOf(item)}
+              >
+                <History size={16} />
+              </button>
+              <Button size="sm" onClick={() => setAttemptOf(item)}>
+                Yechish
+              </Button>
+            </article>
+          );
+        })}
+        {!quizzes.length ? <p className="portal-muted">Test yo‘q.</p> : null}
+      </div>
+
+      <QuizAttemptDialog
+        quizId={attemptOf?.id ?? null}
+        open={Boolean(attemptOf)}
+        onOpenChange={(open) => {
+          if (!open) setAttemptOf(null);
+        }}
+      />
+      <QuizAttemptsDialog
+        quizId={historyOf?.id ?? null}
+        open={Boolean(historyOf)}
+        onOpenChange={(open) => {
+          if (!open) setHistoryOf(null);
+        }}
+        title={historyOf ? `“${historyOf.title}” — urinishlaringiz` : undefined}
       />
     </div>
   );

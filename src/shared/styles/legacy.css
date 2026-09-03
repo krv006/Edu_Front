@@ -5554,6 +5554,50 @@ body > .ML__keyboard,
 .hw-result-state p { margin: 0; font-size: var(--fs-md); }
 .hw-result-state--error { color: var(--destructive-strong); border-color: var(--destructive-soft-border); background: var(--destructive-soft); }
 
+/* Quiz — yaratish formasi */
+.quiz-questions { display: grid; gap: 14px; }
+.quiz-question-card { padding: 14px; border: 1px solid var(--border); border-radius: var(--r-lg); background: var(--surface-tint); display: grid; gap: 10px; }
+.quiz-question-head { display: grid; grid-template-columns: 1fr 84px auto; gap: 8px; align-items: end; }
+.quiz-option-list { display: grid; gap: 6px; }
+.quiz-option-row { display: flex; align-items: center; gap: 8px; }
+.quiz-option-row input { flex: 1; min-height: 38px; }
+.quiz-option-radio { width: 20px; height: 20px; flex: 0 0 auto; border: 2px solid var(--border-strong); border-radius: var(--r-full); background: transparent; cursor: pointer; padding: 0; display: grid; place-items: center; }
+.quiz-option-radio.is-active { border-color: var(--primary); }
+.quiz-option-radio.is-active::after { content: ""; width: 10px; height: 10px; border-radius: var(--r-full); background: var(--primary); }
+.quiz-add-option, .quiz-add-question { display: inline-flex; align-items: center; gap: 6px; padding: 8px 12px; border: 1px dashed var(--border-strong); border-radius: var(--r-sm); color: var(--primary-text); background: transparent; font-size: var(--fs-xs); font-weight: 700; cursor: pointer; justify-self: start; }
+
+/* Quiz — o'quvchi yechish oynasi */
+.quiz-attempt-form { display: grid; gap: 16px; }
+.quiz-attempt-question { padding: 14px; border: 1px solid var(--border); border-radius: var(--r-lg); background: var(--surface); display: grid; gap: 8px; }
+.quiz-attempt-question-head { display: flex; align-items: center; justify-content: space-between; color: var(--muted-foreground); font-size: var(--fs-xs); font-weight: 800; text-transform: uppercase; letter-spacing: .05em; }
+.quiz-attempt-question > p { margin: 0; font-size: var(--fs-md); font-weight: 650; color: var(--foreground); }
+.quiz-attempt-option { min-height: 42px; padding: 0 12px; border: 1px solid var(--border-strong); border-radius: var(--r-md); display: flex; align-items: center; gap: 10px; color: var(--foreground); background: var(--surface-tint); font: inherit; text-align: left; cursor: pointer; }
+.quiz-attempt-option.is-active { border-color: var(--primary); background: var(--primary-tint); }
+.quiz-attempt-option .quiz-option-radio { pointer-events: none; }
+
+/* Quiz — natija */
+.quiz-result { display: grid; gap: 14px; }
+.quiz-result-score { padding: 18px; border-radius: var(--r-lg); display: grid; justify-items: center; gap: 4px; background: var(--primary-tint); }
+.quiz-result-score strong { font-size: var(--fs-6xl); color: var(--primary-text); }
+.quiz-result-score strong small { font-size: var(--fs-xl); font-weight: 600; color: var(--muted-foreground); }
+.quiz-result-score span { color: var(--muted-foreground); font-size: var(--fs-xs); font-weight: 800; text-transform: uppercase; letter-spacing: .06em; }
+.quiz-attempt-question-list { display: grid; gap: 8px; }
+.quiz-result-row { padding: 12px; border: 1px solid var(--border); border-radius: var(--r-md); display: grid; gap: 4px; }
+.quiz-result-row.is-correct { background: var(--success-soft); }
+.quiz-result-row.is-wrong { border-color: var(--destructive-soft-border); background: var(--destructive-soft); }
+.quiz-result-row-head { display: flex; align-items: flex-start; gap: 8px; }
+.quiz-result-row-head p { margin: 0; font-weight: 650; }
+.quiz-result-row.is-correct .quiz-result-row-head svg { color: var(--tone-emerald-fg); flex: 0 0 auto; margin-top: 2px; }
+.quiz-result-row.is-wrong .quiz-result-row-head svg { color: var(--tone-rose-fg); flex: 0 0 auto; margin-top: 2px; }
+.quiz-result-row small { color: var(--muted-foreground); }
+.quiz-result-correct { color: var(--tone-emerald-fg) !important; font-weight: 700; }
+
+/* Quiz — urinishlar tarixi */
+.quiz-attempt-history { display: grid; gap: 6px; }
+.quiz-attempt-history article { padding: 10px 4px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.quiz-attempt-history article:last-child { border-bottom: 0; }
+.quiz-attempt-history small { color: var(--muted-foreground); font-size: var(--fs-2xs); }
+
 .hw-summary-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(230px, 1fr)); gap: 10px; }
 .hw-summary-card { padding: 12px 14px; border: 1px solid var(--border); border-radius: var(--r-md); background: var(--surface); }
 .hw-summary-card h4 { margin: 0 0 8px; display: flex; align-items: center; gap: 6px; font-size: var(--fs-xs); letter-spacing: .06em; text-transform: uppercase; color: var(--muted-foreground); }
