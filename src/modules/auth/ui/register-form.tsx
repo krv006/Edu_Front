@@ -30,6 +30,7 @@ export function RegisterForm({ onSubmit }: RegisterFormProps) {
       <Controller name="role" control={control} render={({ field }) => <>
         <button type="button" className={field.value === "teacher" ? "is-active" : ""} onClick={() => field.onChange("teacher")}>O‘qituvchi</button>
         <button type="button" className={field.value === "parent" ? "is-active" : ""} onClick={() => field.onChange("parent")}>Ota-ona</button>
+        <button type="button" className={field.value === "student" ? "is-active" : ""} onClick={() => field.onChange("student")}>O‘quvchi</button>
       </>} />
     </div>
     <div className="register-name-grid">
