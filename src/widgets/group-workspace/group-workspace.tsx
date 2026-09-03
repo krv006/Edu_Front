@@ -281,6 +281,7 @@ function LessonsPanel({ courseId, lessons = [], loading }: LessonsPanelProps) {
     onFinish: setFinishTarget,
     onRatings: setRatingsTarget,
     onDelete: setDeleteTarget,
+    onRecording: (lesson: Lesson) => navigate(ROUTES.recording(lesson.id)),
     onEdit: (lesson: Lesson) => {
       setEditing(lesson);
       setDialog(true);
