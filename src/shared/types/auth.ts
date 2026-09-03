@@ -1,6 +1,15 @@
 import type { AppError } from "@/shared/api";
 import type { Role } from "@/shared/constants";
 
+/** O'qituvchi yuklagan sertifikat (`/auth/me/certificates/`). */
+export interface Certificate {
+  id: string;
+  /** To'liq fayl havolasi (rasm yoki PDF). */
+  file: string;
+  title: string;
+  createdAt: string;
+}
+
 /** `modules/auth` dagi `mapUserDto` qaytaradigan domen modeli. */
 export interface AuthUser {
   id: string;
@@ -15,6 +24,12 @@ export interface AuthUser {
   avatarUrl: string | null;
   email: string | null;
   status: string;
+  /** Faqat `role: teacher`da mazmunli — boshqa rollarda `null`. */
+  avgRating: number | null;
+  ratingCount: number | null;
+  /** Faqat o'qituvchida mazmunli — admin tasdiqlamaguncha `false`. */
+  isApproved: boolean | null;
+  certificates: Certificate[];
 }
 
 export type AuthStatus = "anonymous" | "initializing" | "authenticated" | "error";

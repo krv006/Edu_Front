@@ -3,6 +3,7 @@ import { authEndpoints } from "./auth.endpoints";
 import { mapLoginRecords } from "../lib/auth.mappers";
 import type {
   AuthUserDto,
+  CertificateDto,
   ConsentRequestDto,
   CreateChildRequestDto,
   LinkAction,
@@ -83,5 +84,27 @@ export const authApi = {
         query: studentId ? { student: studentId } : undefined,
       })
     );
+  },
+  /** Admin: barcha o'qituvchilar (`avg_rating`/`rating_count` bilan). */
+  getTeachers(options?: RequestOptions) {
+    return apiClient.get<AuthUserDto[]>(authEndpoints.teachers, options);
+  },
+  /** Admin: hali tasdiqlanmagan o'qituvchilar. */
+  getPendingTeachers(options?: RequestOptions) {
+    return apiClient.get<AuthUserDto[]>(authEndpoints.teachersPending, options);
+  },
+  approveTeacher(id: string) {
+    return apiClient.post<AuthUserDto>(authEndpoints.teacherApprove(id), {});
+  },
+  /** O'qituvchi o'zi uchun sertifikat yuklaydi — rasm yoki PDF. */
+  uploadCertificate(file: File, title?: string) {
+    const body = new FormData();
+    body.set("file", file);
+    if (title) body.set("title", title);
+    return apiClient.post<CertificateDto>(authEndpoints.meCertificates, body);
+  },
+  async deleteCertificate(id: string) {
+    await apiClient.delete(authEndpoints.meCertificate(id));
+    return id;
   },
 };

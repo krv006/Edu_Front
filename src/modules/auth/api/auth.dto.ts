@@ -6,6 +6,14 @@ export const tokenPairDtoSchema = z.object({
   refresh: z.string().min(1),
 });
 
+/** O'qituvchi sertifikati (`/auth/me/certificates/`) — `UserSerializer` ichida ham keladi. */
+export const certificateDtoSchema = z.object({
+  id: z.string(),
+  file: z.string(),
+  title: z.string().nullable().default(""),
+  created_at: z.string(),
+});
+
 export const userDtoSchema = z.object({
   id: z.string(),
   username: z.string(),
@@ -16,6 +24,12 @@ export const userDtoSchema = z.object({
   invite_code: z.string().nullable().optional(),
   /** Profil rasmi — `PATCH /auth/me/` orqali yuklanadi. */
   avatar: z.string().nullable().optional(),
+  /** Faqat `role: teacher`da — boshqa rollarda `null` keladi. */
+  avg_rating: z.number().nullable().optional(),
+  rating_count: z.number().nullable().optional(),
+  /** Faqat o'qituvchida mazmunli — admin tasdiqlamaguncha `false`. */
+  is_approved: z.boolean().nullable().optional(),
+  certificates: z.array(certificateDtoSchema).optional().default([]),
 });
 
 /** `GET /api/v1/auth/logins/` — bitta kirish yozuvi (paginatsiyasiz massiv). */
@@ -30,6 +44,7 @@ export const loginRecordDtoSchema = z.object({
 export type TokenPairDto = z.infer<typeof tokenPairDtoSchema>;
 export type AuthUserDto = z.infer<typeof userDtoSchema>;
 export type LoginRecordDto = z.infer<typeof loginRecordDtoSchema>;
+export type CertificateDto = z.infer<typeof certificateDtoSchema>;
 
 /** Kirishlar tarixining domen ko'rinishi. */
 export interface LoginRecord {

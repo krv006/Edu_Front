@@ -1,16 +1,37 @@
 import { useRef, useState, type FormEvent } from "react";
 import { AnimatePresence, motion } from "framer-motion";
-import { Bell, Camera, ChevronRight, Copy, History, Loader2, LogOut, Phone, Settings, ShieldCheck, UserRound, X } from "lucide-react";
+import {
+  Award,
+  Bell,
+  Camera,
+  ChevronRight,
+  Copy,
+  FileText,
+  History,
+  Loader2,
+  LogOut,
+  Phone,
+  Settings,
+  ShieldAlert,
+  ShieldCheck,
+  Trash2,
+  UserRound,
+  X,
+} from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import {
   LoginHistoryDialog,
   useAuth,
+  useDeleteCertificate,
   useUpdateAvatarMutation,
   useUpdateProfileMutation,
+  useUploadCertificate,
   type ProfileFormValues,
 } from "@/modules/auth";
+import { RatingSummary } from "@/modules/lesson";
 import { NotificationInboxDialog } from "@/modules/notification";
+import { ROLES } from "@/shared/constants";
 import { Avatar, Button, Dialog, DialogContent, ThemeToggle } from "@/shared/ui/legacy";
 
 type MenuItemId = "profile" | "logins" | "notifications" | "settings";
@@ -48,7 +69,10 @@ export function AccountMenu({
   const navigate = useNavigate();
   const updateProfile = useUpdateProfileMutation();
   const updateAvatar = useUpdateAvatarMutation();
+  const uploadCertificate = useUploadCertificate();
+  const deleteCertificate = useDeleteCertificate();
   const avatarRef = useRef<HTMLInputElement>(null);
+  const certificateRef = useRef<HTMLInputElement>(null);
   const [editing, setEditing] = useState(false);
   const [loginsOpen, setLoginsOpen] = useState(false);
   const [inboxOpen, setInboxOpen] = useState(false);
@@ -322,6 +346,72 @@ export function AccountMenu({
                     </button>
                   ) : null}
                 </div>
+
+                {user?.role === ROLES.TEACHER ? (
+                  <div className="teacher-profile-certificates">
+                    {user.isApproved === false ? (
+                      <div className="form-alert">
+                        <ShieldAlert size={15} /> Hisobingiz hali administrator tomonidan
+                        tasdiqlanmagan — kurs va dars yaratish vaqtincha yopiq.
+                      </div>
+                    ) : null}
+                    {user.ratingCount ? (
+                      <div className="teacher-profile-rating">
+                        <span>Dars reytingi</span>
+                        <RatingSummary average={user.avgRating} count={user.ratingCount} />
+                      </div>
+                    ) : null}
+                    <div className="teacher-profile-certificates-head">
+                      <span>Sertifikatlar</span>
+                      <button
+                        type="button"
+                        disabled={uploadCertificate.isPending}
+                        onClick={() => certificateRef.current?.click()}
+                      >
+                        {uploadCertificate.isPending ? (
+                          <Loader2 size={14} className="spin" />
+                        ) : (
+                          <Award size={14} />
+                        )}
+                        Yuklash
+                      </button>
+                      <input
+                        ref={certificateRef}
+                        type="file"
+                        accept="image/*,application/pdf"
+                        hidden
+                        onChange={(event) => {
+                          const file = event.target.files?.[0];
+                          event.target.value = "";
+                          if (!file) return;
+                          uploadCertificate.mutate({ file });
+                        }}
+                      />
+                    </div>
+                    <div className="teacher-profile-certificate-list">
+                      {user.certificates.map((certificate) => (
+                        <div key={certificate.id} className="teacher-profile-certificate">
+                          <a href={certificate.file} target="_blank" rel="noreferrer">
+                            <FileText size={16} />
+                            <span>{certificate.title || "Sertifikat"}</span>
+                          </a>
+                          <button
+                            type="button"
+                            aria-label={`${certificate.title || "Sertifikat"}ni o‘chirish`}
+                            disabled={deleteCertificate.isPending}
+                            onClick={() => deleteCertificate.mutate(certificate.id)}
+                          >
+                            <Trash2 size={14} />
+                          </button>
+                        </div>
+                      ))}
+                      {!user.certificates.length ? (
+                        <p className="portal-muted">Hali sertifikat yuklanmagan.</p>
+                      ) : null}
+                    </div>
+                  </div>
+                ) : null}
+
                 <Button
                   className="teacher-profile-action"
                   onClick={() => {

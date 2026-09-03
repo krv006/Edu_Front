@@ -3099,6 +3099,18 @@ body.is-resizing-sidebar {
   width: 100%;
   margin-top: 14px;
 }
+.teacher-profile-certificates { margin-top: 14px; display: grid; gap: 10px; }
+.teacher-profile-rating { padding: 10px 12px; border: 1px solid var(--border); border-radius: var(--r-md); display: flex; align-items: center; justify-content: space-between; gap: 10px; background: var(--surface-tint); }
+.teacher-profile-rating span { color: var(--muted-foreground); font-size: var(--fs-sm); font-weight: 700; }
+.teacher-profile-certificates-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.teacher-profile-certificates-head span { color: var(--muted-foreground); font-size: var(--fs-2xs); font-weight: 900; letter-spacing: .08em; text-transform: uppercase; }
+.teacher-profile-certificates-head button { display: inline-flex; align-items: center; gap: 6px; padding: 6px 11px; border: 1px solid var(--border); border-radius: var(--r-sm); color: var(--primary-text); background: var(--surface); font-size: var(--fs-xs); font-weight: 700; cursor: pointer; }
+.teacher-profile-certificate-list { display: grid; gap: 6px; }
+.teacher-profile-certificate { padding: 8px 10px; border: 1px solid var(--border); border-radius: var(--r-md); display: flex; align-items: center; gap: 8px; background: var(--surface); }
+.teacher-profile-certificate a { flex: 1; min-width: 0; display: flex; align-items: center; gap: 8px; color: var(--foreground); font-size: var(--fs-sm); text-decoration: none; overflow: hidden; }
+.teacher-profile-certificate a span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.teacher-profile-certificate button { color: var(--muted-foreground); background: transparent; border: 0; cursor: pointer; padding: 4px; }
+.teacher-profile-certificate button:hover { color: var(--destructive-strong); }
 
 .message-row {
   position: relative;
@@ -3342,6 +3354,13 @@ body.is-resizing-sidebar {
 .admin-course-list article { display: flex; justify-content: space-between; gap: 16px; padding: 14px 0; border-bottom: 1px solid var(--border); }
 .admin-course-list article:last-child { border-bottom: 0; }
 .admin-course-list article div { display: grid; gap: 4px; }
+.admin-teacher-panel { padding: 20px; }
+.admin-teacher-panel + .admin-teacher-panel { margin-top: 18px; }
+.admin-teacher-list { display: grid; gap: 4px; }
+.admin-teacher-row { padding: 12px 4px; border-bottom: 1px solid var(--border); display: flex; align-items: center; gap: 12px; }
+.admin-teacher-row:last-child { border-bottom: 0; }
+.admin-teacher-row > div { flex: 1; min-width: 0; display: grid; gap: 2px; }
+.admin-teacher-row small { color: var(--muted-foreground); font-size: var(--fs-2xs); }
 
 @media (max-width: 640px) {
   .register-name-grid, .admin-metric-grid { grid-template-columns: 1fr; }
