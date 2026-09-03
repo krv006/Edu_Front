@@ -10,11 +10,12 @@ export const quizKeys = Object.freeze({
   attempts: (id: string) => ["quizzes", "attempts", id] as const,
 });
 
+/** `courseId: null` — foydalanuvchining BARCHA kurslaridagi testlari (rolga qarab backend filtrlaydi). */
 export function useQuizzes(courseId: string | null, enabled = true) {
   return useQuery({
     queryKey: quizKeys.list(courseId),
     queryFn: ({ signal }) => quizApi.getAll(courseId, { signal }),
-    enabled: Boolean(courseId) && enabled,
+    enabled,
   });
 }
 
