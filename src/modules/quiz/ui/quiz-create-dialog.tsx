@@ -1,9 +1,10 @@
 import { useMemo, useRef, useState, type FormEvent } from "react";
 import { motion } from "framer-motion";
-import { CalendarDays, Plus, Trash2 } from "lucide-react";
+import { BookOpen, CalendarDays, Plus, Trash2 } from "lucide-react";
+import { useLessons } from "@/modules/lesson";
 import { Button, Dialog, DialogContent } from "@/shared/ui/legacy";
 import { DatePicker, SelectPicker } from "@/shared/ui/legacy/form-pickers";
-import type { Lesson, QuizFormValues } from "@/shared/types";
+import type { QuizFormValues } from "@/shared/types";
 
 interface QuizOptionDraft {
   key: string;
@@ -22,9 +23,9 @@ interface QuizQuestionDraft {
 export interface AddQuizDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onCreate: (values: Omit<QuizFormValues, "courseId">) => void;
-  /** Testni bog'lash mumkin bo'lgan darslar — backend faqat tugagan darsni qabul qiladi. */
-  lessons?: readonly Lesson[];
+  onCreate: (values: QuizFormValues) => void;
+  /** Test bog'lanadigan kurslar — o'qituvchining o'z kurslari. */
+  courses: Array<{ id: string; title: string }>;
 }
 
 function emptyOption(key: string): QuizOptionDraft {
@@ -41,13 +42,14 @@ function emptyQuestion(key: string, option1: string, option2: string): QuizQuest
   };
 }
 
-export function AddQuizDialog({ open, onOpenChange, onCreate, lessons = [] }: AddQuizDialogProps) {
+export function AddQuizDialog({ open, onOpenChange, onCreate, courses }: AddQuizDialogProps) {
   const nextKey = useRef(0);
   function newKey() {
     nextKey.current += 1;
     return `k${nextKey.current}`;
   }
 
+  const [courseId, setCourseId] = useState(() => courses[0]?.id ?? "");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [lessonId, setLessonId] = useState("");
@@ -60,14 +62,20 @@ export function AddQuizDialog({ open, onOpenChange, onCreate, lessons = [] }: Ad
   ]);
   const [error, setError] = useState<string | null>(null);
 
-  /** Backend faqat tugagan darsni qabul qiladi — eng yangisi tepada. */
+  const courseOptions = useMemo(
+    () => courses.map((course) => ({ value: course.id, label: course.title })),
+    [courses]
+  );
+
+  // Testni bog'lash mumkin bo'lgan darslar — faqat tanlangan kurs bo'yicha, dialog ochilganda.
+  const lessons = useLessons({ course: courseId || null, page_size: 100 }, open && Boolean(courseId));
   const lessonOptions = useMemo(() => {
-    const finished = lessons
+    const finished = (lessons.data ?? [])
       .filter((lesson) => lesson.status === "finished")
       .sort((a, b) => b.startsAt.localeCompare(a.startsAt))
       .map((lesson) => ({ value: lesson.id, label: `${lesson.title} · ${lesson.date}` }));
     return [{ value: "", label: "Darsga bog‘lanmagan" }, ...finished];
-  }, [lessons]);
+  }, [lessons.data]);
 
   function reset() {
     setTitle("");
@@ -132,6 +140,7 @@ export function AddQuizDialog({ open, onOpenChange, onCreate, lessons = [] }: Ad
   }
 
   function validate(): string | null {
+    if (!courseId) return "Kursni tanlang";
     if (!title.trim()) return "Test nomini kiriting";
     if (!questions.length) return "Kamida bitta savol qo‘shing";
     for (const question of questions) {
@@ -152,6 +161,7 @@ export function AddQuizDialog({ open, onOpenChange, onCreate, lessons = [] }: Ad
       return;
     }
     onCreate({
+      courseId,
       lessonId: lessonId || null,
       title: title.trim(),
       description: description.trim(),
@@ -184,6 +194,16 @@ export function AddQuizDialog({ open, onOpenChange, onCreate, lessons = [] }: Ad
             initial={{ opacity: 0, y: 6 }}
             animate={{ opacity: 1, y: 0 }}
           >
+            <SelectPicker
+              label="Qaysi kurs uchun"
+              icon={BookOpen}
+              value={courseId}
+              onChange={(value) => {
+                setCourseId(value);
+                setLessonId("");
+              }}
+              options={courseOptions}
+            />
             <label>
               <span>Test nomi</span>
               <input

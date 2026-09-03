@@ -5,8 +5,6 @@ import {
   CalendarDays,
   CheckCircle2,
   ClipboardList,
-  FileQuestion,
-  History,
   Plus,
   Search,
   Trash2,
@@ -25,7 +23,6 @@ import {
   useCreateAssignment,
   useDeleteAssignment,
 } from "@/modules/homework";
-import { QuizAttemptsDialog, useCreateQuiz, useDeleteQuiz, useQuizzes } from "@/modules/quiz";
 import {
   FinishLessonDialog,
   LessonCalendar,
@@ -50,7 +47,6 @@ import type {
   DomainUser,
   Enrollment,
   Lesson,
-  QuizSummary,
   SendMessagePayload,
 } from "@/shared/types";
 import type { ChatController } from "@/modules/message";
@@ -63,15 +59,13 @@ import {
   type LessonDraft,
   type LessonScheduleDraft,
 } from "./group-action-dialogs";
-import { AddQuizDialog } from "./quiz-action-dialog";
 
-type TabId = "chat" | "lessons" | "assignments" | "quizzes" | "students" | "attendance";
+type TabId = "chat" | "lessons" | "assignments" | "students" | "attendance";
 
 const TABS: Array<{ id: TabId; label: string; icon: typeof BookOpen }> = [
   { id: "chat", label: "Chat", icon: BookOpen },
   { id: "lessons", label: "Darslar", icon: CalendarDays },
   { id: "assignments", label: "Vazifalar", icon: ClipboardList },
-  { id: "quizzes", label: "Testlar", icon: FileQuestion },
   { id: "students", label: "O‘quvchilar", icon: UsersRound },
   { id: "attendance", label: "Davomat", icon: CheckCircle2 },
 ];
@@ -115,7 +109,6 @@ export function GroupWorkspace({
     activeTab === "lessons" || activeTab === "attendance"
   );
   const assignments = useAssignments(courseId, activeTab === "assignments");
-  const quizzes = useQuizzes(courseId, activeTab === "quizzes");
   const students = useCourseStudents(courseId, { page_size: 100 }, activeTab === "students");
   const attendance = useAttendance({ page_size: 100 }, activeTab === "attendance");
 
@@ -198,9 +191,6 @@ export function GroupWorkspace({
               loading={assignments.isLoading}
               isLanguageSubject={Boolean(course.data?.isLanguageSubject)}
             />
-          ) : null}
-          {activeTab === "quizzes" ? (
-            <QuizzesPanel courseId={courseId} quizzes={quizzes.data} loading={quizzes.isLoading} />
           ) : null}
           {activeTab === "students" ? (
             <StudentsPanel courseId={courseId} page={students.data} loading={students.isLoading} />
@@ -531,146 +521,6 @@ function AssignmentsPanel({
         onOpenChange={(open: boolean) => {
           if (!open) setDetailId(null);
         }}
-      />
-    </div>
-  );
-}
-
-// ─── Testlar ────────────────────────────────────────────────────────────────
-/** Bildirishnomadan kelingan testni ajratib ko'rsatadi (`useAssignmentHighlight`ga o'xshash). */
-function useQuizHighlight(quizId: string | null, ready: boolean) {
-  useEffect(() => {
-    if (!quizId || !ready) return;
-    document
-      .querySelector(`[data-quiz-id="${CSS.escape(quizId)}"]`)
-      ?.scrollIntoView({ block: "center", behavior: "smooth" });
-  }, [quizId, ready]);
-}
-
-interface QuizzesPanelProps {
-  courseId: string | null;
-  quizzes?: QuizSummary[];
-  loading: boolean;
-}
-
-function QuizzesPanel({ courseId, quizzes = [], loading }: QuizzesPanelProps) {
-  const [dialog, setDialog] = useState(false);
-  const [deleteTarget, setDeleteTarget] = useState<QuizSummary | null>(null);
-  const [attemptsOf, setAttemptsOf] = useState<QuizSummary | null>(null);
-  /* Havola testni ajratib ko'rsatadi, dialogni o'zi ochmaydi. */
-  const [quizParams] = useSearchParams();
-  const highlightId = quizParams.get("quiz");
-  useQuizHighlight(highlightId, (quizzes?.length ?? 0) > 0);
-  const create = useCreateQuiz();
-  const remove = useDeleteQuiz();
-
-  // Testni darsga bog'lash uchun kurs darslari kerak — faqat dialog ochilganda.
-  const lessons = useLessons({ course: courseId, page_size: 100 }, dialog);
-
-  return (
-    <div className="group-panel">
-      <div className="group-panel-head">
-        <div>
-          <span>GURUH TESTLARI</span>
-          <h2>Testlar</h2>
-          <p>Variantli savollar — baholash avtomatik va darhol.</p>
-        </div>
-        <Button onClick={() => setDialog(true)}>
-          <Plus size={17} /> Test yaratish
-        </Button>
-      </div>
-
-      {loading ? (
-        <div className="student-tab-loading">
-          <span />
-        </div>
-      ) : quizzes.length ? (
-        <div className="assignment-list">
-          {quizzes.map((item) => (
-            <motion.article
-              key={item.id}
-              data-quiz-id={item.id}
-              className={`assignment-card ${item.id === highlightId ? "is-highlighted" : ""}`}
-              initial={{ opacity: 0, y: 8 }}
-              animate={{ opacity: 1, y: 0 }}
-            >
-              <span className="assignment-card-icon">
-                <FileQuestion size={20} />
-              </span>
-              <div>
-                <strong>{item.title}</strong>
-                <p>{item.description}</p>
-                <small>
-                  {item.dueAt
-                    ? `Muddat: ${new Intl.DateTimeFormat("uz-UZ", {
-                        dateStyle: "medium",
-                        timeStyle: "short",
-                      }).format(new Date(item.dueAt))}`
-                    : "Muddat belgilanmagan"}{" "}
-                  · {item.questionCount} ta savol
-                </small>
-              </div>
-              <Button size="sm" variant="secondary" onClick={() => setAttemptsOf(item)}>
-                <History size={15} /> Urinishlar
-              </Button>
-              <button
-                className="icon-button destructive-icon"
-                onClick={() => setDeleteTarget(item)}
-                aria-label="Testni o‘chirish"
-              >
-                <Trash2 size={16} />
-              </button>
-            </motion.article>
-          ))}
-        </div>
-      ) : (
-        <div className="premium-empty">
-          <FileQuestion size={30} />
-          <h3>Hali test yaratilmagan</h3>
-          <Button onClick={() => setDialog(true)}>Birinchi testni yaratish</Button>
-        </div>
-      )}
-
-      <AddQuizDialog
-        open={dialog}
-        onOpenChange={setDialog}
-        lessons={lessons.data ?? []}
-        onCreate={(form) => {
-          create.mutateAsync({ ...form, courseId: courseId ?? "" }).then(() => setDialog(false));
-        }}
-      />
-      <Dialog
-        open={Boolean(deleteTarget)}
-        onOpenChange={(open) => {
-          if (!open) setDeleteTarget(null);
-        }}
-      >
-        {deleteTarget && (
-          <DialogContent
-            title="Testni o‘chirish"
-            description={`“${deleteTarget.title}” va unga bog‘liq urinishlar o‘chadi.`}
-          >
-            <div className="dialog-actions">
-              <Button variant="secondary" onClick={() => setDeleteTarget(null)}>
-                Bekor
-              </Button>
-              <Button
-                loading={remove.isPending}
-                onClick={() => remove.mutateAsync(deleteTarget.id).then(() => setDeleteTarget(null))}
-              >
-                O‘chirish
-              </Button>
-            </div>
-          </DialogContent>
-        )}
-      </Dialog>
-      <QuizAttemptsDialog
-        quizId={attemptsOf?.id ?? null}
-        open={Boolean(attemptsOf)}
-        onOpenChange={(open) => {
-          if (!open) setAttemptsOf(null);
-        }}
-        title={attemptsOf ? `“${attemptsOf.title}” — urinishlar` : undefined}
       />
     </div>
   );
