@@ -66,23 +66,27 @@ export function LessonActions({
         <span className="rating-chip rating-chip--static">{ratingChip}</span>
       ) : null}
 
+      {/*
+        Bitta joy, ikki holat: dars hali bo'lmagan/ketayotgan bo'lsa — "Kirish"
+        (jonli xonaga), tugagach — o'sha tugma o'rnida "Ko'rish" (yozib olingan
+        darsga) chiqadi. Ikkalasi alohida-alohida tugma emas, aynan shu bitta
+        joyning ikki holati.
+      */}
       {!finished ? (
         <Button size="sm" disabled={isLessonClosed(lesson)} onClick={() => onJoin(lesson)}>
           <Video size={16} />
           {compact ? null : " Kirish"}
+        </Button>
+      ) : onRecording ? (
+        <Button size="sm" onClick={() => onRecording(lesson)}>
+          <PlayCircle size={16} />
+          {compact ? null : " Ko‘rish"}
         </Button>
       ) : null}
 
       {lesson.status === "live" && onFinish ? (
         <Button size="sm" variant="secondary" onClick={() => onFinish(lesson)}>
           Yakunlash
-        </Button>
-      ) : null}
-
-      {finished && onRecording ? (
-        <Button size="sm" variant="secondary" onClick={() => onRecording(lesson)}>
-          <PlayCircle size={16} />
-          {compact ? null : " Yozuv"}
         </Button>
       ) : null}
 
