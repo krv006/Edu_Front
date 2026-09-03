@@ -47,6 +47,7 @@ export const ROUTES = Object.freeze({
     root: "/admin",
     dashboard: "/admin/dashboard",
     users: "/admin/users",
+    teachers: "/admin/teachers",
     courses: "/admin/courses",
     payments: "/admin/payments",
     reports: "/admin/reports",

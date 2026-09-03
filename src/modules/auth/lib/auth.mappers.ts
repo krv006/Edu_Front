@@ -1,8 +1,9 @@
 import { normalizeMediaUrl } from "@/shared/api";
 import { normalizeRole } from "@/modules/permission";
 import type { Role } from "@/shared/constants";
-import type { AuthUser, LoginCredentials } from "@/shared/types";
+import type { AuthUser, Certificate, LoginCredentials } from "@/shared/types";
 import {
+  certificateDtoSchema,
   loginRecordDtoSchema,
   tokenPairDtoSchema,
   userDtoSchema,
@@ -19,6 +20,17 @@ export function mapLoginRequest(values: LoginCredentials): LoginRequestDto {
 export function mapTokenPairDto(dto: unknown): TokenPair {
   const parsed = tokenPairDtoSchema.parse(dto);
   return { accessToken: parsed.access, refreshToken: parsed.refresh };
+}
+
+/** Ham `userDtoSchema.certificates` ichidagi elementlar, ham `POST .../certificates/` javobi uchun. */
+export function mapCertificateDto(dto: unknown): Certificate {
+  const parsed = certificateDtoSchema.parse(dto);
+  return {
+    id: parsed.id,
+    file: parsed.file,
+    title: parsed.title || "",
+    createdAt: parsed.created_at,
+  };
 }
 
 /** Zod bilan runtime validatsiya — backend shakli o'zgarsa darhol xato beradi. */
@@ -38,6 +50,10 @@ export function mapUserDto(dto: unknown): AuthUser {
     avatarUrl: normalizeMediaUrl(parsed.avatar),
     email: null,
     status: "online",
+    avgRating: parsed.avg_rating ?? null,
+    ratingCount: parsed.rating_count ?? null,
+    isApproved: parsed.is_approved ?? null,
+    certificates: parsed.certificates.map(mapCertificateDto),
   };
 }
 

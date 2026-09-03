@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { AppError, type QueryParams } from "@/shared/api";
+import { describeCreateError } from "@/modules/auth";
 import { lessonApi } from "../api/lesson.api";
 import { flushTeacherAudioRecording } from "../lib/teacher-audio-recording";
 import { flushTeacherVideoRecording } from "../lib/teacher-video-recording";
@@ -101,6 +102,8 @@ export function useCreateLesson() {
       client.invalidateQueries({ queryKey: lessonKeys.all });
       toast.success("Dars saqlandi");
     },
+    // Admin hali tasdiqlamagan o'qituvchi dars yarata olmaydi (403) — sabab aniq ko'rsatiladi.
+    onError: (error) => toast.error(describeCreateError(error)),
   });
 }
 
