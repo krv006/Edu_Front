@@ -209,7 +209,10 @@ function StudentShareControl() {
         source={Track.Source.ScreenShare}
         // Ekran bilan birga uning OVOZI ham uzatiladi: aks holda video darsi
         // yoki taqdimotdagi tovush o'quvchilarga umuman yetib bormaydi.
-        captureOptions={{ audio: true }}
+        // `selfBrowserSurface: "exclude"` — shu darsning o'z tab'ini tanlov
+        // ro'yxatidan olib tashlaydi: aks holda kimdir o'z darsini ulashsa,
+        // ekranda cheksiz oyna-ichida-oyna (aks sado) hosil bo'lardi.
+        captureOptions={{ audio: true, selfBrowserSurface: "exclude" }}
         showIcon={false}
         className="live-control live-control--share"
         aria-label="Ekranni ulashish"
@@ -515,7 +518,9 @@ export function LiveRoom({ lesson, isTeacher, screenStream, onLeave }: LiveRoomP
         {isTeacher ? (
           <TrackToggle
             source={Track.Source.ScreenShare}
-            captureOptions={{ audio: true }}
+            // Joriy tab (shu darsning o'zi) tanlov ro'yxatidan chiqarilgan —
+            // aks sado effektining oldini oladi (yuqoridagi izohga qarang).
+            captureOptions={{ audio: true, selfBrowserSurface: "exclude" }}
             showIcon={false}
             className="live-control live-control--share"
             aria-label="Ekranni ulashish"
