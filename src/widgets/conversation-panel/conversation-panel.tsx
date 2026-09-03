@@ -17,6 +17,7 @@ import {
 } from "@/modules/conversation";
 import { useLiveLessons } from "@/modules/lesson";
 import { homeworkApi, homeworkKeys } from "@/modules/homework";
+import { quizApi, quizKeys } from "@/modules/quiz";
 import { NotificationBell, type NotificationLink } from "@/modules/notification";
 import { Avatar } from "@/shared/ui/legacy";
 import { useAuth } from "@/modules/auth";
@@ -104,27 +105,45 @@ export function ConversationPanel({ role = "teacher", onOpenMenu }: Conversation
   /*
    * Bildirishnomadagi havolani ochish.
    *
-   * Xabar faqat vazifa id'sini beradi, vazifa esa o'z guruh chatining
-   * "Vazifalar" bo'limida yashaydi. Shuning uchun avval vazifa olinadi
+   * Xabar faqat vazifa/test id'sini beradi, ular esa o'z guruh chatining
+   * tegishli bo'limida yashaydi. Shuning uchun avval obyektning o'zi olinadi
    * (`courseId` uchun), so'ng shu kursning suhbati topiladi.
    */
   const queryClient = useQueryClient();
 
   async function openNotificationLink(link: NotificationLink) {
-    if (link.type !== "assignment") return;
-    try {
-      const assignment = await queryClient.fetchQuery({
-        queryKey: homeworkKeys.assignment(link.id),
-        queryFn: ({ signal }) => homeworkApi.getAssignment(link.id, { signal }),
-      });
-      const room = data.find((item) => item.courseId === assignment.courseId);
-      if (!room) {
-        toast.error("Vazifa guruhi topilmadi");
-        return;
+    if (link.type === "assignment") {
+      try {
+        const assignment = await queryClient.fetchQuery({
+          queryKey: homeworkKeys.assignment(link.id),
+          queryFn: ({ signal }) => homeworkApi.getAssignment(link.id, { signal }),
+        });
+        const room = data.find((item) => item.courseId === assignment.courseId);
+        if (!room) {
+          toast.error("Vazifa guruhi topilmadi");
+          return;
+        }
+        navigate(`${basePath}/${room.id}?tab=assignments&assignment=${link.id}`);
+      } catch (error) {
+        toast.error(error instanceof Error ? error.message : "Vazifani ochib bo‘lmadi");
       }
-      navigate(`${basePath}/${room.id}?tab=assignments&assignment=${link.id}`);
-    } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Vazifani ochib bo‘lmadi");
+      return;
+    }
+    if (link.type === "quiz") {
+      try {
+        const quiz = await queryClient.fetchQuery({
+          queryKey: quizKeys.detail(link.id),
+          queryFn: ({ signal }) => quizApi.getById(link.id, { signal }),
+        });
+        const room = data.find((item) => item.courseId === quiz.courseId);
+        if (!room) {
+          toast.error("Test guruhi topilmadi");
+          return;
+        }
+        navigate(`${basePath}/${room.id}?tab=quizzes&quiz=${link.id}`);
+      } catch (error) {
+        toast.error(error instanceof Error ? error.message : "Testni ochib bo‘lmadi");
+      }
     }
   }
 
