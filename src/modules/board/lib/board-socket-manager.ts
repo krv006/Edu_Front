@@ -6,9 +6,10 @@ export type { SocketState };
 /**
  * Doska kanalidan keladigan hodisalar — docs/PROJECT.md §5.2.
  *
- * `mic_request` / `mic_granted` doskaga aloqador emas, lekin dars davomida
- * ochiq turgan yagona kanal shu bo'lgani uchun backend ularni ham shu yerdan
- * yuboradi (MIC_REQUEST_GRANT.md §"Qanday ishlaydi").
+ * `mic_request`/`mic_granted`/`camera_*`/`board_granted` doskaning o'ziga
+ * aloqador emas, lekin dars davomida ochiq turgan yagona kanal shu bo'lgani
+ * uchun backend ularni ham shu yerdan yuboradi (MIC_REQUEST_GRANT.md
+ * §"Qanday ishlaydi", FRONTEND_TODO_CAMERA_BOARD.md).
  */
 export type BoardSocketEvent =
   | { type: "stroke"; sheet: number; stroke: StrokeDto }
@@ -17,6 +18,10 @@ export type BoardSocketEvent =
   | { type: "mic_request"; studentId: string; name: string }
   | { type: "mic_granted"; studentId: string }
   | { type: "mic_denied"; studentId: string }
+  | { type: "camera_request"; studentId: string; name: string }
+  | { type: "camera_granted"; studentId: string }
+  | { type: "camera_denied"; studentId: string }
+  | { type: "board_granted"; studentId: string }
   | { type: "error"; detail: string };
 
 interface RawBoardEvent {
@@ -59,6 +64,16 @@ export function parseBoardEvent(raw: unknown): BoardSocketEvent | null {
       return event.student_id ? { type: "mic_granted", studentId: String(event.student_id) } : null;
     case "mic_denied":
       return event.student_id ? { type: "mic_denied", studentId: String(event.student_id) } : null;
+    case "camera_request":
+      return event.student_id
+        ? { type: "camera_request", studentId: String(event.student_id), name: event.name ?? "" }
+        : null;
+    case "camera_granted":
+      return event.student_id ? { type: "camera_granted", studentId: String(event.student_id) } : null;
+    case "camera_denied":
+      return event.student_id ? { type: "camera_denied", studentId: String(event.student_id) } : null;
+    case "board_granted":
+      return event.student_id ? { type: "board_granted", studentId: String(event.student_id) } : null;
     case "error":
       return { type: "error", detail: event.detail || "Doska ulanishida xatolik" };
     default:

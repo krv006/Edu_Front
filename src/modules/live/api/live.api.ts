@@ -63,7 +63,28 @@ export const liveApi = {
     return Boolean(dto?.denied);
   },
 
- 
+  /**
+   * Kamera so'rovi — mikrofon bilan aynan bir xil naqsh
+   * (FRONTEND_TODO_CAMERA_BOARD.md §1). O'quvchi tokeni kamera nashr qilish
+   * huquqisiz keladi, o'qituvchi ruxsat berguncha kamera yoqilmaydi.
+   */
+  async requestCamera(lessonId: string) {
+    return apiClient.post(liveEndpoints.requestCamera, { lesson_id: lessonId });
+  },
+
+  async grantCamera(lessonId: string, studentId: string) {
+    await apiClient.post(liveEndpoints.grantCamera, { lesson_id: lessonId, student_id: studentId });
+    return studentId;
+  },
+
+  async denyCamera(lessonId: string, studentId: string) {
+    const dto = await apiClient.post<{ denied?: boolean } | null>(liveEndpoints.denyCamera, {
+      lesson_id: lessonId,
+      student_id: studentId,
+    });
+    return Boolean(dto?.denied);
+  },
+
   async invite(lessonId: string, studentId?: string) {
     const dto = await apiClient.post<{ invited?: number } | null>(liveEndpoints.invite, {
       lesson_id: lessonId,

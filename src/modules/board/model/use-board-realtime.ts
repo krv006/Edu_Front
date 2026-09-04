@@ -52,12 +52,25 @@ function applyEvent(state: BoardState | undefined, event: BoardSocketEvent): Boa
  * Kelgan hodisalarni to'g'ridan-to'g'ri react-query keshiga qo'llaydi, shuning uchun
  * `useBoard` qayta so'rov yubormaydi. Kanal ulanmasa (masalan server `/ws/*` ni
  * proksilamasa) `connected` `false` bo'ladi va `useBoard` pollingga qaytadi.
+ *
+ * `identity` — joriy foydalanuvchining LiveKit identity'si. `board_granted`
+ * HAMMAGA keladi (mikrofon signallari kabi), shuning uchun har client o'zi
+ * filtrlaydi: faqat shu o'quvchiga tegishli bo'lsa `canDraw`ni `true`ga
+ * o'rnatadi — aks holda o'qituvchi ruxsat berganda sahifani yangilamaguncha
+ * o'quvchi chiza olmay turardi (FRONTEND_TODO_CAMERA_BOARD.md §2).
  */
-export function useBoardRealtime(lessonId: string, enabled = true) {
+export function useBoardRealtime(lessonId: string, enabled = true, identity?: string | null) {
   const queryClient = useQueryClient();
 
   const handleEvent = useCallback(
     (event: BoardSocketEvent) => {
+      if (event.type === "board_granted") {
+        if (!identity || event.studentId !== identity) return;
+        queryClient.setQueryData<BoardState>(boardKeys.state(lessonId), (current) =>
+          current ? { ...current, canDraw: true } : current
+        );
+        return;
+      }
       // Kanal doskadan tashqari signallarni ham olib keladi (mikrofon so'rovi) —
       // ular doska holatiga tegishli emas.
       if (!BOARD_STATE_EVENTS.has(event.type)) return;
@@ -65,7 +78,7 @@ export function useBoardRealtime(lessonId: string, enabled = true) {
         applyEvent(current, event)
       );
     },
-    [lessonId, queryClient]
+    [lessonId, queryClient, identity]
   );
 
   return useBoardChannel(lessonId, enabled, handleEvent);
