@@ -81,6 +81,40 @@ export function useDenyMic(lessonId: string) {
   });
 }
 
+/** Kamera so'rovi/ruxsati — mikrofon bilan bir xil xato holatlari. */
+function cameraError(error: unknown, forbidden: string): string {
+  if (error instanceof AppError) {
+    if (error.status === 404) return "Kamera so‘rovi serverda hali yoqilmagan.";
+    if (error.status === 403) return forbidden;
+  }
+  return error instanceof Error ? error.message : "Amalni bajarib bo‘lmadi";
+}
+
+export function useRequestCamera(lessonId: string) {
+  return useMutation({
+    mutationFn: () => liveApi.requestCamera(lessonId),
+    onSuccess: () => toast.success("So‘rov yuborildi — o‘qituvchi ruxsatini kuting"),
+    onError: (error) => toast.error(cameraError(error, "Siz bu kursga yozilmagansiz.")),
+  });
+}
+
+export function useGrantCamera(lessonId: string) {
+  return useMutation({
+    mutationFn: (studentId: string) => liveApi.grantCamera(lessonId, studentId),
+    onSuccess: () => toast.success("Kamera ruxsati berildi"),
+    onError: (error) => toast.error(cameraError(error, "Bu darsning o‘qituvchisi emassiz.")),
+  });
+}
+
+export function useDenyCamera(lessonId: string) {
+  return useMutation({
+    mutationFn: (studentId: string) => liveApi.denyCamera(lessonId, studentId),
+    onSuccess: (denied) =>
+      toast.success(denied ? "So‘rov rad etildi" : "So‘rov allaqachon yopilgan"),
+    onError: (error) => toast.error(cameraError(error, "Bu darsning o‘qituvchisi emassiz.")),
+  });
+}
+
 function moderationError(error: unknown): string {
   if (error instanceof AppError && error.status === 404) {
     return "Bu imkoniyat serverda hali yoqilmagan.";

@@ -20,5 +20,9 @@ export function mapBoardDto(dto: BoardStateDto): BoardState {
       id: String(item.student_id),
       name: item.name || "O‘quvchi",
     })),
+    pendingCameraRequests: (dto.pending_camera_requests ?? []).map((item) => ({
+      id: String(item.student_id),
+      name: item.name || "O‘quvchi",
+    })),
   };
 }

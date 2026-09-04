@@ -103,6 +103,8 @@ export interface BoardStateDto {
    * ulanishidan oldin kelgan so‘rovlar yo‘qolib ketardi.
    */
   pending_mic_requests?: Array<{ student_id: string | number; name: string }>;
+  /** Kamera so‘ragan va hali javob olmagan o‘quvchilar — `pending_mic_requests` bilan bir xil naqsh. */
+  pending_camera_requests?: Array<{ student_id: string | number; name: string }>;
 }
 
 /** `POST /api/v1/board/<lesson_id>/solve/` javobi (SymPy). */
@@ -130,6 +132,12 @@ export interface PendingMicRequest {
   name: string;
 }
 
+/** Kamera so‘rovi navbatidagi o‘quvchi (FIFO) — `PendingMicRequest` bilan bir xil shakl. */
+export interface PendingCameraRequest {
+  id: string;
+  name: string;
+}
+
 export interface BoardState {
   sheets: BoardSheet[];
   canDraw: boolean;
@@ -140,6 +148,8 @@ export interface BoardState {
   mathEnabled: boolean;
   /** Faqat o'qituvchida to'ladi; boshqalarda bo'sh massiv. */
   awayStudents: AwayStudent[];
-  /** Mikrofon navbatida turgan o‘quvchi — faqat o‘qituvchida to‘ladi. */
+  /** Mikrofon navbatida turgan o‘quvchi — faqat o’qituvchida to’ladi. */
   pendingMicRequests: PendingMicRequest[];
+  /** Kamera navbatida turgan o‘quvchi — faqat o’qituvchida to’ladi. */
+  pendingCameraRequests: PendingCameraRequest[];
 }

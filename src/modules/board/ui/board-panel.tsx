@@ -23,10 +23,12 @@ import { MathFieldInput } from "./math-field-input";
 export interface BoardPanelProps {
   lessonId: string;
   courseId: string | null;
+  /** O'quvchining LiveKit identity'si — `board_granted` signalini o'ziga tegishli deb aniqlash uchun. */
+  currentUserId?: string | null;
 }
 
-export function BoardPanel({ lessonId, courseId }: BoardPanelProps) {
-  const realtime = useBoardRealtime(lessonId);
+export function BoardPanel({ lessonId, courseId, currentUserId }: BoardPanelProps) {
+  const realtime = useBoardRealtime(lessonId, true, currentUserId);
   const board = useBoard(lessonId, { live: realtime.connected });
   const addStroke = useAddStroke(lessonId);
   const addSheet = useAddSheet(lessonId);

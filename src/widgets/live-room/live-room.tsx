@@ -36,6 +36,7 @@ import {
 } from "@/modules/lesson";
 import {
   AttentionCheckDialog,
+  CAMERA_SOURCE,
   canPublishSource,
   decodeScreenShareRequest,
   encodeScreenShareRequest,
@@ -45,8 +46,10 @@ import {
   useAllowShare,
   useAttentionCheck,
   useBanFromLesson,
+  useCameraSignals,
   useFocusTracker,
   useMicSignals,
+  type CameraRequest,
   type MicRequest,
 } from "@/modules/live";
 import type { Lesson } from "@/shared/types";
@@ -197,6 +200,91 @@ function TeacherMicControl() {
   );
 }
 
+/**
+ * O'quvchi kamerasi (FRONTEND_TODO_CAMERA_BOARD.md §1) — `StudentMicControl`
+ * bilan AYNAN bir xil naqsh: darsga kamerasiz kiradi, yoqish uchun
+ * o'qituvchidan ruxsat so'raydi. Ruxsat berilgach LiveKit huquqlari
+ * yangilanadi va shu yerning o'zi odatdagi tugmaga aylanadi.
+ */
+function StudentCameraControl({
+  onRequest,
+  requesting,
+  waiting,
+}: {
+  onRequest: () => void;
+  requesting: boolean;
+  waiting: boolean;
+}) {
+  const permissions = useLocalParticipantPermissions();
+  const canPublishCamera = canPublishSource(permissions, CAMERA_SOURCE);
+
+  if (canPublishCamera) {
+    return (
+      <TrackToggle
+        source={Track.Source.Camera}
+        showIcon={false}
+        className="live-control"
+        aria-label="Kamera"
+      >
+        <Video size={19} />
+        <VideoOff size={19} className="live-control-off" />
+      </TrackToggle>
+    );
+  }
+
+  return (
+    <button
+      type="button"
+      className={`live-control live-control--mic-request ${waiting ? "is-waiting" : ""}`}
+      aria-label={waiting ? "So‘rov yuborildi, javob kutilmoqda" : "Kamera uchun ruxsat so‘rash"}
+      title={
+        waiting
+          ? "So‘rov yuborildi — o‘qituvchi javobini kuting"
+          : "Kamera uchun ruxsat so‘rash"
+      }
+      disabled={requesting || waiting}
+      onClick={onRequest}
+    >
+      <VideoOff size={19} />
+      <Hand size={13} className="live-control-corner" aria-hidden="true" />
+    </button>
+  );
+}
+
+/**
+ * O'qituvchi kamerasi. Uning tokeni hech qachon cheklanmasligi kerak, lekin
+ * cheklangan holat uchrasa tugma jimgina ishlamay turmasin — sababi ko'rinsin.
+ */
+function TeacherCameraControl() {
+  const permissions = useLocalParticipantPermissions();
+
+  if (canPublishSource(permissions, CAMERA_SOURCE)) {
+    return (
+      <TrackToggle
+        source={Track.Source.Camera}
+        showIcon={false}
+        className="live-control"
+        aria-label="Kamera"
+      >
+        <Video size={19} />
+        <VideoOff size={19} className="live-control-off" />
+      </TrackToggle>
+    );
+  }
+
+  return (
+    <button
+      type="button"
+      className="live-control"
+      disabled
+      aria-label="Kamera ishlamayapti"
+      title="Server tokenida kamera ruxsati yo‘q — texnik jamoaga xabar bering"
+    >
+      <VideoOff size={19} />
+    </button>
+  );
+}
+
 function StudentShareControl() {
   const room = useRoomContext();
   const permissions = useLocalParticipantPermissions();
@@ -315,8 +403,10 @@ export function LiveRoom({ lesson, isTeacher, screenStream, onLeave }: LiveRoomP
   const [inviteOpen, setInviteOpen] = useState(false);
   const connectionState = useConnectionState();
   const participants = useParticipants();
+  const room = useRoomContext();
   const attention = useAttentionCheck(lesson.id, !isTeacher);
   const mic = useMicSignals(lesson.id, isTeacher);
+  const camera = useCameraSignals(lesson.id, isTeacher);
   useFocusTracker(lesson.id, !isTeacher);
 
   const tracks = useTracks(
@@ -341,6 +431,8 @@ export function LiveRoom({ lesson, isTeacher, screenStream, onLeave }: LiveRoomP
   const screenTracks = tracks.filter((track) => track.source === Track.Source.ScreenShare);
   const cameraTracks = tracks.filter((track) => track.source === Track.Source.Camera);
   const activeShare = screenTracks[0] ?? null;
+  /** "Ishtirokchilar" tugmasidagi nishoncha — mikrofon va kamera so'rovlari birgalikda. */
+  const pendingRequestsCount = mic.requests.length + camera.requests.length;
 
   /*
    * `connectionState` ilgari shu yerda tekshirilardi ("Reconnecting paytida
@@ -480,7 +572,11 @@ export function LiveRoom({ lesson, isTeacher, screenStream, onLeave }: LiveRoomP
             </nav>
             <div className="live-room-panel-body">
               {panel === "board" ? (
-                <BoardPanel lessonId={lesson.id} courseId={lesson.courseId} />
+                <BoardPanel
+                  lessonId={lesson.id}
+                  courseId={lesson.courseId}
+                  currentUserId={room.localParticipant.identity}
+                />
               ) : (
                 <ParticipantsPanel
                   lessonId={lesson.id}
@@ -488,7 +584,11 @@ export function LiveRoom({ lesson, isTeacher, screenStream, onLeave }: LiveRoomP
                   micRequests={mic.requests}
                   onGrantMic={mic.grant.mutate}
                   onDenyMic={mic.deny.mutate}
-                  answerPending={mic.grant.isPending || mic.deny.isPending}
+                  micAnswerPending={mic.grant.isPending || mic.deny.isPending}
+                  cameraRequests={camera.requests}
+                  onGrantCamera={camera.grant.mutate}
+                  onDenyCamera={camera.deny.mutate}
+                  cameraAnswerPending={camera.grant.isPending || camera.deny.isPending}
                 />
               )}
             </div>
@@ -506,15 +606,15 @@ export function LiveRoom({ lesson, isTeacher, screenStream, onLeave }: LiveRoomP
             waiting={mic.waiting}
           />
         )}
-        <TrackToggle
-          source={Track.Source.Camera}
-          showIcon={false}
-          className="live-control"
-          aria-label="Kamera"
-        >
-          <Video size={19} />
-          <VideoOff size={19} className="live-control-off" />
-        </TrackToggle>
+        {isTeacher ? (
+          <TeacherCameraControl />
+        ) : (
+          <StudentCameraControl
+            onRequest={camera.requestCamera}
+            requesting={camera.requesting}
+            waiting={camera.waiting}
+          />
+        )}
         {isTeacher ? (
           <TrackToggle
             source={Track.Source.ScreenShare}
@@ -545,16 +645,16 @@ export function LiveRoom({ lesson, isTeacher, screenStream, onLeave }: LiveRoomP
           className={`live-control ${panel === "people" ? "is-active" : ""}`}
           onClick={() => togglePanel("people")}
           aria-label={
-            mic.requests.length
-              ? `Ishtirokchilar — ${mic.requests.length} ta mikrofon so‘rovi`
+            pendingRequestsCount
+              ? `Ishtirokchilar — ${pendingRequestsCount} ta so‘rov`
               : "Ishtirokchilar"
           }
           aria-pressed={panel === "people"}
         >
           <Users size={19} />
           {/* So'rov kelganini o'qituvchi panelni ochmasdan ham sezishi kerak. */}
-          {mic.requests.length ? (
-            <span className="live-control-badge">{mic.requests.length}</span>
+          {pendingRequestsCount ? (
+            <span className="live-control-badge">{pendingRequestsCount}</span>
           ) : null}
         </button>
 
@@ -588,7 +688,11 @@ interface ParticipantsPanelProps {
   micRequests: MicRequest[];
   onGrantMic: (studentId: string) => void;
   onDenyMic: (studentId: string) => void;
-  answerPending: boolean;
+  micAnswerPending: boolean;
+  cameraRequests: CameraRequest[];
+  onGrantCamera: (studentId: string) => void;
+  onDenyCamera: (studentId: string) => void;
+  cameraAnswerPending: boolean;
 }
 
 function ParticipantsPanel({
@@ -597,7 +701,11 @@ function ParticipantsPanel({
   micRequests,
   onGrantMic,
   onDenyMic,
-  answerPending,
+  micAnswerPending,
+  cameraRequests,
+  onGrantCamera,
+  onDenyCamera,
+  cameraAnswerPending,
 }: ParticipantsPanelProps) {
   const participants = useParticipants();
   const allowShare = useAllowShare(lessonId);
@@ -623,7 +731,7 @@ function ParticipantsPanel({
               </div>
               <Button
                 size="sm"
-                disabled={answerPending}
+                disabled={micAnswerPending}
                 onClick={() => onGrantMic(request.studentId)}
               >
                 Ruxsat
@@ -633,8 +741,45 @@ function ParticipantsPanel({
                 className="icon-button destructive-icon"
                 aria-label={`${request.name} so‘rovini rad etish`}
                 title="Rad etish"
-                disabled={answerPending}
+                disabled={micAnswerPending}
                 onClick={() => onDenyMic(request.studentId)}
+              >
+                <X size={16} />
+              </button>
+            </article>
+          ))}
+        </section>
+      ) : null}
+      {cameraRequests.length ? (
+        <section className="live-mic-requests" aria-label="Kamera so‘ragan o‘quvchilar">
+          <h4>
+            <Video size={14} /> Kamerani yoqmoqchi ({cameraRequests.length})
+          </h4>
+          {/* Navbat FIFO: ro'yxat kelish tartibida, birinchi so'ragan tepada. */}
+          {cameraRequests.map((request, index) => (
+            <article key={request.studentId}>
+              <span className="live-mic-queue-number" aria-hidden="true">
+                {index + 1}
+              </span>
+              <Avatar name={request.name} size="sm" />
+              <div>
+                <strong>{request.name}</strong>
+                <small>Kamera so‘rayapti</small>
+              </div>
+              <Button
+                size="sm"
+                disabled={cameraAnswerPending}
+                onClick={() => onGrantCamera(request.studentId)}
+              >
+                Ruxsat
+              </Button>
+              <button
+                type="button"
+                className="icon-button destructive-icon"
+                aria-label={`${request.name} so‘rovini rad etish`}
+                title="Rad etish"
+                disabled={cameraAnswerPending}
+                onClick={() => onDenyCamera(request.studentId)}
               >
                 <X size={16} />
               </button>
