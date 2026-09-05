@@ -1,7 +1,7 @@
 import { Pencil, PlayCircle, Star, Trash2, Video } from "lucide-react";
 import type { Lesson } from "@/shared/types";
 import { Button } from "@/shared/ui/legacy";
-import { isLessonClosed } from "../lib/lesson-status";
+import { isLessonClosed, isLessonEditable, isLessonJoinable } from "../lib/lesson-status";
 
 export interface LessonActionsProps {
   lesson: Lesson;
@@ -41,6 +41,7 @@ export function LessonActions({
   compact = false,
 }: LessonActionsProps) {
   const finished = lesson.status === "finished";
+  const joinDisabled = !isLessonJoinable(lesson);
   /** Baho nishoni: o'qituvchida bosiladi, o'quvchida shunchaki ko'rsatiladi. */
   const ratingChip =
     finished && (onRatings || lesson.ratingCount > 0) ? (
@@ -73,7 +74,12 @@ export function LessonActions({
         joyning ikki holati.
       */}
       {!finished ? (
-        <Button size="sm" disabled={isLessonClosed(lesson)} onClick={() => onJoin(lesson)}>
+        <Button
+          size="sm"
+          disabled={joinDisabled}
+          title={joinDisabled && !isLessonClosed(lesson) ? "Dars hali boshlanmagan — belgilangan vaqtida kiring" : undefined}
+          onClick={() => onJoin(lesson)}
+        >
           <Video size={16} />
           {compact ? null : " Kirish"}
         </Button>
@@ -97,7 +103,7 @@ export function LessonActions({
         </Button>
       ) : null}
 
-      {onEdit ? (
+      {onEdit && isLessonEditable(lesson) ? (
         <button className="icon-button" onClick={() => onEdit(lesson)} aria-label="Darsni tahrirlash">
           <Pencil size={16} />
         </button>
