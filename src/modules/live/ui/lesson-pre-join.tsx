@@ -218,9 +218,11 @@ export function LessonPreJoin({
 
           {isTeacher ? (
             <p className="portal-muted">
-              Dars yozib olinishi uchun brauzer ekran ulashishni so‘raydi — ochilgan oynada{" "}
-              <strong>“Joriy tab” (This Tab)</strong>ni tanlang. Ruxsat berilmasa darsga kira
-              olmaysiz.
+              Dars <strong>yozib olinishi</strong> uchun brauzer ekran ulashishni so‘raydi —
+              ochilgan oynada <strong>“Joriy tab” (This Tab)</strong>ni tanlang. Bu yozuv
+              <strong> o‘quvchilarga ko‘rinmaydi</strong> — darsning ichida ularga bir narsa
+              ko‘rsatish uchun pastdagi <strong>“Ekranni ulashish”</strong> tugmasidan alohida
+              foydalanasiz. Ruxsat berilmasa darsga kira olmaysiz.
             </p>
           ) : null}
 
