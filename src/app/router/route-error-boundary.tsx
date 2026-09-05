@@ -11,6 +11,18 @@ interface ErrorBoundaryState {
   error: Error | null;
 }
 
+/**
+ * Yangi deploy chiqqach, ochiq turgan eski tab endi serverda yo'q JS
+ * chunkini so'raydi — server SPA fallback (HTML) qaytaradi, brauzer buni
+ * "module script" sifatida rad etadi. Foydalanuvchi buni tushunmaydi va
+ * qo'lda "Qayta yuklash"ni bosishi shart emas — bir marta o'zimiz
+ * yangilaymiz. `sessionStorage` bayrog'i cheksiz reload siklidan saqlaydi
+ * (masalan haqiqiy tarmoq uzilishi bo'lsa).
+ */
+const CHUNK_LOAD_ERROR =
+  /Failed to fetch dynamically imported module|error loading dynamically imported module|Failed to load module script|Importing a module script failed/i;
+const CHUNK_RELOAD_FLAG = "chunk-reload-attempted";
+
 class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   state: ErrorBoundaryState = { error: null };
 
@@ -18,8 +30,18 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
     return { error };
   }
 
+  componentDidMount(): void {
+    // Xatosiz sahifa muvaffaqiyatli ochildi — keyingi safar yangi eskirish bo'lsa yana avtomatik urinamiz.
+    if (!this.state.error) sessionStorage.removeItem(CHUNK_RELOAD_FLAG);
+  }
+
   componentDidCatch(error: Error, errorInfo: ErrorInfo): void {
     if (!env.isProduction) console.error("Route render error", error, errorInfo);
+
+    if (CHUNK_LOAD_ERROR.test(error.message) && !sessionStorage.getItem(CHUNK_RELOAD_FLAG)) {
+      sessionStorage.setItem(CHUNK_RELOAD_FLAG, "1");
+      window.location.reload();
+    }
   }
 
   render() {
