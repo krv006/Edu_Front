@@ -33,6 +33,17 @@ export const homeworkApi = {
       await apiClient.post<AssignmentDto>(homeworkEndpoints.assignments, mapAssignmentRequest(form))
     );
   },
+  /**
+   * Vazifani tahrirlash (masalan muddatni to'g'irlash). Fayl qayta
+   * tanlanmasa `mapAssignmentRequest` uni butunlay tashlab ketadi — PATCH
+   * shu maydonni o'zgartirmaydi, mavjud fayl saqlanib qoladi.
+   */
+  async updateAssignment(id: string, form: AssignmentFormInput) {
+    if (form.file) validateHomeworkFile(form.file, { assignment: true });
+    return mapAssignmentDto(
+      await apiClient.patch<AssignmentDto>(homeworkEndpoints.assignment(id), mapAssignmentRequest(form))
+    );
+  },
   async deleteAssignment(id: string) {
     await apiClient.delete(homeworkEndpoints.assignment(id));
     return id;
