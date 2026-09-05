@@ -1,7 +1,15 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { formatDayTime } from "@/shared/lib";
 import { AnimatePresence, motion } from "framer-motion";
-import { BookOpen, CalendarDays, CheckCircle2, CircleAlert, ListChecks, Paperclip } from "lucide-react";
+import {
+  BookOpen,
+  CalendarDays,
+  CheckCircle2,
+  CircleAlert,
+  FileUp,
+  ListChecks,
+  Paperclip,
+} from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 import { ChatHeader } from "@/modules/conversation";
@@ -331,6 +339,7 @@ function StudentAssignments({ assignments = [], loading }: { assignments?: Assig
   const highlightId = params.get("assignment");
   useAssignmentHighlight(highlightId, assignments.length > 0);
   const [file, setFile] = useState<File | null>(null);
+  const fileRef = useRef<HTMLInputElement>(null);
   const [resultOf, setResultOf] = useState<Submission | null>(null);
   const submit = useSubmitHomework();
 
@@ -405,11 +414,23 @@ function StudentAssignments({ assignments = [], loading }: { assignments?: Assig
             <div className="homework-submit-dialog">
               <p>{selected.description}</p>
               {selected.hasAttachment ? <AttachmentDownloadRow assignment={selected} /> : null}
-              <input
-                type="file"
-                accept={selected.skillKey === "speaking" ? SPEAKING_ACCEPT : DEFAULT_ACCEPT}
-                onChange={(event) => setFile(event.target.files?.[0] ?? null)}
-              />
+              <div className="assignment-upload-row">
+                <input
+                  ref={fileRef}
+                  type="file"
+                  accept={selected.skillKey === "speaking" ? SPEAKING_ACCEPT : DEFAULT_ACCEPT}
+                  hidden
+                  onChange={(event) => setFile(event.target.files?.[0] ?? null)}
+                />
+                <button type="button" onClick={() => fileRef.current?.click()}>
+                  <FileUp size={16} /> Fayl tanlash
+                </button>
+                {file ? (
+                  <span>
+                    <Paperclip size={14} /> {file.name}
+                  </span>
+                ) : null}
+              </div>
               <Button
                 loading={submit.isPending}
                 disabled={!file || isAssignmentOverdue(selected)}
