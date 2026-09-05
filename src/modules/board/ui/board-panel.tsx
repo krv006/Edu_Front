@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from "react";
-import { Calculator, Check, FilePlus2, UserCheck, X } from "lucide-react";
+import { Calculator, Check, Eye, FilePlus2, Pencil, UserCheck, X } from "lucide-react";
 import { toast } from "sonner";
 import { useCourseStudents } from "@/modules/course";
 import { Button, Dialog, DialogContent } from "@/shared/ui/legacy";
@@ -173,11 +173,26 @@ export function BoardPanel({ lessonId, courseId, currentUserId }: BoardPanelProp
   return (
     <div className="board-panel">
       <div className="board-toolbar">
-        <span className="board-mode">
-          <i className={`board-live-dot ${realtime.connected ? "is-live" : ""}`} aria-hidden="true" />
-          {canDraw ? "Chizish mumkin" : "Faqat ko‘rish"}
-          {realtime.connected ? "" : " · sinxronlash sekin rejimda"}
-        </span>
+        <div className="board-status">
+          <span
+            className={`board-permission ${canDraw ? "is-can-draw" : ""}`}
+            title={
+              canDraw
+                ? "Sizda doskada chizish ruxsati bor"
+                : "Sizda doskada chizish ruxsati yo‘q — o‘qituvchidan so‘rang"
+            }
+          >
+            {canDraw ? <Pencil size={13} /> : <Eye size={13} />}
+            {canDraw ? "Chizish mumkin" : "Faqat ko‘rish"}
+          </span>
+          <span
+            className="board-live"
+            title={realtime.connected ? "Real-time ulangan" : "Sinxronlash sekin rejimda"}
+          >
+            <i className={`board-live-dot ${realtime.connected ? "is-live" : ""}`} aria-hidden="true" />
+            {realtime.connected ? "Jonli" : "Sekin rejim"}
+          </span>
+        </div>
 
         <div className="board-sheets">
           {state.sheets.map((item) => (
