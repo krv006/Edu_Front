@@ -2239,11 +2239,15 @@ button:disabled {
 
 .message-sender-name {
   margin-bottom: 4px;
-  display: block;
+  display: flex;
+  align-items: center;
+  gap: 4px;
   color: var(--primary-text);
   font-size: var(--fs-xs);
   font-weight: 800;
 }
+/* O'qituvchi va o'quvchi xabarlarini rangda farqlash uchun (student rangi o'zgarishsiz qoldi). */
+.message-sender-name.is-teacher { color: var(--tone-violet-fg); }
 
 .info-sheet {
   top: 0;

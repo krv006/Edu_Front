@@ -97,6 +97,8 @@ export interface ChatMessage {
   senderId: string;
   senderName: string;
   senderUsername: string;
+  /** O'qituvchi/o'quvchi ranglarini chatda farqlash uchun (backend `UserDto.role`). */
+  senderRole?: string;
   text: string;
   replyTo?: MessageReply;
   type: string;
