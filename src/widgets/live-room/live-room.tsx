@@ -624,6 +624,7 @@ export function LiveRoom({ lesson, isTeacher, screenStream, onLeave }: LiveRoomP
             showIcon={false}
             className="live-control live-control--share"
             aria-label="Ekranni ulashish"
+            title="Ekranni ulashish — bu o‘quvchilarga JONLI ko‘rinadi (darsga kirishdagi yozuv capturasidan alohida)"
           >
             <MonitorUp size={19} />
           </TrackToggle>
