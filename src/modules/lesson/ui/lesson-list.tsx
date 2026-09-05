@@ -2,7 +2,7 @@ import { useMemo } from "react";
 import { motion } from "framer-motion";
 import { CalendarX2, Clock3 } from "lucide-react";
 import type { Lesson } from "@/shared/types";
-import { groupLessonsByDay } from "../lib/lesson-calendar";
+import { groupLessonsByDay, toDayKey } from "../lib/lesson-calendar";
 import { lessonStatusMeta } from "../lib/lesson-status";
 import { LessonActions, type LessonActionsProps } from "./lesson-actions";
 
@@ -24,9 +24,19 @@ const DAY_FORMAT = new Intl.DateTimeFormat("uz-UZ", {
 
 function buildSections(lessons: Lesson[]): DaySection[] {
   const byDay = groupLessonsByDay(lessons);
+  const todayKey = toDayKey(new Date());
   return [...byDay.entries()]
-    // Yangi darslar tepada — o'qituvchi ko'pincha eng so'nggisi bilan ishlaydi.
-    .sort((a, b) => b[0].localeCompare(a[0]))
+    /*
+     * Yaqinlashayotgan (bugungi va kelajakdagi) kunlar birinchi, eng
+     * yaqinidan boshlab — o'qituvchi/o'quvchi keyingi darsni darhol ko'rsin.
+     * O'tgan kunlar pastda, eng so'nggisidan boshlab.
+     */
+    .sort((a, b) => {
+      const aUpcoming = a[0] >= todayKey;
+      const bUpcoming = b[0] >= todayKey;
+      if (aUpcoming !== bUpcoming) return aUpcoming ? -1 : 1;
+      return aUpcoming ? a[0].localeCompare(b[0]) : b[0].localeCompare(a[0]);
+    })
     .map(([key, items]) => ({ key, date: new Date(items[0].startsAt), lessons: items }));
 }
 
