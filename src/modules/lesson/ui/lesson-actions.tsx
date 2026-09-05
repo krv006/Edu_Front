@@ -77,7 +77,7 @@ export function LessonActions({
         <Button
           size="sm"
           disabled={joinDisabled}
-          title={joinDisabled && !isLessonClosed(lesson) ? "Dars hali boshlanmagan — belgilangan vaqtida kiring" : undefined}
+          title={joinDisabled && !isLessonClosed(lesson) ? "Bu darsning vaqti allaqachon o'tib ketgan" : undefined}
           onClick={() => onJoin(lesson)}
         >
           <Video size={16} />

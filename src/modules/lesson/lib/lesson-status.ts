@@ -30,11 +30,26 @@ export function isLessonClosed(lesson: Lesson): boolean {
   return CLOSED_LESSON_STATUSES.includes(lesson.status);
 }
 
-/** Boshlanish vaqti hali kelmagan "scheduled" darsga erta kirib bo'lmaydi. */
+/**
+ * Bugun yoki kelajakka rejalashtirilgan "scheduled" darsga istalgan vaqt
+ * kirish mumkin (aniq soatini kutish shart emas — o'qituvchi xonani oldindan
+ * tayyorlab qo'yishi uchun). Faqat KUNI allaqachon o'tib ketgan, hech qachon
+ * boshlanmagan (hamon "scheduled") darslar bloklanadi — aks holda ular
+ * abadiy "kirish mumkin" bo'lib qolar edi (2026-09-05, foydalanuvchi
+ * xabar bergan xato: teskari ishlagan — eskilariga kirsa bo'lardi, yangi/
+ * kelajakdagilarga kirib bo'lmasdi).
+ */
 export function isLessonJoinable(lesson: Lesson, now = new Date()): boolean {
   if (isLessonClosed(lesson)) return false;
-  if (lesson.status === "scheduled") return new Date(lesson.startsAt) <= now;
+  if (lesson.status === "scheduled") {
+    const lessonDay = startOfDay(new Date(lesson.startsAt));
+    return lessonDay >= startOfDay(now);
+  }
   return true;
+}
+
+function startOfDay(date: Date): Date {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate());
 }
 
 /** Jonli ketayotgan darsning ma'lumotlarini tahrirlab bo'lmaydi — faqat tugagan/hali boshlanmagan. */
