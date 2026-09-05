@@ -52,7 +52,7 @@ export function useBoardDrawing({
   }
 
   function handlePointerDown(event: PointerEvent<SVGSVGElement>) {
-    if (!enabled || tool === "select") return;
+    if (!enabled || tool === "erase") return;
     const point = toBoardPoint(event);
 
     // Matn va formula sudrab emas, bitta bosish bilan joylashtiriladi.

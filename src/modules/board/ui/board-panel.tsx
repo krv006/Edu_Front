@@ -105,14 +105,31 @@ export function BoardPanel({ lessonId, courseId, currentUserId }: BoardPanelProp
     );
   }
 
+  /**
+   * Lastik asbobi bosilgan holda elementga bosilganda darhol shu yerga
+   * keladi — avval alohida "Tanlash" rejimi kerak edi, bu tushunarsiz
+   * bo'lib, "lastik ishlamayapti" degan shikoyatlarga sabab bo'lgan edi.
+   */
+  function handleStrokeClick(id: string) {
+    if (tool !== "erase" || !canDraw) return;
+    setSelected(id);
+    setReason("");
+    setReasonOpen(true);
+  }
+
+  /** Oyna yopilganda tanlov ham tozalanadi — aks holda keyingi ochilishda eskisi qolib ketardi. */
+  function closeReasonDialog() {
+    setReasonOpen(false);
+    setSelected(null);
+    setReason("");
+  }
+
   async function removeSelected(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!selected || !reason.trim()) return;
     try {
       await erase.mutateAsync({ sheet, strokeIds: [selected], reason: reason.trim() });
-      setSelected(null);
-      setReason("");
-      setReasonOpen(false);
+      closeReasonDialog();
       toast.success("Element o‘chirildi");
     } catch {
       // Xato bo'lsa oyna ochiq qoladi (qayta urinish uchun) — xabar
@@ -166,7 +183,7 @@ export function BoardPanel({ lessonId, courseId, currentUserId }: BoardPanelProp
 
   // Chizilayotgan element server javobini kutmasdan darhol ko'rinadi.
   const preview =
-    draft && tool !== "select" && tool !== "text" && tool !== "math"
+    draft && tool !== "erase" && tool !== "text" && tool !== "math"
       ? buildStroke({ kind: tool, ...draft, color, width: strokeWidth })
       : null;
 
@@ -233,11 +250,9 @@ export function BoardPanel({ lessonId, courseId, currentUserId }: BoardPanelProp
         width={strokeWidth}
         canDraw={canDraw}
         mathEnabled={state.mathEnabled}
-        hasSelection={Boolean(selected)}
         onToolChange={setTool}
         onColorChange={setColor}
         onWidthChange={setStrokeWidth}
-        onErase={() => setReasonOpen(true)}
       />
 
       <div className="board-canvas-wrap">
@@ -255,7 +270,7 @@ export function BoardPanel({ lessonId, courseId, currentUserId }: BoardPanelProp
               key={stroke.id}
               stroke={stroke}
               selected={selected === stroke.id}
-              onSelect={setSelected}
+              onSelect={handleStrokeClick}
             />
           ))}
           {preview ? (
@@ -309,7 +324,10 @@ export function BoardPanel({ lessonId, courseId, currentUserId }: BoardPanelProp
         ) : null}
       </div>
 
-      <Dialog open={reasonOpen} onOpenChange={setReasonOpen}>
+      <Dialog
+        open={reasonOpen}
+        onOpenChange={(open) => (open ? setReasonOpen(true) : closeReasonDialog())}
+      >
         {reasonOpen && (
           <DialogContent
             title="Elementni o‘chirish"
@@ -328,7 +346,7 @@ export function BoardPanel({ lessonId, courseId, currentUserId }: BoardPanelProp
                 </div>
               </label>
               <div className="dialog-actions">
-                <Button type="button" variant="secondary" onClick={() => setReasonOpen(false)}>
+                <Button type="button" variant="secondary" onClick={closeReasonDialog}>
                   Bekor
                 </Button>
                 <Button type="submit" loading={erase.isPending}>
