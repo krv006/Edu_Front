@@ -109,6 +109,8 @@ export function useSubmitHomework() {
       client.invalidateQueries({ queryKey: homeworkKeys.all });
       toast.success("Vazifa topshirildi, AI tekshiruvi boshlandi");
     },
+    // Avval xato bo'lsa hech narsa ko'rsatilmasdi — tugma jimgina "ishlamayotgandek" tuyulardi.
+    onError: (error: Error) => toast.error(error.message),
   });
 }
 

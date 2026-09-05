@@ -421,7 +421,10 @@ function StudentAssignments({ assignments = [], loading }: { assignments?: Assig
                   }
                   void submit
                     .mutateAsync({ assignmentId: selected.id, file, skillKey: selected.skillKey })
-                    .then(() => setSelected(null));
+                    .then(() => setSelected(null))
+                    // Xato bo'lsa oyna ochiq qoladi (qayta urinish uchun) — xabar
+                    // `useSubmitHomework`ning `onError`i orqali allaqachon ko'rsatiladi.
+                    .catch(() => undefined);
                 }}
               >
                 Yuborish
