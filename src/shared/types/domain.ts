@@ -97,6 +97,8 @@ export interface ChatMessage {
   senderId: string;
   senderName: string;
   senderUsername: string;
+  /** O'qituvchi/o'quvchi ranglarini chatda farqlash uchun (backend `UserDto.role`). */
+  senderRole?: string;
   text: string;
   replyTo?: MessageReply;
   type: string;
@@ -310,6 +312,83 @@ export interface HomeworkReportSummary {
   submissionRate: number;
   /** Faqat o'qituvchi tasdiqlagan (DONE) baholarning o'rtachasi — `null` hali baho yo'q bo'lsa. */
   averageScore: number | null;
+}
+
+// ─── Test (Quiz) ────────────────────────────────────────────────────────────
+export interface QuizOption {
+  id: string;
+  text: string;
+  /** Faqat o'qituvchi/adminga keladi — o'quvchida `undefined` (javob kaliti yashiringan). */
+  isCorrect?: boolean;
+}
+
+export interface QuizQuestion {
+  id: string;
+  text: string;
+  points: number;
+  order: number;
+  options: QuizOption[];
+}
+
+/** `GET /quizzes/` ro'yxat elementi — savollarsiz, faqat soni. */
+export interface QuizSummary {
+  id: string;
+  courseId: string;
+  lessonId: string | null;
+  title: string;
+  description: string;
+  dueAt: string | null;
+  /** Kelajakda bo'lsa, o'quvchi/ota-ona bu testni umuman ko'rmaydi (backend filtrlaydi). */
+  opensAt: string | null;
+  createdAt: string;
+  questionCount: number;
+}
+
+/** `GET /quizzes/{id}/` — to'liq, savollari bilan. */
+export interface QuizDetail extends QuizSummary {
+  questions: QuizQuestion[];
+}
+
+export interface QuizAttemptAnswer {
+  questionId: string;
+  questionText: string;
+  selectedOptionId: string | null;
+  selectedOptionText: string | null;
+  isCorrect: boolean;
+  /** HAR DOIM keladi — o'quvchi xato qilgan bo'lsa ham to'g'ri javobni ko'rsatadi. */
+  correctOption: { id: string; text: string } | null;
+}
+
+/** `GET /quizzes/{id}/attempts/` ro'yxat elementi — javoblarsiz. */
+export interface QuizAttemptSummary {
+  id: string;
+  quizId: string;
+  studentId: string;
+  studentName: string;
+  score: number;
+  maxScore: number;
+  createdAt: string;
+}
+
+/** `POST /quizzes/{id}/attempts/` javobi — darhol natija, har savol tafsiloti bilan. */
+export interface QuizAttemptResult extends QuizAttemptSummary {
+  answers: QuizAttemptAnswer[];
+}
+
+export interface QuizQuestionFormValues {
+  text: string;
+  points: number;
+  options: Array<{ text: string; isCorrect: boolean }>;
+}
+
+export interface QuizFormValues {
+  courseId: string;
+  lessonId?: string | null;
+  title: string;
+  description?: string;
+  dueAt?: string | null;
+  opensAt?: string | null;
+  questions: QuizQuestionFormValues[];
 }
 
 export interface CourseHomeworkReport extends HomeworkReportSummary {

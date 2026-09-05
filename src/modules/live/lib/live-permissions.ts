@@ -2,6 +2,7 @@
  * LiveKit `TrackSource` protokol qiymatlari. SDK enum'i emas, aynan raqamlar
  * keladi: token ichidagi `canPublishSources` shu ko'rinishda bo'ladi.
  */
+export const CAMERA_SOURCE = 1;
 export const MICROPHONE_SOURCE = 2;
 export const SCREEN_SHARE_SOURCE = 3;
 

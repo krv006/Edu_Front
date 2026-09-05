@@ -25,7 +25,7 @@ import {
   ODD_WEEKDAYS,
   WEEKDAYS,
 } from "@/modules/lesson";
-import type { Lesson } from "@/shared/types";
+import type { Assignment, Lesson } from "@/shared/types";
 
 export interface LessonDraft { topic: string; date: string; time: string; duration: string }
 
@@ -71,6 +71,12 @@ export interface AddAssignmentDialogProps {
   lessons?: readonly Lesson[];
   /** Til fani bo'lmasa "tekshiruv turi" tanlovi umuman ko'rsatilmaydi. */
   isLanguageSubject?: boolean;
+  /**
+   * Tahrirlash rejimi — berilsa forma shu vazifadan to'ldiriladi (masalan
+   * noto'g'ri kiritilgan muddatni to'g'irlash uchun). Backend "Baholash
+   * izohi"ni qaytarmaydi (yozish-uchun-maydon), shuning uchun u bo'sh boshlanadi.
+   */
+  initialValues?: Assignment | null;
 }
 
 /** Tez tanlash uchun tayyor davomiyliklar; boshqa qiymat qo‘lda yoziladi. */
@@ -431,8 +437,21 @@ export function AddAssignmentDialog({
   onCreate,
   lessons = [],
   isLanguageSubject = false,
+  initialValues = null,
 }: AddAssignmentDialogProps) {
-  const [form, setForm] = useState<AssignmentDraft>(EMPTY_ASSIGNMENT);
+  const [form, setForm] = useState<AssignmentDraft>(() =>
+    initialValues
+      ? {
+          title: initialValues.title,
+          description: initialValues.description,
+          dueAt: initialValues.dueAt ?? "",
+          skillKey: initialValues.skillKey || "",
+          // Backend buni qaytarmaydi — bo'sh qoldirilsa PATCH mavjud qiymatni o'zgartirmaydi.
+          grading: "",
+          lessonId: initialValues.lessonId ?? "",
+        }
+      : EMPTY_ASSIGNMENT
+  );
   const [file, setFile] = useState<File | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
@@ -473,7 +492,7 @@ export function AddAssignmentDialog({
       {open && (
         <DialogContent
           className="group-action-dialog assignment-dialog"
-          title="Yangi vazifa"
+          title={initialValues ? "Vazifani tahrirlash" : "Yangi vazifa"}
           description="Topshiriq, muddat va kerakli fayllarni bir joyda yuboring."
         >
           <motion.form
@@ -529,13 +548,17 @@ export function AddAssignmentDialog({
                 onChange={(event) => setFile(event.target.files?.[0] ?? null)}
               />
               <button type="button" onClick={() => fileRef.current?.click()}>
-                <FileUp size={16} /> Fayl biriktirish
+                <FileUp size={16} /> {initialValues?.hasAttachment ? "Faylni almashtirish" : "Fayl biriktirish"}
               </button>
-              {file && (
+              {file ? (
                 <span>
                   <Paperclip size={14} /> {file.name}
                 </span>
-              )}
+              ) : initialValues?.hasAttachment ? (
+                <span>
+                  <Paperclip size={14} /> Joriy: {initialValues.attachmentName || "fayl biriktirilgan"}
+                </span>
+              ) : null}
             </div>
             <div className="form-grid-two">
               <DatePicker
@@ -595,7 +618,7 @@ export function AddAssignmentDialog({
                 type="submit"
                 disabled={!form.title.trim() || !form.description.trim()}
               >
-                Vazifani yuborish
+                {initialValues ? "O‘zgarishlarni saqlash" : "Vazifani yuborish"}
               </Button>
             </div>
           </motion.form>

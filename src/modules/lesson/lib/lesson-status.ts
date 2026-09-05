@@ -29,3 +29,15 @@ export const CLOSED_LESSON_STATUSES: LessonStatus[] = ["finished", "cancelled"];
 export function isLessonClosed(lesson: Lesson): boolean {
   return CLOSED_LESSON_STATUSES.includes(lesson.status);
 }
+
+/** Boshlanish vaqti hali kelmagan "scheduled" darsga erta kirib bo'lmaydi. */
+export function isLessonJoinable(lesson: Lesson, now = new Date()): boolean {
+  if (isLessonClosed(lesson)) return false;
+  if (lesson.status === "scheduled") return new Date(lesson.startsAt) <= now;
+  return true;
+}
+
+/** Jonli ketayotgan darsning ma'lumotlarini tahrirlab bo'lmaydi — faqat tugagan/hali boshlanmagan. */
+export function isLessonEditable(lesson: Lesson): boolean {
+  return lesson.status !== "live";
+}

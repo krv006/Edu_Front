@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import type { QueryParams } from "@/shared/api";
-import type { CreateChildRequestDto } from "@/modules/auth";
+import { describeCreateError, type CreateChildRequestDto } from "@/modules/auth";
 import { courseApi } from "../api/course.api";
 import type { CourseFormInput, EnrollmentAction, EnrollPayload } from "../api/course.dto";
 
@@ -72,6 +72,8 @@ export function useCreateCourse() {
       client.invalidateQueries({ queryKey: courseKeys.all });
       toast.success("Kurs yaratildi");
     },
+    // Admin hali tasdiqlamagan o'qituvchi kurs yarata olmaydi (403) — sabab aniq ko'rsatiladi.
+    onError: (error) => toast.error(describeCreateError(error)),
   });
 }
 

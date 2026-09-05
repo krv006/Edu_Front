@@ -104,27 +104,33 @@ export function ConversationPanel({ role = "teacher", onOpenMenu }: Conversation
   /*
    * Bildirishnomadagi havolani ochish.
    *
-   * Xabar faqat vazifa id'sini beradi, vazifa esa o'z guruh chatining
+   * Vazifa xabari faqat vazifa id'sini beradi, vazifa esa o'z guruh chatining
    * "Vazifalar" bo'limida yashaydi. Shuning uchun avval vazifa olinadi
-   * (`courseId` uchun), so'ng shu kursning suhbati topiladi.
+   * (`courseId` uchun), so'ng shu kursning suhbati topiladi. Test esa endi
+   * (rail'dagi) umumiy "Testlar" bo'limida — kurs/xona qidirish shart emas.
    */
   const queryClient = useQueryClient();
 
   async function openNotificationLink(link: NotificationLink) {
-    if (link.type !== "assignment") return;
-    try {
-      const assignment = await queryClient.fetchQuery({
-        queryKey: homeworkKeys.assignment(link.id),
-        queryFn: ({ signal }) => homeworkApi.getAssignment(link.id, { signal }),
-      });
-      const room = data.find((item) => item.courseId === assignment.courseId);
-      if (!room) {
-        toast.error("Vazifa guruhi topilmadi");
-        return;
+    if (link.type === "assignment") {
+      try {
+        const assignment = await queryClient.fetchQuery({
+          queryKey: homeworkKeys.assignment(link.id),
+          queryFn: ({ signal }) => homeworkApi.getAssignment(link.id, { signal }),
+        });
+        const room = data.find((item) => item.courseId === assignment.courseId);
+        if (!room) {
+          toast.error("Vazifa guruhi topilmadi");
+          return;
+        }
+        navigate(`${basePath}/${room.id}?tab=assignments&assignment=${link.id}`);
+      } catch (error) {
+        toast.error(error instanceof Error ? error.message : "Vazifani ochib bo‘lmadi");
       }
-      navigate(`${basePath}/${room.id}?tab=assignments&assignment=${link.id}`);
-    } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Vazifani ochib bo‘lmadi");
+      return;
+    }
+    if (link.type === "quiz") {
+      navigate(`${basePath}/quizzes?quiz=${link.id}`);
     }
   }
 

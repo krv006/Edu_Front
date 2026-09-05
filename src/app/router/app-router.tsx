@@ -65,6 +65,7 @@ const ParentAttendancePage = lazy(() =>
 );
 const ParentHomeworkPage = lazy(() => import("@/pages/parent/homework/parent-homework-page").then((module) => ({ default: module.ParentHomeworkPage })));
 const AdminDashboardPage = lazy(() => import("@/pages/admin/admin-dashboard-page").then((module) => ({ default: module.AdminDashboardPage })));
+const AdminTeachersPage = lazy(() => import("@/pages/admin/teachers/admin-teachers-page").then((module) => ({ default: module.AdminTeachersPage })));
 const LiveLessonPage = lazy(() => import("@/pages/live/live-lesson-page").then((module) => ({ default: module.LiveLessonPage })));
 const DesignSystemPage = lazy(() => import("@/pages/design-system/design-system-page").then((module) => ({ default: module.DesignSystemPage })));
 const BoardPage = lazy(() => import("@/pages/board/board-page").then((module) => ({ default: module.BoardPage })));
@@ -73,6 +74,8 @@ const SchedulePage = lazy(() => import("@/pages/schedule/schedule-page").then((m
 const AiPage = lazy(() => import("@/pages/ai/ai-page").then((module) => ({ default: module.AiPage })));
 const StudentReportPage = lazy(() => import("@/pages/student/report/student-report-page").then((module) => ({ default: module.StudentReportPage })));
 const ParentReportPage = lazy(() => import("@/pages/parent/report/parent-report-page").then((module) => ({ default: module.ParentReportPage })));
+const TeacherQuizzesPage = lazy(() => import("@/pages/teacher/quizzes/teacher-quizzes-page").then((module) => ({ default: module.TeacherQuizzesPage })));
+const StudentQuizzesPage = lazy(() => import("@/pages/student/quizzes/student-quizzes-page").then((module) => ({ default: module.StudentQuizzesPage })));
 
 type ChunkLoader = () => Promise<unknown>;
 
@@ -153,6 +156,7 @@ export function AppRouter() {
                         hech qachon suhbat id'si sifatida talqin qilinmaydi. */}
                     <Route path="schedule" element={<SchedulePage />} />
                     <Route path="ai" element={<AiPage />} />
+                    <Route path="quizzes" element={<TeacherQuizzesPage />} />
                     <Route
                       path=":conversationId"
                       element={<ConversationPage />}
@@ -194,6 +198,7 @@ export function AppRouter() {
                         hech qachon suhbat id'si sifatida talqin qilinmaydi. */}
                     <Route path="schedule" element={<SchedulePage />} />
                     <Route path="ai" element={<AiPage />} />
+                    <Route path="quizzes" element={<StudentQuizzesPage />} />
                     <Route path="report" element={<StudentReportPage />} />
                     <Route
                       path=":conversationId"
@@ -237,6 +242,10 @@ export function AppRouter() {
                   <Route
                     path={ROUTES.admin.dashboard}
                     element={<AdminDashboardPage />}
+                  />
+                  <Route
+                    path={ROUTES.admin.teachers}
+                    element={<AdminTeachersPage />}
                   />
                 </Route>
               </Route>

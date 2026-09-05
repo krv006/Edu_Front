@@ -1,4 +1,4 @@
-export type { AuthContextValue, AuthStatus, AuthUser, LoginCredentials } from "./auth";
+export type { AuthContextValue, AuthStatus, AuthUser, Certificate, LoginCredentials } from "./auth";
 export type {
   AiQuestion,
   AiResult,
@@ -33,6 +33,15 @@ export type {
   MessageReaction,
   PresenceStatus,
   MessageReply,
+  QuizAttemptAnswer,
+  QuizAttemptResult,
+  QuizAttemptSummary,
+  QuizDetail,
+  QuizFormValues,
+  QuizOption,
+  QuizQuestion,
+  QuizQuestionFormValues,
+  QuizSummary,
   SendMessagePayload,
   Submission,
   SubmissionStatus,

@@ -1,10 +1,10 @@
-import { CalendarDays, Menu, MessagesSquare, Sparkles, Trophy } from "lucide-react";
+import { CalendarDays, FileQuestion, Menu, MessagesSquare, Sparkles, Trophy } from "lucide-react";
 import { useNavigate, useResolvedPath } from "react-router-dom";
 import type { ConversationRole } from "@/shared/types";
 import { useConversations } from "../model/use-conversations";
 
 /** Ustundagi asosiy bo'lim — Teams uslubi: ikonka tepada, yozuv ostida. */
-export type ConversationSection = "chat" | "schedule" | "ai" | "report";
+export type ConversationSection = "chat" | "schedule" | "ai" | "quizzes" | "report";
 
 type SectionItem = {
   id: ConversationSection;
@@ -18,6 +18,7 @@ const SECTIONS: SectionItem[] = [
   { id: "chat", label: "Chat", icon: MessagesSquare, path: "" },
   { id: "schedule", label: "Kalendar", icon: CalendarDays, path: "/schedule" },
   { id: "ai", label: "AI", icon: Sparkles, path: "/ai" },
+  { id: "quizzes", label: "Testlar", icon: FileQuestion, path: "/quizzes" },
 ];
 
 /** Reyting faqat o'quvchida — o'qituvchining o'z bahosi yo'q. */

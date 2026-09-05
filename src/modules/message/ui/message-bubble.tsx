@@ -1,7 +1,8 @@
-import { CheckCheck, RefreshCw, Reply } from "lucide-react";
+import { CheckCheck, GraduationCap, RefreshCw, Reply } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useState } from "react";
 import { formatMessageTime } from "@/shared/lib";
+import { ROLES } from "@/shared/constants";
 import type { ChatMessage } from "@/shared/types";
 import { MessageAttachment } from "./message-attachment";
 import { MessageText } from "./message-text";
@@ -17,6 +18,7 @@ export interface MessageBubbleProps {
 
 export function MessageBubble({ message, currentUserId = null, onReply, onOpenActions, onReact, onRetryMessage }: MessageBubbleProps) {
   const outgoing = message.senderId === currentUserId;
+  const isTeacherSender = message.senderRole === ROLES.TEACHER;
   const [dragging, setDragging] = useState(false);
 
   if (message.type === "system")
@@ -61,7 +63,10 @@ export function MessageBubble({ message, currentUserId = null, onReply, onOpenAc
       </span>
       <div className="message-bubble">
         {message.senderName && !outgoing && (
-          <span className="message-sender-name">{message.senderName}</span>
+          <span className={`message-sender-name ${isTeacherSender ? "is-teacher" : "is-student"}`}>
+            {isTeacherSender && <GraduationCap size={12} />}
+            {message.senderName}
+          </span>
         )}
         {message.replyTo && (
           <div className="reply-quote">

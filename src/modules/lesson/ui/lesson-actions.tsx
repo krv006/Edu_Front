@@ -1,7 +1,7 @@
 import { Pencil, PlayCircle, Star, Trash2, Video } from "lucide-react";
 import type { Lesson } from "@/shared/types";
 import { Button } from "@/shared/ui/legacy";
-import { isLessonClosed } from "../lib/lesson-status";
+import { isLessonClosed, isLessonEditable, isLessonJoinable } from "../lib/lesson-status";
 
 export interface LessonActionsProps {
   lesson: Lesson;
@@ -41,6 +41,7 @@ export function LessonActions({
   compact = false,
 }: LessonActionsProps) {
   const finished = lesson.status === "finished";
+  const joinDisabled = !isLessonJoinable(lesson);
   /** Baho nishoni: o'qituvchida bosiladi, o'quvchida shunchaki ko'rsatiladi. */
   const ratingChip =
     finished && (onRatings || lesson.ratingCount > 0) ? (
@@ -66,23 +67,32 @@ export function LessonActions({
         <span className="rating-chip rating-chip--static">{ratingChip}</span>
       ) : null}
 
+      {/*
+        Bitta joy, ikki holat: dars hali bo'lmagan/ketayotgan bo'lsa — "Kirish"
+        (jonli xonaga), tugagach — o'sha tugma o'rnida "Ko'rish" (yozib olingan
+        darsga) chiqadi. Ikkalasi alohida-alohida tugma emas, aynan shu bitta
+        joyning ikki holati.
+      */}
       {!finished ? (
-        <Button size="sm" disabled={isLessonClosed(lesson)} onClick={() => onJoin(lesson)}>
+        <Button
+          size="sm"
+          disabled={joinDisabled}
+          title={joinDisabled && !isLessonClosed(lesson) ? "Dars hali boshlanmagan — belgilangan vaqtida kiring" : undefined}
+          onClick={() => onJoin(lesson)}
+        >
           <Video size={16} />
           {compact ? null : " Kirish"}
+        </Button>
+      ) : onRecording ? (
+        <Button size="sm" onClick={() => onRecording(lesson)}>
+          <PlayCircle size={16} />
+          {compact ? null : " Ko‘rish"}
         </Button>
       ) : null}
 
       {lesson.status === "live" && onFinish ? (
         <Button size="sm" variant="secondary" onClick={() => onFinish(lesson)}>
           Yakunlash
-        </Button>
-      ) : null}
-
-      {finished && onRecording ? (
-        <Button size="sm" variant="secondary" onClick={() => onRecording(lesson)}>
-          <PlayCircle size={16} />
-          {compact ? null : " Yozuv"}
         </Button>
       ) : null}
 
@@ -93,7 +103,7 @@ export function LessonActions({
         </Button>
       ) : null}
 
-      {onEdit ? (
+      {onEdit && isLessonEditable(lesson) ? (
         <button className="icon-button" onClick={() => onEdit(lesson)} aria-label="Darsni tahrirlash">
           <Pencil size={16} />
         </button>

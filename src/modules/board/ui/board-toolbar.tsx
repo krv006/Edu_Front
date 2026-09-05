@@ -4,7 +4,6 @@ import {
   Highlighter,
   Minus,
   MoveRight,
-  MousePointer2,
   PenLine,
   Sigma,
   Square,
@@ -16,9 +15,16 @@ import type { DrawKind } from "../lib/board.geometry";
 
 /**
  * Sudrab chiziladigan asboblar + bosib joylashtiriladigan `text`/`math`
- * + o'chirish uchun element belgilaydigan `select` rejimi.
+ * + biror elementni bosib o'chiradigan `erase` rejimi.
+ *
+ * Avval o'chirish alohida "Tanlash" rejimi + pastdagi disabled lastik
+ * tugmasi orqali ikki bosqichda ishlardi ("tanlash" nima ekani
+ * tushunarsiz edi — o'qituvchilar to'g'ridan-to'g'ri lastikni bosib,
+ * hech narsa sodir bo'lmasligidan chalkashardi). Endi lastik — oddiy
+ * asbob: bosilgach, istalgan elementga bosish uni darhol o'chirishga
+ * yuboradi.
  */
-export type BoardTool = DrawKind | "text" | "math" | "select";
+export type BoardTool = DrawKind | "text" | "math" | "erase";
 
 interface ToolDefinition {
   id: BoardTool;
@@ -27,7 +33,7 @@ interface ToolDefinition {
 }
 
 const TOOLS: ToolDefinition[] = [
-  { id: "select", label: "Tanlash", icon: MousePointer2 },
+  { id: "erase", label: "Lastik", icon: Eraser },
   { id: "pen", label: "Qalam", icon: PenLine },
   { id: "marker", label: "Marker", icon: Highlighter },
   { id: "line", label: "Chiziq", icon: Minus },
@@ -47,12 +53,9 @@ export interface BoardToolbarProps {
   canDraw: boolean;
   /** `GET /board/<id>/` javobidagi `math_enabled` — formula vositasini ko'rsatadi. */
   mathEnabled: boolean;
-  /** Tanlangan element bor — o'chirish tugmasi faollashadi. */
-  hasSelection: boolean;
   onToolChange: (tool: BoardTool) => void;
   onColorChange: (color: string) => void;
   onWidthChange: (width: number) => void;
-  onErase: () => void;
 }
 
 export function BoardToolbar({
@@ -61,11 +64,9 @@ export function BoardToolbar({
   width,
   canDraw,
   mathEnabled,
-  hasSelection,
   onToolChange,
   onColorChange,
   onWidthChange,
-  onErase,
 }: BoardToolbarProps) {
   const tools = mathEnabled ? [...TOOLS, MATH_TOOL] : TOOLS;
 
@@ -76,8 +77,8 @@ export function BoardToolbar({
           <button
             key={id}
             type="button"
-            className={tool === id ? "is-active" : ""}
-            disabled={!canDraw && id !== "select"}
+            className={`${tool === id ? "is-active" : ""} ${id === "erase" ? "is-erase-tool" : ""}`}
+            disabled={!canDraw}
             title={label}
             aria-label={label}
             aria-pressed={tool === id}
@@ -120,17 +121,6 @@ export function BoardToolbar({
           </button>
         ))}
       </div>
-
-      <button
-        type="button"
-        className="board-erase"
-        disabled={!hasSelection || !canDraw}
-        title="Tanlangan elementni o‘chirish"
-        aria-label="Tanlangan elementni o‘chirish"
-        onClick={onErase}
-      >
-        <Eraser size={16} />
-      </button>
     </div>
   );
 }

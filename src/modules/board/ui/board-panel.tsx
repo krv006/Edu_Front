@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from "react";
-import { Calculator, Check, FilePlus2, UserCheck, X } from "lucide-react";
+import { Calculator, Check, Eye, FilePlus2, Pencil, UserCheck, X } from "lucide-react";
 import { toast } from "sonner";
 import { useCourseStudents } from "@/modules/course";
 import { Button, Dialog, DialogContent } from "@/shared/ui/legacy";
@@ -23,10 +23,12 @@ import { MathFieldInput } from "./math-field-input";
 export interface BoardPanelProps {
   lessonId: string;
   courseId: string | null;
+  /** O'quvchining LiveKit identity'si — `board_granted` signalini o'ziga tegishli deb aniqlash uchun. */
+  currentUserId?: string | null;
 }
 
-export function BoardPanel({ lessonId, courseId }: BoardPanelProps) {
-  const realtime = useBoardRealtime(lessonId);
+export function BoardPanel({ lessonId, courseId, currentUserId }: BoardPanelProps) {
+  const realtime = useBoardRealtime(lessonId, true, currentUserId);
   const board = useBoard(lessonId, { live: realtime.connected });
   const addStroke = useAddStroke(lessonId);
   const addSheet = useAddSheet(lessonId);
@@ -103,14 +105,36 @@ export function BoardPanel({ lessonId, courseId }: BoardPanelProps) {
     );
   }
 
+  /**
+   * Lastik asbobi bosilgan holda elementga bosilganda darhol shu yerga
+   * keladi — avval alohida "Tanlash" rejimi kerak edi, bu tushunarsiz
+   * bo'lib, "lastik ishlamayapti" degan shikoyatlarga sabab bo'lgan edi.
+   */
+  function handleStrokeClick(id: string) {
+    if (tool !== "erase" || !canDraw) return;
+    setSelected(id);
+    setReason("");
+    setReasonOpen(true);
+  }
+
+  /** Oyna yopilganda tanlov ham tozalanadi — aks holda keyingi ochilishda eskisi qolib ketardi. */
+  function closeReasonDialog() {
+    setReasonOpen(false);
+    setSelected(null);
+    setReason("");
+  }
+
   async function removeSelected(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!selected || !reason.trim()) return;
-    await erase.mutateAsync({ sheet, strokeIds: [selected], reason: reason.trim() });
-    setSelected(null);
-    setReason("");
-    setReasonOpen(false);
-    toast.success("Element o‘chirildi");
+    try {
+      await erase.mutateAsync({ sheet, strokeIds: [selected], reason: reason.trim() });
+      closeReasonDialog();
+      toast.success("Element o‘chirildi");
+    } catch {
+      // Xato bo'lsa oyna ochiq qoladi (qayta urinish uchun) — xabar
+      // `useEraseStrokes`ning `onError`i orqali allaqachon ko'rsatiladi.
+    }
   }
 
   async function solveFormula(event: FormEvent<HTMLFormElement>) {
@@ -159,18 +183,33 @@ export function BoardPanel({ lessonId, courseId }: BoardPanelProps) {
 
   // Chizilayotgan element server javobini kutmasdan darhol ko'rinadi.
   const preview =
-    draft && tool !== "select" && tool !== "text" && tool !== "math"
+    draft && tool !== "erase" && tool !== "text" && tool !== "math"
       ? buildStroke({ kind: tool, ...draft, color, width: strokeWidth })
       : null;
 
   return (
     <div className="board-panel">
       <div className="board-toolbar">
-        <span className="board-mode">
-          <i className={`board-live-dot ${realtime.connected ? "is-live" : ""}`} aria-hidden="true" />
-          {canDraw ? "Chizish mumkin" : "Faqat ko‘rish"}
-          {realtime.connected ? "" : " · sinxronlash sekin rejimda"}
-        </span>
+        <div className="board-status">
+          <span
+            className={`board-permission ${canDraw ? "is-can-draw" : ""}`}
+            title={
+              canDraw
+                ? "Sizda doskada chizish ruxsati bor"
+                : "Sizda doskada chizish ruxsati yo‘q — o‘qituvchidan so‘rang"
+            }
+          >
+            {canDraw ? <Pencil size={13} /> : <Eye size={13} />}
+            {canDraw ? "Chizish mumkin" : "Faqat ko‘rish"}
+          </span>
+          <span
+            className="board-live"
+            title={realtime.connected ? "Real-time ulangan" : "Sinxronlash sekin rejimda"}
+          >
+            <i className={`board-live-dot ${realtime.connected ? "is-live" : ""}`} aria-hidden="true" />
+            {realtime.connected ? "Jonli" : "Sekin rejim"}
+          </span>
+        </div>
 
         <div className="board-sheets">
           {state.sheets.map((item) => (
@@ -211,11 +250,9 @@ export function BoardPanel({ lessonId, courseId }: BoardPanelProps) {
         width={strokeWidth}
         canDraw={canDraw}
         mathEnabled={state.mathEnabled}
-        hasSelection={Boolean(selected)}
         onToolChange={setTool}
         onColorChange={setColor}
         onWidthChange={setStrokeWidth}
-        onErase={() => setReasonOpen(true)}
       />
 
       <div className="board-canvas-wrap">
@@ -233,7 +270,7 @@ export function BoardPanel({ lessonId, courseId }: BoardPanelProps) {
               key={stroke.id}
               stroke={stroke}
               selected={selected === stroke.id}
-              onSelect={setSelected}
+              onSelect={handleStrokeClick}
             />
           ))}
           {preview ? (
@@ -287,7 +324,10 @@ export function BoardPanel({ lessonId, courseId }: BoardPanelProps) {
         ) : null}
       </div>
 
-      <Dialog open={reasonOpen} onOpenChange={setReasonOpen}>
+      <Dialog
+        open={reasonOpen}
+        onOpenChange={(open) => (open ? setReasonOpen(true) : closeReasonDialog())}
+      >
         {reasonOpen && (
           <DialogContent
             title="Elementni o‘chirish"
@@ -306,7 +346,7 @@ export function BoardPanel({ lessonId, courseId }: BoardPanelProps) {
                 </div>
               </label>
               <div className="dialog-actions">
-                <Button type="button" variant="secondary" onClick={() => setReasonOpen(false)}>
+                <Button type="button" variant="secondary" onClick={closeReasonDialog}>
                   Bekor
                 </Button>
                 <Button type="submit" loading={erase.isPending}>

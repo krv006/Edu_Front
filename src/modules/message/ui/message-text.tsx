@@ -1,10 +1,14 @@
 import { useMemo } from "react";
+import { PlayCircle } from "lucide-react";
 import { Link } from "react-router-dom";
 import { tokenizeMessageText } from "../lib/linkify";
 
 export interface MessageTextProps {
   text: string;
 }
+
+/** Video yozuvi havolasi — xom URL o'rniga tanish belgi bilan ko'rsatiladi. */
+const RECORDING_PATH = /^\/recordings\//;
 
 /**
  * Xabar matni: doska/yozuv havolalari ilova ichida ochiladi, tashqi havolalar
@@ -16,6 +20,18 @@ export function MessageText({ text }: MessageTextProps) {
   return (
     <p>
       {tokens.map((token, index) => {
+        if (token.kind === "internal" && RECORDING_PATH.test(token.href)) {
+          return (
+            <Link
+              key={index}
+              className="message-recording-chip"
+              to={token.href}
+              onClick={(event) => event.stopPropagation()}
+            >
+              <PlayCircle size={15} /> Video yozuvni ko‘rish
+            </Link>
+          );
+        }
         if (token.kind === "internal") {
           return (
             <Link
