@@ -17,6 +17,7 @@ export function mapMessageDto(dto: MessageDto): ChatMessage {
     senderId: String(sender.id),
     senderName: [sender.first_name, sender.last_name].filter(Boolean).join(" ") || sender.username,
     senderUsername: sender.username,
+    senderRole: sender.role,
     text: replyMatch ? replyMatch[3] : dto.text,
     replyTo: replyMatch ? { author: replyMatch[1], text: replyMatch[2] } : undefined,
     type: "text",
