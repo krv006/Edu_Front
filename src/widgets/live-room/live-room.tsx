@@ -554,6 +554,15 @@ export function LiveRoom({ lesson, isTeacher, screenStream, onLeave }: LiveRoomP
         {panel ? (
           <aside className="live-room-panel" aria-label="Yon panel">
             <nav className="live-room-panel-tabs">
+              {/*
+                Doska to'liq ekranda video butunlay yashiriladi (`boardFull`),
+                shuning uchun "Ishtirokchilar"ni bosib videoga qaytish odat
+                bo'lib qolgan edi — nomi esa buni bildirmasdi. Endi videoga
+                qaytish uchun alohida, aniq nomlangan tugma bor.
+              */}
+              <button onClick={() => setPanel(null)}>
+                <Video size={16} /> Videoga qaytish
+              </button>
               <button
                 className={panel === "board" ? "is-active" : ""}
                 onClick={() => setPanel("board")}
