@@ -10,10 +10,15 @@ export interface LessonPreJoinChoices {
   cameraOn: boolean;
   /**
    * O'qituvchining ekran/tab yozuvi (`getDisplayMedia`) — dars videosini
-   * serverga yuklash uchun. Faqat o'qituvchida bo'ladi (o'quvchida hech
-   * qachon so'ralmaydi — `undefined`). O'qituvchi uchun bu maydon
-   * majburiy: ruxsat berilmasa yoki brauzer qo'llamasa, `join()`
-   * `onJoin`ni umuman chaqirmaydi — dars videosiz boshlanmasin.
+   * serverga yuklash uchun VA (2026-09-05) darsning o'zidagi "Ekranni
+   * ulashish" tugmasi uchun ham QAYTA ISHLATILADI — endi ikkinchi marta
+   * so'ralmaydi (ilgari ikkalasi alohida so'rov edi: bir xil tab tanlansa,
+   * brauzer ikkita mustaqil "Sharing..." banner ko'rsatardi). Shuning uchun
+   * audio ham (`audio: true`) so'raladi — jonli ulashishda tab tovushi
+   * kerak. Faqat o'qituvchida bo'ladi (o'quvchida hech qachon so'ralmaydi —
+   * `undefined`). O'qituvchi uchun bu maydon majburiy: ruxsat berilmasa
+   * yoki brauzer qo'llamasa, `join()` `onJoin`ni umuman chaqirmaydi — dars
+   * videosiz boshlanmasin.
    */
   screenStream?: MediaStream;
 }
@@ -123,10 +128,19 @@ export function LessonPreJoin({
     setJoining(true);
     setScreenShareError(null);
     try {
+      // `selfBrowserSurface` TS'ning standart `DisplayMediaStreamOptions`
+      // turida hali yo'q (yangi/eksperimental brauzer API) — LiveKit ham
+      // buni o'zining kengaytirilgan turida e'lon qiladi, shu yerda ham
+      // xuddi shunday kengaytiramiz.
       const screenStream = await navigator.mediaDevices.getDisplayMedia({
         video: { frameRate: 15 },
-        audio: false,
-      });
+        // Jonli "Ekranni ulashish" ham shu oqimni ishlatadi — tab tovushi
+        // (masalan YouTube videosi) o'quvchilarga yetib borishi uchun kerak.
+        audio: true,
+        // Shu darsning o'z tab'ini tanlov ro'yxatidan chiqaradi — aks holda
+        // ekranda cheksiz oyna-ichida-oyna (aks sado) hosil bo'lardi.
+        selfBrowserSurface: "exclude",
+      } as DisplayMediaStreamOptions & { selfBrowserSurface?: "include" | "exclude" });
       onJoin({ micOn, cameraOn, screenStream });
     } catch {
       setScreenShareError(
@@ -219,10 +233,11 @@ export function LessonPreJoin({
           {isTeacher ? (
             <p className="portal-muted">
               Dars <strong>yozib olinishi</strong> uchun brauzer ekran ulashishni so‘raydi —
-              ochilgan oynada <strong>“Joriy tab” (This Tab)</strong>ni tanlang. Bu yozuv
-              <strong> o‘quvchilarga ko‘rinmaydi</strong> — darsning ichida ularga bir narsa
-              ko‘rsatish uchun pastdagi <strong>“Ekranni ulashish”</strong> tugmasidan alohida
-              foydalanasiz. Ruxsat berilmasa darsga kira olmaysiz.
+              ochilgan oynada <strong>“Joriy tab” (This Tab)</strong>ni tanlang. Yozuv darhol
+              boshlanadi, lekin <strong>o‘quvchilarga hali ko‘rinmaydi</strong> — ularga
+              ko‘rsatish uchun darsning ichida pastdagi <strong>“Ekranni ulashish”</strong>{" "}
+              tugmasini bosasiz (qayta ruxsat so‘ralmaydi, xuddi shu ekran ishlatiladi).
+              Ruxsat berilmasa darsga kira olmaysiz.
             </p>
           ) : null}
 

@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import {
   DisconnectButton,
   ParticipantTile,
@@ -287,6 +287,85 @@ function TeacherCameraControl() {
   );
 }
 
+/**
+ * O'qituvchi ekran ulashishi — endi PRE-JOIN'da olingan yagona `screenStream`ni
+ * qayta ishlatadi, yangi `getDisplayMedia` so'ramaydi (2026-09-05, foydalanuvchi
+ * xabar bergan xato: ikkalasi bir xil tabni tanlasa, brauzer ikkita mustaqil
+ * "Sharing..." banner ko'rsatardi — ruxsat ikki marta so'ralgani uchun).
+ *
+ * Yozuv (recording) shu oqimning ASL treklaridan MUSTAQIL davom etadi — LiveKit
+ * xonasiga har safar YOQILGANDA `track.clone()` orqali olingan NUSXA chop
+ * etiladi (asl trekning o'zi emas). Sabab (sinovda topilgan): bir marta
+ * `unpublishTrack` qilingan trekni xuddi o'sha obyekt bilan qayta
+ * `publishTrack` qilib bo'lmaydi (LiveKit jimgina rad etadi) — nusxa esa har
+ * safar yangi, muammosiz. O'chirilganda faqat NUSXA to'xtatiladi, asl trek —
+ * hech qachon.
+ */
+function TeacherShareControl({ screenStream }: { screenStream: MediaStream }) {
+  const room = useRoomContext();
+  const [sharing, setSharing] = useState(false);
+  const publishedRef = useRef<MediaStreamTrack[]>([]);
+
+  async function stopSharing() {
+    const toStop = publishedRef.current;
+    publishedRef.current = [];
+    setSharing(false);
+    await Promise.all(
+      toStop.map((track) => room.localParticipant.unpublishTrack(track, true))
+    );
+  }
+
+  // Brauzerning o'z "Stop sharing" panelidan to'xtatilsa — tugma holati ham yangilansin.
+  useEffect(() => {
+    const videoTrack = screenStream.getVideoTracks()[0];
+    if (!videoTrack) return undefined;
+    const handleEnded = () => void stopSharing();
+    videoTrack.addEventListener("ended", handleEnded);
+    return () => videoTrack.removeEventListener("ended", handleEnded);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [screenStream]);
+
+  async function toggleShare() {
+    if (sharing) {
+      await stopSharing();
+      return;
+    }
+
+    const toPublish: Array<{ track: MediaStreamTrack; source: Track.Source }> = [];
+    const videoTrack = screenStream.getVideoTracks()[0];
+    const audioTrack = screenStream.getAudioTracks()[0];
+    if (videoTrack) toPublish.push({ track: videoTrack.clone(), source: Track.Source.ScreenShare });
+    if (audioTrack) toPublish.push({ track: audioTrack.clone(), source: Track.Source.ScreenShareAudio });
+
+    try {
+      const published: MediaStreamTrack[] = [];
+      for (const { track, source } of toPublish) {
+        await room.localParticipant.publishTrack(track, { source });
+        published.push(track);
+      }
+      publishedRef.current = published;
+      setSharing(true);
+    } catch {
+      toPublish.forEach(({ track }) => track.stop());
+      toast.error("Ekranni ulashib bo‘lmadi");
+    }
+  }
+
+  return (
+    <button
+      type="button"
+      className="live-control live-control--share"
+      data-lk-enabled={sharing}
+      aria-pressed={sharing}
+      aria-label="Ekranni ulashish"
+      title="Ekranni ulashish — bu o‘quvchilarga JONLI ko‘rinadi"
+      onClick={toggleShare}
+    >
+      <MonitorUp size={19} />
+    </button>
+  );
+}
+
 function StudentShareControl() {
   const room = useRoomContext();
   const permissions = useLocalParticipantPermissions();
@@ -388,13 +467,17 @@ export interface LiveRoomProps {
   isTeacher: boolean;
   /**
    * Pre-join'da `getDisplayMedia` orqali olingan, o'qituvchining butun
-   * ekrani/tabi — dars video yozuvi shundan olinadi. QASDDAN "Ekranni
-   * ulashish" (`Track.Source.ScreenShare`, pastda) trekidan MUSTAQIL:
-   * o'qituvchining butun ko'rinishini suratga oladi (kim ulashsa ham —
-   * boshqa ishtirokchining ekrani, kamerasi — hammasi yoziladi), faqat
-   * o'qituvchining o'z chiquvchi trekini emas. Pre-join uni MAJBURIY
-   * qiladi (ruxsat berilmasa kirish bloklanadi), shuning uchun bu yerda
-   * har doim mavjud.
+   * ekrani/tabi — dars video yozuvi doim shundan olinadi (kim gapirsa, kim
+   * ekran ulashsa, kim kamerasini yoqsa — hammasi yoziladi). Pre-join uni
+   * MAJBURIY qiladi (ruxsat berilmasa kirish bloklanadi), shuning uchun bu
+   * yerda har doim mavjud.
+   *
+   * "Ekranni ulashish" tugmasi (pastda, `TeacherShareControl`) — YANGI
+   * `getDisplayMedia` SO'RAMAYDI, aynan shu oqimni LiveKit xonasiga
+   * chop etadi/olib tashlaydi (2026-09-05: ilgari alohida so'rov edi,
+   * ikkalasi bir xil tabni tanlasa brauzer ikkita mustaqil "Sharing..."
+   * banner ko'rsatardi). Ya'ni yozuv va jonli ko'rsatish endi BITTA ruxsat
+   * bilan ishlaydi — biri to'xtasa, ikkinchisi ham to'xtaydi.
    */
   screenStream: MediaStream | null;
   onLeave: () => void;
@@ -459,7 +542,18 @@ export function LiveRoom({ lesson, isTeacher, screenStream, onLeave }: LiveRoomP
    * haqiqatan tugaganda (komponent unmount) to'xtaydi.
    */
   const audioRecording = useTeacherAudioRecording(lesson.id, audioMediaTracks, isTeacher);
-  const videoRecording = useTeacherVideoRecording(lesson.id, screenStream, isTeacher);
+  /**
+   * `screenStream` endi audio trekni ham o'z ichiga oladi (jonli "Ekranni
+   * ulashish" uchun qayta ishlatiladi, yuqoridagi izohga qarang) — lekin
+   * video yozuvi ilgarigidek FAQAT video trekni yozishi kerak (audio allaqachon
+   * alohida, Web Audio mikser orqali yoziladi — ikkalasini ham video faylga
+   * qo'shish ortiqcha va backend birlashtirishda baribir e'tiborga olinmaydi).
+   */
+  const screenVideoOnlyStream = useMemo(() => {
+    const videoTrack = screenStream?.getVideoTracks()[0];
+    return videoTrack ? new MediaStream([videoTrack]) : null;
+  }, [screenStream]);
+  const videoRecording = useTeacherVideoRecording(lesson.id, screenVideoOnlyStream, isTeacher);
 
   const togglePanel = (next: Exclude<SidePanel, null>) =>
     setPanel((current) => (current === next ? null : next));
@@ -637,18 +731,7 @@ export function LiveRoom({ lesson, isTeacher, screenStream, onLeave }: LiveRoomP
           />
         )}
         {isTeacher ? (
-          <TrackToggle
-            source={Track.Source.ScreenShare}
-            // Joriy tab (shu darsning o'zi) tanlov ro'yxatidan chiqarilgan —
-            // aks sado effektining oldini oladi (yuqoridagi izohga qarang).
-            captureOptions={{ audio: true, selfBrowserSurface: "exclude" }}
-            showIcon={false}
-            className="live-control live-control--share"
-            aria-label="Ekranni ulashish"
-            title="Ekranni ulashish — bu o‘quvchilarga JONLI ko‘rinadi (darsga kirishdagi yozuv capturasidan alohida)"
-          >
-            <MonitorUp size={19} />
-          </TrackToggle>
+          screenStream && <TeacherShareControl screenStream={screenStream} />
         ) : (
           <StudentShareControl />
         )}
