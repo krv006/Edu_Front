@@ -13,6 +13,7 @@ import {
 } from "@livekit/components-react";
 import { ConnectionState, RoomEvent, Track, type Participant } from "livekit-client";
 import {
+  CircleStop,
   Hand,
   LayoutDashboard,
   Mic,
@@ -29,6 +30,7 @@ import {
 import { toast } from "sonner";
 import { AwayStudentsNotice, BoardPanel } from "@/modules/board";
 import {
+  FinishLessonDialog,
   useTeacherAudioRecording,
   useTeacherVideoRecording,
   type TeacherAudioRecordingSnapshot,
@@ -310,6 +312,16 @@ export interface LiveRoomProps {
 export function LiveRoom({ lesson, isTeacher, screenStream, onLeave }: LiveRoomProps) {
   const [panel, setPanel] = useState<SidePanel>(null);
   const [inviteOpen, setInviteOpen] = useState(false);
+  /**
+   * Faqat "Chiqish" (o'zi darsdan chiqish) bilan darsni "Yakunlash" (hamma
+   * uchun tugatish, video yozuv finalize qilinadi) alohida amallar —
+   * ilgari o'qituvchi uchun bularning ikkinchisi jonli dars ekranida
+   * umuman yo'q edi (faqat alohida sahifadagi darslar ro'yxatida bor edi),
+   * shuning uchun o'qituvchi shunchaki "Chiqish"ni bosib ketsa, dars hech
+   * qachon rasman yakunlanmas va video yozuv abadiy tugallanmas edi
+   * (production'da topilgan xato, 2026-09-05).
+   */
+  const [finishOpen, setFinishOpen] = useState(false);
   const connectionState = useConnectionState();
   const participants = useParticipants();
   const attention = useAttentionCheck(lesson.id, !isTeacher);
@@ -557,6 +569,19 @@ export function LiveRoom({ lesson, isTeacher, screenStream, onLeave }: LiveRoomP
           <PhoneOff size={19} />
           <span>Chiqish</span>
         </DisconnectButton>
+
+        {isTeacher ? (
+          <button
+            type="button"
+            className="live-control live-control--finish"
+            aria-label="Darsni yakunlash"
+            title="Darsni hamma uchun yakunlash — video yozuv shundan keyin saqlanadi"
+            onClick={() => setFinishOpen(true)}
+          >
+            <CircleStop size={19} />
+            <span>Yakunlash</span>
+          </button>
+        ) : null}
       </footer>
 
       <AwayStudentsNotice lessonId={lesson.id} enabled={isTeacher} />
@@ -567,6 +592,14 @@ export function LiveRoom({ lesson, isTeacher, screenStream, onLeave }: LiveRoomP
           courseId={lesson.courseId}
           open={inviteOpen}
           onOpenChange={setInviteOpen}
+        />
+      ) : null}
+
+      {isTeacher ? (
+        <FinishLessonDialog
+          lesson={finishOpen ? lesson : null}
+          onOpenChange={(open) => setFinishOpen(open)}
+          onFinished={onLeave}
         />
       ) : null}
 

@@ -5999,6 +5999,8 @@ body > .ML__keyboard,
 }
 .live-control--leave { background: var(--destructive); border-color: transparent; color: #fff; }
 .live-control--leave:hover { background: #b72f40; }
+.live-control--finish { background: transparent; border-color: #4d3f22; color: #f0ac57; }
+.live-control--finish:hover { background: #2b2417; }
 .live-control-divider { width: 1px; height: 26px; background: #26313d; margin: 0 4px; }
 
 /* LiveKit ichki gridi to'liq joyni egallasin */
@@ -6023,6 +6025,7 @@ body > .ML__keyboard,
   .live-control { min-height: 42px; padding: 0 12px; }
   /* Faqat ikonka qoladi — matn joy egallamasin */
   .live-control--leave span { display: none; }
+  .live-control--finish span { display: none; }
   .live-control-divider { display: none; }
   .live-room-stage { padding: 8px; }
   .live-camera-grid { grid-template-columns: minmax(0, 1fr); grid-auto-rows: minmax(145px, 220px); }
