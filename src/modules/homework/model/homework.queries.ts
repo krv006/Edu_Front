@@ -89,6 +89,21 @@ export function useCreateAssignment() {
       client.invalidateQueries({ queryKey: homeworkKeys.assignments(item.courseId) });
       toast.success("Vazifa yuborildi");
     },
+    onError: (error: Error) => toast.error(error.message),
+  });
+}
+
+/** Vazifani tahrirlash — masalan noto'g'ri kiritilgan muddatni to'g'irlash uchun. */
+export function useUpdateAssignment() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, form }: { id: string; form: AssignmentFormInput }) =>
+      homeworkApi.updateAssignment(id, form),
+    onSuccess: (item) => {
+      client.invalidateQueries({ queryKey: homeworkKeys.assignments(item.courseId) });
+      toast.success("Vazifa yangilandi");
+    },
+    onError: (error: Error) => toast.error(error.message),
   });
 }
 

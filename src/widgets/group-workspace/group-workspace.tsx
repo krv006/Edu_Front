@@ -5,6 +5,7 @@ import {
   CalendarDays,
   CheckCircle2,
   ClipboardList,
+  Pencil,
   Plus,
   Search,
   Trash2,
@@ -22,6 +23,7 @@ import {
   useAssignments,
   useCreateAssignment,
   useDeleteAssignment,
+  useUpdateAssignment,
 } from "@/modules/homework";
 import {
   FinishLessonDialog,
@@ -399,6 +401,7 @@ function AssignmentsPanel({
   isLanguageSubject,
 }: AssignmentsPanelProps) {
   const [dialog, setDialog] = useState(false);
+  const [editingAssignment, setEditingAssignment] = useState<Assignment | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Assignment | null>(null);
   const [detailId, setDetailId] = useState<string | null>(null);
   /* Havola vazifani ajratib ko'rsatadi, dialogni o'zi ochmaydi. */
@@ -406,6 +409,7 @@ function AssignmentsPanel({
   const highlightId = assignmentParams.get("assignment");
   useAssignmentHighlight(highlightId, (assignments?.length ?? 0) > 0);
   const create = useCreateAssignment();
+  const update = useUpdateAssignment();
   const remove = useDeleteAssignment();
 
   // Vazifani darsga bog'lash uchun kurs darslari kerak — faqat dialog ochilganda.
@@ -465,6 +469,17 @@ function AssignmentsPanel({
                 <CheckCircle2 size={15} /> Natijalar
               </Button>
               <button
+                className="icon-button"
+                onClick={() => {
+                  setEditingAssignment(item);
+                  setDialog(true);
+                }}
+                aria-label="Vazifani tahrirlash"
+                title="Tahrirlash (masalan, muddatni to‘g‘irlash)"
+              >
+                <Pencil size={16} />
+              </button>
+              <button
                 className="icon-button destructive-icon"
                 onClick={() => setDeleteTarget(item)}
                 aria-label="Vazifani o‘chirish"
@@ -483,12 +498,26 @@ function AssignmentsPanel({
       )}
 
       <AddAssignmentDialog
+        // Tahrirlanadigan vazifa almashsa forma qayta boshlab to'ldirilsin —
+        // aks holda ichki state eski vazifadan qolib ketardi.
+        key={editingAssignment?.id ?? "new"}
         open={dialog}
-        onOpenChange={setDialog}
+        onOpenChange={(open) => {
+          setDialog(open);
+          if (!open) setEditingAssignment(null);
+        }}
         lessons={lessons.data ?? []}
         isLanguageSubject={isLanguageSubject}
+        initialValues={editingAssignment}
         onCreate={(form) => {
-          create.mutateAsync({ ...form, courseId }).then(() => setDialog(false));
+          const payload = { ...form, courseId };
+          const request = editingAssignment
+            ? update.mutateAsync({ id: editingAssignment.id, form: payload })
+            : create.mutateAsync(payload);
+          request.then(() => {
+            setDialog(false);
+            setEditingAssignment(null);
+          });
         }}
       />
       <Dialog
