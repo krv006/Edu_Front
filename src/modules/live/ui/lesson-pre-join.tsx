@@ -128,19 +128,47 @@ export function LessonPreJoin({
     setJoining(true);
     setScreenShareError(null);
     try {
-      // `selfBrowserSurface` TS'ning standart `DisplayMediaStreamOptions`
-      // turida hali yo'q (yangi/eksperimental brauzer API) — LiveKit ham
-      // buni o'zining kengaytirilgan turida e'lon qiladi, shu yerda ham
-      // xuddi shunday kengaytiramiz.
+      // `displaySurface`/`systemAudio` TS'ning standart `DisplayMediaStreamOptions`
+      // turida hali yo'q (yangi brauzer API'lari, faqat Chrome/Edge) — shu
+      // yerda kengaytiramiz. Manba (developer.chrome.com/docs/web-platform/
+      // screen-sharing-controls, MDN Screen_Capture_API — 2026-09 tekshirilgan):
+      //   - `displaySurface: "browser"` — tanlov oynasi standart "Chrome
+      //     tab" bo'limida ochiladi (foydalanuvchi "Window" yoki "Entire
+      //     screen"ni ham erkin tanlashi mumkin — hech narsa OLIB
+      //     TASHLANMAYDI, faqat DEFAULT bo'lim o'zgaradi).
+      //   - `systemAudio: "include"` — audioni "butun ekran" ulanganda ham
+      //     aniq TAKLIF qilishni so'raydi (Chrome'da standart shu, lekin
+      //     aniq yozib qo'yamiz).
+      // DIQQAT: audio checkbox'ining o'zini OLDINDAN YOQILGAN qilib
+      // bo'lmaydi — bu Chrome'ning (va boshqa barcha brauzerlarning)
+      // QASDDAN qilingan xavfsizlik chegarasi, hech qanday API/flag buni
+      // chetlab o'tolmaydi (rasmiy hujjatda tasdiqlangan: "the application
+      // cannot force automatic audio capture regardless of constraint
+      // settings"). Foydalanuvchi har doim o'zi bosishi SHART — shuning
+      // uchun pastda, agar bosilmagan bo'lsa, VIDEO kabi DARSGA KIRISHNI
+      // BLOKLAYMIZ va qayta urinishga majburlaymiz (2026-09-05,
+      // foydalanuvchi so'ragan qat'iy talab).
       const screenStream = await navigator.mediaDevices.getDisplayMedia({
-        video: { frameRate: 15 },
-        // Jonli "Ekranni ulashish" ham shu oqimni ishlatadi — tab tovushi
-        // (masalan YouTube videosi) o'quvchilarga yetib borishi uchun kerak.
+        video: { frameRate: 15, displaySurface: "browser" },
+        // Jonli "Ekranni ulashish" ham shu oqimni ishlatadi — tab/ekran
+        // tovushi (masalan YouTube videosi) o'quvchilarga yetib borishi
+        // uchun kerak.
         audio: true,
+        systemAudio: "include",
         // Shu darsning o'z tab'ini tanlov ro'yxatidan chiqaradi — aks holda
         // ekranda cheksiz oyna-ichida-oyna (aks sado) hosil bo'lardi.
         selfBrowserSurface: "exclude",
-      } as DisplayMediaStreamOptions & { selfBrowserSurface?: "include" | "exclude" });
+      } as DisplayMediaStreamOptions & {
+        selfBrowserSurface?: "include" | "exclude";
+        systemAudio?: "include" | "exclude";
+      });
+      if (screenStream.getAudioTracks().length === 0) {
+        screenStream.getTracks().forEach((track) => track.stop());
+        setScreenShareError(
+          "Ekran tovushi ulanmadi — ochilgan oynada \"Tovushni ham ulashish\" (Share audio / Share tab audio) belgisini albatta yoqing. Qayta urinib ko‘ring."
+        );
+        return;
+      }
       onJoin({ micOn, cameraOn, screenStream });
     } catch {
       setScreenShareError(
@@ -232,12 +260,14 @@ export function LessonPreJoin({
 
           {isTeacher ? (
             <p className="portal-muted">
-              Dars <strong>yozib olinishi</strong> uchun brauzer ekran ulashishni so‘raydi —
-              ochilgan oynada <strong>“Joriy tab” (This Tab)</strong>ni tanlang. Yozuv darhol
-              boshlanadi, lekin <strong>o‘quvchilarga hali ko‘rinmaydi</strong> — ularga
-              ko‘rsatish uchun darsning ichida pastdagi <strong>“Ekranni ulashish”</strong>{" "}
-              tugmasini bosasiz (qayta ruxsat so‘ralmaydi, xuddi shu ekran ishlatiladi).
-              Ruxsat berilmasa darsga kira olmaysiz.
+              Dars <strong>yozib olinishi</strong> va o‘quvchilarga <strong>jonli ko‘rsatilishi</strong>{" "}
+              uchun brauzer ekran ulashishni so‘raydi — ochilgan oynada istalgan bo‘limni
+              (masalan “Chrome tab”) tanlang va <strong>“Tovushni ham ulashish”</strong> (Share
+              audio) belgisini <strong>albatta yoqing</strong> — aks holda ekrandagi tovush
+              (masalan video/musiqa) na o‘quvchilarga, na yozuvga tushmaydi. Darsga kirishning
+              o‘zida yozuv HAM, o‘quvchilarga ko‘rsatish HAM darhol boshlanadi — qayta tugma
+              bosish shart emas. Ruxsat berilmasa yoki tovush ulanmasa, darsga kira olmaysiz —
+              qayta urinib ko‘rasiz.
             </p>
           ) : null}
 

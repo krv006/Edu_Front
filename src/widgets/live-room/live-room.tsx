@@ -287,6 +287,20 @@ function TeacherCameraControl() {
   );
 }
 
+/** LiveKit'ning o'z ichki `waitForDimensions` (1000ms) tekshiruvidan OLDIN
+ * chaqiriladi — klonlangan video trekning o'lchami tayyor bo'lishini kutadi,
+ * shunda nashr paytida LiveKit uni darhol topadi (standart o'lchamga
+ * tushib qolib, konsolga xato yozmaydi). Topilmasa ham (juda kam holat)
+ * LiveKit o'zining fallback'iga tayanadi — funksionallik baribir buzilmaydi. */
+async function waitForVideoDimensions(track: MediaStreamTrack, timeoutMs = 500): Promise<void> {
+  const started = Date.now();
+  while (Date.now() - started < timeoutMs) {
+    const { width, height } = track.getSettings();
+    if (width && height) return;
+    await new Promise((resolve) => globalThis.setTimeout(resolve, 30));
+  }
+}
+
 /**
  * O'qituvchi ekran ulashishi — endi PRE-JOIN'da olingan yagona `screenStream`ni
  * qayta ishlatadi, yangi `getDisplayMedia` so'ramaydi (2026-09-05, foydalanuvchi
@@ -303,8 +317,11 @@ function TeacherCameraControl() {
  */
 function TeacherShareControl({ screenStream }: { screenStream: MediaStream }) {
   const room = useRoomContext();
+  const connectionState = useConnectionState();
   const [sharing, setSharing] = useState(false);
+  const [starting, setStarting] = useState(false);
   const publishedRef = useRef<MediaStreamTrack[]>([]);
+  const autoStartedRef = useRef(false);
 
   async function stopSharing() {
     const toStop = publishedRef.current;
@@ -313,6 +330,41 @@ function TeacherShareControl({ screenStream }: { screenStream: MediaStream }) {
     await Promise.all(
       toStop.map((track) => room.localParticipant.unpublishTrack(track, true))
     );
+  }
+
+  async function startSharing() {
+    setStarting(true);
+    try {
+      const toPublish: Array<{ track: MediaStreamTrack; source: Track.Source }> = [];
+      const videoTrack = screenStream.getVideoTracks()[0];
+      const audioTrack = screenStream.getAudioTracks()[0];
+      if (videoTrack) {
+        const clone = videoTrack.clone();
+        // Yangi klon o'lchami (width/height) darhol tayyor bo'lmasligi mumkin —
+        // shu zahoti chop etilsa, LiveKit 1 soniya kutib, topolmay standart
+        // o'lchamga (1280x720) tushib qoladi (konsolda "could not determine
+        // track dimensions" xatosi, funksionallik buzilmaydi, lekin shovqin
+        // qiladi). Shu yerda oldindan kutib, mavjud bo'lsa xatoni oldini olamiz.
+        await waitForVideoDimensions(clone);
+        toPublish.push({ track: clone, source: Track.Source.ScreenShare });
+      }
+      if (audioTrack) toPublish.push({ track: audioTrack.clone(), source: Track.Source.ScreenShareAudio });
+
+      try {
+        const published: MediaStreamTrack[] = [];
+        for (const { track, source } of toPublish) {
+          await room.localParticipant.publishTrack(track, { source });
+          published.push(track);
+        }
+        publishedRef.current = published;
+        setSharing(true);
+      } catch {
+        toPublish.forEach(({ track }) => track.stop());
+        toast.error("Ekranni ulashib bo‘lmadi");
+      }
+    } finally {
+      setStarting(false);
+    }
   }
 
   // Brauzerning o'z "Stop sharing" panelidan to'xtatilsa — tugma holati ham yangilansin.
@@ -325,30 +377,33 @@ function TeacherShareControl({ screenStream }: { screenStream: MediaStream }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [screenStream]);
 
+  /**
+   * O'qituvchi darsga kirishning o'zida ekranini ulashish uchun ruxsat
+   * bergan (pre-join, yozuv uchun majburiy) — shuning uchun jonli ulashish
+   * ham AVTOMATIK yoqiladi, alohida tugma bosishni talab qilmaydi (2026-09-05,
+   * foydalanuvchi so'ragan). Faqat xona haqiqatan ULANGANDA (Connected)
+   * ishga tushadi — undan oldin `publishTrack` ishonchsiz bo'lardi. `ref`
+   * bilan FAQAT BIR MARTA ishga tushishi kafolatlanadi (StrictMode'da effekt
+   * ikki marta chaqirilsa ham qayta boshlab yubormaydi).
+   */
+  useEffect(() => {
+    if (autoStartedRef.current) return;
+    if (connectionState !== ConnectionState.Connected) return;
+    autoStartedRef.current = true;
+    // `queueMicrotask` — `startSharing` ichidagi `setState`ni effekt
+    // tanasidan SINXRON emas, keyingi microtask'da chaqiradi (React 19
+    // "effekt ichida sinxron setState" lint qoidasi shunga qarab tekshiradi).
+    queueMicrotask(() => void startSharing());
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [connectionState]);
+
   async function toggleShare() {
+    if (starting) return;
     if (sharing) {
       await stopSharing();
       return;
     }
-
-    const toPublish: Array<{ track: MediaStreamTrack; source: Track.Source }> = [];
-    const videoTrack = screenStream.getVideoTracks()[0];
-    const audioTrack = screenStream.getAudioTracks()[0];
-    if (videoTrack) toPublish.push({ track: videoTrack.clone(), source: Track.Source.ScreenShare });
-    if (audioTrack) toPublish.push({ track: audioTrack.clone(), source: Track.Source.ScreenShareAudio });
-
-    try {
-      const published: MediaStreamTrack[] = [];
-      for (const { track, source } of toPublish) {
-        await room.localParticipant.publishTrack(track, { source });
-        published.push(track);
-      }
-      publishedRef.current = published;
-      setSharing(true);
-    } catch {
-      toPublish.forEach(({ track }) => track.stop());
-      toast.error("Ekranni ulashib bo‘lmadi");
-    }
+    await startSharing();
   }
 
   return (
@@ -359,6 +414,7 @@ function TeacherShareControl({ screenStream }: { screenStream: MediaStream }) {
       aria-pressed={sharing}
       aria-label="Ekranni ulashish"
       title="Ekranni ulashish — bu o‘quvchilarga JONLI ko‘rinadi"
+      disabled={starting}
       onClick={toggleShare}
     >
       <MonitorUp size={19} />
