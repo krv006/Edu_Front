@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { toast } from "sonner";
 import { boardApi } from "../api/board.api";
 import type { StrokeInput } from "../api/board.dto";
 
@@ -47,6 +48,8 @@ export function useEraseStrokes(lessonId: string) {
     mutationFn: ({ sheet, strokeIds, reason }: { sheet: number; strokeIds: string[]; reason: string }) =>
       boardApi.erase(lessonId, sheet, strokeIds, reason),
     onSuccess: () => client.invalidateQueries({ queryKey: boardKeys.state(lessonId) }),
+    // Avval xato bo'lsa hech narsa ko'rsatilmasdi — "o'chirish" oynasi jimgina osilib qolardi.
+    onError: (error: Error) => toast.error(error.message),
   });
 }
 

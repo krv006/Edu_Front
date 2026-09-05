@@ -108,11 +108,16 @@ export function BoardPanel({ lessonId, courseId, currentUserId }: BoardPanelProp
   async function removeSelected(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!selected || !reason.trim()) return;
-    await erase.mutateAsync({ sheet, strokeIds: [selected], reason: reason.trim() });
-    setSelected(null);
-    setReason("");
-    setReasonOpen(false);
-    toast.success("Element o‘chirildi");
+    try {
+      await erase.mutateAsync({ sheet, strokeIds: [selected], reason: reason.trim() });
+      setSelected(null);
+      setReason("");
+      setReasonOpen(false);
+      toast.success("Element o‘chirildi");
+    } catch {
+      // Xato bo'lsa oyna ochiq qoladi (qayta urinish uchun) — xabar
+      // `useEraseStrokes`ning `onError`i orqali allaqachon ko'rsatiladi.
+    }
   }
 
   async function solveFormula(event: FormEvent<HTMLFormElement>) {
