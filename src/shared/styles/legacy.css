@@ -1400,6 +1400,9 @@ button:disabled {
 .message-link { color: var(--primary-text); font-weight: 700; text-decoration: underline; text-underline-offset: 2px; }
 .message-link:hover { text-decoration-thickness: 2px; }
 .message-row--outgoing .message-link { color: inherit; }
+/* Video yozuvi havolasi — oddiy matn link emas, darhol tanish belgi bilan */
+.message-recording-chip { margin-top: 3px; padding: 7px 12px; border-radius: var(--r-full); display: inline-flex; gap: 6px; align-items: center; color: var(--primary-foreground); background: var(--primary); font-size: var(--fs-sm); font-weight: 700; text-decoration: none; transition: background .16s ease; }
+.message-recording-chip:hover { background: var(--primary-hover); }
 .message-meta {
   min-height: 16px;
   margin-top: 4px;
