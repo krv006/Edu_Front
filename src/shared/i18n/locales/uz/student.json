@@ -1,0 +1,26 @@
+{
+  "dashboard": {
+    "loading": "O'quvchi paneli yuklanmoqda",
+    "loadError": "Ma'lumotlarni yuklab bo'lmadi",
+    "retry": "Qayta urinish",
+    "eyebrow": "O'QUVCHI KABINETI",
+    "greeting": "Xayrli kun, {{name}}! 👋",
+    "subtitle": "Bugungi darslar va vazifalaringiz bir joyda.",
+    "nextLessonEyebrow": "KEYINGI DARS",
+    "nextLessonTitle": "Bugungi reja",
+    "schedule": "Jadval",
+    "enterCourse": "Kursga kirish",
+    "noPlannedLesson": "Rejalashtirilgan dars yo'q.",
+    "assignmentsEyebrow": "VAZIFALAR",
+    "upcomingDeadlines": "Yaqin muddatlar",
+    "all": "Barchasi"
+  },
+  "report": {
+    "loading": "Reyting yuklanmoqda",
+    "eyebrow": "REYTING",
+    "loadError": "Reytingni yuklab bo'lmadi",
+    "retry": "Qayta urinish",
+    "title": "Mening natijalarim",
+    "subtitle": "Har bir fan bo'yicha vazifalar va baholaringiz."
+  }
+}

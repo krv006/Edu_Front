@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Navigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "@/modules/auth";
 import { ChatHeader } from "@/modules/conversation";
 import { MessageComposer, MessageList, useChat } from "@/modules/message";
@@ -8,6 +9,7 @@ import type { ChatMessage, SendMessagePayload } from "@/shared/types";
 import { StudentGroupWorkspace } from "@/widgets/student-group-workspace";
 
 export function StudentConversationPage() {
+  const { t } = useTranslation("chat");
   const { conversationId } = useParams();
   const { user } = useAuth();
   const currentUserId = user?.id ?? null;
@@ -58,30 +60,30 @@ export function StudentConversationPage() {
       if (editingMessage) {
         await updateMessage.mutateAsync({ messageId: editingMessage.id, text: payload.text });
         setEditingMessage(null);
-        toast.success("Xabar tahrirlandi");
+        toast.success(t("directPage.messageEdited"));
         return;
       }
       await sendMessage.mutateAsync({
         ...payload,
         replyTo: replyMessage
           ? {
-              author: replyMessage.senderId === currentUserId ? "Siz" : activeConversation!.title,
+              author: replyMessage.senderId === currentUserId ? t("composer.youLabel") : activeConversation!.title,
               text: replyMessage.text,
             }
           : undefined,
       });
       setReplyMessage(null);
     } catch {
-      toast.error("Xabar amalini bajarib bo‘lmadi");
+      toast.error(t("directPage.actionFailed"));
     }
   }
 
   async function handleDelete(message: ChatMessage, scope: "me" | "everyone") {
     try {
       await deleteMessage.mutateAsync({ messageId: message.id, scope });
-      toast.success("Xabar o‘chirildi");
+      toast.success(t("directPage.messageDeleted"));
     } catch {
-      toast.error("Xabarni o‘chirib bo‘lmadi");
+      toast.error(t("directPage.deleteFailed"));
     }
   }
 

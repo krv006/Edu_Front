@@ -1,0 +1,26 @@
+{
+  "dashboard": {
+    "loading": "Loading the student dashboard",
+    "loadError": "Couldn't load the data",
+    "retry": "Retry",
+    "eyebrow": "STUDENT DASHBOARD",
+    "greeting": "Good day, {{name}}! 👋",
+    "subtitle": "Today's lessons and assignments, all in one place.",
+    "nextLessonEyebrow": "NEXT LESSON",
+    "nextLessonTitle": "Today's plan",
+    "schedule": "Schedule",
+    "enterCourse": "Go to course",
+    "noPlannedLesson": "No lesson planned.",
+    "assignmentsEyebrow": "ASSIGNMENTS",
+    "upcomingDeadlines": "Upcoming deadlines",
+    "all": "All"
+  },
+  "report": {
+    "loading": "Loading rating",
+    "eyebrow": "RATING",
+    "loadError": "Couldn't load the rating",
+    "retry": "Retry",
+    "title": "My results",
+    "subtitle": "Assignments and grades per subject."
+  }
+}
