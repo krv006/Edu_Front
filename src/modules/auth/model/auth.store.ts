@@ -1,9 +1,28 @@
 import { create } from "zustand";
 import { AppError, SESSION_EXPIRED_EVENT, tokenStorage } from "@/shared/api";
+import { SUPPORTED_LANGUAGES, useLanguageStore, type AppLanguage } from "@/shared/model";
 import type { AuthStatus, AuthUser, LoginCredentials } from "@/shared/types";
 import { authApi } from "../api/auth.api";
 import { mapLoginRequest, mapTokenPairDto, mapUserDto } from "../lib/auth.mappers";
 import { configureAuthRefresh } from "../lib/auth-session";
+
+/**
+ * Hisobga bog'langan til bilan qurilmadagi tilni ikki tomonlama sinxronlaydi:
+ *  - login/bootstrap'da serverdan kelgan qiymat qurilmaga yoziladi (boshqa
+ *    qurilmada tanlangan til shu yerda ham tiklanadi);
+ *  - foydalanuvchi shu yerda tilni almashtirsa, pastdagi `subscribe` serverga
+ *    yozadi (auth.store.ts'dagi so'nggi bo'lim).
+ * `suppressLanguagePush` — serverdan o'qiganda orqaga PATCH ketmasligi uchun.
+ */
+let suppressLanguagePush = false;
+
+function syncLanguageFromServer(preferred: string) {
+  if (!SUPPORTED_LANGUAGES.includes(preferred as AppLanguage)) return;
+  if (useLanguageStore.getState().language === preferred) return;
+  suppressLanguagePush = true;
+  useLanguageStore.getState().setLanguage(preferred as AppLanguage);
+  suppressLanguagePush = false;
+}
 
 export const AUTH_STATUS = Object.freeze({
   ANONYMOUS: "anonymous",
@@ -56,6 +75,7 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
       try {
         const user = mapUserDto(await authApi.getCurrentUser());
         set({ user, status: AUTH_STATUS.AUTHENTICATED, error: null });
+        syncLanguageFromServer(user.preferredLanguage);
       } catch (error) {
         const appError = toAppError(error);
         // 401 — token yaroqsiz: sessiyani jimgina tozalaymiz, xato ekrani chiqarmaymiz.
@@ -82,6 +102,7 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
       tokenStorage.setTokens(tokens, { persistent: credentials.remember !== false });
       const user = mapUserDto(await authApi.getCurrentUser());
       set({ user, status: AUTH_STATUS.AUTHENTICATED, error: null });
+      syncLanguageFromServer(user.preferredLanguage);
       return user;
     } catch (error) {
       // Yarim ochilgan sessiya qolmasin.
@@ -123,6 +144,17 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
 
 // ─── Bir martalik yon-effektlar ─────────────────────────────────────────────
 configureAuthRefresh();
+
+// `LanguageToggle` (shared/ui) qaysi modulda ishlatilishidan bexabar bo'lib
+// qolishi uchun ataylab shu yerda ulanadi: foydalanuvchi tizimga kirgan bo'lsa,
+// tanlagan tili hisobiga yoziladi (boshqa qurilmada ham tiklanishi uchun).
+useLanguageStore.subscribe((state, prevState) => {
+  if (suppressLanguagePush || state.language === prevState.language) return;
+  if (useAuthStore.getState().status !== AUTH_STATUS.AUTHENTICATED) return;
+  authApi.updateLanguage(state.language).catch(() => {
+    // Muhim emas — brauzerda tanlov baribir saqlanadi, keyingi harakatda qayta urinamiz.
+  });
+});
 
 if (typeof window !== "undefined") {
   // Refresh muvaffaqiyatsiz bo'lganda API qatlami shu hodisani yuboradi.

@@ -30,6 +30,8 @@ export interface AuthUser {
   /** Faqat o'qituvchida mazmunli — admin tasdiqlamaguncha `false`. */
   isApproved: boolean | null;
   certificates: Certificate[];
+  /** Hisobga bog'langan til (`uz`/`ru`/`en`) — qurilmadan mustaqil, `PATCH /auth/me/` bilan saqlanadi. */
+  preferredLanguage: string;
 }
 
 export type AuthStatus = "anonymous" | "initializing" | "authenticated" | "error";

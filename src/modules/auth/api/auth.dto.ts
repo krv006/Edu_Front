@@ -30,6 +30,7 @@ export const userDtoSchema = z.object({
   /** Faqat o'qituvchida mazmunli — admin tasdiqlamaguncha `false`. */
   is_approved: z.boolean().nullable().optional(),
   certificates: z.array(certificateDtoSchema).optional().default([]),
+  preferred_language: z.string().default("uz"),
 });
 
 /** `GET /api/v1/auth/logins/` — bitta kirish yozuvi (paginatsiyasiz massiv). */

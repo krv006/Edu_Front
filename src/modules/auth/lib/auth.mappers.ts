@@ -54,6 +54,7 @@ export function mapUserDto(dto: unknown): AuthUser {
     ratingCount: parsed.rating_count ?? null,
     isApproved: parsed.is_approved ?? null,
     certificates: parsed.certificates.map(mapCertificateDto),
+    preferredLanguage: parsed.preferred_language,
   };
 }
 

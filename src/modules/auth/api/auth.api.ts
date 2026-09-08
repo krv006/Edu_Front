@@ -46,6 +46,10 @@ export const authApi = {
   updateCurrentUser(dto: Partial<RegisterRequestDto>) {
     return apiClient.patch<AuthUserDto>(authEndpoints.me, dto);
   },
+  /** Hisobga bog'laydi — boshqa qurilma/brauzerda ham shu til tiklanadi. */
+  updateLanguage(language: string) {
+    return apiClient.patch<AuthUserDto>(authEndpoints.me, { preferred_language: language });
+  },
   /**
    * Profil rasmi — multipart, shuning uchun alohida chaqiruv.
    * Bo'sh `File` yuborilmaydi: rasmni o'chirish uchun bo'sh satr yuboriladi.
