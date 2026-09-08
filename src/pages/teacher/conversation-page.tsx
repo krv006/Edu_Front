@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Navigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "@/modules/auth";
 import { ChatHeader } from "@/modules/conversation";
 import { MessageComposer, MessageList, useChat } from "@/modules/message";
@@ -8,6 +9,7 @@ import type { ChatMessage, SendMessagePayload } from "@/shared/types";
 import { GroupWorkspace } from "@/widgets/group-workspace";
 
 export function ConversationPage() {
+  const { t } = useTranslation("chat");
   const { conversationId } = useParams();
   const { user } = useAuth();
   const currentUserId = user?.id ?? null;
@@ -61,7 +63,7 @@ export function ConversationPage() {
           text: payload.text,
         });
         setEditingMessage(null);
-        toast.success("Xabar tahrirlandi");
+        toast.success(t("directPage.messageEdited"));
         return;
       }
       await sendMessage.mutateAsync({
@@ -70,14 +72,14 @@ export function ConversationPage() {
           ? {
               author:
                 replyMessage.senderName ||
-                (replyMessage.senderId === currentUserId ? "Siz" : activeConversation!.title),
+                (replyMessage.senderId === currentUserId ? t("composer.youLabel") : activeConversation!.title),
               text: replyMessage.text,
             }
           : undefined,
       });
       setReplyMessage(null);
     } catch {
-      toast.error("Xabar amalini bajarib bo‘lmadi. Qayta urinib ko‘ring.");
+      toast.error(t("directPage.actionFailedRetry"));
     }
   }
 
@@ -87,10 +89,10 @@ export function ConversationPage() {
       if (replyMessage?.id === message.id) setReplyMessage(null);
       if (editingMessage?.id === message.id) setEditingMessage(null);
       toast.success(
-        scope === "everyone" ? "Xabar hamma uchun o‘chirildi" : "Xabar siz uchun o‘chirildi"
+        scope === "everyone" ? t("directPage.deletedForEveryone") : t("directPage.deletedForMe")
       );
     } catch {
-      toast.error("Xabarni o‘chirib bo‘lmadi");
+      toast.error(t("directPage.deleteFailed"));
     }
   }
 
