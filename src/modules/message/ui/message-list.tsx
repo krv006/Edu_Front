@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { DateSeparator } from "./date-separator";
 import { MessageBubble } from "./message-bubble";
 import { TypingIndicator } from "./typing-indicator";
@@ -34,6 +35,7 @@ export function MessageList({
   currentUserId = null,
   capabilities,
 }: MessageListProps) {
+  const { t } = useTranslation("chat");
   const bottomRef = useRef<HTMLDivElement>(null);
   const [actionMessage, setActionMessage] = useState<ChatMessage | null>(null);
   const [menuPosition, setMenuPosition] = useState({ x: 20, y: 20 });
@@ -55,16 +57,16 @@ export function MessageList({
   if (error)
     return (
       <div className="chat-error">
-        <strong>Xabarlar yuklanmadi</strong>
-        <p>Bir ozdan so‘ng yana urinib ko‘ring.</p>
-        <button onClick={onRetry}>Qayta urinish</button>
+        <strong>{t("list.loadError")}</strong>
+        <p>{t("list.loadErrorHint")}</p>
+        <button onClick={onRetry}>{t("list.retry")}</button>
       </div>
     );
 
   return (
     <div className="message-scroll" role="log" aria-live="polite">
       <div className="message-list">
-        <DateSeparator>Bugun</DateSeparator>
+        <DateSeparator>{t("list.today")}</DateSeparator>
         {(messages ?? []).map((message) => (
           <MessageBubble
             key={message.id}

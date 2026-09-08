@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { ArrowLeft } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { Avatar } from "@/shared/ui/legacy";
 
@@ -12,6 +13,7 @@ export interface ChatHeaderProps {
 }
 
 export function ChatHeader({ conversation, backTo = "/teacher/chats" }: ChatHeaderProps) {
+  const { t } = useTranslation("chat");
   const navigate = useNavigate();
   const [infoOpen, setInfoOpen] = useState(false);
   return (
@@ -20,14 +22,14 @@ export function ChatHeader({ conversation, backTo = "/teacher/chats" }: ChatHead
         <button
           className="icon-button chat-back"
           onClick={() => navigate(backTo)}
-          aria-label="Suhbatlar ro‘yxatiga qaytish"
+          aria-label={t("header.backAria")}
         >
           <ArrowLeft size={21} />
         </button>
         <button
           className="chat-identity"
           onClick={() => setInfoOpen(true)}
-          aria-label={`${conversation.title} ma’lumotlarini ochish`}
+          aria-label={t("header.openInfoAria", { title: conversation.title })}
         >
           <Avatar
             name={conversation.title}
@@ -42,10 +44,10 @@ export function ChatHeader({ conversation, backTo = "/teacher/chats" }: ChatHead
             <strong>{conversation.title}</strong>
             <span>
               {conversation.type === "group"
-                ? `${conversation.memberCount ?? 1} o‘quvchi`
+                ? t("header.memberCount", { count: conversation.memberCount ?? 1 })
                 : conversation.status === "online"
-                ? "Hozir onlayn"
-                : "Yaqinda faol edi"}
+                ? t("header.online")
+                : t("header.recentlyActive")}
             </span>
           </span>
         </button>

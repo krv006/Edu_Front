@@ -1,6 +1,8 @@
 import { ArrowRight, MessageCircleMore, Sparkles } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 export function ChatEmptyState({ onOpenConversations }: { onOpenConversations?: () => void }) {
+  const { t } = useTranslation("chat");
   return (
     <section className="chat-empty-state">
       <div className="empty-visual">
@@ -13,13 +15,10 @@ export function ChatEmptyState({ onOpenConversations }: { onOpenConversations?: 
           </span>
         </div>
       </div>
-      <h2>Suhbatni tanlang</h2>
-      <p>
-        Xabarlarni ko‘rish va davom ettirish uchun chap tomondagi suhbatlardan
-        birini tanlang.
-      </p>
+      <h2>{t("emptyState.title")}</h2>
+      <p>{t("emptyState.description")}</p>
       <button onClick={onOpenConversations}>
-        Suhbatlarni ochish <ArrowRight size={17} />
+        {t("emptyState.openConversations")} <ArrowRight size={17} />
       </button>
     </section>
   );

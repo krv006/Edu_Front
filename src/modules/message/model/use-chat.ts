@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { i18n } from "@/shared/i18n";
 import { conversationApi, conversationKeys, readCachedConversation } from "@/modules/conversation";
 import type { ChatMessage, ConversationRole, SendMessagePayload } from "@/shared/types";
 import { messageApi } from "../api/message.api";
@@ -80,7 +81,7 @@ export function useChat(
                * ketmasligi kerak. Ro'yxat ham yangilanadi — guruh yo'qoladi.
                */
               if (event.type === "removed") {
-                toast.error("Siz bu guruhdan chiqarildingiz");
+                toast.error(i18n.t("chat:removedFromGroup"));
                 queryClient.invalidateQueries({ queryKey: conversationKeys.all });
                 navigate(role === "teacher" ? "/teacher/chats" : "/student/chats", {
                   replace: true,

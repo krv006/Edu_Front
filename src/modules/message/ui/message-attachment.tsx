@@ -1,5 +1,6 @@
 import { useCallback, useState } from "react";
 import { Eye, FileText } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { fileKindLabel, fileKindOf } from "@/shared/lib";
 import type { MessageAttachment as Attachment } from "@/shared/types";
 import { FileViewer } from "@/shared/ui/file-viewer";
@@ -13,6 +14,7 @@ import { messageApi } from "../api/message.api";
  * shuning uchun oddiy `<a href>` ishlamaydi: ko'ruvchi oyna blob oladi.
  */
 export function MessageAttachment({ attachment }: { attachment: Attachment }) {
+  const { t } = useTranslation("chat");
   const [open, setOpen] = useState(false);
   const kind = fileKindOf(attachment.mimeType, attachment.name);
 
@@ -27,14 +29,16 @@ export function MessageAttachment({ attachment }: { attachment: Attachment }) {
         type="button"
         className="message-attachment"
         onClick={() => setOpen(true)}
-        aria-label={`${attachment.name} — ochish`}
+        aria-label={t("attachment.openAria", { name: attachment.name })}
       >
         <span className="message-attachment-icon">
           <FileText size={17} />
         </span>
         <span className="message-attachment-body">
           <strong>{attachment.name}</strong>
-          <small>{fileKindLabel(kind)} · ochish</small>
+          <small>
+            {fileKindLabel(kind)} · {t("attachment.openSuffix")}
+          </small>
         </span>
         <Eye size={15} />
       </button>

@@ -9,6 +9,7 @@ import {
   Smile,
   X,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import {
   Dropdown,
@@ -41,6 +42,7 @@ export function MessageComposer({
   onTyping,
   allowAttachments = false,
 }: MessageComposerProps) {
+  const { t } = useTranslation("chat");
   const [draft, setDraft] = useState(() => editingMessage?.text ?? "");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -103,10 +105,12 @@ export function MessageComposer({
             <span className="composer-context-copy">
               <strong>
                 {editingMessage
-                  ? "Xabarni tahrirlash"
+                  ? t("composer.editingLabel")
                   : `${
                       replyTo?.senderName ||
-                      (replyTo?.senderId === currentUserId ? "Siz" : "Javob")
+                      (replyTo?.senderId === currentUserId
+                        ? t("composer.youLabel")
+                        : t("composer.replyFallback"))
                     }`}
               </strong>
               <small>{context.text}</small>
@@ -117,9 +121,7 @@ export function MessageComposer({
                 if (editingMessage) setDraft("");
               }}
               aria-label={
-                editingMessage
-                  ? "Tahrirlashni bekor qilish"
-                  : "Replyni bekor qilish"
+                editingMessage ? t("composer.cancelEditAria") : t("composer.cancelReplyAria")
               }
             >
               <X size={17} />
@@ -144,7 +146,7 @@ export function MessageComposer({
             </div>
             <button
               onClick={() => setSelectedFile(null)}
-              aria-label="Biriktirilgan faylni olib tashlash"
+              aria-label={t("composer.removeAttachmentAria")}
             >
               <X size={16} />
             </button>
@@ -160,11 +162,11 @@ export function MessageComposer({
             const file = event.target.files?.[0];
             if (!file) return;
             if (file.size > 20 * 1024 * 1024) {
-              toast.error("Fayl hajmi 20 MB dan oshmasligi kerak");
+              toast.error(t("composer.fileTooLarge"));
               return;
             }
             setSelectedFile(file);
-            toast.success("Fayl biriktirildi");
+            toast.success(t("composer.fileAttached"));
             event.target.value = "";
           }}
         />
@@ -172,7 +174,7 @@ export function MessageComposer({
           className="composer-action"
           onClick={() => fileRef.current?.click()}
           disabled={Boolean(editingMessage)}
-          aria-label="Fayl biriktirish"
+          aria-label={t("composer.attachAria")}
         >
           <Paperclip size={20} />
         </button> : null}
@@ -183,13 +185,13 @@ export function MessageComposer({
           onChange={(event) => { setDraft(event.target.value); onTyping?.(); }}
           onKeyDown={handleKeyDown}
           placeholder={
-            editingMessage ? "Xabarni tahrirlang..." : "Xabar yozing..."
+            editingMessage ? t("composer.editPlaceholder") : t("composer.sendPlaceholder")
           }
-          aria-label="Xabar matni"
+          aria-label={t("composer.textAria")}
         />
         <Dropdown>
           <DropdownTrigger asChild>
-            <button className="composer-action" aria-label="Emoji tanlash">
+            <button className="composer-action" aria-label={t("composer.emojiAria")}>
               <Smile size={20} />
             </button>
           </DropdownTrigger>
@@ -209,7 +211,7 @@ export function MessageComposer({
           onClick={submit}
           disabled={(!draft.trim() && !selectedFile) || sending}
           aria-label={
-            editingMessage ? "Tahrirlangan xabarni saqlash" : "Xabarni yuborish"
+            editingMessage ? t("composer.saveEditAria") : t("composer.sendAria")
           }
         >
           {sending ? (
