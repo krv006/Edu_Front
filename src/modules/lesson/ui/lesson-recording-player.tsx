@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Loader2, ShieldCheck, Trash2, TriangleAlert, VideoOff } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { formatDateTime } from "@/shared/lib";
 import type { LessonRecording } from "@/shared/types";
 import { Button, Dialog, DialogContent } from "@/shared/ui/legacy";
@@ -25,6 +26,7 @@ export function LessonRecordingPlayer({
   recording,
   canDelete = false,
 }: LessonRecordingPlayerProps) {
+  const { t } = useTranslation("lesson");
   const [confirmOpen, setConfirmOpen] = useState(false);
   const removeRecording = useDeleteRecording();
 
@@ -32,7 +34,7 @@ export function LessonRecordingPlayer({
     return (
       <div className="recording-state">
         <VideoOff size={28} />
-        <p>Bu darsda video yozuv yo‘q.</p>
+        <p>{t("recording.none")}</p>
       </div>
     );
   }
@@ -41,7 +43,7 @@ export function LessonRecordingPlayer({
     return (
       <div className="recording-state recording-state--error">
         <TriangleAlert size={28} />
-        <p>{recording.error || "Yozuvni tayyorlashda xatolik yuz berdi."}</p>
+        <p>{recording.error || t("recording.failed")}</p>
       </div>
     );
   }
@@ -54,10 +56,10 @@ export function LessonRecordingPlayer({
         <Loader2 size={28} className="spin" />
         <p>
           {recording.status === "recording"
-            ? "Dars yozib olinmoqda — tugagach shu yerda ochiladi."
+            ? t("recording.recording")
             : recording.status === "merging"
-              ? "Audio va video birlashtirilmoqda — bu biroz vaqt olishi mumkin."
-              : "Yozuv tayyorlanmoqda — tayyor bo‘lishi bilan shu yerda ochiladi."}
+              ? t("recording.merging")
+              : t("recording.preparing")}
         </p>
       </div>
     );
@@ -80,7 +82,7 @@ export function LessonRecordingPlayer({
         <div>
           <strong>{recording.title}</strong>
           <small>
-            <ShieldCheck size={13} /> Faqat platformada ochiladi
+            <ShieldCheck size={13} /> {t("recording.platformOnly")}
             {recording.endedAt
               ? ` · ${formatDateTime(recording.endedAt)}`
               : recording.createdAt
@@ -90,7 +92,7 @@ export function LessonRecordingPlayer({
         </div>
         {canDelete ? (
           <Button variant="secondary" onClick={() => setConfirmOpen(true)}>
-            <Trash2 size={16} /> O‘chirish
+            <Trash2 size={16} /> {t("recording.delete")}
           </Button>
         ) : null}
       </div>
@@ -98,12 +100,12 @@ export function LessonRecordingPlayer({
       <Dialog open={confirmOpen} onOpenChange={setConfirmOpen}>
         {confirmOpen ? (
           <DialogContent
-            title="Yozuvni o‘chirish"
-            description="Video butunlay o‘chadi va qayta tiklab bo‘lmaydi."
+            title={t("recording.deleteDialogTitle")}
+            description={t("recording.deleteDialogDescription")}
           >
             <div className="dialog-actions">
               <Button variant="secondary" onClick={() => setConfirmOpen(false)}>
-                Bekor
+                {t("recording.cancel")}
               </Button>
               <Button
                 loading={removeRecording.isPending}
@@ -111,7 +113,7 @@ export function LessonRecordingPlayer({
                   removeRecording.mutate(lessonId, { onSuccess: () => setConfirmOpen(false) })
                 }
               >
-                O‘chirish
+                {t("recording.delete")}
               </Button>
             </div>
           </DialogContent>

@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from "react";
 import { CheckCircle2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { formatDateTime } from "@/shared/lib";
 import type { Lesson } from "@/shared/types";
 import { Button } from "@/shared/ui/legacy";
@@ -31,6 +32,7 @@ export function LessonRatingForm({
   onSubmitted,
   onCancel,
 }: LessonRatingFormProps) {
+  const { t } = useTranslation("lesson");
   const [draft, setDraft] = useState<{ stars: number; description: string } | null>(null);
   const ratings = useLessonRatings(lesson.id, lesson.status === "finished");
   const rate = useRateLesson();
@@ -57,7 +59,7 @@ export function LessonRatingForm({
   }
 
   if (lesson.status !== "finished") {
-    return <p className="portal-muted">Dars tugagach baholay olasiz.</p>;
+    return <p className="portal-muted">{t("ratingForm.notFinished")}</p>;
   }
 
   if (ratings.isLoading) {
@@ -70,7 +72,7 @@ export function LessonRatingForm({
 
   // `null` — baholash API bu backendda hali yo'q: formani ko'rsatishdan ma'no yo'q.
   if (ratings.data === null) {
-    return <p className="portal-muted">Baholash serverda hali yoqilmagan.</p>;
+    return <p className="portal-muted">{t("ratingForm.disabled")}</p>;
   }
 
   if (mine) {
@@ -80,7 +82,7 @@ export function LessonRatingForm({
           <CheckCircle2 size={20} />
         </span>
         <div>
-          <strong>Bahoyingiz qabul qilingan</strong>
+          <strong>{t("ratingForm.thanks")}</strong>
           <StarRating value={mine.stars} readOnly size={17} />
           {mine.description ? <p>{mine.description}</p> : null}
           <small>{formatDateTime(mine.createdAt)}</small>
@@ -97,33 +99,35 @@ export function LessonRatingForm({
           disabled={rate.isPending}
           onChange={(stars) => setDraft({ ...value, stars })}
         />
-        <span>{value.stars ? `${value.stars} / 5` : "Yulduzni tanlang"}</span>
+        <span>
+          {value.stars ? t("ratingForm.starsOfMax", { stars: value.stars }) : t("ratingForm.chooseStars")}
+        </span>
       </div>
 
       <label className="field-group">
-        <span>Izoh</span>
+        <span>{t("ratingForm.commentLabel")}</span>
         <textarea
           rows={3}
           maxLength={MAX_DESCRIPTION}
           value={value.description}
-          placeholder="Dars qanday o‘tdi? O‘qituvchida nima yoqdi, nimani yaxshilash mumkin?"
+          placeholder={t("ratingForm.commentPlaceholder")}
           disabled={rate.isPending}
           onChange={(event) => setDraft({ ...value, description: event.target.value })}
         />
       </label>
 
-      <p className="portal-muted">Baho anonim emas — o‘qituvchi kim yozganini ko‘radi.</p>
+      <p className="portal-muted">{t("ratingForm.notAnonymous")}</p>
 
       {rate.isError ? <p className="rating-form-error">{rate.error.message}</p> : null}
 
       <div className="dialog-actions">
         {onCancel ? (
           <Button type="button" variant="secondary" onClick={onCancel}>
-            Keyinroq
+            {t("ratingForm.later")}
           </Button>
         ) : null}
         <Button type="submit" disabled={!value.stars} loading={rate.isPending}>
-          Bahoni yuborish
+          {t("ratingForm.submit")}
         </Button>
       </div>
     </form>

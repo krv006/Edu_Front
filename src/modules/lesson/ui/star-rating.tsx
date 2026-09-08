@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Star } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 const STARS = [1, 2, 3, 4, 5] as const;
 const MAX_STARS = STARS.length;
@@ -25,13 +26,17 @@ export function StarRating({
   disabled = false,
   readOnly = false,
 }: StarRatingProps) {
+  const { t } = useTranslation("lesson");
   // Sichqoncha ustidan o'tganda oldindan ko'rsatish — tanlov faqat bosilganda o'zgaradi.
   const [preview, setPreview] = useState(0);
 
   if (readOnly) {
     const filled = Math.round(value);
     return (
-      <span className="star-rating star-rating--readonly" aria-label={`${value} yulduz`}>
+      <span
+        className="star-rating star-rating--readonly"
+        aria-label={t("starRating.starAria", { count: value })}
+      >
         {STARS.map((star) => (
           <Star key={star} size={size} className={star <= filled ? "is-filled" : ""} />
         ))}
@@ -45,7 +50,7 @@ export function StarRating({
     <div
       className="star-rating"
       role="radiogroup"
-      aria-label="Dars bahosi"
+      aria-label={t("starRating.aria")}
       onMouseLeave={() => setPreview(0)}
     >
       {STARS.map((star) => (
@@ -54,7 +59,7 @@ export function StarRating({
           type="button"
           role="radio"
           aria-checked={value === star}
-          aria-label={`${star} yulduz`}
+          aria-label={t("starRating.starAria", { count: star })}
           disabled={disabled}
           onMouseEnter={() => setPreview(star)}
           onFocus={() => setPreview(star)}
@@ -77,12 +82,16 @@ export interface RatingSummaryProps {
 
 /** O'rtacha baho nishoni. Hali baho yo'q bo'lsa umuman ko'rsatilmaydi. */
 export function RatingSummary({ average, count, compact = false }: RatingSummaryProps) {
+  const { t } = useTranslation("lesson");
   if (!count || average === null) return null;
   return (
-    <span className="rating-summary" title={`O‘rtacha baho: ${average.toFixed(1)} / ${MAX_STARS}`}>
+    <span
+      className="rating-summary"
+      title={t("starRating.averageTitle", { value: average.toFixed(1), max: MAX_STARS })}
+    >
       <Star size={13} className="is-filled" />
       {average.toFixed(1)}
-      {compact ? null : <small>{count} ta baho</small>}
+      {compact ? null : <small>{t("ratingsDialog.countSuffix", { count })}</small>}
     </span>
   );
 }

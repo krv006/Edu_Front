@@ -12,8 +12,6 @@ import type { Lesson } from "@/shared/types";
 /** Hafta dushanbadan boshlanadi — O'zbekistondagi odat. */
 const WEEK_OPTIONS = { weekStartsOn: 1 } as const;
 
-export const WEEKDAY_LABELS = ["Du", "Se", "Chor", "Pay", "Jum", "Shan", "Yak"] as const;
-
 export interface CalendarDay {
   /** `yyyy-MM-dd` — React kaliti va tanlangan kunni solishtirish uchun. */
   key: string;
@@ -72,12 +70,12 @@ export function buildMonthGrid(month: Date, lessons: Lesson[]): CalendarDay[] {
   });
 }
 
-export function formatMonthTitle(month: Date): string {
-  return new Intl.DateTimeFormat("uz-UZ", { month: "long", year: "numeric" }).format(month);
+export function formatMonthTitle(month: Date, locale = "uz-UZ"): string {
+  return new Intl.DateTimeFormat(locale, { month: "long", year: "numeric" }).format(month);
 }
 
-export function formatDayTitle(date: Date): string {
-  return new Intl.DateTimeFormat("uz-UZ", {
+export function formatDayTitle(date: Date, locale = "uz-UZ"): string {
+  return new Intl.DateTimeFormat(locale, {
     weekday: "long",
     day: "numeric",
     month: "long",

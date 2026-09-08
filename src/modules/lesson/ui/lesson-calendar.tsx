@@ -1,6 +1,8 @@
 import { useMemo, useState } from "react";
 import { addMonths, startOfMonth } from "date-fns";
 import { CalendarDays, ChevronLeft, ChevronRight } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { toIntlLocale } from "@/shared/i18n";
 import type { Lesson } from "@/shared/types";
 import { Button } from "@/shared/ui/legacy";
 import {
@@ -9,10 +11,9 @@ import {
   formatMonthTitle,
   resolveInitialMonth,
   toDayKey,
-  WEEKDAY_LABELS,
   type CalendarDay,
 } from "../lib/lesson-calendar";
-import { lessonStatusMeta } from "../lib/lesson-status";
+import { useLessonStatusMeta } from "../lib/lesson-status";
 import { LessonActions, type LessonActionsProps } from "./lesson-actions";
 
 export type LessonCalendarProps = Omit<LessonActionsProps, "lesson" | "compact"> & {
@@ -31,6 +32,8 @@ function DayCell({
   selected: boolean;
   onSelect: (day: CalendarDay) => void;
 }) {
+  const { t, i18n } = useTranslation("lesson");
+  const lessonStatusMeta = useLessonStatusMeta();
   const hidden = day.lessons.length - MAX_CHIPS;
 
   return (
@@ -46,7 +49,10 @@ function DayCell({
         .filter(Boolean)
         .join(" ")}
       aria-pressed={selected}
-      aria-label={`${formatDayTitle(day.date)} — ${day.lessons.length} ta dars`}
+      aria-label={t("calendar.dayCellAria", {
+        date: formatDayTitle(day.date, toIntlLocale(i18n.language)),
+        count: day.lessons.length,
+      })}
       onClick={() => onSelect(day)}
     >
       <span className="calendar-day-number">{day.dayOfMonth}</span>
@@ -82,6 +88,10 @@ function DayCell({
  * amallari bilan ochiladi — mobil qurilmada asosiy ishchi yuza shu.
  */
 export function LessonCalendar({ lessons, ...actions }: LessonCalendarProps) {
+  const { t, i18n } = useTranslation("lesson");
+  const lessonStatusMeta = useLessonStatusMeta();
+  const locale = toIntlLocale(i18n.language);
+  const weekdays = t("calendar.weekdays", { returnObjects: true }) as string[];
   const [month, setMonth] = useState(() => resolveInitialMonth(lessons));
   const [selectedKey, setSelectedKey] = useState<string | null>(null);
 
@@ -113,13 +123,13 @@ export function LessonCalendar({ lessons, ...actions }: LessonCalendarProps) {
     <div className="lesson-calendar">
       <div className="calendar-toolbar">
         <div className="calendar-title">
-          <strong>{formatMonthTitle(month)}</strong>
-          <small>{monthLessonCount} ta dars</small>
+          <strong>{formatMonthTitle(month, locale)}</strong>
+          <small>{t("calendar.lessonsCount", { count: monthLessonCount })}</small>
         </div>
         <div className="calendar-nav">
           <button
             className="icon-button"
-            aria-label="Oldingi oy"
+            aria-label={t("calendar.prevMonth")}
             onClick={() => setMonth((value) => addMonths(value, -1))}
           >
             <ChevronLeft size={17} />
@@ -133,11 +143,11 @@ export function LessonCalendar({ lessons, ...actions }: LessonCalendarProps) {
               setSelectedKey(toDayKey(now));
             }}
           >
-            <CalendarDays size={15} /> Bugun
+            <CalendarDays size={15} /> {t("calendar.todayButton")}
           </Button>
           <button
             className="icon-button"
-            aria-label="Keyingi oy"
+            aria-label={t("calendar.nextMonth")}
             onClick={() => setMonth((value) => addMonths(value, 1))}
           >
             <ChevronRight size={17} />
@@ -146,8 +156,8 @@ export function LessonCalendar({ lessons, ...actions }: LessonCalendarProps) {
       </div>
 
       <div className="calendar-weekdays" aria-hidden="true">
-        {WEEKDAY_LABELS.map((label) => (
-          <span key={label}>{label}</span>
+        {weekdays.map((label, index) => (
+          <span key={index}>{label}</span>
         ))}
       </div>
 
@@ -160,8 +170,8 @@ export function LessonCalendar({ lessons, ...actions }: LessonCalendarProps) {
       {selected ? (
         <section className="calendar-day-panel" aria-live="polite">
           <header>
-            <strong>{formatDayTitle(selected.date)}</strong>
-            <small>{selected.lessons.length} ta dars</small>
+            <strong>{formatDayTitle(selected.date, locale)}</strong>
+            <small>{t("calendar.lessonsCount", { count: selected.lessons.length })}</small>
           </header>
 
           {selected.lessons.length ? (
@@ -172,7 +182,7 @@ export function LessonCalendar({ lessons, ...actions }: LessonCalendarProps) {
                   <li key={lesson.id}>
                     <span className="calendar-day-time">
                       <b>{lesson.time}</b>
-                      <i>{lesson.durationMinutes} daq</i>
+                      <i>{t("list.durationMinutes", { count: lesson.durationMinutes })}</i>
                     </span>
                     <span className="calendar-day-info">
                       <strong>{lesson.title}</strong>
@@ -184,7 +194,7 @@ export function LessonCalendar({ lessons, ...actions }: LessonCalendarProps) {
               })}
             </ul>
           ) : (
-            <p className="portal-muted">Bu kunda dars yo‘q.</p>
+            <p className="portal-muted">{t("calendar.noLessonsThisDay")}</p>
           )}
         </section>
       ) : null}

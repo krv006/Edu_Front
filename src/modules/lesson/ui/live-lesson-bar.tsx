@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { Video } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { ROUTES } from "@/shared/config";
 import { useLiveLesson } from "../model/lesson.queries";
 
@@ -14,6 +15,7 @@ export interface LiveLessonBarProps {
  * qisqarmaydi va tepada bo'sh joy qolmaydi.
  */
 export function LiveLessonBar({ courseId }: LiveLessonBarProps) {
+  const { t } = useTranslation("lesson");
   const navigate = useNavigate();
   const lesson = useLiveLesson(courseId).data;
 
@@ -23,11 +25,11 @@ export function LiveLessonBar({ courseId }: LiveLessonBarProps) {
     <div className="live-lesson-bar" role="status">
       <span className="live-lesson-bar-dot" aria-hidden="true" />
       <span className="live-lesson-bar-text">
-        <strong>Dars ketmoqda</strong>
+        <strong>{t("liveBar.inProgress")}</strong>
         <small>{lesson.title}</small>
       </span>
       <button type="button" onClick={() => navigate(ROUTES.live(lesson.id))}>
-        <Video size={15} /> Qo‘shilish
+        <Video size={15} /> {t("liveBar.join")}
       </button>
     </div>
   );

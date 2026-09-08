@@ -1,9 +1,11 @@
 import { useMemo } from "react";
 import { motion } from "framer-motion";
 import { CalendarX2, Clock3 } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { toIntlLocale } from "@/shared/i18n";
 import type { Lesson } from "@/shared/types";
 import { groupLessonsByDay, toDayKey } from "../lib/lesson-calendar";
-import { lessonStatusMeta } from "../lib/lesson-status";
+import { useLessonStatusMeta } from "../lib/lesson-status";
 import { LessonActions, type LessonActionsProps } from "./lesson-actions";
 
 export type LessonListProps = Omit<LessonActionsProps, "lesson" | "compact"> & {
@@ -15,12 +17,6 @@ interface DaySection {
   date: Date;
   lessons: Lesson[];
 }
-
-const DAY_FORMAT = new Intl.DateTimeFormat("uz-UZ", {
-  weekday: "short",
-  day: "numeric",
-  month: "long",
-});
 
 function buildSections(lessons: Lesson[]): DaySection[] {
   const byDay = groupLessonsByDay(lessons);
@@ -47,13 +43,24 @@ function buildSections(lessons: Lesson[]): DaySection[] {
  * alohida o'qishga to'g'ri kelardi; sana sarlavhasi shu takrorni olib tashlaydi.
  */
 export function LessonList({ lessons, ...actions }: LessonListProps) {
+  const { t, i18n } = useTranslation("lesson");
+  const lessonStatusMeta = useLessonStatusMeta();
   const sections = useMemo(() => buildSections(lessons), [lessons]);
+  const dayFormat = useMemo(
+    () =>
+      new Intl.DateTimeFormat(toIntlLocale(i18n.language), {
+        weekday: "short",
+        day: "numeric",
+        month: "long",
+      }),
+    [i18n.language]
+  );
 
   if (!sections.length) {
     return (
       <div className="lesson-empty">
         <CalendarX2 size={26} />
-        <p>Hali dars rejalashtirilmagan.</p>
+        <p>{t("list.empty")}</p>
       </div>
     );
   }
@@ -63,8 +70,8 @@ export function LessonList({ lessons, ...actions }: LessonListProps) {
       {sections.map((section) => (
         <section key={section.key}>
           <h3 className="lesson-section-title">
-            {DAY_FORMAT.format(section.date)}
-            <span>{section.lessons.length} ta</span>
+            {dayFormat.format(section.date)}
+            <span>{t("list.dayCount", { count: section.lessons.length })}</span>
           </h3>
 
           <div className="lesson-list">
@@ -79,14 +86,15 @@ export function LessonList({ lessons, ...actions }: LessonListProps) {
                 >
                   <div className="lesson-date">
                     <strong>{lesson.time}</strong>
-                    <span>{lesson.durationMinutes} daq</span>
+                    <span>{t("list.durationMinutes", { count: lesson.durationMinutes })}</span>
                   </div>
 
                   <div className="lesson-main">
                     <span className={`lesson-status lesson-status--${meta.tone}`}>{meta.label}</span>
                     <h4>{lesson.title}</h4>
                     <p>
-                      <Clock3 size={14} /> {lesson.time} — {lesson.durationMinutes} daqiqa
+                      <Clock3 size={14} /> {lesson.time} —{" "}
+                      {t("list.durationMinutes", { count: lesson.durationMinutes })}
                     </p>
                   </div>
 
