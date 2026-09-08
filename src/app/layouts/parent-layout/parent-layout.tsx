@@ -1,23 +1,24 @@
 import { CalendarCheck2, Home, ListChecks, Trophy, UsersRound } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { ROUTES } from "@/shared/config";
 import { useAuth } from "@/modules/auth";
 import { PortalLayout } from "@/app/layouts/portal-layout";
 import { SelectedChildSelector } from "@/modules/parent";
 
-const navigation = [
-  { to: ROUTES.parent.dashboard, label: "Asosiy", icon: Home, end: true },
-  { to: ROUTES.parent.children, label: "Farzandlar", icon: UsersRound },
-  { to: ROUTES.parent.attendance, label: "Davomat", icon: CalendarCheck2 },
-  { to: ROUTES.parent.homework, label: "Vazifalar", icon: ListChecks },
-  { to: ROUTES.parent.grades, label: "Reyting", icon: Trophy },
-];
-
 export function ParentLayout() {
   const { user, logout } = useAuth();
+  const { t } = useTranslation("nav");
+  const navigation = [
+    { to: ROUTES.parent.dashboard, label: t("parent.dashboard"), icon: Home, end: true },
+    { to: ROUTES.parent.children, label: t("parent.children"), icon: UsersRound },
+    { to: ROUTES.parent.attendance, label: t("parent.attendance"), icon: CalendarCheck2 },
+    { to: ROUTES.parent.homework, label: t("parent.homework"), icon: ListChecks },
+    { to: ROUTES.parent.grades, label: t("parent.grades"), icon: Trophy },
+  ];
   return (
     <PortalLayout
       navItems={navigation}
-      roleLabel="Ota-ona"
+      roleLabel={t("roles.parent")}
       user={user}
       onLogout={logout}
       headerExtra={<SelectedChildSelector />}

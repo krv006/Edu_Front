@@ -1,0 +1,14 @@
+{
+  "roles": {
+    "teacher": "Teacher",
+    "student": "Student",
+    "parent": "Parent"
+  },
+  "parent": {
+    "dashboard": "Overview",
+    "children": "Children",
+    "attendance": "Attendance",
+    "homework": "Homework",
+    "grades": "Rating"
+  }
+}
