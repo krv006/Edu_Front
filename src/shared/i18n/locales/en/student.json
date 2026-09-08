@@ -22,5 +22,35 @@
     "retry": "Retry",
     "title": "My results",
     "subtitle": "Assignments and grades per subject."
+  },
+  "groupWorkspace": {
+    "tabs": { "chat": "Chat", "lessons": "Lessons", "assignments": "Assignments" },
+    "sendFailed": "Couldn't send the message",
+    "replyFallback": "Reply",
+    "lessons": {
+      "eyebrow": "COURSE LESSONS",
+      "title": "Lessons"
+    },
+    "assignments": {
+      "eyebrow": "COURSE ASSIGNMENTS",
+      "title": "Assignments",
+      "downloadAria": "Download the assignment file",
+      "downloadFallback": "Download the assignment file",
+      "scoreSuffix": "pts",
+      "checkError": "Check error",
+      "checking": "Being checked…",
+      "openResultAria": "Open result",
+      "overdueLabel": "Past due",
+      "dueLabel": "Due",
+      "noDue": "No due date",
+      "missed": "Not submitted",
+      "submit": "Submit",
+      "empty": "No assignments.",
+      "submitDialogDescription": "Upload the assignment file (25 MB max).",
+      "chooseFile": "Choose file",
+      "send": "Send",
+      "deadlinePassed": "The submission deadline has passed",
+      "resultDialogTitle": "Your assignment result"
+    }
   }
 }

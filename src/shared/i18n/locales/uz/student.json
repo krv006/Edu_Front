@@ -22,5 +22,35 @@
     "retry": "Qayta urinish",
     "title": "Mening natijalarim",
     "subtitle": "Har bir fan bo'yicha vazifalar va baholaringiz."
+  },
+  "groupWorkspace": {
+    "tabs": { "chat": "Chat", "lessons": "Darslar", "assignments": "Vazifalar" },
+    "sendFailed": "Xabar yuborilmadi",
+    "replyFallback": "Javob",
+    "lessons": {
+      "eyebrow": "KURS DARSLARI",
+      "title": "Darslar"
+    },
+    "assignments": {
+      "eyebrow": "KURS VAZIFALARI",
+      "title": "Vazifalar",
+      "downloadAria": "Vazifa faylini yuklab olish",
+      "downloadFallback": "Vazifa faylini yuklab olish",
+      "scoreSuffix": "ball",
+      "checkError": "Tekshiruv xatosi",
+      "checking": "Tekshirilmoqda…",
+      "openResultAria": "Natijani ochish",
+      "overdueLabel": "Muddat tugagan",
+      "dueLabel": "Muddat",
+      "noDue": "Muddat yo'q",
+      "missed": "Topshirilmagan",
+      "submit": "Topshirish",
+      "empty": "Vazifa yo'q.",
+      "submitDialogDescription": "Topshiriq faylini yuklang (maksimal 25 MB).",
+      "chooseFile": "Fayl tanlash",
+      "send": "Yuborish",
+      "deadlinePassed": "Topshirish muddati tugagan",
+      "resultDialogTitle": "Vazifangiz bo'yicha natija"
+    }
   }
 }
