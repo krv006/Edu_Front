@@ -1,3 +1,5 @@
+import { i18n } from "@/shared/i18n";
+
 /** Faylni platforma ichida qanday ko'rsatish mumkinligi. */
 export type FileKind = "pdf" | "image" | "video" | "audio" | "other";
 
@@ -54,9 +56,5 @@ export function fileNameFor(name: string, mimeType = ""): string {
 }
 
 export function fileKindLabel(kind: FileKind): string {
-  if (kind === "pdf") return "PDF hujjat";
-  if (kind === "image") return "Rasm";
-  if (kind === "video") return "Video";
-  if (kind === "audio") return "Audio";
-  return "Fayl";
+  return i18n.t(`fileKind.${kind}`);
 }

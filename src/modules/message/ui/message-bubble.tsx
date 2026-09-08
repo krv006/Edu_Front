@@ -1,6 +1,7 @@
 import { CheckCheck, GraduationCap, RefreshCw, Reply } from "lucide-react";
 import { AnimatePresence, motion } from "framer-motion";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { formatMessageTime } from "@/shared/lib";
 import { ROLES } from "@/shared/constants";
 import type { ChatMessage } from "@/shared/types";
@@ -17,6 +18,7 @@ export interface MessageBubbleProps {
 }
 
 export function MessageBubble({ message, currentUserId = null, onReply, onOpenActions, onReact, onRetryMessage }: MessageBubbleProps) {
+  const { t } = useTranslation("chat");
   const outgoing = message.senderId === currentUserId;
   const isTeacherSender = message.senderRole === ROLES.TEACHER;
   const [dragging, setDragging] = useState(false);
@@ -78,7 +80,7 @@ export function MessageBubble({ message, currentUserId = null, onReply, onOpenAc
         {/* Dars tugagach backend doska PDF'ini shu ko'rinishda yuboradi. */}
         {message.attachment && <MessageAttachment attachment={message.attachment} />}
         <span className="message-meta">
-          {message.editedAt && <em>tahrirlangan</em>}
+          {message.editedAt && <em>{t("bubble.edited")}</em>}
           <time>{formatMessageTime(message.createdAt)}</time>
           {outgoing && (
             <CheckCheck
@@ -88,10 +90,10 @@ export function MessageBubble({ message, currentUserId = null, onReply, onOpenAc
             />
           )}
         </span>
-        {message.failed ? <button className="message-retry" onClick={(event) => { event.stopPropagation(); onRetryMessage?.(message); }}><RefreshCw size={13} /> Qayta yuborish</button> : null}
+        {message.failed ? <button className="message-retry" onClick={(event) => { event.stopPropagation(); onRetryMessage?.(message); }}><RefreshCw size={13} /> {t("bubble.retry")}</button> : null}
         <AnimatePresence initial={false}>
         {message.reactions && message.reactions.length > 0 && (
-          <motion.div className="message-reactions" aria-label="Xabar reaksiyalari" initial={{ opacity: 0, y: -18, scale: .68 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: -8, scale: .72 }} transition={{ type: "spring", stiffness: 520, damping: 24 }}>
+          <motion.div className="message-reactions" aria-label={t("bubble.reactionsAria")} initial={{ opacity: 0, y: -18, scale: .68 }} animate={{ opacity: 1, y: 0, scale: 1 }} exit={{ opacity: 0, y: -8, scale: .72 }} transition={{ type: "spring", stiffness: 520, damping: 24 }}>
             {message.reactions.map((reaction) => (
               <motion.button
                 layout

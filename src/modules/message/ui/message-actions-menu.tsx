@@ -1,6 +1,7 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { Pencil, Reply, Trash2, UsersRound } from "lucide-react";
 import { useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import type { ChatMessage, MessageCapabilities } from "@/shared/types";
 
 export interface MessageActionsMenuProps {
@@ -28,6 +29,7 @@ export function MessageActionsMenu({
   currentUserId = null,
   capabilities = { reply: true, edit: false, delete: false, react: false },
 }: MessageActionsMenuProps) {
+  const { t } = useTranslation("chat");
   const outgoing = message?.senderId === currentUserId;
 
   useEffect(() => {
@@ -45,7 +47,7 @@ export function MessageActionsMenu({
         <>
           <motion.button
             className="message-menu-overlay"
-            aria-label="Xabar menyusini yopish"
+            aria-label={t("actionsMenu.closeAria")}
             onClick={onClose}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -62,7 +64,7 @@ export function MessageActionsMenu({
           >
             {capabilities.react ? <div
               className="message-reaction-picker"
-              aria-label="Reaksiya tanlash"
+              aria-label={t("actionsMenu.reactionsAria")}
             >
               {quickReactions.map((emoji) => (
                 <motion.button
@@ -73,7 +75,7 @@ export function MessageActionsMenu({
                     onReact(message, emoji);
                     onClose();
                   }}
-                  aria-label={`${emoji} reaksiyasini qo‘shish`}
+                  aria-label={t("actionsMenu.addReactionAria", { emoji })}
                 >
                   {emoji}
                 </motion.button>
@@ -87,7 +89,7 @@ export function MessageActionsMenu({
                 onClose();
               }}
             >
-              <Reply size={17} /> Javob berish
+              <Reply size={17} /> {t("actionsMenu.reply")}
             </button> : null}
             {capabilities.edit && outgoing && (
               <button
@@ -97,7 +99,7 @@ export function MessageActionsMenu({
                   onClose();
                 }}
               >
-                <Pencil size={16} /> Tahrirlash
+                <Pencil size={16} /> {t("actionsMenu.edit")}
               </button>
             )}
             {capabilities.delete ? <span className="message-menu-divider" /> : null}
@@ -109,7 +111,7 @@ export function MessageActionsMenu({
                 onClose();
               }}
             >
-              <Trash2 size={16} /> Men uchun o‘chirish
+              <Trash2 size={16} /> {t("actionsMenu.deleteForMe")}
             </button> : null}
             {capabilities.delete && outgoing && (
               <button
@@ -120,7 +122,7 @@ export function MessageActionsMenu({
                   onClose();
                 }}
               >
-                <UsersRound size={16} /> Hamma uchun o‘chirish
+                <UsersRound size={16} /> {t("actionsMenu.deleteForEveryone")}
               </button>
             )}
           </motion.div>

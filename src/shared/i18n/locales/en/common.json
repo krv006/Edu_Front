@@ -19,5 +19,19 @@
     "defaultUser": "User",
     "openNav": "Open navigation",
     "navLabel": "{{role}} navigation"
+  },
+  "fileKind": {
+    "pdf": "PDF document",
+    "image": "Image",
+    "video": "Video",
+    "audio": "Audio",
+    "other": "File"
+  },
+  "fileViewer": {
+    "opening": "Opening…",
+    "openError": "Couldn't open the file",
+    "unsupported": "This file type can't be viewed in the browser.",
+    "platformOnlyNote": "This file can only be viewed on the platform",
+    "close": "Close"
   }
 }

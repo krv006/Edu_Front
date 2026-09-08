@@ -19,5 +19,19 @@
     "defaultUser": "Foydalanuvchi",
     "openNav": "Navigatsiyani ochish",
     "navLabel": "{{role}} navigatsiyasi"
+  },
+  "fileKind": {
+    "pdf": "PDF hujjat",
+    "image": "Rasm",
+    "video": "Video",
+    "audio": "Audio",
+    "other": "Fayl"
+  },
+  "fileViewer": {
+    "opening": "Ochilmoqda…",
+    "openError": "Faylni ochib bo'lmadi",
+    "unsupported": "Bu turdagi faylni brauzerda ko'rib bo'lmaydi.",
+    "platformOnlyNote": "Fayl faqat platforma ichida ko'riladi",
+    "close": "Yopish"
   }
 }

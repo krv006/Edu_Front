@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { FileQuestion, Loader2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import {
   blobForViewing,
   fileKindLabel,
@@ -38,6 +39,7 @@ interface LoadedFile {
  * watermark). Bu yerda maqsad — oddiy yo'l bilan saqlab qo'yishning oldini olish.
  */
 export function FileViewer({ open, onOpenChange, name, mimeType = "", load }: FileViewerProps) {
+  const { t } = useTranslation();
   const [file, setFile] = useState<LoadedFile | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -62,7 +64,7 @@ export function FileViewer({ open, onOpenChange, name, mimeType = "", load }: Fi
       })
       .catch((cause: unknown) => {
         if (controller.signal.aborted) return;
-        setError(cause instanceof Error ? cause.message : "Faylni ochib bo‘lmadi");
+        setError(cause instanceof Error ? cause.message : t("fileViewer.openError"));
       });
 
     return () => {
@@ -81,7 +83,7 @@ export function FileViewer({ open, onOpenChange, name, mimeType = "", load }: Fi
       {open ? (
         <DialogContent
           title={file?.fileName ?? name}
-          description={file ? fileKindLabel(file.kind) : "Ochilmoqda…"}
+          description={file ? fileKindLabel(file.kind) : t("fileViewer.opening")}
           className="file-viewer-dialog"
         >
           {/* Kontekst menyusi ("Rasmni saqlash", "Videoni saqlash") yopiladi. */}
@@ -94,7 +96,7 @@ export function FileViewer({ open, onOpenChange, name, mimeType = "", load }: Fi
             ) : !file ? (
               <div className="file-viewer-state">
                 <Loader2 size={26} className="spin" />
-                <p>Ochilmoqda…</p>
+                <p>{t("fileViewer.opening")}</p>
               </div>
             ) : file.kind === "pdf" ? (
               // `#toolbar=0` — brauzerning PDF paneli, ya'ni yuklash va chop
@@ -109,15 +111,15 @@ export function FileViewer({ open, onOpenChange, name, mimeType = "", load }: Fi
             ) : (
               <div className="file-viewer-state">
                 <FileQuestion size={30} />
-                <p>Bu turdagi faylni brauzerda ko‘rib bo‘lmaydi.</p>
+                <p>{t("fileViewer.unsupported")}</p>
               </div>
             )}
           </div>
 
           <div className="dialog-actions">
-            <small className="file-viewer-note">Fayl faqat platforma ichida ko‘riladi</small>
+            <small className="file-viewer-note">{t("fileViewer.platformOnlyNote")}</small>
             <Button variant="secondary" onClick={() => onOpenChange(false)}>
-              Yopish
+              {t("fileViewer.close")}
             </Button>
           </div>
         </DialogContent>

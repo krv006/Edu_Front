@@ -3,7 +3,7 @@ import { BookOpen, CheckCircle2, MessageCircle, UsersRound } from "lucide-react"
 import { useNavigate } from "react-router-dom";
 import { Avatar, Button, Dialog, DialogContent } from "@/shared/ui/legacy";
 import { useCourseCatalog, useCreateEnrollment } from "@/modules/course";
-import { DIRECT_STATUS, directStatusLabel, useRequestDirect, useTeachersForDirect } from "@/modules/conversation";
+import { DIRECT_STATUS, useDirectStatusLabel, useRequestDirect, useTeachersForDirect } from "@/modules/conversation";
 import { useParentLinks, useRespondParentLink } from "@/modules/parent";
 import type { DirectTeacher } from "@/modules/conversation";
 
@@ -13,6 +13,7 @@ export interface StudentEnrollmentDialogProps {
 }
 
 export function StudentEnrollmentDialog({ open, onOpenChange }: StudentEnrollmentDialogProps) {
+  const directStatusLabel = useDirectStatusLabel();
   // Dialog yon panelda doim mount bo'lib turadi — yopiq holatida uchala
   // ro'yxat ham kerak emas, aks holda har sahifa ochilishida uchta ortiqcha
   // so'rov ketardi. Ularning ma'lumoti faqat dialog ichida ishlatiladi.

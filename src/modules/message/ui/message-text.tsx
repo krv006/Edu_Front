@@ -1,5 +1,6 @@
 import { useMemo } from "react";
 import { PlayCircle } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import { tokenizeMessageText } from "../lib/linkify";
 
@@ -15,6 +16,7 @@ const RECORDING_PATH = /^\/recordings\//;
  * yangi oynada. Matn React tugunlari sifatida quriladi — HTML injeksiya bo'lmaydi.
  */
 export function MessageText({ text }: MessageTextProps) {
+  const { t } = useTranslation("chat");
   const tokens = useMemo(() => tokenizeMessageText(text), [text]);
 
   return (
@@ -28,7 +30,7 @@ export function MessageText({ text }: MessageTextProps) {
               to={token.href}
               onClick={(event) => event.stopPropagation()}
             >
-              <PlayCircle size={15} /> Video yozuvni ko‘rish
+              <PlayCircle size={15} /> {t("text.viewRecording")}
             </Link>
           );
         }

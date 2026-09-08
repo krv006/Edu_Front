@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { UsersRound, Video } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import { Avatar } from "@/shared/ui/legacy";
 import { formatConversationTime } from "@/shared/lib";
@@ -19,6 +20,7 @@ export function ConversationItem({
   basePath = "/teacher/chats",
   live = false,
 }: ConversationItemProps) {
+  const { t } = useTranslation("chat");
   return (
     <Link
       className={`conversation-item ${active ? "is-active" : ""}`}
@@ -55,12 +57,12 @@ export function ConversationItem({
           {live ? (
             <span className="conversation-live-copy">
               <Video size={13} aria-hidden="true" />
-              Dars ketmoqda
+              {t("item.liveNow")}
             </span>
           ) : (
             <span className={conversation.typing ? "typing-copy" : ""}>
               {conversation.type === "group" && <UsersRound size={13} aria-hidden="true" />}
-              {conversation.typing ? "yozmoqda..." : conversation.lastMessage}
+              {conversation.typing ? t("item.typing") : conversation.lastMessage}
             </span>
           )}
           {conversation.unreadCount > 0 && (
