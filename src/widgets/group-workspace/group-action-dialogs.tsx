@@ -14,8 +14,10 @@ import {
   TriangleAlert,
   Underline,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Button, Dialog, DialogContent } from "@/shared/ui/legacy";
 import { DatePicker, DurationPicker, SelectPicker, TimePicker } from "@/shared/ui/legacy/form-pickers";
+import { toIntlLocale } from "@/shared/i18n";
 import {
   buildScheduleDates,
   EVEN_WEEKDAYS,
@@ -82,13 +84,27 @@ export interface AddAssignmentDialogProps {
 /** Tez tanlash uchun tayyor davomiyliklar; boshqa qiymat qo‘lda yoziladi. */
 const DURATION_OPTIONS = [30, 45, 60, 90];
 
-const SKILL_OPTIONS = [
-  { value: "", label: "Umumiy vazifa" },
-  { value: "writing", label: "Writing" },
-  { value: "reading", label: "Reading" },
-  { value: "listening", label: "Listening" },
-  { value: "speaking", label: "Speaking" },
-];
+function useSkillOptions(): Array<{ value: string; label: string }> {
+  const { t } = useTranslation("group");
+  return [
+    { value: "", label: t("dialogs.assignment.skillOptions.general") },
+    { value: "writing", label: t("dialogs.assignment.skillOptions.writing") },
+    { value: "reading", label: t("dialogs.assignment.skillOptions.reading") },
+    { value: "listening", label: t("dialogs.assignment.skillOptions.listening") },
+    { value: "speaking", label: t("dialogs.assignment.skillOptions.speaking") },
+  ];
+}
+
+/** ISO hafta kuni (1=Dushanba…7=Yakshanba) bo'yicha tarjima qilingan nom/qisqartma. */
+function useWeekdayTranslations(): { labels: Record<number, string>; short: Record<number, string> } {
+  const { t } = useTranslation("group");
+  const labels = t("dialogs.lesson.weekdayLabels", { returnObjects: true }) as string[];
+  const short = t("dialogs.lesson.weekdayShort", { returnObjects: true }) as string[];
+  return {
+    labels: Object.fromEntries(WEEKDAYS.map((day, index) => [day.value, labels[index]])),
+    short: Object.fromEntries(WEEKDAYS.map((day, index) => [day.value, short[index]])),
+  };
+}
 
 function todayString(): string {
   return new Date().toISOString().slice(0, 10);
@@ -101,7 +117,13 @@ function monthLaterString(): string {
   return date.toISOString().slice(0, 10);
 }
 
-const DATE_LABEL = new Intl.DateTimeFormat("uz-UZ", { day: "numeric", month: "short" });
+function useDateLabelFormatter(): Intl.DateTimeFormat {
+  const { i18n } = useTranslation("group");
+  return useMemo(
+    () => new Intl.DateTimeFormat(toIntlLocale(i18n.language), { day: "numeric", month: "short" }),
+    [i18n.language]
+  );
+}
 
 export function AddLessonDialog({
   open,
@@ -111,6 +133,9 @@ export function AddLessonDialog({
   existingLessons = [],
   initialValues = null,
 }: AddLessonDialogProps) {
+  const { t } = useTranslation("group");
+  const DATE_LABEL = useDateLabelFormatter();
+  const weekdayText = useWeekdayTranslations();
   const [form, setForm] = useState<LessonDraft>(() => ({
     topic: initialValues?.topic ?? "",
     date: initialValues?.date ?? "",
@@ -196,8 +221,8 @@ export function AddLessonDialog({
       {open && (
         <DialogContent
           className="group-action-dialog"
-          title={initialValues ? "Darsni tahrirlash" : "Yangi dars"}
-          description="Guruh uchun yangi mashg‘ulot vaqtini belgilang."
+          title={initialValues ? t("dialogs.lesson.editTitle") : t("dialogs.lesson.newTitle")}
+          description={t("dialogs.lesson.description")}
         >
           <motion.form
             className="group-action-form"
@@ -206,17 +231,17 @@ export function AddLessonDialog({
             animate={{ opacity: 1, y: 0 }}
           >
             <label>
-              <span>Dars mavzusi</span>
+              <span>{t("dialogs.lesson.topicLabel")}</span>
               <input
                 autoFocus
                 value={form.topic}
                 onChange={(event) => update("topic", event.target.value)}
-                placeholder="Masalan: Present Simple — amaliyot"
+                placeholder={t("dialogs.lesson.topicPlaceholder")}
               />
             </label>
 
             {canRepeat ? (
-              <div className="schedule-mode" role="radiogroup" aria-label="Dars turi">
+              <div className="schedule-mode" role="radiogroup" aria-label={t("dialogs.lesson.typeAria")}>
                 <button
                   type="button"
                   role="radio"
@@ -224,7 +249,7 @@ export function AddLessonDialog({
                   className={repeat ? "" : "is-active"}
                   onClick={() => setRepeat(false)}
                 >
-                  <CalendarDays size={15} /> Bitta dars
+                  <CalendarDays size={15} /> {t("dialogs.lesson.single")}
                 </button>
                 <button
                   type="button"
@@ -233,7 +258,7 @@ export function AddLessonDialog({
                   className={repeat ? "is-active" : ""}
                   onClick={() => setRepeat(true)}
                 >
-                  <Repeat size={15} /> Takrorlanuvchi
+                  <Repeat size={15} /> {t("dialogs.lesson.repeating")}
                 </button>
               </div>
             ) : null}
@@ -241,21 +266,21 @@ export function AddLessonDialog({
             {isRepeating ? (
               <>
                 <div className="field-block">
-                  <span className="field-block-label">Hafta kunlari</span>
+                  <span className="field-block-label">{t("dialogs.lesson.weekdaysLabel")}</span>
                   <div className="weekday-presets">
                     <button
                       type="button"
                       className={sameDays(weekdays, ODD_WEEKDAYS) ? "is-active" : ""}
                       onClick={() => setWeekdays([...ODD_WEEKDAYS])}
                     >
-                      Toq kunlar
+                      {t("dialogs.lesson.oddDays")}
                     </button>
                     <button
                       type="button"
                       className={sameDays(weekdays, EVEN_WEEKDAYS) ? "is-active" : ""}
                       onClick={() => setWeekdays([...EVEN_WEEKDAYS])}
                     >
-                      Juft kunlar
+                      {t("dialogs.lesson.evenDays")}
                     </button>
                   </div>
                   <div className="weekday-picker">
@@ -264,11 +289,11 @@ export function AddLessonDialog({
                         key={day.value}
                         type="button"
                         aria-pressed={weekdays.includes(day.value)}
-                        aria-label={day.label}
+                        aria-label={weekdayText.labels[day.value]}
                         className={weekdays.includes(day.value) ? "is-active" : ""}
                         onClick={() => toggleWeekday(day.value)}
                       >
-                        {day.short}
+                        {weekdayText.short[day.value]}
                       </button>
                     ))}
                   </div>
@@ -276,12 +301,12 @@ export function AddLessonDialog({
 
                 <div className="form-grid-two">
                   <DatePicker
-                    label="Boshlanish sanasi"
+                    label={t("dialogs.lesson.startDate")}
                     value={range.from}
                     onChange={(value) => setRange((current) => ({ ...current, from: value }))}
                   />
                   <DatePicker
-                    label="Tugash sanasi"
+                    label={t("dialogs.lesson.endDate")}
                     value={range.to}
                     onChange={(value) => setRange((current) => ({ ...current, to: value }))}
                   />
@@ -290,13 +315,13 @@ export function AddLessonDialog({
             ) : (
               <div className="form-grid-two">
                 <DatePicker
-                  label="Sana · ixtiyoriy"
+                  label={t("dialogs.lesson.dateOptional")}
                   value={form.date}
                   onChange={(value) => update("date", value)}
                   optional
                 />
                 <TimePicker
-                  label="Boshlanish vaqti"
+                  label={t("dialogs.lesson.startTime")}
                   value={form.time}
                   onChange={(value) => update("time", value)}
                 />
@@ -306,12 +331,12 @@ export function AddLessonDialog({
             {isRepeating ? (
               <div className="form-grid-two">
                 <TimePicker
-                  label="Boshlanish vaqti"
+                  label={t("dialogs.lesson.startTime")}
                   value={form.time}
                   onChange={(value) => update("time", value)}
                 />
                 <DurationPicker
-                  label="Davomiyligi"
+                  label={t("dialogs.lesson.duration")}
                   icon={Hourglass}
                   value={form.duration}
                   onChange={(value) => update("duration", value)}
@@ -320,7 +345,7 @@ export function AddLessonDialog({
               </div>
             ) : (
               <DurationPicker
-                label="Davomiyligi"
+                label={t("dialogs.lesson.duration")}
                 icon={Hourglass}
                 value={form.duration}
                 onChange={(value) => update("duration", value)}
@@ -331,14 +356,14 @@ export function AddLessonDialog({
             {isRepeating ? (
               <p className={`schedule-summary ${dates.length ? "" : "is-empty"}`}>
                 {dates.length ? (
-                  <>
-                    <strong>{dates.length} ta dars</strong> yaratiladi
-                    {dates.length >= MAX_SCHEDULE_LESSONS ? " (chegara)" : ""} · birinchisi{" "}
-                    {DATE_LABEL.format(new Date(dates[0]))}, oxirgisi{" "}
-                    {DATE_LABEL.format(new Date(dates[dates.length - 1]))}
-                  </>
+                  t("dialogs.lesson.scheduleSummary", {
+                    count: dates.length,
+                    limitNote: dates.length >= MAX_SCHEDULE_LESSONS ? t("dialogs.lesson.limitNote") : "",
+                    first: DATE_LABEL.format(new Date(dates[0])),
+                    last: DATE_LABEL.format(new Date(dates[dates.length - 1])),
+                  })
                 ) : (
-                  "Tanlangan oraliqda mos kun yo‘q — kunlarni yoki sanalarni o‘zgartiring."
+                  t("dialogs.lesson.noMatchingDays")
                 )}
               </p>
             ) : null}
@@ -351,17 +376,17 @@ export function AddLessonDialog({
                 variant="ghost"
                 onClick={() => onOpenChange(false)}
               >
-                Bekor qilish
+                {t("dialogs.lesson.cancel")}
               </Button>
               <Button
                 type="submit"
                 disabled={!form.topic.trim() || (isRepeating && !dates.length)}
               >
                 {initialValues
-                  ? "O‘zgarishlarni saqlash"
+                  ? t("dialogs.lesson.saveChanges")
                   : isRepeating
-                    ? `${dates.length} ta darsni saqlash`
-                    : "Darsni saqlash"}
+                    ? t("dialogs.lesson.saveMultiple", { count: dates.length })
+                    : t("dialogs.lesson.saveSingle")}
               </Button>
             </div>
           </motion.form>
@@ -386,6 +411,8 @@ function ConflictNotice({
   single: Lesson[];
   schedule: Array<{ date: string; conflicts: Lesson[] }>;
 }) {
+  const { t } = useTranslation("group");
+  const DATE_LABEL = useDateLabelFormatter();
   if (!single.length && !schedule.length) return null;
 
   return (
@@ -394,29 +421,40 @@ function ConflictNotice({
       <div>
         {single.length ? (
           <>
-            <strong>Bu vaqtda darsingiz bor</strong>
+            <strong>{t("dialogs.conflict.singleTitle")}</strong>
             <ul>
               {single.map((lesson) => (
                 <li key={lesson.id}>
-                  {lesson.courseTitle} · {lesson.title} — {lesson.time} ({lesson.durationMinutes} daq)
+                  {t("dialogs.conflict.lessonLine", {
+                    course: lesson.courseTitle,
+                    title: lesson.title,
+                    time: lesson.time,
+                    duration: lesson.durationMinutes,
+                  })}
                 </li>
               ))}
             </ul>
           </>
         ) : (
           <>
-            <strong>{schedule.length} ta sanada darsingiz bor</strong>
+            <strong>{t("dialogs.conflict.scheduleTitle", { count: schedule.length })}</strong>
             <ul>
               {schedule.slice(0, 4).map(({ date, conflicts }) => (
                 <li key={date}>
-                  {DATE_LABEL.format(new Date(date))} — {conflicts[0].courseTitle} ({conflicts[0].time})
+                  {t("dialogs.conflict.scheduleLine", {
+                    date: DATE_LABEL.format(new Date(date)),
+                    course: conflicts[0].courseTitle,
+                    time: conflicts[0].time,
+                  })}
                 </li>
               ))}
-              {schedule.length > 4 ? <li>va yana {schedule.length - 4} ta</li> : null}
+              {schedule.length > 4 ? (
+                <li>{t("dialogs.conflict.andMore", { count: schedule.length - 4 })}</li>
+              ) : null}
             </ul>
           </>
         )}
-        <small>O‘sha vaqtda boshqa guruhda dars o‘tolmaysiz — vaqtni o‘zgartiring.</small>
+        <small>{t("dialogs.conflict.note")}</small>
       </div>
     </div>
   );
@@ -439,6 +477,8 @@ export function AddAssignmentDialog({
   isLanguageSubject = false,
   initialValues = null,
 }: AddAssignmentDialogProps) {
+  const { t } = useTranslation("group");
+  const skillOptions = useSkillOptions();
   const [form, setForm] = useState<AssignmentDraft>(() =>
     initialValues
       ? {
@@ -464,8 +504,8 @@ export function AddAssignmentDialog({
         value: lesson.id,
         label: `${lesson.title} · ${lesson.date}`,
       }));
-    return [{ value: "", label: "Darsga bog‘lanmagan" }, ...finished];
-  }, [lessons]);
+    return [{ value: "", label: t("dialogs.assignment.notLinkedToLesson") }, ...finished];
+  }, [lessons, t]);
 
   function update(field: keyof AssignmentDraft, value: string) {
     setForm((current) => ({ ...current, [field]: value }));
@@ -492,8 +532,8 @@ export function AddAssignmentDialog({
       {open && (
         <DialogContent
           className="group-action-dialog assignment-dialog"
-          title={initialValues ? "Vazifani tahrirlash" : "Yangi vazifa"}
-          description="Topshiriq, muddat va kerakli fayllarni bir joyda yuboring."
+          title={initialValues ? t("dialogs.assignment.editTitle") : t("dialogs.assignment.newTitle")}
+          description={t("dialogs.assignment.description")}
         >
           <motion.form
             className="group-action-form"
@@ -502,40 +542,40 @@ export function AddAssignmentDialog({
             animate={{ opacity: 1, y: 0 }}
           >
             <label>
-              <span>Vazifa nomi</span>
+              <span>{t("dialogs.assignment.titleLabel")}</span>
               <input
                 autoFocus
                 value={form.title}
                 onChange={(event) => update("title", event.target.value)}
-                placeholder="Masalan: Kvadrat tenglamalar — 5 ta misol"
+                placeholder={t("dialogs.assignment.titlePlaceholder")}
               />
             </label>
             <div className="rich-assignment-field">
               <div
                 className="rich-toolbar"
-                aria-label="Matn formatlash vositalari"
+                aria-label={t("dialogs.assignment.toolbarAria")}
               >
-                <button type="button" aria-label="Qalin matn">
+                <button type="button" aria-label={t("dialogs.assignment.boldAria")}>
                   <Bold size={14} />
                 </button>
-                <button type="button" aria-label="Qiya matn">
+                <button type="button" aria-label={t("dialogs.assignment.italicAria")}>
                   <Italic size={14} />
                 </button>
-                <button type="button" aria-label="Tagiga chizish">
+                <button type="button" aria-label={t("dialogs.assignment.underlineAria")}>
                   <Underline size={14} />
                 </button>
                 <span />
-                <button type="button" aria-label="Ro‘yxat">
+                <button type="button" aria-label={t("dialogs.assignment.listAria")}>
                   <List size={14} />
                 </button>
-                <button type="button" aria-label="Havola">
+                <button type="button" aria-label={t("dialogs.assignment.linkAria")}>
                   <Link size={14} />
                 </button>
               </div>
               <textarea
                 value={form.description}
                 onChange={(event) => update("description", event.target.value)}
-                placeholder="Vazifa matnini yozing: misollar, savollar, ko‘rsatmalar..."
+                placeholder={t("dialogs.assignment.descriptionPlaceholder")}
                 rows={5}
               />
             </div>
@@ -548,7 +588,7 @@ export function AddAssignmentDialog({
                 onChange={(event) => setFile(event.target.files?.[0] ?? null)}
               />
               <button type="button" onClick={() => fileRef.current?.click()}>
-                <FileUp size={16} /> {initialValues?.hasAttachment ? "Faylni almashtirish" : "Fayl biriktirish"}
+                <FileUp size={16} /> {initialValues?.hasAttachment ? t("dialogs.assignment.replaceFile") : t("dialogs.assignment.attachFile")}
               </button>
               {file ? (
                 <span>
@@ -556,13 +596,13 @@ export function AddAssignmentDialog({
                 </span>
               ) : initialValues?.hasAttachment ? (
                 <span>
-                  <Paperclip size={14} /> Joriy: {initialValues.attachmentName || "fayl biriktirilgan"}
+                  <Paperclip size={14} /> {t("dialogs.assignment.currentFilePrefix")} {initialValues.attachmentName || t("dialogs.assignment.fileAttachedFallback")}
                 </span>
               ) : null}
             </div>
             <div className="form-grid-two">
               <DatePicker
-                label="Topshirish muddati"
+                label={t("dialogs.assignment.dueLabel")}
                 value={form.dueAt}
                 onChange={(value) => update("dueAt", value)}
                 includeTime
@@ -571,15 +611,15 @@ export function AddAssignmentDialog({
               {/* Tekshiruv turi faqat til fanida ma'noli (docs/STAFF_API.md §2). */}
               {isLanguageSubject ? (
                 <SelectPicker
-                  label="Tekshiruv turi"
+                  label={t("dialogs.assignment.checkTypeLabel")}
                   icon={GraduationCap}
                   value={form.skillKey}
                   onChange={(value) => update("skillKey", value)}
-                  options={SKILL_OPTIONS}
+                  options={skillOptions}
                 />
               ) : (
                 <SelectPicker
-                  label="Qaysi dars uchun"
+                  label={t("dialogs.assignment.lessonLabel")}
                   icon={CalendarDays}
                   value={form.lessonId}
                   onChange={(value) => update("lessonId", value)}
@@ -591,7 +631,7 @@ export function AddAssignmentDialog({
             {/* Til fanida ikkala tanlov ham kerak — dars tanlovi alohida qatorda. */}
             {isLanguageSubject ? (
               <SelectPicker
-                label="Qaysi dars uchun"
+                label={t("dialogs.assignment.lessonLabel")}
                 icon={CalendarDays}
                 value={form.lessonId}
                 onChange={(value) => update("lessonId", value)}
@@ -599,11 +639,11 @@ export function AddAssignmentDialog({
               />
             ) : null}
             <label>
-              <span>Baholash izohi — ixtiyoriy</span>
+              <span>{t("dialogs.assignment.gradingLabel")}</span>
               <input
                 value={form.grading}
                 onChange={(event) => update("grading", event.target.value)}
-                placeholder="Masalan: har bir misol 2 balldan"
+                placeholder={t("dialogs.assignment.gradingPlaceholder")}
               />
             </label>
             <div className="dialog-actions">
@@ -612,13 +652,13 @@ export function AddAssignmentDialog({
                 variant="ghost"
                 onClick={() => onOpenChange(false)}
               >
-                Bekor qilish
+                {t("dialogs.assignment.cancel")}
               </Button>
               <Button
                 type="submit"
                 disabled={!form.title.trim() || !form.description.trim()}
               >
-                {initialValues ? "O‘zgarishlarni saqlash" : "Vazifani yuborish"}
+                {initialValues ? t("dialogs.assignment.saveChanges") : t("dialogs.assignment.submit")}
               </Button>
             </div>
           </motion.form>
