@@ -1,4 +1,5 @@
 import { Star } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { formatDateTime } from "@/shared/lib";
 import type { Lesson } from "@/shared/types";
 import { Avatar, Button, Dialog, DialogContent } from "@/shared/ui/legacy";
@@ -18,6 +19,7 @@ export interface LessonRatingsDialogProps {
  * O'rtacha ko'rsatkich darslar ro'yxatidan keladi — bu yerda qayta hisoblanmaydi.
  */
 export function LessonRatingsDialog({ lesson, onOpenChange }: LessonRatingsDialogProps) {
+  const { t } = useTranslation("lesson");
   const ratings = useLessonRatings(lesson?.id ?? null);
   const rows = ratings.data ?? [];
 
@@ -25,8 +27,8 @@ export function LessonRatingsDialog({ lesson, onOpenChange }: LessonRatingsDialo
     <Dialog open={Boolean(lesson)} onOpenChange={onOpenChange}>
       {lesson ? (
         <DialogContent
-          title="Dars baholari"
-          description={`“${lesson.title}” bo‘yicha o‘quvchilar fikri.`}
+          title={t("ratingsDialog.title")}
+          description={t("ratingsDialog.description", { title: lesson.title })}
         >
           <div className="rating-panel">
             <div className="rating-panel-head">
@@ -34,7 +36,7 @@ export function LessonRatingsDialog({ lesson, onOpenChange }: LessonRatingsDialo
                 <Star size={16} className="is-filled" />
                 {lesson.avgRating === null ? "—" : lesson.avgRating.toFixed(1)}
               </span>
-              <small>{lesson.ratingCount} ta baho</small>
+              <small>{t("ratingsDialog.countSuffix", { count: lesson.ratingCount })}</small>
             </div>
 
             {ratings.isLoading ? (
@@ -43,13 +45,13 @@ export function LessonRatingsDialog({ lesson, onOpenChange }: LessonRatingsDialo
               </div>
             ) : ratings.data === null ? (
               <div className="rating-empty">
-                <p>Baholash serverda hali yoqilmagan.</p>
+                <p>{t("ratingsDialog.disabled")}</p>
               </div>
             ) : ratings.isError ? (
               <div className="rating-empty">
-                <p>Baholarni yuklab bo‘lmadi.</p>
+                <p>{t("ratingsDialog.loadError")}</p>
                 <Button size="sm" variant="secondary" onClick={() => ratings.refetch()}>
-                  Qayta urinish
+                  {t("ratingsDialog.retry")}
                 </Button>
               </div>
             ) : rows.length ? (
@@ -68,7 +70,7 @@ export function LessonRatingsDialog({ lesson, onOpenChange }: LessonRatingsDialo
               </ul>
             ) : (
               <div className="rating-empty">
-                <p>Bu darsni hali hech kim baholamagan.</p>
+                <p>{t("ratingsDialog.empty")}</p>
               </div>
             )}
           </div>

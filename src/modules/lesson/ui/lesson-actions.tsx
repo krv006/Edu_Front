@@ -1,4 +1,5 @@
 import { Pencil, PlayCircle, Star, Trash2, Video } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import type { Lesson } from "@/shared/types";
 import { Button } from "@/shared/ui/legacy";
 import { isLessonClosed, isLessonEditable, isLessonJoinable } from "../lib/lesson-status";
@@ -40,6 +41,7 @@ export function LessonActions({
   onRate,
   compact = false,
 }: LessonActionsProps) {
+  const { t } = useTranslation("lesson");
   const finished = lesson.status === "finished";
   const joinDisabled = !isLessonJoinable(lesson);
   /** Baho nishoni: o'qituvchida bosiladi, o'quvchida shunchaki ko'rsatiladi. */
@@ -59,7 +61,7 @@ export function LessonActions({
           type="button"
           className="rating-chip"
           onClick={() => onRatings(lesson)}
-          aria-label={`Dars baholari — ${lesson.ratingCount} ta`}
+          aria-label={t("actions.ratingsAria", { count: lesson.ratingCount })}
         >
           {ratingChip}
         </button>
@@ -77,34 +79,34 @@ export function LessonActions({
         <Button
           size="sm"
           disabled={joinDisabled}
-          title={joinDisabled && !isLessonClosed(lesson) ? "Bu darsning vaqti allaqachon o'tib ketgan" : undefined}
+          title={joinDisabled && !isLessonClosed(lesson) ? t("actions.joinDisabledTitle") : undefined}
           onClick={() => onJoin(lesson)}
         >
           <Video size={16} />
-          {compact ? null : " Kirish"}
+          {compact ? null : ` ${t("actions.join")}`}
         </Button>
       ) : onRecording ? (
         <Button size="sm" onClick={() => onRecording(lesson)}>
           <PlayCircle size={16} />
-          {compact ? null : " Ko‘rish"}
+          {compact ? null : ` ${t("actions.view")}`}
         </Button>
       ) : null}
 
       {lesson.status === "live" && onFinish ? (
         <Button size="sm" variant="secondary" onClick={() => onFinish(lesson)}>
-          Yakunlash
+          {t("actions.finish")}
         </Button>
       ) : null}
 
       {finished && onRate ? (
         <Button size="sm" variant="secondary" onClick={() => onRate(lesson)}>
           <Star size={16} />
-          {compact ? null : " Baholash"}
+          {compact ? null : ` ${t("actions.rate")}`}
         </Button>
       ) : null}
 
       {onEdit && isLessonEditable(lesson) ? (
-        <button className="icon-button" onClick={() => onEdit(lesson)} aria-label="Darsni tahrirlash">
+        <button className="icon-button" onClick={() => onEdit(lesson)} aria-label={t("actions.editAria")}>
           <Pencil size={16} />
         </button>
       ) : null}
@@ -112,7 +114,7 @@ export function LessonActions({
         <button
           className="icon-button destructive-icon"
           onClick={() => onDelete(lesson)}
-          aria-label="Darsni o‘chirish"
+          aria-label={t("actions.deleteAria")}
         >
           <Trash2 size={16} />
         </button>

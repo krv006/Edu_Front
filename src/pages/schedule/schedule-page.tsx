@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { CalendarDays } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/modules/auth";
 import {
@@ -23,6 +24,7 @@ import { LoadingFallback, RouteState } from "@/shared/ui/legacy";
  * o'qituvchi esa o'z kurslarining darslarini oladi.
  */
 export function SchedulePage() {
+  const { t } = useTranslation("lesson");
   const navigate = useNavigate();
   const { user } = useAuth();
   const { view, setView } = useLessonView();
@@ -41,15 +43,15 @@ export function SchedulePage() {
     ...(isStudent ? { onRate: setRateTarget } : {}),
   };
 
-  if (lessons.isLoading) return <LoadingFallback label="Kalendar yuklanmoqda" />;
+  if (lessons.isLoading) return <LoadingFallback label={t("schedulePage.loading")} />;
 
   if (lessons.isError)
     return (
       <RouteState
-        eyebrow="KALENDAR"
-        title="Darslarni yuklab bo‘lmadi"
+        eyebrow={t("schedulePage.eyebrow")}
+        title={t("schedulePage.loadError")}
         description={lessons.error?.message}
-        actionLabel="Qayta urinish"
+        actionLabel={t("schedulePage.retry")}
         onAction={lessons.refetch}
       />
     );
@@ -60,9 +62,9 @@ export function SchedulePage() {
     <div className="schedule-page">
       <div className="schedule-page-head">
         <div>
-          <span className="portal-eyebrow">KALENDAR</span>
-          <h1>Mening darslarim</h1>
-          <p>Barcha guruhlaringizdagi mashg‘ulotlar bir joyda.</p>
+          <span className="portal-eyebrow">{t("schedulePage.eyebrow")}</span>
+          <h1>{t("schedulePage.title")}</h1>
+          <p>{t("schedulePage.subtitle")}</p>
         </div>
         <LessonViewSwitch view={view} onChange={setView} />
       </div>
@@ -78,7 +80,7 @@ export function SchedulePage() {
       ) : (
         <div className="lesson-empty">
           <CalendarDays size={26} />
-          <p>Hali dars rejalashtirilmagan.</p>
+          <p>{t("schedulePage.empty")}</p>
         </div>
       )}
 

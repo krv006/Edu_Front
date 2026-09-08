@@ -1,3 +1,4 @@
+import { useTranslation } from "react-i18next";
 import type { Lesson, LessonStatus } from "@/shared/types";
 
 export interface LessonStatusMeta {
@@ -6,21 +7,24 @@ export interface LessonStatusMeta {
   tone: "scheduled" | "live" | "finished" | "cancelled";
 }
 
-/**
- * Dars holatining ko'rinishi — kalendar ham, ro'yxat ham shu yerdan oladi,
- * shuning uchun rang va yorliq ikki joyda ajralib ketmaydi.
- */
-const STATUS_META: Record<LessonStatus, LessonStatusMeta> = {
-  scheduled: { label: "Rejalashtirilgan", tone: "scheduled" },
-  live: { label: "Jonli efirda", tone: "live" },
-  finished: { label: "Tugagan", tone: "finished" },
-  cancelled: { label: "Bekor qilingan", tone: "cancelled" },
+const STATUS_TONES: Record<LessonStatus, LessonStatusMeta["tone"]> = {
+  scheduled: "scheduled",
+  live: "live",
+  finished: "finished",
+  cancelled: "cancelled",
 };
 
-const FALLBACK: LessonStatusMeta = { label: "Noma’lum", tone: "scheduled" };
-
-export function lessonStatusMeta(status: LessonStatus): LessonStatusMeta {
-  return STATUS_META[status] ?? FALLBACK;
+/**
+ * Dars holatining ko'rinishi — kalendar ham, ro'yxat ham shu yerdan oladi,
+ * shuning uchun rang va yorliq ikki joyda ajralib ketmaydi. Hook — tanlangan
+ * til o'zgarganda yorliq ham darhol yangilanishi uchun.
+ */
+export function useLessonStatusMeta() {
+  const { t } = useTranslation("lesson");
+  return (status: LessonStatus): LessonStatusMeta => ({
+    label: t(`status.${status}`, t("status.unknown")),
+    tone: STATUS_TONES[status] ?? "scheduled",
+  });
 }
 
 /** Tugagan va bekor qilingan darsga qayta kirib bo'lmaydi. */
