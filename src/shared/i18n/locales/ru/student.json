@@ -22,5 +22,35 @@
     "retry": "Повторить",
     "title": "Мои результаты",
     "subtitle": "Задания и оценки по каждому предмету."
+  },
+  "groupWorkspace": {
+    "tabs": { "chat": "Чат", "lessons": "Уроки", "assignments": "Задания" },
+    "sendFailed": "Не удалось отправить сообщение",
+    "replyFallback": "Ответ",
+    "lessons": {
+      "eyebrow": "УРОКИ КУРСА",
+      "title": "Уроки"
+    },
+    "assignments": {
+      "eyebrow": "ЗАДАНИЯ КУРСА",
+      "title": "Задания",
+      "downloadAria": "Скачать файл задания",
+      "downloadFallback": "Скачать файл задания",
+      "scoreSuffix": "баллов",
+      "checkError": "Ошибка проверки",
+      "checking": "Проверяется…",
+      "openResultAria": "Открыть результат",
+      "overdueLabel": "Срок истёк",
+      "dueLabel": "Срок",
+      "noDue": "Без срока",
+      "missed": "Не сдано",
+      "submit": "Сдать",
+      "empty": "Заданий нет.",
+      "submitDialogDescription": "Загрузите файл задания (максимум 25 МБ).",
+      "chooseFile": "Выбрать файл",
+      "send": "Отправить",
+      "deadlinePassed": "Срок сдачи истёк",
+      "resultDialogTitle": "Результат вашего задания"
+    }
   }
 }

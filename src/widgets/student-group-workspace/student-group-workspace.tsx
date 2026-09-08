@@ -12,6 +12,7 @@ import {
 } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import { ChatHeader } from "@/modules/conversation";
 import { useCourse } from "@/modules/course";
 import { MessageComposer, MessageList } from "@/modules/message";
@@ -45,11 +46,14 @@ import { Button, Dialog, DialogContent } from "@/shared/ui/legacy";
 
 type TabId = "chat" | "lessons" | "assignments";
 
-const TABS: Array<{ id: TabId; label: string; icon: typeof BookOpen }> = [
-  { id: "chat", label: "Chat", icon: BookOpen },
-  { id: "lessons", label: "Darslar", icon: CalendarDays },
-  { id: "assignments", label: "Vazifalar", icon: ListChecks },
-];
+function useTabs(): Array<{ id: TabId; label: string; icon: typeof BookOpen }> {
+  const { t } = useTranslation("student");
+  return [
+    { id: "chat", label: t("groupWorkspace.tabs.chat"), icon: BookOpen },
+    { id: "lessons", label: t("groupWorkspace.tabs.lessons"), icon: CalendarDays },
+    { id: "assignments", label: t("groupWorkspace.tabs.assignments"), icon: ListChecks },
+  ];
+}
 
 const SPEAKING_ACCEPT = ".pdf,.png,.jpg,.jpeg,.webp,.docx,.mp3,.wav,.m4a,.ogg";
 const DEFAULT_ACCEPT = ".pdf,.png,.jpg,.jpeg,.webp,.docx";
@@ -77,6 +81,8 @@ export function StudentGroupWorkspace({
   retryMessage,
   currentUserId,
 }: StudentGroupWorkspaceProps) {
+  const { t } = useTranslation("student");
+  const TABS = useTabs();
   const [params, setParams] = useSearchParams();
   const [reply, setReply] = useState<ChatMessage | null>(null);
   const courseId = conversation.courseId;
@@ -109,11 +115,11 @@ export function StudentGroupWorkspace({
     try {
       await sendMessage.mutateAsync({
         ...payload,
-        replyTo: reply ? { author: reply.senderName || "Javob", text: reply.text } : undefined,
+        replyTo: reply ? { author: reply.senderName || t("groupWorkspace.replyFallback"), text: reply.text } : undefined,
       });
       setReply(null);
     } catch {
-      toast.error("Xabar yuborilmadi");
+      toast.error(t("groupWorkspace.sendFailed"));
     }
   }
 
@@ -206,6 +212,7 @@ function StudentLessons({
   loading: boolean;
   currentUserId?: string;
 }) {
+  const { t } = useTranslation("student");
   const navigate = useNavigate();
   const [rateTarget, setRateTarget] = useState<Lesson | null>(null);
   const { view, setView } = useLessonView();
@@ -220,8 +227,8 @@ function StudentLessons({
     <div className="group-panel student-readonly-panel">
       <div className="group-panel-head">
         <div>
-          <span>KURS DARSLARI</span>
-          <h2>Darslar</h2>
+          <span>{t("groupWorkspace.lessons.eyebrow")}</span>
+          <h2>{t("groupWorkspace.lessons.title")}</h2>
         </div>
         <div className="group-panel-tools">
           <LessonViewSwitch view={view} onChange={setView} />
@@ -251,12 +258,13 @@ function StudentLessons({
 
 // ─── Vazifalar ──────────────────────────────────────────────────────────────
 function AttachmentButton({ assignment }: { assignment: Assignment }) {
+  const { t } = useTranslation("student");
   const download = useDownloadAssignmentFile();
   if (!assignment.hasAttachment) return null;
   return (
     <button
       className="icon-button"
-      aria-label="Vazifa faylini yuklab olish"
+      aria-label={t("groupWorkspace.assignments.downloadAria")}
       disabled={download.isPending}
       onClick={() =>
         download.mutate({ id: assignment.id, fileName: assignment.attachmentName || assignment.title })
@@ -268,6 +276,7 @@ function AttachmentButton({ assignment }: { assignment: Assignment }) {
 }
 
 function AttachmentDownloadRow({ assignment }: { assignment: Assignment }) {
+  const { t } = useTranslation("student");
   const download = useDownloadAssignmentFile();
   return (
     <Button
@@ -277,7 +286,7 @@ function AttachmentDownloadRow({ assignment }: { assignment: Assignment }) {
         download.mutate({ id: assignment.id, fileName: assignment.attachmentName || assignment.title })
       }
     >
-      <Paperclip size={16} /> {assignment.attachmentName || "Vazifa faylini yuklab olish"}
+      <Paperclip size={16} /> {assignment.attachmentName || t("groupWorkspace.assignments.downloadFallback")}
     </Button>
   );
 }
@@ -289,6 +298,7 @@ function SubmissionStatus({
   initial: Submission;
   onOpen: (submission: Submission) => void;
 }) {
+  const { t } = useTranslation("student");
   const submission = useSubmission(initial.id, { poll: initial.status === "checking" });
   const data = submission.data ?? initial;
   const tone =
@@ -296,19 +306,19 @@ function SubmissionStatus({
   const label =
     data.status === "done" ? (
       <>
-        <CheckCircle2 size={15} /> {data.overallScore} ball
+        <CheckCircle2 size={15} /> {data.overallScore} {t("groupWorkspace.assignments.scoreSuffix")}
       </>
     ) : data.status === "error" ? (
-      "Tekshiruv xatosi"
+      t("groupWorkspace.assignments.checkError")
     ) : (
-      "Tekshirilmoqda…"
+      t("groupWorkspace.assignments.checking")
     );
 
   return (
     <button
       className={`grade-pill grade-pill--button${tone}`}
       onClick={() => onOpen(data)}
-      aria-label="Natijani ochish"
+      aria-label={t("groupWorkspace.assignments.openResultAria")}
     >
       {label}
     </button>
@@ -330,6 +340,7 @@ function useAssignmentHighlight(assignmentId: string | null, ready: boolean) {
 }
 
 function StudentAssignments({ assignments = [], loading }: { assignments?: Assignment[]; loading: boolean }) {
+  const { t } = useTranslation("student");
   const [selected, setSelected] = useState<Assignment | null>(null);
   /*
    * Bildirishnomadagi havola vazifani KO'RSATADI, lekin topshirish oynasini
@@ -354,8 +365,8 @@ function StudentAssignments({ assignments = [], loading }: { assignments?: Assig
     <div className="group-panel student-readonly-panel">
       <div className="group-panel-head">
         <div>
-          <span>KURS VAZIFALARI</span>
-          <h2>Vazifalar</h2>
+          <span>{t("groupWorkspace.assignments.eyebrow")}</span>
+          <h2>{t("groupWorkspace.assignments.title")}</h2>
         </div>
       </div>
       <div className="student-workspace-list">
@@ -378,8 +389,8 @@ function StudentAssignments({ assignments = [], loading }: { assignments?: Assig
                 <strong>{item.title}</strong>
                 <p className={overdue ? "is-overdue" : ""}>
                   {deadlineLabel
-                    ? `${overdue ? "Muddat tugagan" : "Muddat"}: ${deadlineLabel}`
-                    : "Muddat yo‘q"}
+                    ? `${overdue ? t("groupWorkspace.assignments.overdueLabel") : t("groupWorkspace.assignments.dueLabel")}: ${deadlineLabel}`
+                    : t("groupWorkspace.assignments.noDue")}
                 </p>
               </div>
               <AttachmentButton assignment={item} />
@@ -387,17 +398,17 @@ function StudentAssignments({ assignments = [], loading }: { assignments?: Assig
                 <SubmissionStatus initial={item.mySubmission} onOpen={setResultOf} />
               ) : overdue ? (
                 <span className="assignment-missed-pill" role="status">
-                  <CircleAlert size={15} /> Topshirilmagan
+                  <CircleAlert size={15} /> {t("groupWorkspace.assignments.missed")}
                 </span>
               ) : (
                 <Button size="sm" onClick={() => setSelected(item)}>
-                  Topshirish
+                  {t("groupWorkspace.assignments.submit")}
                 </Button>
               )}
             </article>
           );
         })}
-        {!assignments.length ? <p className="portal-muted">Vazifa yo‘q.</p> : null}
+        {!assignments.length ? <p className="portal-muted">{t("groupWorkspace.assignments.empty")}</p> : null}
       </div>
 
       <Dialog
@@ -410,7 +421,7 @@ function StudentAssignments({ assignments = [], loading }: { assignments?: Assig
         }}
       >
         {selected ? (
-          <DialogContent title={selected.title} description="Topshiriq faylini yuklang (maksimal 25 MB).">
+          <DialogContent title={selected.title} description={t("groupWorkspace.assignments.submitDialogDescription")}>
             <div className="homework-submit-dialog">
               <p>{selected.description}</p>
               {selected.hasAttachment ? <AttachmentDownloadRow assignment={selected} /> : null}
@@ -423,7 +434,7 @@ function StudentAssignments({ assignments = [], loading }: { assignments?: Assig
                   onChange={(event) => setFile(event.target.files?.[0] ?? null)}
                 />
                 <button type="button" onClick={() => fileRef.current?.click()}>
-                  <FileUp size={16} /> Fayl tanlash
+                  <FileUp size={16} /> {t("groupWorkspace.assignments.chooseFile")}
                 </button>
                 {file ? (
                   <span>
@@ -436,7 +447,7 @@ function StudentAssignments({ assignments = [], loading }: { assignments?: Assig
                 disabled={!file || isAssignmentOverdue(selected)}
                 onClick={() => {
                   if (isAssignmentOverdue(selected)) {
-                    toast.error("Topshirish muddati tugagan");
+                    toast.error(t("groupWorkspace.assignments.deadlinePassed"));
                     setSelected(null);
                     return;
                   }
@@ -448,7 +459,7 @@ function StudentAssignments({ assignments = [], loading }: { assignments?: Assig
                     .catch(() => undefined);
                 }}
               >
-                Yuborish
+                {t("groupWorkspace.assignments.send")}
               </Button>
             </div>
           </DialogContent>
@@ -463,7 +474,7 @@ function StudentAssignments({ assignments = [], loading }: { assignments?: Assig
           if (!open) setResultOf(null);
         }}
         canDownloadFile
-        title="Vazifangiz bo‘yicha natija"
+        title={t("groupWorkspace.assignments.resultDialogTitle")}
       />
     </div>
   );
