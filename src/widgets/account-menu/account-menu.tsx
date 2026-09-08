@@ -20,6 +20,7 @@ import {
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import {
   LoginHistoryDialog,
   useAuth,
@@ -36,17 +37,20 @@ import { Avatar, Button, Dialog, DialogContent, ThemeToggle } from "@/shared/ui/
 
 type MenuItemId = "profile" | "logins" | "notifications" | "settings";
 
-const MENU_ITEMS: Array<{
+function useMenuItems(): Array<{
   id: MenuItemId;
   label: string;
   description: string;
   icon: typeof UserRound;
-}> = [
-  { id: "profile", label: "Profil ma’lumotlari", description: "Shaxsiy ma’lumotlarni ko‘rish", icon: UserRound },
-  { id: "logins", label: "Kirishlar tarixi", description: "Qurilma va IP bo‘yicha jurnal", icon: History },
-  { id: "notifications", label: "Bildirishnomalar", description: "Xabarlar va eslatmalar", icon: Bell },
-  { id: "settings", label: "Sozlamalar", description: "Platforma parametrlari", icon: Settings },
-];
+}> {
+  const { t } = useTranslation("account");
+  return [
+    { id: "profile", label: t("menu.profile.label"), description: t("menu.profile.description"), icon: UserRound },
+    { id: "logins", label: t("menu.logins.label"), description: t("menu.logins.description"), icon: History },
+    { id: "notifications", label: t("menu.notifications.label"), description: t("menu.notifications.description"), icon: Bell },
+    { id: "settings", label: t("menu.settings.label"), description: t("menu.settings.description"), icon: Settings },
+  ];
+}
 
 export interface AccountMenuProps {
   open: boolean;
@@ -62,9 +66,13 @@ export function AccountMenu({
   onOpenChange,
   profileOpen,
   onProfileOpenChange,
-  roleLabel = "O‘qituvchi",
-  workspaceLabel = "Teacher workspace",
+  roleLabel,
+  workspaceLabel,
 }: AccountMenuProps) {
+  const { t } = useTranslation("account");
+  const menuItems = useMenuItems();
+  const resolvedRoleLabel = roleLabel ?? t("roleFallback");
+  const resolvedWorkspaceLabel = workspaceLabel ?? t("workspaceFallback");
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const updateProfile = useUpdateProfileMutation();
@@ -99,7 +107,7 @@ export function AccountMenu({
       setInboxOpen(true);
       return;
     }
-    toast.info("Sozlamalar ushbu qurilmada saqlanadi");
+    toast.info(t("settingsToast"));
   }
 
   async function handleLogout() {
@@ -111,9 +119,9 @@ export function AccountMenu({
     if (!value) return;
     try {
       await navigator.clipboard.writeText(value);
-      toast.success(`${label} nusxalandi`);
+      toast.success(t("toast.copied", { label }));
     } catch {
-      toast.error("Nusxalash amalga oshmadi");
+      toast.error(t("toast.copyFailed"));
     }
   }
 
@@ -122,9 +130,9 @@ export function AccountMenu({
     try {
       await updateProfile.mutateAsync(draft);
       setEditing(false);
-      toast.success("Profil yangilandi");
+      toast.success(t("toast.profileUpdated"));
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Profilni saqlab bo‘lmadi");
+      toast.error(error instanceof Error ? error.message : t("toast.profileSaveFailed"));
     }
   }
 
@@ -135,7 +143,7 @@ export function AccountMenu({
           <>
             <motion.button
               className="teacher-menu-overlay"
-              aria-label="Menyuni yopish"
+              aria-label={t("closeMenuAria")}
               onClick={() => onOpenChange(false)}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
@@ -147,34 +155,34 @@ export function AccountMenu({
               animate={{ x: 0, opacity: 1 }}
               exit={{ x: -20, opacity: 0 }}
               transition={{ type: "spring", stiffness: 360, damping: 32 }}
-              aria-label={`${roleLabel} menyusi`}
+              aria-label={t("menuAria", { role: resolvedRoleLabel })}
             >
               <div className="teacher-menu-top">
-                <button className="icon-button" onClick={() => onOpenChange(false)} aria-label="Yopish">
+                <button className="icon-button" onClick={() => onOpenChange(false)} aria-label={t("closeAria")}>
                   <X size={19} />
                 </button>
               </div>
               <button className="teacher-menu-profile" onClick={() => selectItem("profile")}>
-                <Avatar name={user?.name ?? roleLabel} tone="violet" size="lg" status="online" src={user?.avatarUrl} />
+                <Avatar name={user?.name ?? resolvedRoleLabel} tone="violet" size="lg" status="online" src={user?.avatarUrl} />
                 <span>
                   <strong>{user?.name}</strong>
-                  <small>{roleLabel} · Onlayn</small>
+                  <small>{resolvedRoleLabel} · {t("online")}</small>
                 </span>
                 <ChevronRight size={18} />
               </button>
               <div className="teacher-menu-theme">
-                <span>Mavzu</span>
+                <span>{t("theme")}</span>
                 <ThemeToggle />
               </div>
               <div className="teacher-menu-status">
                 <ShieldCheck size={17} />
                 <span>
-                  <strong>{workspaceLabel}</strong>
-                  <small>Sessiya xavfsiz saqlanmoqda</small>
+                  <strong>{resolvedWorkspaceLabel}</strong>
+                  <small>{t("sessionSecure")}</small>
                 </span>
               </div>
-              <nav className="teacher-menu-links" aria-label="Hisob bo‘limlari">
-                {MENU_ITEMS.map((item) => {
+              <nav className="teacher-menu-links" aria-label={t("sectionsAria")}>
+                {menuItems.map((item) => {
                   const Icon = item.icon;
                   return (
                     <button key={item.id} onClick={() => selectItem(item.id)}>
@@ -191,9 +199,9 @@ export function AccountMenu({
                 })}
               </nav>
               <button className="teacher-menu-logout" onClick={handleLogout}>
-                <LogOut size={18} /> Tizimdan chiqish
+                <LogOut size={18} /> {t("logout")}
               </button>
-              <p className="teacher-menu-version">EduTech · v1.0</p>
+              <p className="teacher-menu-version">{t("version")}</p>
             </motion.aside>
           </>
         )}
@@ -209,8 +217,8 @@ export function AccountMenu({
         {profileOpen && (
           <DialogContent
             className="teacher-profile-dialog"
-            title={`${roleLabel} profili`}
-            description="Backenddagi haqiqiy profil ma’lumotlari."
+            title={t("profileDialog.title", { role: resolvedRoleLabel })}
+            description={t("profileDialog.description")}
           >
             <motion.div
               className="teacher-profile-hero"
@@ -220,7 +228,7 @@ export function AccountMenu({
               {/* Rasmni faqat egasi almashtiradi (`PATCH /auth/me/`). */}
               <span className="info-avatar-slot">
                 <Avatar
-                  name={user?.name ?? roleLabel}
+                  name={user?.name ?? resolvedRoleLabel}
                   tone="violet"
                   size="lg"
                   status="online"
@@ -236,7 +244,7 @@ export function AccountMenu({
                     event.target.value = "";
                     if (!file) return;
                     updateAvatar.mutate(file, {
-                      onSuccess: () => toast.success("Profil rasmi yangilandi"),
+                      onSuccess: () => toast.success(t("toast.avatarUpdated")),
                       onError: (error: Error) => toast.error(error.message),
                     });
                   }}
@@ -244,7 +252,7 @@ export function AccountMenu({
                 <button
                   type="button"
                   className="info-avatar-edit"
-                  aria-label="Profil rasmini o‘zgartirish"
+                  aria-label={t("profileDialog.changeAvatarAria")}
                   disabled={updateAvatar.isPending}
                   onClick={() => avatarRef.current?.click()}
                 >
@@ -256,9 +264,9 @@ export function AccountMenu({
                 </button>
               </span>
               <h3>{user?.name}</h3>
-              <p>{roleLabel}</p>
+              <p>{resolvedRoleLabel}</p>
               <span className="teacher-profile-verified">
-                <ShieldCheck size={14} /> Tasdiqlangan profil
+                <ShieldCheck size={14} /> {t("profileDialog.verified")}
               </span>
             </motion.div>
 
@@ -266,7 +274,7 @@ export function AccountMenu({
               <form className="dialog-form" onSubmit={saveProfile}>
                 <div className="register-name-grid">
                   <label className="field-group">
-                    <span>Ism</span>
+                    <span>{t("profileDialog.firstName")}</span>
                     <div className="input-shell">
                       <input
                         value={draft.firstName}
@@ -276,7 +284,7 @@ export function AccountMenu({
                     </div>
                   </label>
                   <label className="field-group">
-                    <span>Familiya</span>
+                    <span>{t("profileDialog.lastName")}</span>
                     <div className="input-shell">
                       <input
                         value={draft.lastName}
@@ -287,7 +295,7 @@ export function AccountMenu({
                   </label>
                 </div>
                 <label className="field-group">
-                  <span>Login</span>
+                  <span>{t("profileDialog.username")}</span>
                   <div className="input-shell">
                     <input
                       value={draft.username}
@@ -298,12 +306,9 @@ export function AccountMenu({
                   </div>
                 </label>
                 {/* Login yagona bo'lishi shart — band bo'lsa backend 400 beradi. */}
-                <p className="portal-muted">
-                  Login yagona bo‘lishi kerak. O‘zgartirsangiz, keyingi safar shu login bilan
-                  kirasiz.
-                </p>
+                <p className="portal-muted">{t("profileDialog.usernameNote")}</p>
                 <label className="field-group">
-                  <span>Telefon</span>
+                  <span>{t("profileDialog.phone")}</span>
                   <div className="input-shell">
                     <input
                       type="tel"
@@ -317,29 +322,29 @@ export function AccountMenu({
                 ) : null}
                 <div className="dialog-actions">
                   <Button type="button" variant="secondary" onClick={() => setEditing(false)}>
-                    Bekor
+                    {t("profileDialog.cancel")}
                   </Button>
                   <Button type="submit" loading={updateProfile.isPending}>
-                    Saqlash
+                    {t("profileDialog.save")}
                   </Button>
                 </div>
               </form>
             ) : (
               <>
                 <div className="teacher-profile-details">
-                  <button onClick={() => copyValue("Username", `@${user?.username}`)}>
+                  <button onClick={() => copyValue(t("toast.usernameLabelShort"), `@${user?.username}`)}>
                     <UserRound size={18} />
                     <span>
-                      <small>Username · nusxalash</small>
+                      <small>{t("profileDialog.usernameLabel")}</small>
                       <strong>@{user?.username}</strong>
                     </span>
                     <Copy size={15} />
                   </button>
                   {user?.phone ? (
-                    <button onClick={() => copyValue("Telefon", user.phone)}>
+                    <button onClick={() => copyValue(t("toast.phoneLabelShort"), user.phone)}>
                       <Phone size={18} />
                       <span>
-                        <small>Telefon · nusxalash</small>
+                        <small>{t("profileDialog.phoneLabel")}</small>
                         <strong>{user.phone}</strong>
                       </span>
                       <Copy size={15} />
@@ -351,18 +356,17 @@ export function AccountMenu({
                   <div className="teacher-profile-certificates">
                     {user.isApproved === false ? (
                       <div className="form-alert">
-                        <ShieldAlert size={15} /> Hisobingiz hali administrator tomonidan
-                        tasdiqlanmagan — kurs va dars yaratish vaqtincha yopiq.
+                        <ShieldAlert size={15} /> {t("profileDialog.notApproved")}
                       </div>
                     ) : null}
                     {user.ratingCount ? (
                       <div className="teacher-profile-rating">
-                        <span>Dars reytingi</span>
+                        <span>{t("profileDialog.ratingLabel")}</span>
                         <RatingSummary average={user.avgRating} count={user.ratingCount} />
                       </div>
                     ) : null}
                     <div className="teacher-profile-certificates-head">
-                      <span>Sertifikatlar</span>
+                      <span>{t("profileDialog.certificates")}</span>
                       <button
                         type="button"
                         disabled={uploadCertificate.isPending}
@@ -373,7 +377,7 @@ export function AccountMenu({
                         ) : (
                           <Award size={14} />
                         )}
-                        Yuklash
+                        {t("profileDialog.upload")}
                       </button>
                       <input
                         ref={certificateRef}
@@ -393,11 +397,13 @@ export function AccountMenu({
                         <div key={certificate.id} className="teacher-profile-certificate">
                           <a href={certificate.file} target="_blank" rel="noreferrer">
                             <FileText size={16} />
-                            <span>{certificate.title || "Sertifikat"}</span>
+                            <span>{certificate.title || t("profileDialog.certificateFallback")}</span>
                           </a>
                           <button
                             type="button"
-                            aria-label={`${certificate.title || "Sertifikat"}ni o‘chirish`}
+                            aria-label={t("profileDialog.deleteCertificateAria", {
+                              title: certificate.title || t("profileDialog.certificateFallback"),
+                            })}
                             disabled={deleteCertificate.isPending}
                             onClick={() => deleteCertificate.mutate(certificate.id)}
                           >
@@ -406,7 +412,7 @@ export function AccountMenu({
                         </div>
                       ))}
                       {!user.certificates.length ? (
-                        <p className="portal-muted">Hali sertifikat yuklanmagan.</p>
+                        <p className="portal-muted">{t("profileDialog.noCertificates")}</p>
                       ) : null}
                     </div>
                   </div>
@@ -424,7 +430,7 @@ export function AccountMenu({
                     setEditing(true);
                   }}
                 >
-                  Profilni tahrirlash
+                  {t("profileDialog.editButton")}
                 </Button>
               </>
             )}

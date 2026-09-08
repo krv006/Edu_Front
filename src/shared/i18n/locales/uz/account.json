@@ -1,0 +1,52 @@
+{
+  "menu": {
+    "profile": { "label": "Profil ma'lumotlari", "description": "Shaxsiy ma'lumotlarni ko'rish" },
+    "logins": { "label": "Kirishlar tarixi", "description": "Qurilma va IP bo'yicha jurnal" },
+    "notifications": { "label": "Bildirishnomalar", "description": "Xabarlar va eslatmalar" },
+    "settings": { "label": "Sozlamalar", "description": "Platforma parametrlari" }
+  },
+  "roleFallback": "O'qituvchi",
+  "workspaceFallback": "Teacher workspace",
+  "settingsToast": "Sozlamalar ushbu qurilmada saqlanadi",
+  "closeMenuAria": "Menyuni yopish",
+  "closeAria": "Yopish",
+  "menuAria": "{{role}} menyusi",
+  "sectionsAria": "Hisob bo'limlari",
+  "online": "Onlayn",
+  "theme": "Mavzu",
+  "sessionSecure": "Sessiya xavfsiz saqlanmoqda",
+  "logout": "Tizimdan chiqish",
+  "version": "EduTech · v1.0",
+  "profileDialog": {
+    "title": "{{role}} profili",
+    "description": "Backenddagi haqiqiy profil ma'lumotlari.",
+    "verified": "Tasdiqlangan profil",
+    "changeAvatarAria": "Profil rasmini o'zgartirish",
+    "firstName": "Ism",
+    "lastName": "Familiya",
+    "username": "Login",
+    "usernameNote": "Login yagona bo'lishi kerak. O'zgartirsangiz, keyingi safar shu login bilan kirasiz.",
+    "phone": "Telefon",
+    "cancel": "Bekor",
+    "save": "Saqlash",
+    "usernameLabel": "Username · nusxalash",
+    "phoneLabel": "Telefon · nusxalash",
+    "notApproved": "Hisobingiz hali administrator tomonidan tasdiqlanmagan — kurs va dars yaratish vaqtincha yopiq.",
+    "ratingLabel": "Dars reytingi",
+    "certificates": "Sertifikatlar",
+    "upload": "Yuklash",
+    "certificateFallback": "Sertifikat",
+    "deleteCertificateAria": "{{title}}ni o'chirish",
+    "noCertificates": "Hali sertifikat yuklanmagan.",
+    "editButton": "Profilni tahrirlash"
+  },
+  "toast": {
+    "copied": "{{label}} nusxalandi",
+    "copyFailed": "Nusxalash amalga oshmadi",
+    "avatarUpdated": "Profil rasmi yangilandi",
+    "profileUpdated": "Profil yangilandi",
+    "profileSaveFailed": "Profilni saqlab bo'lmadi",
+    "usernameLabelShort": "Username",
+    "phoneLabelShort": "Telefon"
+  }
+}

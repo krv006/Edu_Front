@@ -1,0 +1,52 @@
+{
+  "menu": {
+    "profile": { "label": "Данные профиля", "description": "Просмотр личных данных" },
+    "logins": { "label": "История входов", "description": "Журнал по устройствам и IP" },
+    "notifications": { "label": "Уведомления", "description": "Сообщения и напоминания" },
+    "settings": { "label": "Настройки", "description": "Параметры платформы" }
+  },
+  "roleFallback": "Учитель",
+  "workspaceFallback": "Рабочее пространство учителя",
+  "settingsToast": "Настройки сохраняются на этом устройстве",
+  "closeMenuAria": "Закрыть меню",
+  "closeAria": "Закрыть",
+  "menuAria": "Меню — {{role}}",
+  "sectionsAria": "Разделы аккаунта",
+  "online": "В сети",
+  "theme": "Тема",
+  "sessionSecure": "Сессия сохраняется безопасно",
+  "logout": "Выйти из системы",
+  "version": "EduTech · v1.0",
+  "profileDialog": {
+    "title": "Профиль — {{role}}",
+    "description": "Реальные данные профиля с сервера.",
+    "verified": "Профиль подтверждён",
+    "changeAvatarAria": "Изменить фото профиля",
+    "firstName": "Имя",
+    "lastName": "Фамилия",
+    "username": "Логин",
+    "usernameNote": "Логин должен быть уникальным. Если измените его, в следующий раз входите с новым логином.",
+    "phone": "Телефон",
+    "cancel": "Отмена",
+    "save": "Сохранить",
+    "usernameLabel": "Username · копировать",
+    "phoneLabel": "Телефон · копировать",
+    "notApproved": "Ваш аккаунт ещё не подтверждён администратором — создание курсов и уроков временно недоступно.",
+    "ratingLabel": "Рейтинг уроков",
+    "certificates": "Сертификаты",
+    "upload": "Загрузить",
+    "certificateFallback": "Сертификат",
+    "deleteCertificateAria": "Удалить {{title}}",
+    "noCertificates": "Сертификаты пока не загружены.",
+    "editButton": "Редактировать профиль"
+  },
+  "toast": {
+    "copied": "{{label}} скопирован",
+    "copyFailed": "Не удалось скопировать",
+    "avatarUpdated": "Фото профиля обновлено",
+    "profileUpdated": "Профиль обновлён",
+    "profileSaveFailed": "Не удалось сохранить профиль",
+    "usernameLabelShort": "Username",
+    "phoneLabelShort": "Телефон"
+  }
+}

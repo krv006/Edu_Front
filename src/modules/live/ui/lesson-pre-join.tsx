@@ -2,6 +2,8 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { usePreviewTracks } from "@livekit/components-react";
 import { Track, type LocalVideoTrack } from "livekit-client";
 import { Mic, MicOff, Video, VideoOff } from "lucide-react";
+import { Trans, useTranslation } from "react-i18next";
+import { i18n } from "@/shared/i18n";
 import type { Lesson } from "@/shared/types";
 import { Avatar, Button } from "@/shared/ui/legacy";
 
@@ -58,6 +60,7 @@ export function LessonPreJoin({
    * ovozni ataylab yoqsin. Kutilmaganda efirga tushib qolish — eng yoqimsiz
    * holat, ayniqsa bir sinf bola oldida.
    */
+  const { t } = useTranslation("live");
   const [micOn, setMicOn] = useState(false);
   const [cameraOn, setCameraOn] = useState(false);
   const [deviceError, setDeviceError] = useState<string | null>(null);
@@ -76,7 +79,7 @@ export function LessonPreJoin({
   const handleDeviceError = useCallback(
     // Xabari bo'sh xato ham ko'rinishi kerak — aks holda tugmalar sababsiz
     // ishlamayotgandek tuyuladi.
-    (error: Error) => setDeviceError(error.message || "qurilma topilmadi"),
+    (error: Error) => setDeviceError(error.message || i18n.t("live:preJoin.deviceErrorFallback")),
     []
   );
   const trackOptions = useMemo(() => ({ audio: micOn, video: cameraOn }), [micOn, cameraOn]);
@@ -121,7 +124,7 @@ export function LessonPreJoin({
     }
 
     if (typeof navigator.mediaDevices?.getDisplayMedia !== "function") {
-      setScreenShareError("Bu brauzer ekran ulashishni qo‘llamaydi — boshqa brauzerdan urinib ko‘ring.");
+      setScreenShareError(t("preJoin.screenShareUnsupported"));
       return;
     }
 
@@ -164,16 +167,12 @@ export function LessonPreJoin({
       });
       if (screenStream.getAudioTracks().length === 0) {
         screenStream.getTracks().forEach((track) => track.stop());
-        setScreenShareError(
-          "Ekran tovushi ulanmadi — ochilgan oynada \"Tovushni ham ulashish\" (Share audio / Share tab audio) belgisini albatta yoqing. Qayta urinib ko‘ring."
-        );
+        setScreenShareError(t("preJoin.screenShareNoAudio"));
         return;
       }
       onJoin({ micOn, cameraOn, screenStream });
     } catch {
-      setScreenShareError(
-        "Ekran ulashishga ruxsat berilmadi — dars video yozuvi uchun bu shart. Qayta urinib ko‘ring."
-      );
+      setScreenShareError(t("preJoin.screenSharePermissionDenied"));
     } finally {
       setJoining(false);
     }
@@ -198,8 +197,8 @@ export function LessonPreJoin({
             <video ref={videoRef} muted playsInline autoPlay />
           ) : (
             <div className="pre-join-placeholder">
-              <Avatar name={userName || "Siz"} size="lg" />
-              <p>Kamera o‘chiq</p>
+              <Avatar name={userName || t("preJoin.you")} size="lg" />
+              <p>{t("preJoin.cameraOff")}</p>
             </div>
           )}
 
@@ -210,9 +209,9 @@ export function LessonPreJoin({
               type="button"
               className={micOn ? "" : "is-off"}
               aria-pressed={micOn}
-              aria-label={micOn ? "Mikrofonni o‘chirish" : "Mikrofonni yoqish"}
+              aria-label={micOn ? t("preJoin.muteMicAria") : t("preJoin.unmuteMicAria")}
               disabled={!micAllowed}
-              title={micAllowed ? undefined : "Mikrofon uchun darsda ruxsat so‘raysiz"}
+              title={micAllowed ? undefined : t("preJoin.micDisabledTitle")}
               onClick={toggleMic}
             >
               {micOn ? <Mic size={19} /> : <MicOff size={19} />}
@@ -221,7 +220,7 @@ export function LessonPreJoin({
               type="button"
               className={cameraOn ? "" : "is-off"}
               aria-pressed={cameraOn}
-              aria-label={cameraOn ? "Kamerani o‘chirish" : "Kamerani yoqish"}
+              aria-label={cameraOn ? t("preJoin.muteCameraAria") : t("preJoin.unmuteCameraAria")}
               onClick={toggleCamera}
             >
               {cameraOn ? <Video size={19} /> : <VideoOff size={19} />}
@@ -230,14 +229,12 @@ export function LessonPreJoin({
         </div>
 
         <div className="pre-join-info">
-          <span className="portal-eyebrow">DARSGA KIRISH</span>
+          <span className="portal-eyebrow">{t("preJoin.eyebrow")}</span>
           <h1>{lesson.title}</h1>
           <p>{lesson.courseTitle}</p>
 
           {deviceError ? (
-            <div className="form-alert">
-              Qurilmaga ulanib bo‘lmadi: {deviceError}. Brauzer ruxsatini tekshiring.
-            </div>
+            <div className="form-alert">{t("preJoin.deviceErrorMessage", { error: deviceError })}</div>
           ) : null}
 
           {/*
@@ -246,10 +243,7 @@ export function LessonPreJoin({
             xatosi emas. Shuning uchun ogohlantirish, oddiy izoh emas.
           */}
           {!micAllowed && isTeacher ? (
-            <div className="form-alert">
-              Server tokenida mikrofon ruxsati yo‘q — darsda gapira olmaysiz. Bu kutilmagan
-              holat, texnik jamoaga xabar bering.
-            </div>
+            <div className="form-alert">{t("preJoin.micTokenMissing")}</div>
           ) : null}
 
           {screenShareError ? (
@@ -260,31 +254,26 @@ export function LessonPreJoin({
 
           {isTeacher ? (
             <p className="portal-muted">
-              Dars <strong>yozib olinishi</strong> va o‘quvchilarga <strong>jonli ko‘rsatilishi</strong>{" "}
-              uchun brauzer ekran ulashishni so‘raydi — ochilgan oynada istalgan bo‘limni
-              (masalan “Chrome tab”) tanlang va <strong>“Tovushni ham ulashish”</strong> (Share
-              audio) belgisini <strong>albatta yoqing</strong> — aks holda ekrandagi tovush
-              (masalan video/musiqa) na o‘quvchilarga, na yozuvga tushmaydi. Darsga kirishning
-              o‘zida yozuv HAM, o‘quvchilarga ko‘rsatish HAM darhol boshlanadi — qayta tugma
-              bosish shart emas. Ruxsat berilmasa yoki tovush ulanmasa, darsga kira olmaysiz —
-              qayta urinib ko‘rasiz.
+              <Trans
+                t={t}
+                i18nKey="preJoin.teacherScreenShareNote"
+                components={[<strong key="0" />, <strong key="1" />, <strong key="2" />, <strong key="3" />]}
+              />
             </p>
           ) : null}
 
           <p className="portal-muted">
-            {micOn ? "Mikrofon yoqilgan" : "Mikrofon o‘chiq"} ·{" "}
-            {cameraOn ? "kamera yoqilgan" : "kamera o‘chiq"}.{" "}
-            {micAllowed || isTeacher
-              ? "Darsga kirgandan keyin ham o‘zgartirishingiz mumkin."
-              : "Darsda gapirish uchun o‘qituvchidan ruxsat so‘raysiz."}
+            {micOn ? t("preJoin.micOn") : t("preJoin.micOff")} ·{" "}
+            {cameraOn ? t("preJoin.cameraOnSuffix") : t("preJoin.cameraOffSuffix")}.{" "}
+            {micAllowed || isTeacher ? t("preJoin.canChangeLater") : t("preJoin.needPermission")}
           </p>
 
           <div className="pre-join-actions">
             <Button variant="secondary" onClick={onCancel} disabled={joining}>
-              Bekor qilish
+              {t("preJoin.cancel")}
             </Button>
             <Button onClick={join} loading={joining}>
-              Darsga kirish
+              {t("preJoin.join")}
             </Button>
           </div>
         </div>
