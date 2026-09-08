@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { CheckCircle2, Clock3, XCircle } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import type { QuizAttemptResult, QuizDetail } from "@/shared/types";
 import { Button, Dialog, DialogContent } from "@/shared/ui/legacy";
 import { useQuiz, useSubmitQuizAttempt } from "../model/quiz.queries";
@@ -16,6 +17,7 @@ export interface QuizAttemptDialogProps {
  * ochiladi, shu bilan oldindan ko'rib qo'yish imkonsiz.
  */
 export function QuizAttemptDialog({ quizId, open, onOpenChange }: QuizAttemptDialogProps) {
+  const { t } = useTranslation("quiz");
   const quiz = useQuiz(open ? quizId : null);
   const submit = useSubmitQuizAttempt();
   const [answers, setAnswers] = useState<Record<string, string | null>>({});
@@ -46,13 +48,13 @@ export function QuizAttemptDialog({ quizId, open, onOpenChange }: QuizAttemptDia
       {open ? (
         <DialogContent
           className="quiz-attempt-dialog"
-          title={quiz.data?.title ?? "Test"}
-          description={quiz.data?.description || "Savollarga javob bering — vaqt chegarasi yo‘q."}
+          title={quiz.data?.title ?? t("attemptDialog.defaultTitle")}
+          description={quiz.data?.description || t("attemptDialog.defaultDescription")}
         >
           {!quiz.data ? (
             <div className="hw-result-state">
               <Clock3 size={26} />
-              <p>Yuklanmoqda…</p>
+              <p>{t("attemptDialog.loading")}</p>
             </div>
           ) : result ? (
             <QuizResultView
@@ -68,14 +70,14 @@ export function QuizAttemptDialog({ quizId, open, onOpenChange }: QuizAttemptDia
               {quiz.data.questions.map((question, index) => (
                 <div key={question.id} className="quiz-attempt-question">
                   <div className="quiz-attempt-question-head">
-                    <span>{index + 1}-savol</span>
-                    <b>{question.points} ball</b>
+                    <span>{t("attemptDialog.questionNumber", { number: index + 1 })}</span>
+                    <b>{t("attemptDialog.pointsSuffix", { count: question.points })}</b>
                   </div>
                   <p>{question.text}</p>
                   <div
                     className="quiz-option-list"
                     role="radiogroup"
-                    aria-label={`${index + 1}-savol javoblari`}
+                    aria-label={t("attemptDialog.answersAria", { number: index + 1 })}
                   >
                     {question.options.map((option) => {
                       const active = answers[question.id] === option.id;
@@ -100,10 +102,10 @@ export function QuizAttemptDialog({ quizId, open, onOpenChange }: QuizAttemptDia
               ))}
               <div className="dialog-actions">
                 <Button variant="secondary" onClick={() => handleOpenChange(false)}>
-                  Yopish
+                  {t("attemptDialog.close")}
                 </Button>
                 <Button loading={submit.isPending} onClick={() => submitAttempt(quiz.data)}>
-                  Topshirish
+                  {t("attemptDialog.submit")}
                 </Button>
               </div>
             </div>
@@ -123,6 +125,7 @@ function QuizResultView({
   onRetry: () => void;
   onClose: () => void;
 }) {
+  const { t } = useTranslation("quiz");
   return (
     <div className="quiz-result">
       <div className="quiz-result-score">
@@ -130,7 +133,7 @@ function QuizResultView({
           {result.score}
           <small>/{result.maxScore}</small>
         </strong>
-        <span>Natija</span>
+        <span>{t("attemptDialog.result")}</span>
       </div>
       <div className="quiz-attempt-question-list">
         {result.answers.map((answer, index) => (
@@ -144,9 +147,15 @@ function QuizResultView({
                 {index + 1}. {answer.questionText}
               </p>
             </div>
-            <small>Sizning javobingiz: {answer.selectedOptionText ?? "Javob berilmagan"}</small>
+            <small>
+              {t("attemptDialog.yourAnswer", {
+                answer: answer.selectedOptionText ?? t("attemptDialog.notAnswered"),
+              })}
+            </small>
             {!answer.isCorrect && answer.correctOption ? (
-              <small className="quiz-result-correct">To‘g‘ri javob: {answer.correctOption.text}</small>
+              <small className="quiz-result-correct">
+                {t("attemptDialog.correctAnswer", { answer: answer.correctOption.text })}
+              </small>
             ) : null}
           </div>
         ))}
@@ -154,9 +163,9 @@ function QuizResultView({
       {/* Cheklanmagan qayta urinish — o'quvchi shu yerdan darhol qayta boshlashi mumkin. */}
       <div className="dialog-actions">
         <Button variant="secondary" onClick={onRetry}>
-          Qayta urinish
+          {t("attemptDialog.retry")}
         </Button>
-        <Button onClick={onClose}>Yopish</Button>
+        <Button onClick={onClose}>{t("attemptDialog.close")}</Button>
       </div>
     </div>
   );

@@ -1,6 +1,7 @@
 import { useMemo, useRef, useState, type FormEvent } from "react";
 import { motion } from "framer-motion";
 import { BookOpen, CalendarDays, Plus, Trash2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { useLessons } from "@/modules/lesson";
 import { Button, Dialog, DialogContent } from "@/shared/ui/legacy";
 import { DatePicker, SelectPicker } from "@/shared/ui/legacy/form-pickers";
@@ -43,6 +44,7 @@ function emptyQuestion(key: string, option1: string, option2: string): QuizQuest
 }
 
 export function AddQuizDialog({ open, onOpenChange, onCreate, courses }: AddQuizDialogProps) {
+  const { t } = useTranslation("quiz");
   const nextKey = useRef(0);
   function newKey() {
     nextKey.current += 1;
@@ -74,8 +76,8 @@ export function AddQuizDialog({ open, onOpenChange, onCreate, courses }: AddQuiz
       .filter((lesson) => lesson.status === "finished")
       .sort((a, b) => b.startsAt.localeCompare(a.startsAt))
       .map((lesson) => ({ value: lesson.id, label: `${lesson.title} · ${lesson.date}` }));
-    return [{ value: "", label: "Darsga bog‘lanmagan" }, ...finished];
-  }, [lessons.data]);
+    return [{ value: "", label: t("createDialog.notLinkedToLesson") }, ...finished];
+  }, [lessons.data, t]);
 
   function reset() {
     setTitle("");
@@ -140,15 +142,15 @@ export function AddQuizDialog({ open, onOpenChange, onCreate, courses }: AddQuiz
   }
 
   function validate(): string | null {
-    if (!courseId) return "Kursni tanlang";
-    if (!title.trim()) return "Test nomini kiriting";
-    if (!questions.length) return "Kamida bitta savol qo‘shing";
+    if (!courseId) return t("createDialog.validation.chooseCourse");
+    if (!title.trim()) return t("createDialog.validation.enterTitle");
+    if (!questions.length) return t("createDialog.validation.addQuestion");
     for (const question of questions) {
-      if (!question.text.trim()) return "Har bir savol matni to‘ldirilishi kerak";
-      if (question.options.length < 2) return "Har bir savolda kamida 2 ta variant bo‘lishi kerak";
+      if (!question.text.trim()) return t("createDialog.validation.questionTextRequired");
+      if (question.options.length < 2) return t("createDialog.validation.minTwoOptions");
       if (question.options.some((option) => !option.text.trim()))
-        return "Barcha variant matnlari to‘ldirilishi kerak";
-      if (!question.correctKey) return "Har bir savolda to‘g‘ri javobni belgilang";
+        return t("createDialog.validation.allOptionsRequired");
+      if (!question.correctKey) return t("createDialog.validation.markCorrect");
     }
     return null;
   }
@@ -185,8 +187,8 @@ export function AddQuizDialog({ open, onOpenChange, onCreate, courses }: AddQuiz
       {open ? (
         <DialogContent
           className="group-action-dialog quiz-dialog"
-          title="Yangi test"
-          description="Faqat variantli savollar — baholash avtomatik va darhol."
+          title={t("createDialog.title")}
+          description={t("createDialog.description")}
         >
           <motion.form
             className="group-action-form"
@@ -195,7 +197,7 @@ export function AddQuizDialog({ open, onOpenChange, onCreate, courses }: AddQuiz
             animate={{ opacity: 1, y: 0 }}
           >
             <SelectPicker
-              label="Qaysi kurs uchun"
+              label={t("createDialog.courseLabel")}
               icon={BookOpen}
               value={courseId}
               onChange={(value) => {
@@ -205,34 +207,34 @@ export function AddQuizDialog({ open, onOpenChange, onCreate, courses }: AddQuiz
               options={courseOptions}
             />
             <label>
-              <span>Test nomi</span>
+              <span>{t("createDialog.titleLabel")}</span>
               <input
                 autoFocus
                 value={title}
                 onChange={(event) => setTitle(event.target.value)}
-                placeholder="Masalan: 1-bob testi"
+                placeholder={t("createDialog.titlePlaceholder")}
               />
             </label>
             <label>
-              <span>Tavsif — ixtiyoriy</span>
+              <span>{t("createDialog.descriptionLabel")}</span>
               <textarea
                 value={description}
                 onChange={(event) => setDescription(event.target.value)}
-                placeholder="Test haqida qisqacha izoh"
+                placeholder={t("createDialog.descriptionPlaceholder")}
                 rows={2}
               />
             </label>
 
             <div className="form-grid-two">
               <DatePicker
-                label="Topshirish muddati · ixtiyoriy"
+                label={t("createDialog.dueLabel")}
                 value={dueAt}
                 onChange={setDueAt}
                 includeTime
                 optional
               />
               <DatePicker
-                label="Ochilish vaqti · ixtiyoriy"
+                label={t("createDialog.opensLabel")}
                 value={opensAt}
                 onChange={setOpensAt}
                 includeTime
@@ -240,7 +242,7 @@ export function AddQuizDialog({ open, onOpenChange, onCreate, courses }: AddQuiz
               />
             </div>
             <SelectPicker
-              label="Qaysi dars uchun"
+              label={t("createDialog.lessonLabel")}
               icon={CalendarDays}
               value={lessonId}
               onChange={setLessonId}
@@ -252,15 +254,15 @@ export function AddQuizDialog({ open, onOpenChange, onCreate, courses }: AddQuiz
                 <div key={question.key} className="quiz-question-card">
                   <div className="quiz-question-head">
                     <label>
-                      <span>{index + 1}-savol</span>
+                      <span>{t("createDialog.questionNumber", { number: index + 1 })}</span>
                       <input
                         value={question.text}
                         onChange={(event) => updateQuestion(question.key, { text: event.target.value })}
-                        placeholder="Savol matni"
+                        placeholder={t("createDialog.optionPlaceholder")}
                       />
                     </label>
                     <label>
-                      <span>Ball</span>
+                      <span>{t("createDialog.pointsLabel")}</span>
                       <input
                         inputMode="numeric"
                         value={question.points}
@@ -274,7 +276,7 @@ export function AddQuizDialog({ open, onOpenChange, onCreate, courses }: AddQuiz
                     <button
                       type="button"
                       className="icon-button destructive-icon"
-                      aria-label={`${index + 1}-savolni o‘chirish`}
+                      aria-label={t("createDialog.deleteQuestionAria", { number: index + 1 })}
                       disabled={questions.length <= 1}
                       onClick={() => removeQuestion(question.key)}
                     >
@@ -285,7 +287,7 @@ export function AddQuizDialog({ open, onOpenChange, onCreate, courses }: AddQuiz
                   <div
                     className="quiz-option-list"
                     role="radiogroup"
-                    aria-label={`${index + 1}-savol uchun to‘g‘ri javob`}
+                    aria-label={t("createDialog.correctAnswerGroupAria", { number: index + 1 })}
                   >
                     {question.options.map((option) => {
                       const active = question.correctKey === option.key;
@@ -295,7 +297,7 @@ export function AddQuizDialog({ open, onOpenChange, onCreate, courses }: AddQuiz
                             type="button"
                             role="radio"
                             aria-checked={active}
-                            aria-label="To‘g‘ri javob sifatida belgilash"
+                            aria-label={t("createDialog.markCorrectAria")}
                             className={`quiz-option-radio ${active ? "is-active" : ""}`}
                             onClick={() => updateQuestion(question.key, { correctKey: option.key })}
                           />
@@ -304,12 +306,12 @@ export function AddQuizDialog({ open, onOpenChange, onCreate, courses }: AddQuiz
                             onChange={(event) =>
                               updateOptionText(question.key, option.key, event.target.value)
                             }
-                            placeholder="Variant matni"
+                            placeholder={t("createDialog.optionPlaceholder")}
                           />
                           <button
                             type="button"
                             className="icon-button destructive-icon"
-                            aria-label="Variantni o‘chirish"
+                            aria-label={t("createDialog.deleteOptionAria")}
                             disabled={question.options.length <= 2}
                             onClick={() => removeOption(question.key, option.key)}
                           >
@@ -324,12 +326,12 @@ export function AddQuizDialog({ open, onOpenChange, onCreate, courses }: AddQuiz
                     className="quiz-add-option"
                     onClick={() => addOption(question.key)}
                   >
-                    <Plus size={13} /> Variant qo‘shish
+                    <Plus size={13} /> {t("createDialog.addOption")}
                   </button>
                 </div>
               ))}
               <button type="button" className="quiz-add-question" onClick={addQuestion}>
-                <Plus size={14} /> Savol qo‘shish
+                <Plus size={14} /> {t("createDialog.addQuestion")}
               </button>
             </div>
 
@@ -337,9 +339,9 @@ export function AddQuizDialog({ open, onOpenChange, onCreate, courses }: AddQuiz
 
             <div className="dialog-actions">
               <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>
-                Bekor qilish
+                {t("createDialog.cancel")}
               </Button>
-              <Button type="submit">Test yaratish</Button>
+              <Button type="submit">{t("createDialog.create")}</Button>
             </div>
           </motion.form>
         </DialogContent>

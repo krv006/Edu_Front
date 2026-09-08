@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useState } from "react";
 import { FileQuestion, History, Plus, Trash2 } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { useSearchParams } from "react-router-dom";
 import { motion } from "framer-motion";
+import { toIntlLocale } from "@/shared/i18n";
 import { useCourses } from "@/modules/course";
 import {
   AddQuizDialog,
@@ -24,6 +26,7 @@ function useQuizHighlight(quizId: string | null, ready: boolean) {
 }
 
 export function TeacherQuizzesPage() {
+  const { t, i18n } = useTranslation("quiz");
   const courses = useCourses();
   const quizzes = useQuizzes(null);
   const create = useCreateQuiz();
@@ -44,14 +47,14 @@ export function TeacherQuizzesPage() {
     [courses.data]
   );
 
-  if (quizzes.isLoading) return <LoadingFallback label="Testlar yuklanmoqda" />;
+  if (quizzes.isLoading) return <LoadingFallback label={t("teacherPage.loading")} />;
   if (quizzes.isError)
     return (
       <RouteState
-        eyebrow="TESTLAR"
-        title="Testlarni yuklab bo‘lmadi"
+        eyebrow={t("teacherPage.eyebrow")}
+        title={t("teacherPage.loadError")}
         description={quizzes.error?.message}
-        actionLabel="Qayta urinish"
+        actionLabel={t("teacherPage.retry")}
         onAction={quizzes.refetch}
       />
     );
@@ -62,12 +65,12 @@ export function TeacherQuizzesPage() {
     <div className="portal-page">
       <div className="portal-page-heading">
         <div>
-          <span className="portal-eyebrow">BARCHA KURSLAR</span>
-          <h1>Testlar</h1>
-          <p>Variantli savollar — baholash avtomatik va darhol.</p>
+          <span className="portal-eyebrow">{t("teacherPage.allCourses")}</span>
+          <h1>{t("teacherPage.title")}</h1>
+          <p>{t("teacherPage.subtitle")}</p>
         </div>
         <Button onClick={() => setDialog(true)} disabled={!courseOptions.length}>
-          <Plus size={17} /> Test yaratish
+          <Plus size={17} /> {t("teacherPage.createButton")}
         </Button>
       </div>
 
@@ -88,23 +91,25 @@ export function TeacherQuizzesPage() {
                 <strong>{item.title}</strong>
                 <p>{item.description}</p>
                 <small>
-                  {courseTitleById.get(item.courseId) ?? "Kurs"} ·{" "}
+                  {courseTitleById.get(item.courseId) ?? t("teacherPage.courseFallback")} ·{" "}
                   {item.dueAt
-                    ? `Muddat: ${new Intl.DateTimeFormat("uz-UZ", {
-                        dateStyle: "medium",
-                        timeStyle: "short",
-                      }).format(new Date(item.dueAt))}`
-                    : "Muddat belgilanmagan"}{" "}
-                  · {item.questionCount} ta savol
+                    ? t("teacherPage.dueLabel", {
+                        date: new Intl.DateTimeFormat(toIntlLocale(i18n.language), {
+                          dateStyle: "medium",
+                          timeStyle: "short",
+                        }).format(new Date(item.dueAt)),
+                      })
+                    : t("teacherPage.noDue")}{" "}
+                  · {t("teacherPage.questionCount", { count: item.questionCount })}
                 </small>
               </div>
               <Button size="sm" variant="secondary" onClick={() => setAttemptsOf(item)}>
-                <History size={15} /> Urinishlar
+                <History size={15} /> {t("teacherPage.attemptsButton")}
               </Button>
               <button
                 className="icon-button destructive-icon"
                 onClick={() => setDeleteTarget(item)}
-                aria-label="Testni o‘chirish"
+                aria-label={t("teacherPage.deleteAria")}
               >
                 <Trash2 size={16} />
               </button>
@@ -114,11 +119,11 @@ export function TeacherQuizzesPage() {
       ) : (
         <div className="premium-empty">
           <FileQuestion size={30} />
-          <h3>Hali test yaratilmagan</h3>
+          <h3>{t("teacherPage.emptyTitle")}</h3>
           {courseOptions.length ? (
-            <Button onClick={() => setDialog(true)}>Birinchi testni yaratish</Button>
+            <Button onClick={() => setDialog(true)}>{t("teacherPage.emptyCreateFirst")}</Button>
           ) : (
-            <p className="portal-muted">Avval kursga ega bo‘lishingiz kerak.</p>
+            <p className="portal-muted">{t("teacherPage.needCourseFirst")}</p>
           )}
         </div>
       )}
@@ -139,18 +144,18 @@ export function TeacherQuizzesPage() {
       >
         {deleteTarget && (
           <DialogContent
-            title="Testni o‘chirish"
-            description={`“${deleteTarget.title}” va unga bog‘liq urinishlar o‘chadi.`}
+            title={t("teacherPage.deleteDialogTitle")}
+            description={t("teacherPage.deleteDialogDescription", { title: deleteTarget.title })}
           >
             <div className="dialog-actions">
               <Button variant="secondary" onClick={() => setDeleteTarget(null)}>
-                Bekor
+                {t("teacherPage.cancel")}
               </Button>
               <Button
                 loading={remove.isPending}
                 onClick={() => remove.mutateAsync(deleteTarget.id).then(() => setDeleteTarget(null))}
               >
-                O‘chirish
+                {t("teacherPage.delete")}
               </Button>
             </div>
           </DialogContent>
@@ -162,7 +167,7 @@ export function TeacherQuizzesPage() {
         onOpenChange={(open) => {
           if (!open) setAttemptsOf(null);
         }}
-        title={attemptsOf ? `“${attemptsOf.title}” — urinishlar` : undefined}
+        title={attemptsOf ? t("teacherPage.attemptsOfTitle", { title: attemptsOf.title }) : undefined}
       />
     </div>
   );

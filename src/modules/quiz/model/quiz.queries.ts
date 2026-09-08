@@ -1,4 +1,5 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import type { QuizFormValues } from "@/shared/types";
 import { quizApi } from "../api/quiz.api";
@@ -28,24 +29,26 @@ export function useQuiz(id: string | null) {
 }
 
 export function useCreateQuiz() {
+  const { t } = useTranslation("quiz");
   const client = useQueryClient();
   return useMutation({
     mutationFn: (form: QuizFormValues) => quizApi.create(form),
     onSuccess: (quiz) => {
       client.invalidateQueries({ queryKey: quizKeys.list(quiz.courseId) });
-      toast.success("Test yaratildi");
+      toast.success(t("toast.created"));
     },
     onError: (error: Error) => toast.error(error.message),
   });
 }
 
 export function useDeleteQuiz() {
+  const { t } = useTranslation("quiz");
   const client = useQueryClient();
   return useMutation({
     mutationFn: (id: string) => quizApi.remove(id),
     onSuccess: () => {
       client.invalidateQueries({ queryKey: quizKeys.all });
-      toast.success("Test o‘chirildi");
+      toast.success(t("toast.deleted"));
     },
     onError: (error: Error) => toast.error(error.message),
   });

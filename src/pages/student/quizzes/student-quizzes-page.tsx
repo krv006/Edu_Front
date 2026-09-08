@@ -1,6 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import { FileQuestion, History } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { useSearchParams } from "react-router-dom";
+import { toIntlLocale } from "@/shared/i18n";
 import { useCourses } from "@/modules/course";
 import { QuizAttemptDialog, QuizAttemptsDialog, useQuizzes } from "@/modules/quiz";
 import type { QuizSummary } from "@/shared/types";
@@ -17,6 +19,7 @@ function useQuizHighlight(quizId: string | null, ready: boolean) {
 }
 
 export function StudentQuizzesPage() {
+  const { t, i18n } = useTranslation("quiz");
   const courses = useCourses();
   const quizzes = useQuizzes(null);
   const [attemptOf, setAttemptOf] = useState<QuizSummary | null>(null);
@@ -30,14 +33,14 @@ export function StudentQuizzesPage() {
     [courses.data]
   );
 
-  if (quizzes.isLoading) return <LoadingFallback label="Testlar yuklanmoqda" />;
+  if (quizzes.isLoading) return <LoadingFallback label={t("studentPage.loading")} />;
   if (quizzes.isError)
     return (
       <RouteState
-        eyebrow="TESTLAR"
-        title="Testlarni yuklab bo‘lmadi"
+        eyebrow={t("studentPage.eyebrow")}
+        title={t("studentPage.loadError")}
         description={quizzes.error?.message}
-        actionLabel="Qayta urinish"
+        actionLabel={t("studentPage.retry")}
         onAction={quizzes.refetch}
       />
     );
@@ -48,9 +51,9 @@ export function StudentQuizzesPage() {
     <div className="portal-page">
       <div className="portal-page-heading">
         <div>
-          <span className="portal-eyebrow">BARCHA KURSLAR</span>
-          <h1>Testlar</h1>
-          <p>Vaqt chegarasi yo‘q — cheklanmagan qayta urinish.</p>
+          <span className="portal-eyebrow">{t("studentPage.allCourses")}</span>
+          <h1>{t("studentPage.title")}</h1>
+          <p>{t("studentPage.subtitle")}</p>
         </div>
       </div>
 
@@ -67,29 +70,31 @@ export function StudentQuizzesPage() {
             <div>
               <strong>{item.title}</strong>
               <p>
-                {courseTitleById.get(item.courseId) ?? "Kurs"} ·{" "}
+                {courseTitleById.get(item.courseId) ?? t("studentPage.courseFallback")} ·{" "}
                 {item.dueAt
-                  ? `Muddat: ${new Intl.DateTimeFormat("uz-UZ", {
-                      dateStyle: "medium",
-                      timeStyle: "short",
-                    }).format(new Date(item.dueAt))}`
-                  : "Muddat yo‘q"}{" "}
-                · {item.questionCount} ta savol
+                  ? t("studentPage.dueLabel", {
+                      date: new Intl.DateTimeFormat(toIntlLocale(i18n.language), {
+                        dateStyle: "medium",
+                        timeStyle: "short",
+                      }).format(new Date(item.dueAt)),
+                    })
+                  : t("studentPage.noDue")}{" "}
+                · {t("studentPage.questionCount", { count: item.questionCount })}
               </p>
             </div>
             <button
               className="icon-button"
-              aria-label="Urinishlar tarixi"
+              aria-label={t("studentPage.historyAria")}
               onClick={() => setHistoryOf(item)}
             >
               <History size={16} />
             </button>
             <Button size="sm" onClick={() => setAttemptOf(item)}>
-              Yechish
+              {t("studentPage.solveButton")}
             </Button>
           </article>
         ))}
-        {!list.length ? <p className="portal-muted">Hali test yo‘q.</p> : null}
+        {!list.length ? <p className="portal-muted">{t("studentPage.empty")}</p> : null}
       </div>
 
       <QuizAttemptDialog
@@ -105,7 +110,7 @@ export function StudentQuizzesPage() {
         onOpenChange={(open) => {
           if (!open) setHistoryOf(null);
         }}
-        title={historyOf ? `“${historyOf.title}” — urinishlaringiz` : undefined}
+        title={historyOf ? t("studentPage.attemptsOfTitle", { title: historyOf.title }) : undefined}
       />
     </div>
   );
