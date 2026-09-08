@@ -28,7 +28,9 @@ import {
   X,
 } from "lucide-react";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import { AwayStudentsNotice, BoardPanel } from "@/modules/board";
+import { i18n } from "@/shared/i18n";
 import {
   FinishLessonDialog,
   useTeacherAudioRecording,
@@ -59,32 +61,41 @@ import { Avatar, Button } from "@/shared/ui/legacy";
 
 type SidePanel = "board" | "people" | null;
 
-const CONNECTION_LABELS: Record<string, string> = {
-  [ConnectionState.Connecting]: "Ulanmoqda…",
-  [ConnectionState.Connected]: "Ulandi",
-  [ConnectionState.Reconnecting]: "Qayta ulanmoqda…",
-  [ConnectionState.Disconnected]: "Uzildi",
-};
+function useConnectionLabels(): Record<string, string> {
+  const { t } = useTranslation("live");
+  return {
+    [ConnectionState.Connecting]: t("connection.connecting"),
+    [ConnectionState.Connected]: t("connection.connected"),
+    [ConnectionState.Reconnecting]: t("connection.reconnecting"),
+    [ConnectionState.Disconnected]: t("connection.disconnected"),
+  };
+}
 
-const AUDIO_RECORDING_LABELS: Record<TeacherAudioRecordingSnapshot["phase"], string> = {
-  idle: "Audio tayyorlanmoqda",
-  recording: "Audio yozilmoqda",
-  uploading: "Audio yuborilmoqda",
-  retrying: "Audio navbatda",
-  stopped: "Audio saqlandi",
-  unsupported: "Audio yozuv mavjud emas",
-  error: "Audio yozuvda xato",
-};
+function useAudioRecordingLabels(): Record<TeacherAudioRecordingSnapshot["phase"], string> {
+  const { t } = useTranslation("live");
+  return {
+    idle: t("audioRecording.idle"),
+    recording: t("audioRecording.recording"),
+    uploading: t("audioRecording.uploading"),
+    retrying: t("audioRecording.retrying"),
+    stopped: t("audioRecording.stopped"),
+    unsupported: t("audioRecording.unsupported"),
+    error: t("audioRecording.error"),
+  };
+}
 
-const VIDEO_RECORDING_LABELS: Record<TeacherVideoRecordingSnapshot["phase"], string> = {
-  idle: "Video tayyorlanmoqda",
-  recording: "Video yozilmoqda",
-  uploading: "Video yuborilmoqda",
-  retrying: "Video navbatda",
-  stopped: "Video saqlandi",
-  unsupported: "Video yozuv mavjud emas",
-  error: "Video yozuvda xato",
-};
+function useVideoRecordingLabels(): Record<TeacherVideoRecordingSnapshot["phase"], string> {
+  const { t } = useTranslation("live");
+  return {
+    idle: t("videoRecording.idle"),
+    recording: t("videoRecording.recording"),
+    uploading: t("videoRecording.uploading"),
+    retrying: t("videoRecording.retrying"),
+    stopped: t("videoRecording.stopped"),
+    unsupported: t("videoRecording.unsupported"),
+    error: t("videoRecording.error"),
+  };
+}
 
 function CameraTile({
   track,
@@ -93,6 +104,7 @@ function CameraTile({
   track: TrackReferenceOrPlaceholder;
   compact?: boolean;
 }) {
+  const { t } = useTranslation("live");
   const publication = "publication" in track ? track.publication : undefined;
   const cameraOff = !publication || publication.isMuted;
   const name = track.participant.name || track.participant.identity;
@@ -103,12 +115,12 @@ function CameraTile({
     >
       <ParticipantTile trackRef={track} disableSpeakingIndicator={cameraOff} />
       {cameraOff ? (
-        <div className="live-camera-placeholder" aria-label={`${name} kamerasi o‘chiq`}>
+        <div className="live-camera-placeholder" aria-label={t("room.cameraOffAria", { name })}>
           <Avatar name={name} size={compact ? "sm" : "md"} />
         </div>
       ) : null}
       <span className="live-camera-name">
-        {track.participant.isLocal ? `${name} (Siz)` : name}
+        {track.participant.isLocal ? `${name} ${t("room.youSuffix")}` : name}
       </span>
     </article>
   );
@@ -128,6 +140,7 @@ function StudentMicControl({
   requesting: boolean;
   waiting: boolean;
 }) {
+  const { t } = useTranslation("live");
   const permissions = useLocalParticipantPermissions();
   const canSpeak = canPublishSource(permissions, MICROPHONE_SOURCE);
 
@@ -137,7 +150,7 @@ function StudentMicControl({
         source={Track.Source.Microphone}
         showIcon={false}
         className="live-control"
-        aria-label="Mikrofon"
+        aria-label={t("mic.label")}
       >
         <Mic size={19} />
         <MicOff size={19} className="live-control-off" />
@@ -153,12 +166,8 @@ function StudentMicControl({
     <button
       type="button"
       className={`live-control live-control--mic-request ${waiting ? "is-waiting" : ""}`}
-      aria-label={waiting ? "So‘rov yuborildi, javob kutilmoqda" : "Gapirish uchun ruxsat so‘rash"}
-      title={
-        waiting
-          ? "So‘rov yuborildi — o‘qituvchi javobini kuting"
-          : "Gapirish uchun ruxsat so‘rash"
-      }
+      aria-label={waiting ? t("mic.requestSentAria") : t("mic.requestAria")}
+      title={waiting ? t("mic.requestSentTitle") : t("mic.requestTitle")}
       disabled={requesting || waiting}
       onClick={onRequest}
     >
@@ -173,6 +182,7 @@ function StudentMicControl({
  * cheklangan holat uchrasa tugma jimgina ishlamay turmasin — sababi ko'rinsin.
  */
 function TeacherMicControl() {
+  const { t } = useTranslation("live");
   const permissions = useLocalParticipantPermissions();
 
   if (canPublishSource(permissions, MICROPHONE_SOURCE)) {
@@ -181,7 +191,7 @@ function TeacherMicControl() {
         source={Track.Source.Microphone}
         showIcon={false}
         className="live-control"
-        aria-label="Mikrofon"
+        aria-label={t("mic.label")}
       >
         <Mic size={19} />
         <MicOff size={19} className="live-control-off" />
@@ -194,8 +204,8 @@ function TeacherMicControl() {
       type="button"
       className="live-control"
       disabled
-      aria-label="Mikrofon ishlamayapti"
-      title="Server tokenida mikrofon ruxsati yo‘q — texnik jamoaga xabar bering"
+      aria-label={t("mic.disabledAria")}
+      title={t("mic.disabledTitle")}
     >
       <MicOff size={19} />
     </button>
@@ -217,6 +227,7 @@ function StudentCameraControl({
   requesting: boolean;
   waiting: boolean;
 }) {
+  const { t } = useTranslation("live");
   const permissions = useLocalParticipantPermissions();
   const canPublishCamera = canPublishSource(permissions, CAMERA_SOURCE);
 
@@ -226,7 +237,7 @@ function StudentCameraControl({
         source={Track.Source.Camera}
         showIcon={false}
         className="live-control"
-        aria-label="Kamera"
+        aria-label={t("camera.label")}
       >
         <Video size={19} />
         <VideoOff size={19} className="live-control-off" />
@@ -238,12 +249,8 @@ function StudentCameraControl({
     <button
       type="button"
       className={`live-control live-control--mic-request ${waiting ? "is-waiting" : ""}`}
-      aria-label={waiting ? "So‘rov yuborildi, javob kutilmoqda" : "Kamera uchun ruxsat so‘rash"}
-      title={
-        waiting
-          ? "So‘rov yuborildi — o‘qituvchi javobini kuting"
-          : "Kamera uchun ruxsat so‘rash"
-      }
+      aria-label={waiting ? t("camera.requestSentAria") : t("camera.requestAria")}
+      title={waiting ? t("camera.requestSentTitle") : t("camera.requestTitle")}
       disabled={requesting || waiting}
       onClick={onRequest}
     >
@@ -258,6 +265,7 @@ function StudentCameraControl({
  * cheklangan holat uchrasa tugma jimgina ishlamay turmasin — sababi ko'rinsin.
  */
 function TeacherCameraControl() {
+  const { t } = useTranslation("live");
   const permissions = useLocalParticipantPermissions();
 
   if (canPublishSource(permissions, CAMERA_SOURCE)) {
@@ -266,7 +274,7 @@ function TeacherCameraControl() {
         source={Track.Source.Camera}
         showIcon={false}
         className="live-control"
-        aria-label="Kamera"
+        aria-label={t("camera.label")}
       >
         <Video size={19} />
         <VideoOff size={19} className="live-control-off" />
@@ -279,8 +287,8 @@ function TeacherCameraControl() {
       type="button"
       className="live-control"
       disabled
-      aria-label="Kamera ishlamayapti"
-      title="Server tokenida kamera ruxsati yo‘q — texnik jamoaga xabar bering"
+      aria-label={t("camera.disabledAria")}
+      title={t("camera.disabledTitle")}
     >
       <VideoOff size={19} />
     </button>
@@ -316,6 +324,7 @@ async function waitForVideoDimensions(track: MediaStreamTrack, timeoutMs = 500):
  * hech qachon.
  */
 function TeacherShareControl({ screenStream }: { screenStream: MediaStream }) {
+  const { t } = useTranslation("live");
   const room = useRoomContext();
   const connectionState = useConnectionState();
   const [sharing, setSharing] = useState(false);
@@ -360,7 +369,7 @@ function TeacherShareControl({ screenStream }: { screenStream: MediaStream }) {
         setSharing(true);
       } catch {
         toPublish.forEach(({ track }) => track.stop());
-        toast.error("Ekranni ulashib bo‘lmadi");
+        toast.error(t("share.failedToast"));
       }
     } finally {
       setStarting(false);
@@ -412,8 +421,8 @@ function TeacherShareControl({ screenStream }: { screenStream: MediaStream }) {
       className="live-control live-control--share"
       data-lk-enabled={sharing}
       aria-pressed={sharing}
-      aria-label="Ekranni ulashish"
-      title="Ekranni ulashish — bu o‘quvchilarga JONLI ko‘rinadi"
+      aria-label={t("share.teacherAria")}
+      title={t("share.teacherTitle")}
       disabled={starting}
       onClick={toggleShare}
     >
@@ -423,6 +432,7 @@ function TeacherShareControl({ screenStream }: { screenStream: MediaStream }) {
 }
 
 function StudentShareControl() {
+  const { t } = useTranslation("live");
   const room = useRoomContext();
   const permissions = useLocalParticipantPermissions();
   const [requesting, setRequesting] = useState(false);
@@ -440,7 +450,7 @@ function StudentShareControl() {
         captureOptions={{ audio: true, selfBrowserSurface: "exclude" }}
         showIcon={false}
         className="live-control live-control--share"
-        aria-label="Ekranni ulashish"
+        aria-label={t("share.studentAria")}
       >
         <MonitorUp size={19} />
       </TrackToggle>
@@ -458,9 +468,9 @@ function StudentShareControl() {
         reliable: true,
         topic: signal.topic,
       });
-      toast.success("Ekran ulashish so‘rovi o‘qituvchiga yuborildi");
+      toast.success(t("share.requestSentToast"));
     } catch {
-      toast.error("So‘rovni yuborib bo‘lmadi");
+      toast.error(t("share.requestFailedToast"));
     } finally {
       setRequesting(false);
     }
@@ -470,8 +480,8 @@ function StudentShareControl() {
     <button
       type="button"
       className="live-control live-control--share-request"
-      aria-label="Ekran ulashish uchun ruxsat so‘rash"
-      title="Ekran ulashish uchun ruxsat so‘rash"
+      aria-label={t("share.requestAria")}
+      title={t("share.requestTitle")}
       disabled={requesting}
       onClick={requestShare}
     >
@@ -499,11 +509,11 @@ function ShareRequestListener({ lessonId, enabled }: { lessonId: string; enabled
       const identity = participant.identity;
       const name = request.name || participant.name || identity;
 
-      toast(`${name} ekran ulashmoqchi`, {
-        description: "O‘quvchiga ekran ulashish uchun ruxsat berasizmi?",
+      toast(i18n.t("live:share.requestNotifyTitle", { name }), {
+        description: i18n.t("live:share.requestNotifyDescription"),
         duration: 12_000,
         action: {
-          label: "Ruxsat berish",
+          label: i18n.t("live:share.grantAction"),
           onClick: () => grantShare(identity),
         },
       });
@@ -540,6 +550,10 @@ export interface LiveRoomProps {
 }
 
 export function LiveRoom({ lesson, isTeacher, screenStream, onLeave }: LiveRoomProps) {
+  const { t } = useTranslation("live");
+  const connectionLabels = useConnectionLabels();
+  const audioRecordingLabels = useAudioRecordingLabels();
+  const videoRecordingLabels = useVideoRecordingLabels();
   const [panel, setPanel] = useState<SidePanel>(null);
   const [inviteOpen, setInviteOpen] = useState(false);
   /**
@@ -626,7 +640,7 @@ export function LiveRoom({ lesson, isTeacher, screenStream, onLeave }: LiveRoomP
           <div>
             <strong>{lesson.title}</strong>
             <small>
-              {lesson.courseTitle} · {CONNECTION_LABELS[connectionState] ?? connectionState}
+              {lesson.courseTitle} · {connectionLabels[connectionState] ?? connectionState}
             </small>
           </div>
         </div>
@@ -634,13 +648,13 @@ export function LiveRoom({ lesson, isTeacher, screenStream, onLeave }: LiveRoomP
           {isTeacher ? (
             <span
               className={`live-audio-recording live-audio-recording--${audioRecording.phase}`}
-              title={audioRecording.error ?? AUDIO_RECORDING_LABELS[audioRecording.phase]}
+              title={audioRecording.error ?? audioRecordingLabels[audioRecording.phase]}
               role={audioRecording.phase === "error" ? "alert" : "status"}
             >
               <span className="live-audio-recording-dot" aria-hidden="true" />
-              <span>{AUDIO_RECORDING_LABELS[audioRecording.phase]}</span>
+              <span>{audioRecordingLabels[audioRecording.phase]}</span>
               {audioRecording.pendingChunks ? (
-                <b aria-label={`${audioRecording.pendingChunks} ta bo‘lak navbatda`}>
+                <b aria-label={t("room.pendingChunksAria", { count: audioRecording.pendingChunks })}>
                   {audioRecording.pendingChunks}
                 </b>
               ) : null}
@@ -649,13 +663,13 @@ export function LiveRoom({ lesson, isTeacher, screenStream, onLeave }: LiveRoomP
           {isTeacher && screenStream ? (
             <span
               className={`live-video-recording live-video-recording--${videoRecording.phase}`}
-              title={videoRecording.error ?? VIDEO_RECORDING_LABELS[videoRecording.phase]}
+              title={videoRecording.error ?? videoRecordingLabels[videoRecording.phase]}
               role={videoRecording.phase === "error" ? "alert" : "status"}
             >
               <span className="live-video-recording-dot" aria-hidden="true" />
-              <span>{VIDEO_RECORDING_LABELS[videoRecording.phase]}</span>
+              <span>{videoRecordingLabels[videoRecording.phase]}</span>
               {videoRecording.pendingChunks ? (
-                <b aria-label={`${videoRecording.pendingChunks} ta bo‘lak navbatda`}>
+                <b aria-label={t("room.pendingChunksAria", { count: videoRecording.pendingChunks })}>
                   {videoRecording.pendingChunks}
                 </b>
               ) : null}
@@ -668,13 +682,13 @@ export function LiveRoom({ lesson, isTeacher, screenStream, onLeave }: LiveRoomP
             <button
               className="icon-button"
               onClick={() => setInviteOpen(true)}
-              aria-label="Darsga taklif qilish"
-              title="Darsga taklif qilish"
+              aria-label={t("room.inviteAria")}
+              title={t("room.inviteAria")}
             >
               <UserRoundPlus size={19} />
             </button>
           ) : null}
-          <button className="icon-button" onClick={onLeave} aria-label="Darsdan chiqish">
+          <button className="icon-button" onClick={onLeave} aria-label={t("room.leaveAria")}>
             <X size={19} />
           </button>
         </div>
@@ -688,7 +702,7 @@ export function LiveRoom({ lesson, isTeacher, screenStream, onLeave }: LiveRoomP
                 <div className="live-presentation-stage">
                   <ParticipantTile trackRef={activeShare} />
                 </div>
-                <div className="live-camera-filmstrip" aria-label="Ishtirokchilar videolari">
+                <div className="live-camera-filmstrip" aria-label={t("room.filmstripAria")}>
                   {cameraTracks.map((track) => (
                     <CameraTile
                       key={`${track.participant.identity}-${track.source}`}
@@ -707,14 +721,14 @@ export function LiveRoom({ lesson, isTeacher, screenStream, onLeave }: LiveRoomP
             ) : (
               <div className="live-room-empty">
                 <Video size={30} />
-                <p>Kamera oqimi hali yo‘q</p>
+                <p>{t("room.empty")}</p>
               </div>
             )}
           </main>
         ) : null}
 
         {panel ? (
-          <aside className="live-room-panel" aria-label="Yon panel">
+          <aside className="live-room-panel" aria-label={t("room.sidePanelAria")}>
             <nav className="live-room-panel-tabs">
               {/*
                 Doska to'liq ekranda video butunlay yashiriladi (`boardFull`),
@@ -723,21 +737,21 @@ export function LiveRoom({ lesson, isTeacher, screenStream, onLeave }: LiveRoomP
                 qaytish uchun alohida, aniq nomlangan tugma bor.
               */}
               <button onClick={() => setPanel(null)}>
-                <Video size={16} /> Videoga qaytish
+                <Video size={16} /> {t("room.backToVideo")}
               </button>
               <button
                 className={panel === "board" ? "is-active" : ""}
                 onClick={() => setPanel("board")}
               >
-                <LayoutDashboard size={16} /> Doska
+                <LayoutDashboard size={16} /> {t("room.board")}
               </button>
               <button
                 className={panel === "people" ? "is-active" : ""}
                 onClick={() => setPanel("people")}
               >
-                <Users size={16} /> Ishtirokchilar
+                <Users size={16} /> {t("room.participants")}
               </button>
-              <button className="icon-button" onClick={() => setPanel(null)} aria-label="Panelni yopish">
+              <button className="icon-button" onClick={() => setPanel(null)} aria-label={t("room.closePanelAria")}>
                 <X size={17} />
               </button>
             </nav>
@@ -797,7 +811,7 @@ export function LiveRoom({ lesson, isTeacher, screenStream, onLeave }: LiveRoomP
         <button
           className={`live-control ${panel === "board" ? "is-active" : ""}`}
           onClick={() => togglePanel("board")}
-          aria-label="Doskani ochish"
+          aria-label={t("room.openBoardAria")}
           aria-pressed={panel === "board"}
         >
           <LayoutDashboard size={19} />
@@ -807,8 +821,8 @@ export function LiveRoom({ lesson, isTeacher, screenStream, onLeave }: LiveRoomP
           onClick={() => togglePanel("people")}
           aria-label={
             pendingRequestsCount
-              ? `Ishtirokchilar — ${pendingRequestsCount} ta so‘rov`
-              : "Ishtirokchilar"
+              ? t("room.participantsWithRequestsAria", { count: pendingRequestsCount })
+              : t("room.participants")
           }
           aria-pressed={panel === "people"}
         >
@@ -821,19 +835,19 @@ export function LiveRoom({ lesson, isTeacher, screenStream, onLeave }: LiveRoomP
 
         <DisconnectButton className="live-control live-control--leave">
           <PhoneOff size={19} />
-          <span>Chiqish</span>
+          <span>{t("room.leave")}</span>
         </DisconnectButton>
 
         {isTeacher ? (
           <button
             type="button"
             className="live-control live-control--finish"
-            aria-label="Darsni yakunlash"
-            title="Darsni hamma uchun yakunlash — video yozuv shundan keyin saqlanadi"
+            aria-label={t("room.finishAria")}
+            title={t("room.finishTitle")}
             onClick={() => setFinishOpen(true)}
           >
             <CircleStop size={19} />
-            <span>Yakunlash</span>
+            <span>{t("room.finish")}</span>
           </button>
         ) : null}
       </footer>
@@ -889,6 +903,7 @@ function ParticipantsPanel({
   onDenyCamera,
   cameraAnswerPending,
 }: ParticipantsPanelProps) {
+  const { t } = useTranslation("live");
   const participants = useParticipants();
   const allowShare = useAllowShare(lessonId);
   const ban = useBanFromLesson(lessonId);
@@ -896,9 +911,9 @@ function ParticipantsPanel({
   return (
     <div className="live-participants">
       {micRequests.length ? (
-        <section className="live-mic-requests" aria-label="Mikrofon so‘ragan o‘quvchilar">
+        <section className="live-mic-requests" aria-label={t("participantsPanel.micRequestsAria")}>
           <h4>
-            <Hand size={14} /> Gapirmoqchi ({micRequests.length})
+            <Hand size={14} /> {t("participantsPanel.wantsToSpeak", { count: micRequests.length })}
           </h4>
           {/* Navbat FIFO: ro'yxat kelish tartibida, birinchi so'ragan tepada. */}
           {micRequests.map((request, index) => (
@@ -909,20 +924,20 @@ function ParticipantsPanel({
               <Avatar name={request.name} size="sm" />
               <div>
                 <strong>{request.name}</strong>
-                <small>Mikrofon so‘rayapti</small>
+                <small>{t("participantsPanel.micRequesting")}</small>
               </div>
               <Button
                 size="sm"
                 disabled={micAnswerPending}
                 onClick={() => onGrantMic(request.studentId)}
               >
-                Ruxsat
+                {t("participantsPanel.grant")}
               </Button>
               <button
                 type="button"
                 className="icon-button destructive-icon"
-                aria-label={`${request.name} so‘rovini rad etish`}
-                title="Rad etish"
+                aria-label={t("participantsPanel.denyAria", { name: request.name })}
+                title={t("participantsPanel.denyTitle")}
                 disabled={micAnswerPending}
                 onClick={() => onDenyMic(request.studentId)}
               >
@@ -933,9 +948,9 @@ function ParticipantsPanel({
         </section>
       ) : null}
       {cameraRequests.length ? (
-        <section className="live-mic-requests" aria-label="Kamera so‘ragan o‘quvchilar">
+        <section className="live-mic-requests" aria-label={t("participantsPanel.cameraRequestsAria")}>
           <h4>
-            <Video size={14} /> Kamerani yoqmoqchi ({cameraRequests.length})
+            <Video size={14} /> {t("participantsPanel.wantsCamera", { count: cameraRequests.length })}
           </h4>
           {/* Navbat FIFO: ro'yxat kelish tartibida, birinchi so'ragan tepada. */}
           {cameraRequests.map((request, index) => (
@@ -946,20 +961,20 @@ function ParticipantsPanel({
               <Avatar name={request.name} size="sm" />
               <div>
                 <strong>{request.name}</strong>
-                <small>Kamera so‘rayapti</small>
+                <small>{t("participantsPanel.cameraRequesting")}</small>
               </div>
               <Button
                 size="sm"
                 disabled={cameraAnswerPending}
                 onClick={() => onGrantCamera(request.studentId)}
               >
-                Ruxsat
+                {t("participantsPanel.grant")}
               </Button>
               <button
                 type="button"
                 className="icon-button destructive-icon"
-                aria-label={`${request.name} so‘rovini rad etish`}
-                title="Rad etish"
+                aria-label={t("participantsPanel.denyAria", { name: request.name })}
+                title={t("participantsPanel.denyTitle")}
                 disabled={cameraAnswerPending}
                 onClick={() => onDenyCamera(request.studentId)}
               >
@@ -974,7 +989,7 @@ function ParticipantsPanel({
           <Avatar name={participant.name || participant.identity} size="sm" />
           <div>
             <strong>{participant.name || participant.identity}</strong>
-            <small>{participant.isLocal ? "Siz" : "Ishtirokchi"}</small>
+            <small>{participant.isLocal ? t("participantsPanel.you") : t("participantsPanel.participant")}</small>
           </div>
           {isTeacher && !participant.isLocal ? (
             <>
@@ -984,14 +999,16 @@ function ParticipantsPanel({
                 loading={allowShare.isPending}
                 onClick={() => allowShare.mutate(participant.identity)}
               >
-                <MonitorUp size={15} /> Ruxsat
+                <MonitorUp size={15} /> {t("participantsPanel.allowShare")}
               </Button>
               {/* LiveKit identity — backend token'da o'quvchi id'si sifatida
                   beriladi, ban ham shu id'ni kutadi. */}
               <button
                 className="icon-button destructive-icon"
-                aria-label={`${participant.name || participant.identity}ni darsdan chetlashtirish`}
-                title="Darsdan chetlashtirish"
+                aria-label={t("participantsPanel.banAria", {
+                  name: participant.name || participant.identity,
+                })}
+                title={t("participantsPanel.banTitle")}
                 disabled={ban.isPending}
                 onClick={() => ban.mutate(participant.identity)}
               >
@@ -1001,7 +1018,7 @@ function ParticipantsPanel({
           ) : null}
         </article>
       ))}
-      {!participants.length ? <p className="portal-muted">Hozircha hech kim yo‘q.</p> : null}
+      {!participants.length ? <p className="portal-muted">{t("participantsPanel.empty")}</p> : null}
     </div>
   );
 }

@@ -1,0 +1,52 @@
+{
+  "menu": {
+    "profile": { "label": "Profile info", "description": "View your personal information" },
+    "logins": { "label": "Login history", "description": "Log by device and IP" },
+    "notifications": { "label": "Notifications", "description": "Messages and reminders" },
+    "settings": { "label": "Settings", "description": "Platform settings" }
+  },
+  "roleFallback": "Teacher",
+  "workspaceFallback": "Teacher workspace",
+  "settingsToast": "Settings are stored on this device",
+  "closeMenuAria": "Close menu",
+  "closeAria": "Close",
+  "menuAria": "{{role}} menu",
+  "sectionsAria": "Account sections",
+  "online": "Online",
+  "theme": "Theme",
+  "sessionSecure": "Your session is stored securely",
+  "logout": "Log out",
+  "version": "EduTech · v1.0",
+  "profileDialog": {
+    "title": "{{role}} profile",
+    "description": "Actual profile data from the backend.",
+    "verified": "Verified profile",
+    "changeAvatarAria": "Change profile picture",
+    "firstName": "First name",
+    "lastName": "Last name",
+    "username": "Username",
+    "usernameNote": "The username must be unique. If you change it, you'll sign in with the new one next time.",
+    "phone": "Phone",
+    "cancel": "Cancel",
+    "save": "Save",
+    "usernameLabel": "Username · copy",
+    "phoneLabel": "Phone · copy",
+    "notApproved": "Your account hasn't been approved by an administrator yet — creating courses and lessons is temporarily disabled.",
+    "ratingLabel": "Lesson rating",
+    "certificates": "Certificates",
+    "upload": "Upload",
+    "certificateFallback": "Certificate",
+    "deleteCertificateAria": "Delete {{title}}",
+    "noCertificates": "No certificates uploaded yet.",
+    "editButton": "Edit profile"
+  },
+  "toast": {
+    "copied": "{{label}} copied",
+    "copyFailed": "Couldn't copy",
+    "avatarUpdated": "Profile picture updated",
+    "profileUpdated": "Profile updated",
+    "profileSaveFailed": "Couldn't save the profile",
+    "usernameLabelShort": "Username",
+    "phoneLabelShort": "Phone"
+  }
+}

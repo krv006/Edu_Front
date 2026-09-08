@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { Search, Send, UserRoundX } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { useCourseStudents } from "@/modules/course";
 import { Avatar, Button, Dialog, DialogContent } from "@/shared/ui/legacy";
 import { useBanFromLesson, useInviteToLesson } from "../model/live.queries";
@@ -18,6 +19,7 @@ export function LessonInviteDialog({
   open,
   onOpenChange,
 }: LessonInviteDialogProps) {
+  const { t } = useTranslation("live");
   const [search, setSearch] = useState("");
   const students = useCourseStudents(courseId, { page_size: 100 }, open);
   const invite = useInviteToLesson(lessonId);
@@ -36,15 +38,15 @@ export function LessonInviteDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       {open ? (
         <DialogContent
-          title="Darsga taklif qilish"
-          description="Taklif — bu ogohlantirish; o‘quvchi darsga o‘zi kiradi."
+          title={t("invite.title")}
+          description={t("invite.description")}
         >
           <div className="invite-dialog">
             <Button
               loading={invite.isPending && invite.variables === undefined}
               onClick={() => invite.mutate(undefined)}
             >
-              <Send size={16} /> Hammaga yuborish
+              <Send size={16} /> {t("invite.sendToAll")}
             </Button>
 
             <label className="student-search">
@@ -52,7 +54,7 @@ export function LessonInviteDialog({
               <input
                 value={search}
                 onChange={(event) => setSearch(event.target.value)}
-                placeholder="Ism yoki username bo‘yicha"
+                placeholder={t("invite.searchPlaceholder")}
               />
             </label>
 
@@ -75,12 +77,12 @@ export function LessonInviteDialog({
                       loading={invite.isPending && invite.variables === student.id}
                       onClick={() => invite.mutate(student.id)}
                     >
-                      <Send size={15} /> Taklif
+                      <Send size={15} /> {t("invite.invite")}
                     </Button>
                     <button
                       className="icon-button destructive-icon"
-                      aria-label={`${student.name}ni darsdan chetlashtirish`}
-                      title="Darsdan chetlashtirish"
+                      aria-label={t("invite.banAria", { name: student.name })}
+                      title={t("invite.banTitle")}
                       disabled={ban.isPending}
                       onClick={() => ban.mutate(student.id)}
                     >
@@ -88,14 +90,11 @@ export function LessonInviteDialog({
                     </button>
                   </article>
                 ))}
-                {!visible.length ? <p className="portal-muted">O‘quvchi topilmadi.</p> : null}
+                {!visible.length ? <p className="portal-muted">{t("invite.empty")}</p> : null}
               </div>
             )}
 
-            <p className="portal-muted">
-              Chetlashtirish faqat shu darsga tegishli — o‘quvchi kursda qoladi va
-              keyingi darslarga kira oladi.
-            </p>
+            <p className="portal-muted">{t("invite.note")}</p>
           </div>
         </DialogContent>
       ) : null}
