@@ -1,0 +1,59 @@
+{
+  "tabs": {
+    "chat": "Chat",
+    "lessons": "Darslar",
+    "assignments": "Vazifalar",
+    "students": "O'quvchilar",
+    "attendance": "Davomat"
+  },
+  "sendFailed": "Xabar yuborilmadi",
+  "replyFallback": "Javob",
+  "lessons": {
+    "eyebrow": "DARS JADVALI",
+    "title": "Darslar",
+    "subtitle": "Rejalashtirilgan jonli mashg'ulotlar.",
+    "addLesson": "Dars qo'shish",
+    "deleteDialogTitle": "Darsni o'chirish",
+    "deleteDialogDescription": "\"{{title}}\" qayta tiklanmaydi.",
+    "cancel": "Bekor",
+    "delete": "O'chirish"
+  },
+  "assignments": {
+    "eyebrow": "GURUH VAZIFALARI",
+    "title": "Vazifalar",
+    "subtitle": "Topshiriqlar va AI natijalarini boshqaring.",
+    "addAssignment": "Vazifa berish",
+    "dueLabel": "Muddat: {{date}}",
+    "noDue": "Muddat belgilanmagan",
+    "submissionsCount": "{{count}} topshirilgan",
+    "results": "Natijalar",
+    "editAria": "Vazifani tahrirlash",
+    "editTitle": "Tahrirlash (masalan, muddatni to'g'irlash)",
+    "deleteAria": "Vazifani o'chirish",
+    "emptyTitle": "Hali vazifa berilmagan",
+    "emptyCreateFirst": "Birinchi vazifani berish",
+    "deleteDialogTitle": "Vazifani o'chirish",
+    "deleteDialogDescription": "\"{{title}}\" va unga bog'liq ma'lumotlar o'chadi.",
+    "cancel": "Bekor",
+    "delete": "O'chirish"
+  },
+  "students": {
+    "eyebrow": "ISHTIROKCHILAR",
+    "title": "O'quvchilar",
+    "countSuffix": "{{count}} o'quvchi",
+    "addStudent": "O'quvchi qo'shish",
+    "searchPlaceholder": "Ro'yxat ichidan filtrlash",
+    "removeAria": "{{name}}ni kursdan chiqarish",
+    "empty": "O'quvchi topilmadi.",
+    "removeDialogTitle": "Kursdan chiqarish",
+    "removeDialogDescription": "{{name}} kurs, chat va vazifalardan chiqariladi.",
+    "cancel": "Bekor",
+    "remove": "Chiqarish"
+  },
+  "attendance": {
+    "eyebrow": "KURS HISOBOTI",
+    "title": "Davomat va fokus",
+    "summary": "{{lessonCount}} ta dars · {{recordCount}} ta yozuv",
+    "empty": "Davomat hali yo'q."
+  }
+}

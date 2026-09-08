@@ -1,0 +1,59 @@
+{
+  "tabs": {
+    "chat": "Чат",
+    "lessons": "Уроки",
+    "assignments": "Задания",
+    "students": "Ученики",
+    "attendance": "Посещаемость"
+  },
+  "sendFailed": "Не удалось отправить сообщение",
+  "replyFallback": "Ответ",
+  "lessons": {
+    "eyebrow": "РАСПИСАНИЕ УРОКОВ",
+    "title": "Уроки",
+    "subtitle": "Запланированные живые занятия.",
+    "addLesson": "Добавить урок",
+    "deleteDialogTitle": "Удалить урок",
+    "deleteDialogDescription": "«{{title}}» нельзя будет восстановить.",
+    "cancel": "Отмена",
+    "delete": "Удалить"
+  },
+  "assignments": {
+    "eyebrow": "ЗАДАНИЯ ГРУППЫ",
+    "title": "Задания",
+    "subtitle": "Управляйте сдачами и результатами AI.",
+    "addAssignment": "Дать задание",
+    "dueLabel": "Срок: {{date}}",
+    "noDue": "Срок не установлен",
+    "submissionsCount": "сдано: {{count}}",
+    "results": "Результаты",
+    "editAria": "Редактировать задание",
+    "editTitle": "Редактировать (например, изменить срок)",
+    "deleteAria": "Удалить задание",
+    "emptyTitle": "Заданий пока нет",
+    "emptyCreateFirst": "Дать первое задание",
+    "deleteDialogTitle": "Удалить задание",
+    "deleteDialogDescription": "«{{title}}» и связанные с ним данные будут удалены.",
+    "cancel": "Отмена",
+    "delete": "Удалить"
+  },
+  "students": {
+    "eyebrow": "УЧАСТНИКИ",
+    "title": "Ученики",
+    "countSuffix": "{{count}} учеников",
+    "addStudent": "Добавить ученика",
+    "searchPlaceholder": "Фильтр по списку",
+    "removeAria": "Удалить {{name}} с курса",
+    "empty": "Ученики не найдены.",
+    "removeDialogTitle": "Удалить с курса",
+    "removeDialogDescription": "{{name}} будет удалён с курса, из чата и заданий.",
+    "cancel": "Отмена",
+    "remove": "Удалить"
+  },
+  "attendance": {
+    "eyebrow": "ОТЧЁТ ПО КУРСУ",
+    "title": "Посещаемость и внимание",
+    "summary": "{{lessonCount}} уроков · {{recordCount}} записей",
+    "empty": "Посещаемости пока нет."
+  }
+}
