@@ -1,11 +1,13 @@
 import { useMemo, useState } from "react";
 import { CalendarCheck2, Download, Search } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { AttendanceAccordion, useAttendance } from "@/modules/attendance";
 import { useSelectedChild } from "@/modules/parent";
 import { formatDuration } from "@/shared/lib";
 import { Button, LoadingFallback, RouteState } from "@/shared/ui/legacy";
 
 export function ParentAttendancePage() {
+  const { t } = useTranslation("parent");
   const { selectedChildId, selectedChild } = useSelectedChild();
   const attendanceQuery = useAttendance(selectedChildId ? { student: selectedChildId } : {});
   const [search, setSearch] = useState("");
@@ -23,12 +25,12 @@ export function ParentAttendancePage() {
     [rows]
   );
 
-  if (attendanceQuery.isLoading) return <LoadingFallback label="Davomat yuklanmoqda" />;
+  if (attendanceQuery.isLoading) return <LoadingFallback label={t("attendance.loading")} />;
   if (attendanceQuery.isError) {
     return (
       <RouteState
-        title="Davomatni yuklab bo‘lmadi"
-        actionLabel="Qayta urinish"
+        title={t("attendance.loadError")}
+        actionLabel={t("attendance.retry")}
         onAction={attendanceQuery.refetch}
       />
     );
@@ -38,16 +40,16 @@ export function ParentAttendancePage() {
     <div className="portal-page">
       <div className="portal-page-heading">
         <div>
-          <span className="portal-eyebrow">KUZATUV</span>
-          <h1>Davomat tarixi</h1>
+          <span className="portal-eyebrow">{t("attendance.eyebrow")}</span>
+          <h1>{t("attendance.title")}</h1>
           <p>
             {selectedChild
-              ? `${selectedChild.name}ning darsga kirish va chiqish vaqtlari.`
-              : "Farzandingizning davomat ma’lumotlari."}
+              ? t("attendance.subtitleWithChild", { name: selectedChild.name })
+              : t("attendance.subtitleNoChild")}
           </p>
         </div>
         <Button variant="secondary" onClick={() => window.print()}>
-          <Download size={17} /> Hisobot
+          <Download size={17} /> {t("attendance.report")}
         </Button>
       </div>
 
@@ -57,12 +59,12 @@ export function ParentAttendancePage() {
           <input
             value={search}
             onChange={(event) => setSearch(event.target.value)}
-            placeholder="Dars yoki o‘quvchini qidirish"
+            placeholder={t("attendance.searchPlaceholder")}
           />
         </label>
         <span>
-          <CalendarCheck2 size={17} /> {rows.length} ta yozuv
-          {totalAway ? ` · ${formatDuration(totalAway)} chalg‘igan` : ""}
+          <CalendarCheck2 size={17} /> {t("attendance.recordsCount", { count: rows.length })}
+          {totalAway ? t("attendance.awaySuffix", { duration: formatDuration(totalAway) }) : ""}
         </span>
       </div>
 

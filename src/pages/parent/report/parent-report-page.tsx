@@ -1,9 +1,11 @@
 import { Trophy } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { HomeworkReportView, useHomeworkReport } from "@/modules/homework";
 import { useSelectedChild } from "@/modules/parent";
 import { LoadingFallback, RouteState } from "@/shared/ui/legacy";
 
 export function ParentReportPage() {
+  const { t } = useTranslation("parent");
   const { selectedChild, selectedChildId } = useSelectedChild();
   const report = useHomeworkReport(selectedChildId, Boolean(selectedChildId));
 
@@ -11,18 +13,18 @@ export function ParentReportPage() {
     return (
       <div className="portal-empty">
         <Trophy size={30} />
-        <h2>Farzand tanlanmagan</h2>
-        <p>Avval o‘quvchi hisobini ulang.</p>
+        <h2>{t("report.noChildTitle")}</h2>
+        <p>{t("report.noChildDescription")}</p>
       </div>
     );
-  if (report.isLoading) return <LoadingFallback label="Reyting yuklanmoqda" />;
+  if (report.isLoading) return <LoadingFallback label={t("report.loading")} />;
   if (report.isError || !report.data)
     return (
       <RouteState
-        eyebrow="REYTING"
-        title="Reytingni yuklab bo‘lmadi"
+        eyebrow={t("report.eyebrow")}
+        title={t("report.loadError")}
         description={report.error?.message}
-        actionLabel="Qayta urinish"
+        actionLabel={t("report.retry")}
         onAction={report.refetch}
       />
     );
@@ -31,9 +33,9 @@ export function ParentReportPage() {
     <div className="portal-page">
       <div className="portal-page-heading">
         <div>
-          <span className="portal-eyebrow">REYTING</span>
+          <span className="portal-eyebrow">{t("report.eyebrow")}</span>
           <h1>{selectedChild.name}</h1>
-          <p>Har bir fan bo‘yicha vazifalar va baholar.</p>
+          <p>{t("report.subtitle")}</p>
         </div>
       </div>
       <HomeworkReportView report={report.data} />
