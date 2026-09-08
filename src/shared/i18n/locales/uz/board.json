@@ -1,0 +1,70 @@
+{
+  "status": {
+    "loading": "Doska yuklanmoqda…",
+    "retry": "Qayta urinish",
+    "canDraw": "Chizish mumkin",
+    "viewOnly": "Faqat ko'rish",
+    "canDrawTitle": "Sizda doskada chizish ruxsati bor",
+    "viewOnlyTitle": "Sizda doskada chizish ruxsati yo'q — o'qituvchidan so'rang",
+    "liveConnectedTitle": "Real-time ulangan",
+    "liveDisconnectedTitle": "Sinxronlash sekin rejimda",
+    "live": "Jonli",
+    "slowMode": "Sekin rejim"
+  },
+  "sheet": {
+    "addSheet": "Sahifa"
+  },
+  "permission": {
+    "grantButton": "Ruxsat"
+  },
+  "solver": {
+    "button": "Yechuvchi"
+  },
+  "tools": {
+    "erase": "Lastik",
+    "pen": "Qalam",
+    "marker": "Marker",
+    "line": "Chiziq",
+    "arrow": "Strelka",
+    "rect": "To'rtburchak",
+    "ellipse": "Ellips",
+    "text": "Matn",
+    "math": "Formula",
+    "toolbarAria": "Doska asboblari",
+    "colorLabel": "Rang {{value}}",
+    "widthLabel": "Qalinlik {{value}}"
+  },
+  "inline": {
+    "formula": "Formula",
+    "text": "Matn",
+    "placeholder": "Matn yozing…",
+    "textAria": "Doskaga matn yozish",
+    "cancelAria": "Bekor qilish",
+    "addAria": "Doskaga qo'shish"
+  },
+  "eraseDialog": {
+    "title": "Elementni o'chirish",
+    "description": "Audit uchun o'chirish sababini kiriting.",
+    "reasonLabel": "Sabab",
+    "cancel": "Bekor",
+    "confirm": "O'chirish",
+    "deleted": "Element o'chirildi"
+  },
+  "grantDialog": {
+    "title": "Doskada chizish ruxsati",
+    "description": "Ruxsat beriladigan o'quvchini tanlang.",
+    "granted": "{{name}} doskada chiza oladi",
+    "noStudents": "O'quvchi topilmadi."
+  },
+  "formulaDialog": {
+    "title": "Formula yordamchisi",
+    "description": "Masalan: 2x^2 - 5x + 3 = 0",
+    "formulaLabel": "Formula",
+    "solve": "Yechish",
+    "place": "Doskaga qo'yish",
+    "solveError": "Formulani yechib bo'lmadi"
+  },
+  "away": {
+    "title": "Darsdan chiqqan"
+  }
+}
