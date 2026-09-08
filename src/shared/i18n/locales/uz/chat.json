@@ -124,7 +124,10 @@
   "directPage": {
     "messageEdited": "Xabar tahrirlandi",
     "actionFailed": "Xabar amalini bajarib bo'lmadi",
+    "actionFailedRetry": "Xabar amalini bajarib bo'lmadi. Qayta urinib ko'ring.",
     "messageDeleted": "Xabar o'chirildi",
+    "deletedForEveryone": "Xabar hamma uchun o'chirildi",
+    "deletedForMe": "Xabar siz uchun o'chirildi",
     "deleteFailed": "Xabarni o'chirib bo'lmadi"
   }
 }
