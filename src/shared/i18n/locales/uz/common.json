@@ -1,0 +1,17 @@
+{
+  "language": {
+    "switcherLabel": "Til",
+    "uz": "O'zbekcha",
+    "en": "Inglizcha",
+    "ru": "Ruscha"
+  },
+  "actions": {
+    "save": "Saqlash",
+    "cancel": "Bekor qilish",
+    "submit": "Yuborish",
+    "close": "Yopish",
+    "back": "Orqaga",
+    "retry": "Qayta urinish",
+    "logout": "Chiqish"
+  }
+}

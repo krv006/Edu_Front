@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import { Sparkles } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { Link, Navigate, useNavigate } from "react-router-dom";
 import { useAuth } from "@/modules/auth";
 import { LoginForm, resolveHomeRoute } from "@/modules/auth";
@@ -8,6 +9,7 @@ import type { LoginCredentials } from "@/shared/types";
 export function LoginPage() {
   const { user, login } = useAuth();
   const navigate = useNavigate();
+  const { t } = useTranslation("auth");
 
   if (user) return <Navigate to={resolveHomeRoute(user)} replace />;
 
@@ -28,15 +30,15 @@ export function LoginPage() {
       >
         <div className="login-heading">
           <span className="eyebrow">
-            <Sparkles size={14} /> TA’LIM PLATFORMASI
+            <Sparkles size={14} /> {t("tagline")}
           </span>
-          <h1>Ta’limingizni bir joydan boshqaring</h1>
-          <p>O‘qituvchi, o‘quvchi yoki ota-ona hisobingiz bilan kiring.</p>
+          <h1>{t("title")}</h1>
+          <p>{t("subtitle")}</p>
         </div>
         <LoginForm onSubmit={handleLogin} />
-        <Link className="auth-switch-link" to="/register">Hisob yaratish</Link>
+        <Link className="auth-switch-link" to="/register">{t("createAccount")}</Link>
       </motion.section>
-      <p className="login-footer">© 2026 · EduTech</p>
+      <p className="login-footer">{t("footer")}</p>
     </main>
   );
 }

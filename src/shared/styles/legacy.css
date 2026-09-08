@@ -5695,6 +5695,44 @@ body > .ML__keyboard,
   color: var(--primary-text);
   box-shadow: 0 1px 3px rgb(0 0 0 / 0.12);
 }
+.language-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 2px;
+  padding: 3px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-full);
+  background: var(--muted);
+}
+.language-toggle button {
+  display: grid;
+  place-items: center;
+  height: 28px;
+  padding: 0 9px;
+  border: 0;
+  border-radius: var(--r-full);
+  background: transparent;
+  color: var(--muted-foreground);
+  font-size: var(--fs-2xs);
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.language-toggle button:hover { color: var(--foreground); }
+.language-toggle button.is-active {
+  background: var(--surface);
+  color: var(--primary-text);
+  box-shadow: 0 1px 3px rgb(0 0 0 / 0.12);
+}
+.auth-language-toggle {
+  position: fixed;
+  top: 18px;
+  right: 18px;
+  z-index: 5;
+  background: rgb(var(--surface-rgb) / 0.86);
+  backdrop-filter: blur(6px);
+}
 .teacher-menu-theme {
   margin: 0 14px 10px;
   padding: 11px 13px;

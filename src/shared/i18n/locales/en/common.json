@@ -1,0 +1,17 @@
+{
+  "language": {
+    "switcherLabel": "Language",
+    "uz": "Uzbek",
+    "en": "English",
+    "ru": "Russian"
+  },
+  "actions": {
+    "save": "Save",
+    "cancel": "Cancel",
+    "submit": "Submit",
+    "close": "Close",
+    "back": "Back",
+    "retry": "Retry",
+    "logout": "Log out"
+  }
+}

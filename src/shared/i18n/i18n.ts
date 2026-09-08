@@ -1,0 +1,41 @@
+import i18next from "i18next";
+import { initReactI18next } from "react-i18next";
+import { DEFAULT_LANGUAGE, useLanguageStore } from "@/shared/model";
+import enAuth from "./locales/en/auth.json";
+import enCommon from "./locales/en/common.json";
+import ruAuth from "./locales/ru/auth.json";
+import ruCommon from "./locales/ru/common.json";
+import uzAuth from "./locales/uz/auth.json";
+import uzCommon from "./locales/uz/common.json";
+
+/**
+ * Tarjimalar hozircha "common" (umumiy UI) va "auth" (kirish/ro'yxatdan
+ * o'tish) nomlar maydonlariga bo'lingan — qolgan modullar bosqichma-bosqich,
+ * har biri o'z alohida PR'ida shu yerga qo'shiladi.
+ */
+void i18next.use(initReactI18next).init({
+  resources: {
+    uz: { common: uzCommon, auth: uzAuth },
+    en: { common: enCommon, auth: enAuth },
+    ru: { common: ruCommon, auth: ruAuth },
+  },
+  lng: useLanguageStore.getState().language,
+  fallbackLng: DEFAULT_LANGUAGE,
+  ns: ["common", "auth"],
+  defaultNS: "common",
+  interpolation: { escapeValue: false },
+  returnNull: false,
+});
+
+/*
+ * Til do'koni (foydalanuvchi tanlovi, zustand + localStorage) yagona haqiqat
+ * manbai — i18next shunga OBUNA bo'ladi, aksincha emas. Shu tufayli
+ * `Accept-Language` sarlavhasini qo'yadigan `request-interceptor.ts` ham
+ * xuddi shu do'kondan o'qiydi va ikkalasi hech qachon bir-biridan ajralib
+ * qolmaydi.
+ */
+useLanguageStore.subscribe((state) => {
+  if (i18next.language !== state.language) void i18next.changeLanguage(state.language);
+});
+
+export { i18next as i18n };
