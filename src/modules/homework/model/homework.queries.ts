@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { downloadBlob } from "@/shared/lib";
 import type { Submission } from "@/shared/types";
@@ -82,12 +83,13 @@ export function useHomeworkReport(studentId?: string | null, enabled = true) {
 }
 
 export function useCreateAssignment() {
+  const { t } = useTranslation("homework");
   const client = useQueryClient();
   return useMutation({
     mutationFn: (form: AssignmentFormInput) => homeworkApi.createAssignment(form),
     onSuccess: (item) => {
       client.invalidateQueries({ queryKey: homeworkKeys.assignments(item.courseId) });
-      toast.success("Vazifa yuborildi");
+      toast.success(t("toast.assignmentCreated"));
     },
     onError: (error: Error) => toast.error(error.message),
   });
@@ -95,19 +97,21 @@ export function useCreateAssignment() {
 
 /** Vazifani tahrirlash — masalan noto'g'ri kiritilgan muddatni to'g'irlash uchun. */
 export function useUpdateAssignment() {
+  const { t } = useTranslation("homework");
   const client = useQueryClient();
   return useMutation({
     mutationFn: ({ id, form }: { id: string; form: AssignmentFormInput }) =>
       homeworkApi.updateAssignment(id, form),
     onSuccess: (item) => {
       client.invalidateQueries({ queryKey: homeworkKeys.assignments(item.courseId) });
-      toast.success("Vazifa yangilandi");
+      toast.success(t("toast.assignmentUpdated"));
     },
     onError: (error: Error) => toast.error(error.message),
   });
 }
 
 export function useSubmitHomework() {
+  const { t } = useTranslation("homework");
   const client = useQueryClient();
   return useMutation({
     mutationFn: ({
@@ -122,7 +126,7 @@ export function useSubmitHomework() {
     onSuccess: (submission) => {
       if (submission) client.setQueryData(homeworkKeys.submission(submission.id), submission);
       client.invalidateQueries({ queryKey: homeworkKeys.all });
-      toast.success("Vazifa topshirildi, AI tekshiruvi boshlandi");
+      toast.success(t("toast.submitted"));
     },
     // Avval xato bo'lsa hech narsa ko'rsatilmasdi — tugma jimgina "ishlamayotgandek" tuyulardi.
     onError: (error: Error) => toast.error(error.message),
@@ -130,24 +134,26 @@ export function useSubmitHomework() {
 }
 
 export function useDeleteAssignment() {
+  const { t } = useTranslation("homework");
   const client = useQueryClient();
   return useMutation({
     mutationFn: (id: string) => homeworkApi.deleteAssignment(id),
     onSuccess: () => {
       client.invalidateQueries({ queryKey: homeworkKeys.all });
-      toast.success("Vazifa o‘chirildi");
+      toast.success(t("toast.assignmentDeleted"));
     },
   });
 }
 
 export function useRecheckSubmission() {
+  const { t } = useTranslation("homework");
   const client = useQueryClient();
   return useMutation({
     mutationFn: (id: string) => homeworkApi.recheck(id),
     onSuccess: (submission) => {
       if (submission) client.setQueryData(homeworkKeys.submission(submission.id), submission);
       client.invalidateQueries({ queryKey: homeworkKeys.all });
-      toast.success("Qayta tekshirish boshlandi");
+      toast.success(t("toast.rechecking"));
     },
     onError: (error: Error) => toast.error(error.message),
   });
@@ -160,6 +166,7 @@ export function useRecheckSubmission() {
  * yoziladi: oyna qayta so‘rov kutmasdan yangi bahoni ko‘rsatadi.
  */
 export function useReviewSubmission() {
+  const { t } = useTranslation("homework");
   const client = useQueryClient();
   return useMutation({
     mutationFn: ({ id, input }: { id: string; input: SubmissionReviewInput }) =>
@@ -167,7 +174,7 @@ export function useReviewSubmission() {
     onSuccess: (submission) => {
       if (submission) client.setQueryData(homeworkKeys.submission(submission.id), submission);
       client.invalidateQueries({ queryKey: homeworkKeys.all });
-      toast.success("Baho yangilandi");
+      toast.success(t("toast.gradeUpdated"));
     },
     onError: (error: Error) => toast.error(error.message),
   });

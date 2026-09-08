@@ -1,4 +1,5 @@
 import { BarChart3, BookOpen, ListChecks, TrendingUp } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import type { CourseHomeworkReport, HomeworkReport } from "@/shared/types";
 
 function scoreLabel(score: number | null): string {
@@ -13,13 +14,16 @@ function scoreToneClass(score: number | null): string {
 }
 
 function CourseReportRow({ course }: { course: CourseHomeworkReport }) {
+  const { t } = useTranslation("homework");
   const rate = Math.min(100, Math.max(0, course.submissionRate));
   return (
     <article className="homework-report-row">
       <div className="homework-report-row-head">
         <strong>{course.courseTitle}</strong>
         <span className={scoreToneClass(course.averageScore)}>
-          {course.averageScore == null ? "Baho yo‘q" : `${scoreLabel(course.averageScore)} ball`}
+          {course.averageScore == null
+            ? t("report.noGrade")
+            : `${scoreLabel(course.averageScore)} ${t("report.pointsSuffix")}`}
         </span>
       </div>
       <div
@@ -28,12 +32,16 @@ function CourseReportRow({ course }: { course: CourseHomeworkReport }) {
         aria-valuenow={rate}
         aria-valuemin={0}
         aria-valuemax={100}
-        aria-label={`${course.courseTitle}: topshirilgan vazifalar ${rate}%`}
+        aria-label={t("report.progressAria", { course: course.courseTitle, rate })}
       >
         <span style={{ width: `${rate}%` }} />
       </div>
       <small>
-        {course.submittedCount}/{course.assignedCount} vazifa topshirilgan · {rate}%
+        {t("report.submittedOf", {
+          submitted: course.submittedCount,
+          assigned: course.assignedCount,
+          rate,
+        })}
       </small>
     </article>
   );
@@ -45,6 +53,7 @@ export interface HomeworkReportViewProps {
 
 /** O'quvchi/ota-ona reyting sahifasida qayta ishlatiladi. */
 export function HomeworkReportView({ report }: HomeworkReportViewProps) {
+  const { t } = useTranslation("homework");
   const { overall, courses } = report;
 
   return (
@@ -56,7 +65,7 @@ export function HomeworkReportView({ report }: HomeworkReportViewProps) {
           </span>
           <div>
             <strong>{overall.assignedCount}</strong>
-            <small>Berilgan vazifalar</small>
+            <small>{t("report.assignedCount")}</small>
           </div>
         </article>
         <article className="portal-metric portal-metric--violet">
@@ -66,7 +75,10 @@ export function HomeworkReportView({ report }: HomeworkReportViewProps) {
           <div>
             <strong>{overall.submissionRate}%</strong>
             <small>
-              Topshirilgan ({overall.submittedCount}/{overall.assignedCount})
+              {t("report.submittedRate", {
+                submitted: overall.submittedCount,
+                assigned: overall.assignedCount,
+              })}
             </small>
           </div>
         </article>
@@ -76,7 +88,7 @@ export function HomeworkReportView({ report }: HomeworkReportViewProps) {
           </span>
           <div>
             <strong>{scoreLabel(overall.averageScore)}</strong>
-            <small>O‘rtacha ball</small>
+            <small>{t("report.averageScore")}</small>
           </div>
         </article>
         <article className="portal-metric portal-metric--amber">
@@ -85,7 +97,7 @@ export function HomeworkReportView({ report }: HomeworkReportViewProps) {
           </span>
           <div>
             <strong>{courses.length}</strong>
-            <small>Fanlar soni</small>
+            <small>{t("report.subjectsCount")}</small>
           </div>
         </article>
       </section>
@@ -93,8 +105,8 @@ export function HomeworkReportView({ report }: HomeworkReportViewProps) {
       <section className="portal-card homework-report-list">
         <div className="portal-section-head">
           <div>
-            <span>FANLAR BO‘YICHA</span>
-            <h2>Har bir kurs statistikasi</h2>
+            <span>{t("report.bySubjectEyebrow")}</span>
+            <h2>{t("report.bySubjectTitle")}</h2>
           </div>
         </div>
         {courses.map((course) => (
@@ -103,8 +115,8 @@ export function HomeworkReportView({ report }: HomeworkReportViewProps) {
         {!courses.length ? (
           <div className="portal-empty">
             <BookOpen size={28} />
-            <h2>Hali statistika yo‘q</h2>
-            <p>Kursga yozilib, vazifa topshirgach shu yerda ko‘rinadi.</p>
+            <h2>{t("report.emptyTitle")}</h2>
+            <p>{t("report.emptyDescription")}</p>
           </div>
         ) : null}
       </section>

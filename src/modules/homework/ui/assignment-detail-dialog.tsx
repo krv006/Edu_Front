@@ -9,6 +9,8 @@ import {
   RefreshCw,
   Users,
 } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { toIntlLocale } from "@/shared/i18n";
 import { Avatar, Button, Dialog, DialogContent, RouteState } from "@/shared/ui/legacy";
 import {
   useAssignment,
@@ -25,13 +27,13 @@ export interface AssignmentDetailDialogProps {
   onOpenChange: (open: boolean) => void;
 }
 
-const statusLabels: Record<string, string> = {
-  checking: "Tekshirilmoqda",
-  done: "Tekshirildi",
-  error: "Xatolik",
-};
-
 function SubmissionRow({ submission, onOpenResult }: { submission: Submission; onOpenResult: (submission: Submission) => void }) {
+  const { t } = useTranslation("homework");
+  const statusLabels: Record<string, string> = {
+    checking: t("status.checking"),
+    done: t("status.done"),
+    error: t("status.error"),
+  };
   const download = useDownloadSubmissionFile();
   const recheck = useRecheckSubmission();
   const statusClass =
@@ -43,18 +45,19 @@ function SubmissionRow({ submission, onOpenResult }: { submission: Submission; o
 
   return (
     <article className="submission-row">
-      <Avatar name={submission.studentName || "O‘quvchi"} size="sm" />
+      <Avatar name={submission.studentName || t("detailDialog.defaultStudent")} size="sm" />
       <div className="submission-row-main">
-        <strong>{submission.studentName || "O‘quvchi"}</strong>
+        <strong>{submission.studentName || t("detailDialog.defaultStudent")}</strong>
         <small>
-          <FileText size={12} /> {submission.fileName || "fayl"}
-          {submission.isLate ? <em className="is-late"> · kech</em> : null}
+          <FileText size={12} /> {submission.fileName || t("detailDialog.defaultFile")}
+          {submission.isLate ? <em className="is-late"> · {t("detailDialog.lateSuffix")}</em> : null}
         </small>
       </div>
       <span className={`grade-pill${statusClass}`}>
         {submission.status === "done" ? (
           <>
-            <CheckCircle2 size={14} /> {submission.overallScore ?? "—"} ball
+            <CheckCircle2 size={14} />{" "}
+            {t("detailDialog.scorePoints", { score: submission.overallScore ?? "—" })}
           </>
         ) : (
           <>
@@ -65,7 +68,7 @@ function SubmissionRow({ submission, onOpenResult }: { submission: Submission; o
       <div className="submission-row-actions">
         <button
           className="icon-button"
-          aria-label="Topshirilgan faylni yuklab olish"
+          aria-label={t("detailDialog.downloadSubmissionAria")}
           disabled={download.isPending}
           onClick={() =>
             download.mutate({ id: submission.id, fileName: submission.fileName })
@@ -75,14 +78,14 @@ function SubmissionRow({ submission, onOpenResult }: { submission: Submission; o
         </button>
         <button
           className="icon-button"
-          aria-label="Qayta tekshirish"
+          aria-label={t("detailDialog.recheckAria")}
           disabled={recheck.isPending || submission.status === "checking"}
           onClick={() => recheck.mutate(submission.id)}
         >
           <RefreshCw size={16} />
         </button>
         <Button size="sm" variant="secondary" onClick={() => onOpenResult(submission)}>
-          Natija
+          {t("detailDialog.result")}
         </Button>
       </div>
     </article>
@@ -90,6 +93,7 @@ function SubmissionRow({ submission, onOpenResult }: { submission: Submission; o
 }
 
 export function AssignmentDetailDialog({ assignmentId, open, onOpenChange }: AssignmentDetailDialogProps) {
+  const { t, i18n } = useTranslation("homework");
   const assignment = useAssignment(open ? assignmentId : null);
   const downloadAttachment = useDownloadAssignmentFile();
   const [resultOf, setResultOf] = useState<Submission | null>(null);
@@ -102,25 +106,27 @@ export function AssignmentDetailDialog({ assignmentId, open, onOpenChange }: Ass
         {open ? (
           <DialogContent
             className="assignment-detail-dialog"
-            title={data?.title || "Vazifa"}
+            title={data?.title || t("detailDialog.defaultTitle")}
             description={
               data
                 ? `${data.courseTitle ?? ""}${
                     data.dueAt
-                      ? ` · Muddat: ${new Intl.DateTimeFormat("uz-UZ", {
-                          dateStyle: "medium",
-                          timeStyle: "short",
-                        }).format(new Date(data.dueAt))}`
-                      : " · Muddat belgilanmagan"
+                      ? ` · ${t("detailDialog.dueLabel", {
+                          date: new Intl.DateTimeFormat(toIntlLocale(i18n.language), {
+                            dateStyle: "medium",
+                            timeStyle: "short",
+                          }).format(new Date(data.dueAt)),
+                        })}`
+                      : ` · ${t("detailDialog.noDue")}`
                   }`
-                : "Yuklanmoqda…"
+                : t("detailDialog.loading")
             }
           >
             {assignment.isError ? (
               <RouteState
-                title="Vazifani yuklab bo‘lmadi"
+                title={t("detailDialog.loadError")}
                 description={assignment.error?.message}
-                actionLabel="Qayta urinish"
+                actionLabel={t("detailDialog.retry")}
                 onAction={assignment.refetch}
               />
             ) : assignment.isLoading || !data ? (
@@ -147,7 +153,7 @@ export function AssignmentDetailDialog({ assignmentId, open, onOpenChange }: Ass
                     }
                   >
                     <Paperclip size={16} />{" "}
-                    {data.attachmentName || "Biriktirilgan faylni yuklab olish"}
+                    {data.attachmentName || t("detailDialog.downloadAttachmentAria")}
                   </Button>
                 ) : null}
 
@@ -156,25 +162,25 @@ export function AssignmentDetailDialog({ assignmentId, open, onOpenChange }: Ass
                     <span>
                       <Users size={16} />
                       <strong>{data.stats.studentsCount ?? 0}</strong>
-                      <small>o‘quvchi</small>
+                      <small>{t("detailDialog.studentsCount")}</small>
                     </span>
                     <span>
                       <CheckCircle2 size={16} />
                       <strong>{data.stats.submittedCount ?? 0}</strong>
-                      <small>topshirdi</small>
+                      <small>{t("detailDialog.submittedCount")}</small>
                     </span>
                     <span>
                       <BarChart3 size={16} />
                       <strong>
                         {data.stats.averageScore ?? "—"}
                       </strong>
-                      <small>o‘rtacha ball</small>
+                      <small>{t("detailDialog.averageScore")}</small>
                     </span>
                   </div>
                 ) : null}
 
                 <span className="dialog-section-label">
-                  TOPSHIRIQLAR ({submissions.length})
+                  {t("detailDialog.submissionsHeader", { count: submissions.length })}
                 </span>
                 <div className="submission-list">
                   {submissions.map((submission) => (
@@ -185,7 +191,7 @@ export function AssignmentDetailDialog({ assignmentId, open, onOpenChange }: Ass
                     />
                   ))}
                   {!submissions.length ? (
-                    <p className="portal-muted">Hali hech kim topshirmagan.</p>
+                    <p className="portal-muted">{t("detailDialog.noSubmissions")}</p>
                   ) : null}
                 </div>
               </div>
