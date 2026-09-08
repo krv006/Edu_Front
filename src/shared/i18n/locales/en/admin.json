@@ -1,0 +1,31 @@
+{
+  "dashboard": {
+    "eyebrow": "ADMINISTRATOR",
+    "welcome": "Welcome, {{name}}",
+    "subtitle": "Course, lesson, and attendance data available on the backend.",
+    "teachersLink": "Teachers",
+    "logout": "Log out",
+    "permissionError": "Administrator permission isn't enough to load some data.",
+    "courses": "Courses",
+    "lessons": "Lessons",
+    "attendanceRecords": "Attendance records",
+    "recentCoursesEyebrow": "RECENT COURSES",
+    "coursesTitle": "Courses",
+    "studentsSuffix": "{{count}} students",
+    "noCourses": "No courses found."
+  },
+  "teachers": {
+    "eyebrow": "ADMINISTRATOR",
+    "title": "Teachers",
+    "subtitle": "Rating and approval status.",
+    "backToDashboard": "Dashboard",
+    "pendingEyebrow": "NEEDS APPROVAL",
+    "pendingTitle": "New teachers",
+    "loading": "Loading",
+    "approve": "Approve",
+    "noPending": "No teachers awaiting approval.",
+    "allEyebrow": "ALL",
+    "allTitle": "All teachers",
+    "noTeachers": "No teachers found."
+  }
+}

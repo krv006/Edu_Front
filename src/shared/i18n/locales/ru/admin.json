@@ -1,0 +1,31 @@
+{
+  "dashboard": {
+    "eyebrow": "АДМИНИСТРАТОР",
+    "welcome": "Добро пожаловать, {{name}}",
+    "subtitle": "Данные о курсах, уроках и посещаемости с сервера.",
+    "teachersLink": "Учителя",
+    "logout": "Выйти",
+    "permissionError": "Прав администратора недостаточно для загрузки некоторых данных.",
+    "courses": "Курсы",
+    "lessons": "Уроки",
+    "attendanceRecords": "Записи посещаемости",
+    "recentCoursesEyebrow": "ПОСЛЕДНИЕ КУРСЫ",
+    "coursesTitle": "Курсы",
+    "studentsSuffix": "{{count}} учеников",
+    "noCourses": "Курсы не найдены."
+  },
+  "teachers": {
+    "eyebrow": "АДМИНИСТРАТОР",
+    "title": "Учителя",
+    "subtitle": "Рейтинг и статус подтверждения.",
+    "backToDashboard": "Панель управления",
+    "pendingEyebrow": "ТРЕБУЕТСЯ ПОДТВЕРЖДЕНИЕ",
+    "pendingTitle": "Новые учителя",
+    "loading": "Загрузка",
+    "approve": "Подтвердить",
+    "noPending": "Нет учителей, ожидающих подтверждения.",
+    "allEyebrow": "ВСЕ",
+    "allTitle": "Все учителя",
+    "noTeachers": "Учителя не найдены."
+  }
+}

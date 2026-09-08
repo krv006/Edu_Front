@@ -1,9 +1,10 @@
+import { useMemo } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Controller, useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/shared/ui/legacy";
 import { applyApiFieldErrors } from "@/shared/api";
-import { registerSchema } from "../model/auth.schemas";
+import { createRegisterSchema } from "../model/auth.schemas";
 import type { AppError } from "@/shared/api";
 import type { RegisterFormValues } from "../api/auth.dto";
 
@@ -13,6 +14,7 @@ export interface RegisterFormProps {
 
 export function RegisterForm({ onSubmit }: RegisterFormProps) {
   const { t } = useTranslation("auth");
+  const registerSchema = useMemo(() => createRegisterSchema(t), [t]);
   const { register, control, handleSubmit, setError, formState: { errors, isSubmitting } } = useForm<RegisterFormValues>({
     resolver: zodResolver(registerSchema),
     defaultValues: { username: "", password: "", firstName: "", lastName: "", phone: "", role: "teacher" },

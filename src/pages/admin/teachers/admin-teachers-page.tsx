@@ -1,6 +1,7 @@
 import type { ReactNode } from "react";
 import { ArrowLeft, ShieldCheck, Users } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useApproveTeacher, usePendingTeachers, useTeachers } from "@/modules/auth";
 import { RatingSummary } from "@/modules/lesson";
 import { ROUTES } from "@/shared/config";
@@ -22,6 +23,7 @@ function TeacherRow({ teacher, action }: { teacher: AuthUser; action?: ReactNode
 }
 
 export function AdminTeachersPage() {
+  const { t } = useTranslation("admin");
   const pending = usePendingTeachers();
   const teachers = useTeachers();
   const approve = useApproveTeacher();
@@ -31,24 +33,24 @@ export function AdminTeachersPage() {
       <div className="portal-page-heading">
         <div>
           <span className="portal-eyebrow">
-            <ShieldCheck size={14} /> ADMINISTRATOR
+            <ShieldCheck size={14} /> {t("teachers.eyebrow")}
           </span>
-          <h1>O‘qituvchilar</h1>
-          <p>Reyting va tasdiqlash holati.</p>
+          <h1>{t("teachers.title")}</h1>
+          <p>{t("teachers.subtitle")}</p>
         </div>
         <Link className="portal-primary-link" to={ROUTES.admin.dashboard}>
-          <ArrowLeft size={15} /> Boshqaruv paneli
+          <ArrowLeft size={15} /> {t("teachers.backToDashboard")}
         </Link>
       </div>
 
       <section className="portal-card admin-teacher-panel">
         <div className="portal-section-head">
           <div>
-            <span>TASDIQLANISHI KERAK</span>
-            <h2>Yangi o‘qituvchilar</h2>
+            <span>{t("teachers.pendingEyebrow")}</span>
+            <h2>{t("teachers.pendingTitle")}</h2>
           </div>
         </div>
-        {pending.isLoading ? <LoadingFallback label="Yuklanmoqda" /> : null}
+        {pending.isLoading ? <LoadingFallback label={t("teachers.loading")} /> : null}
         <div className="admin-teacher-list">
           {(pending.data ?? []).map((teacher) => (
             <TeacherRow
@@ -60,13 +62,13 @@ export function AdminTeachersPage() {
                   loading={approve.isPending && approve.variables === teacher.id}
                   onClick={() => approve.mutate(teacher.id)}
                 >
-                  Tasdiqlash
+                  {t("teachers.approve")}
                 </Button>
               }
             />
           ))}
           {!pending.isLoading && !pending.data?.length ? (
-            <p className="portal-muted">Tasdiqlanishi kerak bo‘lgan o‘qituvchi yo‘q.</p>
+            <p className="portal-muted">{t("teachers.noPending")}</p>
           ) : null}
         </div>
       </section>
@@ -75,18 +77,18 @@ export function AdminTeachersPage() {
         <div className="portal-section-head">
           <div>
             <span>
-              <Users size={13} /> BARCHASI
+              <Users size={13} /> {t("teachers.allEyebrow")}
             </span>
-            <h2>Barcha o‘qituvchilar</h2>
+            <h2>{t("teachers.allTitle")}</h2>
           </div>
         </div>
-        {teachers.isLoading ? <LoadingFallback label="Yuklanmoqda" /> : null}
+        {teachers.isLoading ? <LoadingFallback label={t("teachers.loading")} /> : null}
         <div className="admin-teacher-list">
           {(teachers.data ?? []).map((teacher) => (
             <TeacherRow key={teacher.id} teacher={teacher} />
           ))}
           {!teachers.isLoading && !teachers.data?.length ? (
-            <p className="portal-muted">O‘qituvchi topilmadi.</p>
+            <p className="portal-muted">{t("teachers.noTeachers")}</p>
           ) : null}
         </div>
       </section>

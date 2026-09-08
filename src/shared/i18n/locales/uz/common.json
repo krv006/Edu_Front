@@ -33,5 +33,11 @@
     "unsupported": "Bu turdagi faylni brauzerda ko'rib bo'lmaydi.",
     "platformOnlyNote": "Fayl faqat platforma ichida ko'riladi",
     "close": "Yopish"
+  },
+  "date": {
+    "yesterday": "Kecha",
+    "hourUnit": "s",
+    "minuteUnit": "m",
+    "secondUnit": "s"
   }
 }

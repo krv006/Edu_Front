@@ -52,5 +52,23 @@
       "deadlinePassed": "The submission deadline has passed",
       "resultDialogTitle": "Your assignment result"
     }
+  },
+  "enrollmentDialog": {
+    "title": "New conversation",
+    "description": "Send a request to a teacher or join an open course.",
+    "parentRequestsEyebrow": "PARENT REQUESTS",
+    "wantsToLink": "wants to link to your profile",
+    "decline": "Decline",
+    "approve": "Approve",
+    "writeToTeacherEyebrow": "MESSAGE A TEACHER",
+    "openChat": "Open",
+    "requestChat": "Request",
+    "joinCoursesEyebrow": "JOIN COURSES",
+    "studentsSuffix": "{{count}} students",
+    "pending": "Pending",
+    "enrolled": "Enrolled",
+    "join": "Join",
+    "noOpenCourses": "No open courses yet.",
+    "loadError": "Couldn't load the data"
   }
 }
