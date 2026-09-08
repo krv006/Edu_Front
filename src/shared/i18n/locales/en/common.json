@@ -13,5 +13,11 @@
     "back": "Back",
     "retry": "Retry",
     "logout": "Log out"
+  },
+  "portal": {
+    "home": "Home",
+    "defaultUser": "User",
+    "openNav": "Open navigation",
+    "navLabel": "{{role}} navigation"
   }
 }
