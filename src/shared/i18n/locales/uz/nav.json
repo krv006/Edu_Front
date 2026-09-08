@@ -10,5 +10,17 @@
     "attendance": "Davomat",
     "homework": "Vazifalar",
     "grades": "Reyting"
+  },
+  "rail": {
+    "sectionsLabel": "Bo'limlar",
+    "openProfileMenu": "Profil menyusini ochish",
+    "chat": "Chat",
+    "schedule": "Kalendar",
+    "ai": "AI",
+    "quizzes": "Testlar",
+    "report": "Reyting",
+    "resizeHandle": "Suhbatlar paneli kengligini o'zgartirish",
+    "teacherWorkspace": "O'qituvchi ish maydoni",
+    "studentWorkspace": "O'quvchi ish maydoni"
   }
 }

@@ -1,5 +1,6 @@
 import { useEffect, useState, type CSSProperties, type KeyboardEvent, type PointerEvent } from "react";
 import { motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
 import { Outlet, useLocation, useParams } from "react-router-dom";
 import { ConversationRail, type ConversationSection } from "@/modules/conversation";
 import { ConversationPanel } from "@/widgets/conversation-panel";
@@ -29,6 +30,7 @@ function sectionFromPath(pathname: string): ConversationSection {
 }
 
 export function ConversationLayout({ role = "teacher" }: { role?: ConversationRole }) {
+  const { t } = useTranslation("nav");
   const { conversationId } = useParams();
   const { pathname } = useLocation();
   const [menuOpen, setMenuOpen] = useState(false);
@@ -89,7 +91,7 @@ export function ConversationLayout({ role = "teacher" }: { role?: ConversationRo
       <div
         className="conversation-resize-handle"
         role="separator"
-        aria-label="Suhbatlar paneli kengligini o‘zgartirish"
+        aria-label={t("rail.resizeHandle")}
         aria-orientation="vertical"
         tabIndex={0}
         onPointerDown={startResize}
@@ -126,8 +128,8 @@ export function ConversationLayout({ role = "teacher" }: { role?: ConversationRo
         onOpenChange={setMenuOpen}
         profileOpen={profileOpen}
         onProfileOpenChange={setProfileOpen}
-        roleLabel={role === "teacher" ? "O‘qituvchi" : "O‘quvchi"}
-        workspaceLabel={role === "teacher" ? "Teacher workspace" : "Student workspace"}
+        roleLabel={role === "teacher" ? t("roles.teacher") : t("roles.student")}
+        workspaceLabel={role === "teacher" ? t("rail.teacherWorkspace") : t("rail.studentWorkspace")}
       />
     </div>
   );

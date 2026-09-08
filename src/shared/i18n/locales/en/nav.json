@@ -10,5 +10,17 @@
     "attendance": "Attendance",
     "homework": "Homework",
     "grades": "Rating"
+  },
+  "rail": {
+    "sectionsLabel": "Sections",
+    "openProfileMenu": "Open profile menu",
+    "chat": "Chat",
+    "schedule": "Calendar",
+    "ai": "AI",
+    "quizzes": "Quizzes",
+    "report": "Rating",
+    "resizeHandle": "Resize the conversation panel",
+    "teacherWorkspace": "Teacher workspace",
+    "studentWorkspace": "Student workspace"
   }
 }

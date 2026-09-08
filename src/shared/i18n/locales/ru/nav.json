@@ -10,5 +10,17 @@
     "attendance": "Посещаемость",
     "homework": "Задания",
     "grades": "Рейтинг"
+  },
+  "rail": {
+    "sectionsLabel": "Разделы",
+    "openProfileMenu": "Открыть меню профиля",
+    "chat": "Чат",
+    "schedule": "Календарь",
+    "ai": "ИИ",
+    "quizzes": "Тесты",
+    "report": "Рейтинг",
+    "resizeHandle": "Изменить ширину панели чатов",
+    "teacherWorkspace": "Рабочее пространство учителя",
+    "studentWorkspace": "Рабочее пространство ученика"
   }
 }

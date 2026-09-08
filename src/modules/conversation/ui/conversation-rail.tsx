@@ -1,4 +1,5 @@
 import { CalendarDays, FileQuestion, Menu, MessagesSquare, Sparkles, Trophy } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { useNavigate, useResolvedPath } from "react-router-dom";
 import type { ConversationRole } from "@/shared/types";
 import { useConversations } from "../model/use-conversations";
@@ -8,23 +9,20 @@ export type ConversationSection = "chat" | "schedule" | "ai" | "quizzes" | "repo
 
 type SectionItem = {
   id: ConversationSection;
-  label: string;
   icon: typeof MessagesSquare;
   /** Suhbatlar bo'limiga nisbatan yo'l; bo'sh bo'lsa — o'zi. */
   path: string;
 };
 
 const SECTIONS: SectionItem[] = [
-  { id: "chat", label: "Chat", icon: MessagesSquare, path: "" },
-  { id: "schedule", label: "Kalendar", icon: CalendarDays, path: "/schedule" },
-  { id: "ai", label: "AI", icon: Sparkles, path: "/ai" },
-  { id: "quizzes", label: "Testlar", icon: FileQuestion, path: "/quizzes" },
+  { id: "chat", icon: MessagesSquare, path: "" },
+  { id: "schedule", icon: CalendarDays, path: "/schedule" },
+  { id: "ai", icon: Sparkles, path: "/ai" },
+  { id: "quizzes", icon: FileQuestion, path: "/quizzes" },
 ];
 
 /** Reyting faqat o'quvchida — o'qituvchining o'z bahosi yo'q. */
-const STUDENT_ONLY_SECTIONS: SectionItem[] = [
-  { id: "report", label: "Reyting", icon: Trophy, path: "/report" },
-];
+const STUDENT_ONLY_SECTIONS: SectionItem[] = [{ id: "report", icon: Trophy, path: "/report" }];
 
 export interface ConversationRailProps {
   role: ConversationRole;
@@ -43,6 +41,7 @@ export interface ConversationRailProps {
  * ro'yxat tepasidagi tugmachalarda, chunki ular bo'lim emas, filtr.
  */
 export function ConversationRail({ role, section, onOpenMenu }: ConversationRailProps) {
+  const { t } = useTranslation("nav");
   const navigate = useNavigate();
   const { data = [] } = useConversations(role);
   const basePath = role === "teacher" ? "/teacher/chats" : "/student/chats";
@@ -53,12 +52,12 @@ export function ConversationRail({ role, section, onOpenMenu }: ConversationRail
   const unreadChats = data.filter((conversation) => conversation.unreadCount > 0).length;
 
   return (
-    <nav className="conversation-rail" aria-label="Bo‘limlar">
+    <nav className="conversation-rail" aria-label={t("rail.sectionsLabel")}>
       {/* Yozuvsiz — hamburger o'zi tushunarli, yorlig'i faqat aria uchun. */}
       <button
         className="conversation-rail-menu"
         onClick={onOpenMenu}
-        aria-label="Profil menyusini ochish"
+        aria-label={t("rail.openProfileMenu")}
       >
         <Menu size={24} />
       </button>
@@ -74,7 +73,7 @@ export function ConversationRail({ role, section, onOpenMenu }: ConversationRail
             onClick={() => navigate(`${chatsPath}${item.path}`)}
           >
             <Icon size={24} />
-            <span>{item.label}</span>
+            <span>{t(`rail.${item.id}`)}</span>
             {item.id === "chat" && unreadChats ? (
               <i className="conversation-rail-badge">{unreadChats}</i>
             ) : null}
