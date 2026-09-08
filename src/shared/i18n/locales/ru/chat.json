@@ -120,5 +120,11 @@
     "openAria": "{{name}} — открыть",
     "openSuffix": "открыть"
   },
-  "removedFromGroup": "Вы были удалены из этой группы"
+  "removedFromGroup": "Вы были удалены из этой группы",
+  "directPage": {
+    "messageEdited": "Сообщение изменено",
+    "actionFailed": "Не удалось выполнить действие с сообщением",
+    "messageDeleted": "Сообщение удалено",
+    "deleteFailed": "Не удалось удалить сообщение"
+  }
 }
