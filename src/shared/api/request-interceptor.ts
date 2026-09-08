@@ -1,3 +1,4 @@
+import { getStoredLanguage } from "@/shared/model";
 import { tokenStorage } from "./token-storage";
 import type { ResponseType } from "./api-response";
 
@@ -58,6 +59,8 @@ export function createRequestInit(
     credentials: options.credentials ?? "omit",
     headers: {
       ...defaultHeaders,
+      // Backend gettext (`locale/en`, `locale/ru`) shu sarlavhaga qarab tarjima qiladi.
+      "Accept-Language": getStoredLanguage(),
       ...(hasBody && !isRawBody ? { "Content-Type": "application/json" } : {}),
       ...(token ? { Authorization: `Bearer ${token}` } : {}),
       ...(options.requestId ? { "X-Request-ID": options.requestId } : {}),

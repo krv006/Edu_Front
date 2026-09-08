@@ -17,3 +17,4 @@ export { LoadingFallback } from "./loading-fallback";
 export { RouteState } from "./route-state";
 export type { RouteStateProps } from "./route-state";
 export { ThemeToggle, ThemeToggleButton } from "./theme-toggle";
+export { LanguageToggle } from "./language-toggle";

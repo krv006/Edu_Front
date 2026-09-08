@@ -3,6 +3,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import * as Checkbox from "@radix-ui/react-checkbox";
 import { Check, Eye, EyeOff, LockKeyhole, UserRound } from "lucide-react";
 import { useForm, useWatch } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import { Button } from "@/shared/ui/legacy";
 import { applyApiFieldErrors } from "@/shared/api";
 import { loginSchema } from "../model/auth.schemas";
@@ -14,6 +15,7 @@ export interface LoginFormProps {
 }
 
 export function LoginForm({ onSubmit }: LoginFormProps) {
+  const { t } = useTranslation("auth");
   const [showPassword, setShowPassword] = useState(false);
   const {
     register,
@@ -42,7 +44,7 @@ export function LoginForm({ onSubmit }: LoginFormProps) {
   return (
     <form className="login-form" onSubmit={handleSubmit(submit)} noValidate>
       <div className="field-group">
-        <label htmlFor="login">Login</label>
+        <label htmlFor="login">{t("form.loginLabel")}</label>
         <div
           className={`input-shell ${errors.login ? "input-shell--error" : ""}`}
         >
@@ -50,7 +52,7 @@ export function LoginForm({ onSubmit }: LoginFormProps) {
           <input
             id="login"
             autoComplete="username"
-            placeholder="Loginingizni kiriting"
+            placeholder={t("form.loginPlaceholder")}
             {...register("login")}
           />
         </div>
@@ -58,7 +60,7 @@ export function LoginForm({ onSubmit }: LoginFormProps) {
       </div>
 
       <div className="field-group">
-        <label htmlFor="password">Parol</label>
+        <label htmlFor="password">{t("form.passwordLabel")}</label>
         <div
           className={`input-shell ${
             errors.password ? "input-shell--error" : ""
@@ -69,16 +71,14 @@ export function LoginForm({ onSubmit }: LoginFormProps) {
             id="password"
             type={showPassword ? "text" : "password"}
             autoComplete="current-password"
-            placeholder="Parolingizni kiriting"
+            placeholder={t("form.passwordPlaceholder")}
             {...register("password")}
           />
           <button
             className="password-toggle"
             type="button"
             onClick={() => setShowPassword((value) => !value)}
-            aria-label={
-              showPassword ? "Parolni yashirish" : "Parolni ko‘rsatish"
-            }
+            aria-label={showPassword ? t("form.hidePassword") : t("form.showPassword")}
           >
             {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
           </button>
@@ -101,7 +101,7 @@ export function LoginForm({ onSubmit }: LoginFormProps) {
               <Check size={13} strokeWidth={3} />
             </Checkbox.Indicator>
           </Checkbox.Root>
-          Meni eslab qolish
+          {t("form.rememberMe")}
         </label>
       </div>
 
@@ -111,7 +111,7 @@ export function LoginForm({ onSubmit }: LoginFormProps) {
         </div>
       )}
       <Button className="login-submit" type="submit" loading={isSubmitting}>
-        Kirish
+        {t("form.submit")}
       </Button>
     </form>
   );
