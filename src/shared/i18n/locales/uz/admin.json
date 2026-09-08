@@ -1,0 +1,31 @@
+{
+  "dashboard": {
+    "eyebrow": "ADMINISTRATOR",
+    "welcome": "Xush kelibsiz, {{name}}",
+    "subtitle": "Backendda mavjud bo'lgan kurs, dars va davomat ma'lumotlari.",
+    "teachersLink": "O'qituvchilar",
+    "logout": "Chiqish",
+    "permissionError": "Ayrim ma'lumotlarni yuklash uchun administrator ruxsati yetarli emas.",
+    "courses": "Kurslar",
+    "lessons": "Darslar",
+    "attendanceRecords": "Davomat yozuvlari",
+    "recentCoursesEyebrow": "SO'NGGI KURSLAR",
+    "coursesTitle": "Kurslar",
+    "studentsSuffix": "{{count}} o'quvchi",
+    "noCourses": "Kurs topilmadi."
+  },
+  "teachers": {
+    "eyebrow": "ADMINISTRATOR",
+    "title": "O'qituvchilar",
+    "subtitle": "Reyting va tasdiqlash holati.",
+    "backToDashboard": "Boshqaruv paneli",
+    "pendingEyebrow": "TASDIQLANISHI KERAK",
+    "pendingTitle": "Yangi o'qituvchilar",
+    "loading": "Yuklanmoqda",
+    "approve": "Tasdiqlash",
+    "noPending": "Tasdiqlanishi kerak bo'lgan o'qituvchi yo'q.",
+    "allEyebrow": "BARCHASI",
+    "allTitle": "Barcha o'qituvchilar",
+    "noTeachers": "O'qituvchi topilmadi."
+  }
+}

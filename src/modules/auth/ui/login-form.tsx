@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import * as Checkbox from "@radix-ui/react-checkbox";
 import { Check, Eye, EyeOff, LockKeyhole, UserRound } from "lucide-react";
@@ -6,7 +6,7 @@ import { useForm, useWatch } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { Button } from "@/shared/ui/legacy";
 import { applyApiFieldErrors } from "@/shared/api";
-import { loginSchema } from "../model/auth.schemas";
+import { createLoginSchema } from "../model/auth.schemas";
 import type { AppError } from "@/shared/api";
 import type { LoginCredentials } from "@/shared/types";
 
@@ -17,6 +17,7 @@ export interface LoginFormProps {
 export function LoginForm({ onSubmit }: LoginFormProps) {
   const { t } = useTranslation("auth");
   const [showPassword, setShowPassword] = useState(false);
+  const loginSchema = useMemo(() => createLoginSchema(t), [t]);
   const {
     register,
     handleSubmit,

@@ -52,5 +52,23 @@
       "deadlinePassed": "Topshirish muddati tugagan",
       "resultDialogTitle": "Vazifangiz bo'yicha natija"
     }
+  },
+  "enrollmentDialog": {
+    "title": "Yangi muloqot",
+    "description": "O'qituvchiga so'rov yuboring yoki ochiq kursga qo'shiling.",
+    "parentRequestsEyebrow": "OTA-ONA SO'ROVLARI",
+    "wantsToLink": "profilga bog'lanmoqchi",
+    "decline": "Rad etish",
+    "approve": "Tasdiqlash",
+    "writeToTeacherEyebrow": "O'QITUVCHIGA YOZISH",
+    "openChat": "Ochish",
+    "requestChat": "So'rov",
+    "joinCoursesEyebrow": "KURSLARGA QO'SHILISH",
+    "studentsSuffix": "{{count}} o'quvchi",
+    "pending": "Kutilmoqda",
+    "enrolled": "A'zo",
+    "join": "Qo'shilish",
+    "noOpenCourses": "Hozircha ochiq kurs yo'q.",
+    "loadError": "Ma'lumotlarni yuklab bo'lmadi"
   }
 }

@@ -24,7 +24,7 @@ export {
 export { LoginHistoryDialog } from "./ui/login-history-dialog";
 export { describeUserAgent } from "./lib/describe-user-agent";
 export { useAuth, useCurrentUser, useIsAuthenticated } from "./model/use-auth";
-export { loginSchema, registerSchema } from "./model/auth.schemas";
+export { createLoginSchema, createRegisterSchema } from "./model/auth.schemas";
 export {
   useRegisterMutation,
   useDeleteCertificate,
