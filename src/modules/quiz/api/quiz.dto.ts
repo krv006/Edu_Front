@@ -30,6 +30,30 @@ export interface QuizDto extends QuizSummaryDto {
   questions: QuizQuestionDto[];
 }
 
+export interface QuizImportOptionDto {
+  text: string;
+  is_correct: boolean;
+  order: number;
+}
+
+export interface QuizImportQuestionDto {
+  text: string;
+  order: number;
+  options: QuizImportOptionDto[];
+}
+
+export interface QuizImportWarningDto {
+  question_number: number;
+  reason: string;
+}
+
+export interface QuizImportPreviewDto {
+  title: string;
+  description: string;
+  questions: QuizImportQuestionDto[];
+  warnings: QuizImportWarningDto[];
+}
+
 export interface QuizAttemptAnswerDto {
   question: string | number;
   question_text: string;

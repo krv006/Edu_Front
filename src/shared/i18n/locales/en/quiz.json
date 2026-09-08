@@ -1,7 +1,8 @@
 {
   "toast": {
     "created": "Quiz created",
-    "deleted": "Quiz deleted"
+    "deleted": "Quiz deleted",
+    "importSuccess": "Found {{count}} question(s) — review them"
   },
   "teacherPage": {
     "loading": "Loading quizzes",
@@ -65,6 +66,17 @@
     "deleteOptionAria": "Delete option",
     "addOption": "Add option",
     "addQuestion": "Add question",
+    "questionCountLabel": "How many questions?",
+    "questionCountPlaceholder": "E.g.: 10",
+    "generateButton": "Generate templates",
+    "generateConfirm": "The current {{count}} question(s) will be replaced with {{newCount}} empty templates. Continue?",
+    "importOr": "or",
+    "importButton": "Import from .docx",
+    "importButtonLoading": "Uploading…",
+    "optionPlaceholderLettered": "Option {{letter}} text",
+    "markCorrectCaption": "Mark the correct answer",
+    "importWarningAnswerNotDetected": "Question {{number}}: correct answer not detected — mark it manually",
+    "importWarningNotEnoughOptions": "Question {{number}}: not enough options — please check",
     "cancel": "Cancel",
     "create": "Create quiz",
     "validation": {

@@ -1,7 +1,8 @@
 {
   "toast": {
     "created": "Тест создан",
-    "deleted": "Тест удалён"
+    "deleted": "Тест удалён",
+    "importSuccess": "Найдено {{count}} вопрос(ов) — проверьте"
   },
   "teacherPage": {
     "loading": "Загрузка тестов",
@@ -65,6 +66,17 @@
     "deleteOptionAria": "Удалить вариант",
     "addOption": "Добавить вариант",
     "addQuestion": "Добавить вопрос",
+    "questionCountLabel": "Сколько вопросов?",
+    "questionCountPlaceholder": "Например: 10",
+    "generateButton": "Открыть шаблоны",
+    "generateConfirm": "Текущие {{count}} вопрос(ов) будут удалены, будет создано {{newCount}} пустых шаблонов. Продолжить?",
+    "importOr": "или",
+    "importButton": "Импорт из .docx",
+    "importButtonLoading": "Загрузка…",
+    "optionPlaceholderLettered": "Текст варианта {{letter}}",
+    "markCorrectCaption": "Отметьте правильный ответ",
+    "importWarningAnswerNotDetected": "Вопрос {{number}}: правильный ответ не определён — отметьте вручную",
+    "importWarningNotEnoughOptions": "Вопрос {{number}}: недостаточно вариантов — проверьте",
     "cancel": "Отмена",
     "create": "Создать тест",
     "validation": {

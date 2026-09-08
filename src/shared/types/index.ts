@@ -15,6 +15,9 @@ export type {
   Course,
   CourseHomeworkReport,
   CourseStudentSearchResult,
+  DashboardPeriod,
+  DashboardSummary,
+  DashboardTrends,
   DirectStatus,
   DomainUser,
   Enrollment,
@@ -38,6 +41,8 @@ export type {
   QuizAttemptSummary,
   QuizDetail,
   QuizFormValues,
+  QuizImportPreview,
+  QuizImportWarning,
   QuizOption,
   QuizQuestion,
   QuizQuestionFormValues,
@@ -45,6 +50,8 @@ export type {
   SendMessagePayload,
   Submission,
   SubmissionStatus,
+  TopCourseStat,
+  TopTeacherStat,
 } from "./domain";
 export type { MessageCapabilities } from "./chat";
 export type { PaginatedDto, UserDto } from "./dto";

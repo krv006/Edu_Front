@@ -1,12 +1,19 @@
 import { apiClient, normalizePagination, type RequestOptions } from "@/shared/api";
 import type { QuizFormValues } from "@/shared/types";
 import { quizEndpoints } from "./quiz.endpoints";
-import type { QuizAttemptResultDto, QuizAttemptSummaryDto, QuizDto, QuizSummaryDto } from "./quiz.dto";
+import type {
+  QuizAttemptResultDto,
+  QuizAttemptSummaryDto,
+  QuizDto,
+  QuizImportPreviewDto,
+  QuizSummaryDto,
+} from "./quiz.dto";
 import {
   mapQuizAttemptRequest,
   mapQuizAttemptResultDto,
   mapQuizAttemptSummaryDto,
   mapQuizDto,
+  mapQuizImportPreviewDto,
   mapQuizRequest,
   mapQuizSummaryDto,
 } from "../lib/quiz.mappers";
@@ -30,6 +37,14 @@ export const quizApi = {
   },
   async create(form: QuizFormValues) {
     return mapQuizDto(await apiClient.post<QuizDto>(quizEndpoints.list, mapQuizRequest(form)));
+  },
+  /** Hech narsa saqlanmaydi — faqat parse qilingan preview qaytadi. */
+  async importDocx(file: File) {
+    const body = new FormData();
+    body.set("file", file);
+    return mapQuizImportPreviewDto(
+      await apiClient.post<QuizImportPreviewDto>(quizEndpoints.import, body)
+    );
   },
   async remove(id: string) {
     await apiClient.delete(quizEndpoints.detail(id));

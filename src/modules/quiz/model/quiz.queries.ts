@@ -41,6 +41,16 @@ export function useCreateQuiz() {
   });
 }
 
+/** Hech narsa saqlamaydi — preview qaytaradi, dialog uni draft'ga yuklaydi. */
+export function useImportQuizDocx() {
+  const { t } = useTranslation("quiz");
+  return useMutation({
+    mutationFn: (file: File) => quizApi.importDocx(file),
+    onSuccess: (preview) => toast.success(t("toast.importSuccess", { count: preview.questions.length })),
+    onError: (error: Error) => toast.error(error.message),
+  });
+}
+
 export function useDeleteQuiz() {
   const { t } = useTranslation("quiz");
   const client = useQueryClient();

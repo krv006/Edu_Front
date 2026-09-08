@@ -1,11 +1,12 @@
-import { useMemo, useRef, useState, type FormEvent } from "react";
+import { useMemo, useRef, useState, type ChangeEvent, type FormEvent } from "react";
 import { motion } from "framer-motion";
-import { BookOpen, CalendarDays, Plus, Trash2 } from "lucide-react";
+import { BookOpen, CalendarDays, FileUp, ListChecks, Plus, Trash2 } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useLessons } from "@/modules/lesson";
 import { Button, Dialog, DialogContent } from "@/shared/ui/legacy";
 import { DatePicker, SelectPicker } from "@/shared/ui/legacy/form-pickers";
-import type { QuizFormValues } from "@/shared/types";
+import type { QuizFormValues, QuizImportWarning } from "@/shared/types";
+import { useImportQuizDocx } from "../model/quiz.queries";
 
 interface QuizOptionDraft {
   key: string;
@@ -29,16 +30,23 @@ export interface AddQuizDialogProps {
   courses: Array<{ id: string; title: string }>;
 }
 
+/** Yangi savol shablonidagi standart variantlar soni — A, B, C, D. */
+const DEFAULT_OPTION_COUNT = 4;
+
+function optionLetter(index: number): string {
+  return String.fromCharCode(65 + index);
+}
+
 function emptyOption(key: string): QuizOptionDraft {
   return { key, text: "" };
 }
 
-function emptyQuestion(key: string, option1: string, option2: string): QuizQuestionDraft {
+function emptyQuestion(key: string, optionKeys: string[]): QuizQuestionDraft {
   return {
     key,
     text: "",
     points: "1",
-    options: [emptyOption(option1), emptyOption(option2)],
+    options: optionKeys.map(emptyOption),
     correctKey: null,
   };
 }
@@ -60,9 +68,16 @@ export function AddQuizDialog({ open, onOpenChange, onCreate, courses }: AddQuiz
   // Boshlang'ich savol statik kalitlar bilan — `newKey()` (ref) faqat event
   // handler'larda chaqiriladi, render paytida ref'ga murojaat qilinmaydi.
   const [questions, setQuestions] = useState<QuizQuestionDraft[]>(() => [
-    emptyQuestion("q-initial", "o-initial-1", "o-initial-2"),
+    emptyQuestion(
+      "q-initial",
+      Array.from({ length: DEFAULT_OPTION_COUNT }, (_, i) => `o-initial-${i + 1}`)
+    ),
   ]);
+  const [questionCount, setQuestionCount] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [importWarnings, setImportWarnings] = useState<QuizImportWarning[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const importDocx = useImportQuizDocx();
 
   const courseOptions = useMemo(
     () => courses.map((course) => ({ value: course.id, label: course.title })),
@@ -79,18 +94,73 @@ export function AddQuizDialog({ open, onOpenChange, onCreate, courses }: AddQuiz
     return [{ value: "", label: t("createDialog.notLinkedToLesson") }, ...finished];
   }, [lessons.data, t]);
 
+  function newQuestion() {
+    return emptyQuestion(
+      newKey(),
+      Array.from({ length: DEFAULT_OPTION_COUNT }, () => newKey())
+    );
+  }
+
   function reset() {
     setTitle("");
     setDescription("");
     setLessonId("");
     setDueAt("");
     setOpensAt("");
-    setQuestions([emptyQuestion(newKey(), newKey(), newKey())]);
+    setQuestions([newQuestion()]);
+    setQuestionCount("");
+    setImportWarnings([]);
     setError(null);
   }
 
   function addQuestion() {
-    setQuestions((current) => [...current, emptyQuestion(newKey(), newKey(), newKey())]);
+    setQuestions((current) => [...current, newQuestion()]);
+  }
+
+  /** "Nechta savol?" maydoniga son kiritib, o'shancha bo'sh shablon (savol +
+   * 4 ta variant maydoni) bir zumda ochib beradi — o'qituvchi har bir
+   * savolni/variantni birma-bir qo'lda qo'shishga majbur bo'lmaydi. */
+  function generateTemplates() {
+    const count = Math.max(1, Math.min(100, Math.trunc(Number(questionCount)) || 0));
+    if (!count) return;
+    const hasContent = questions.some(
+      (question) => question.text.trim() || question.options.some((option) => option.text.trim())
+    );
+    if (
+      hasContent &&
+      !window.confirm(t("createDialog.generateConfirm", { count: questions.length, newCount: count }))
+    ) {
+      return;
+    }
+    setQuestions(Array.from({ length: count }, () => newQuestion()));
+  }
+
+  /** `.docx` faylni tanlagach — parse qilingan savollarni draft'ga yuklaydi.
+   * Hech narsa saqlanmagan, o'qituvchi ko'rib chiqib "Test yaratish"ni bosishi kerak. */
+  function handleImportFile(event: ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+    if (!file) return;
+    importDocx.mutate(file, {
+      onSuccess: (preview) => {
+        if (!title.trim() && preview.title) setTitle(preview.title);
+        if (!description.trim() && preview.description) setDescription(preview.description);
+        setQuestions(
+          preview.questions.map((question) => {
+            const options = question.options.map((option) => ({ key: newKey(), text: option.text }));
+            const correctIndex = question.options.findIndex((option) => option.isCorrect);
+            return {
+              key: newKey(),
+              text: question.text,
+              points: String(question.points),
+              options,
+              correctKey: correctIndex >= 0 ? options[correctIndex].key : null,
+            };
+          })
+        );
+        setImportWarnings(preview.warnings);
+      },
+    });
   }
 
   function removeQuestion(questionKey: string) {
@@ -249,6 +319,52 @@ export function AddQuizDialog({ open, onOpenChange, onCreate, courses }: AddQuiz
               options={lessonOptions}
             />
 
+            <div className="quiz-template-gen">
+              <label>
+                <span>{t("createDialog.questionCountLabel")}</span>
+                <input
+                  inputMode="numeric"
+                  value={questionCount}
+                  onChange={(event) => setQuestionCount(event.target.value.replace(/[^\d]/g, ""))}
+                  placeholder={t("createDialog.questionCountPlaceholder")}
+                />
+              </label>
+              <button type="button" className="quiz-generate-button" onClick={generateTemplates}>
+                <ListChecks size={14} /> {t("createDialog.generateButton")}
+              </button>
+              <span className="quiz-template-gen-or">{t("createDialog.importOr")}</span>
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept=".docx"
+                hidden
+                onChange={handleImportFile}
+              />
+              <button
+                type="button"
+                className="quiz-generate-button quiz-generate-button--ghost"
+                disabled={importDocx.isPending}
+                onClick={() => fileInputRef.current?.click()}
+              >
+                <FileUp size={14} />{" "}
+                {importDocx.isPending ? t("createDialog.importButtonLoading") : t("createDialog.importButton")}
+              </button>
+            </div>
+            {importWarnings.length ? (
+              <div className="form-alert form-alert--warning">
+                {importWarnings.map((warning) => (
+                  <p key={warning.questionNumber}>
+                    {t(
+                      warning.reason === "answer_not_detected"
+                        ? "createDialog.importWarningAnswerNotDetected"
+                        : "createDialog.importWarningNotEnoughOptions",
+                      { number: warning.questionNumber }
+                    )}
+                  </p>
+                ))}
+              </div>
+            ) : null}
+
             <div className="quiz-questions">
               {questions.map((question, index) => (
                 <div key={question.key} className="quiz-question-card">
@@ -284,15 +400,17 @@ export function AddQuizDialog({ open, onOpenChange, onCreate, courses }: AddQuiz
                     </button>
                   </div>
 
+                  <span className="quiz-option-caption">{t("createDialog.markCorrectCaption")}</span>
                   <div
                     className="quiz-option-list"
                     role="radiogroup"
                     aria-label={t("createDialog.correctAnswerGroupAria", { number: index + 1 })}
                   >
-                    {question.options.map((option) => {
+                    {question.options.map((option, optionIndex) => {
                       const active = question.correctKey === option.key;
                       return (
                         <div key={option.key} className="quiz-option-row">
+                          <span className="quiz-option-letter">{optionLetter(optionIndex)}</span>
                           <button
                             type="button"
                             role="radio"
@@ -306,7 +424,9 @@ export function AddQuizDialog({ open, onOpenChange, onCreate, courses }: AddQuiz
                             onChange={(event) =>
                               updateOptionText(question.key, option.key, event.target.value)
                             }
-                            placeholder={t("createDialog.optionPlaceholder")}
+                            placeholder={t("createDialog.optionPlaceholderLettered", {
+                              letter: optionLetter(optionIndex),
+                            })}
                           />
                           <button
                             type="button"

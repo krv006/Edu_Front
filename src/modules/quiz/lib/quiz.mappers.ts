@@ -4,6 +4,7 @@ import type {
   QuizAttemptSummary,
   QuizDetail,
   QuizFormValues,
+  QuizImportPreview,
   QuizOption,
   QuizQuestion,
   QuizSummary,
@@ -13,6 +14,7 @@ import type {
   QuizAttemptResultDto,
   QuizAttemptSummaryDto,
   QuizDto,
+  QuizImportPreviewDto,
   QuizOptionDto,
   QuizQuestionDto,
   QuizSummaryDto,
@@ -101,6 +103,25 @@ export function mapQuizRequest(form: QuizFormValues): Record<string, unknown> {
         text: option.text,
         is_correct: option.isCorrect,
       })),
+    })),
+  };
+}
+
+export function mapQuizImportPreviewDto(dto: QuizImportPreviewDto): QuizImportPreview {
+  return {
+    title: dto.title || "",
+    description: dto.description || "",
+    questions: (dto.questions ?? []).map((question) => ({
+      text: question.text,
+      points: 1,
+      options: (question.options ?? []).map((option) => ({
+        text: option.text,
+        isCorrect: option.is_correct,
+      })),
+    })),
+    warnings: (dto.warnings ?? []).map((warning) => ({
+      questionNumber: warning.question_number,
+      reason: warning.reason,
     })),
   };
 }

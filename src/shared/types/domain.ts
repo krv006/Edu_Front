@@ -391,6 +391,60 @@ export interface QuizFormValues {
   questions: QuizQuestionFormValues[];
 }
 
+/** Admin boshqaruv paneli — `apps.analytics` (faqat o'qish, `audit.view` ruxsati). */
+export interface TopCourseStat {
+  id: string;
+  title: string;
+  teacherName: string;
+  studentCount: number;
+  avgRating: number | null;
+  attendanceRate: number | null;
+}
+
+export interface TopTeacherStat {
+  id: string;
+  name: string;
+  courseCount: number;
+  lessonsThisMonth: number;
+  avgRating: number | null;
+  reliability: number | null;
+}
+
+export interface DashboardSummary {
+  activeStudents: number;
+  activeTeachers: number;
+  activeCourses: number;
+  avgRating: number | null;
+  ratingCount: number;
+  topCourses: TopCourseStat[];
+  topTeachers: TopTeacherStat[];
+}
+
+export type DashboardPeriod = "day" | "week" | "month" | "year";
+
+export interface DashboardTrends {
+  period: DashboardPeriod;
+  labels: string[];
+  enrollments: number[];
+  lessonsCompleted: number[];
+  lessonsCancelled: number[];
+  quizAvgScore: Array<number | null>;
+  attendanceRate: Array<number | null>;
+}
+
+/** `.docx` import preview — hech narsa saqlanmagan, o'qituvchi ko'rib tahrirlaydi. */
+export interface QuizImportWarning {
+  questionNumber: number;
+  reason: string;
+}
+
+export interface QuizImportPreview {
+  title: string;
+  description: string;
+  questions: QuizQuestionFormValues[];
+  warnings: QuizImportWarning[];
+}
+
 export interface CourseHomeworkReport extends HomeworkReportSummary {
   courseId: string;
   courseTitle: string;

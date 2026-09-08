@@ -1,7 +1,8 @@
 {
   "toast": {
     "created": "Test yaratildi",
-    "deleted": "Test o'chirildi"
+    "deleted": "Test o'chirildi",
+    "importSuccess": "{{count}} ta savol topildi — tekshirib chiqing"
   },
   "teacherPage": {
     "loading": "Testlar yuklanmoqda",
@@ -65,6 +66,17 @@
     "deleteOptionAria": "Variantni o'chirish",
     "addOption": "Variant qo'shish",
     "addQuestion": "Savol qo'shish",
+    "questionCountLabel": "Nechta savol?",
+    "questionCountPlaceholder": "Masalan: 10",
+    "generateButton": "Shablonlarni ochish",
+    "generateConfirm": "Hozirgi {{count}} ta savol o'chirilib, {{newCount}} ta bo'sh shablon yaratiladi. Davom etasizmi?",
+    "importOr": "yoki",
+    "importButton": ".docx fayldan import",
+    "importButtonLoading": "Yuklanmoqda…",
+    "optionPlaceholderLettered": "{{letter}}-variant matni",
+    "markCorrectCaption": "To'g'ri javobni belgilang",
+    "importWarningAnswerNotDetected": "{{number}}-savol: to'g'ri javob aniqlanmadi — qo'lda belgilang",
+    "importWarningNotEnoughOptions": "{{number}}-savol: variantlar yetarli emas — tekshiring",
     "cancel": "Bekor qilish",
     "create": "Test yaratish",
     "validation": {
