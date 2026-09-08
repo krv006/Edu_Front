@@ -1,0 +1,14 @@
+{
+  "roles": {
+    "teacher": "Учитель",
+    "student": "Ученик",
+    "parent": "Родитель"
+  },
+  "parent": {
+    "dashboard": "Главная",
+    "children": "Дети",
+    "attendance": "Посещаемость",
+    "homework": "Задания",
+    "grades": "Рейтинг"
+  }
+}

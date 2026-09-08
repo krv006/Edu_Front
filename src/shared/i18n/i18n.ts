@@ -3,25 +3,29 @@ import { initReactI18next } from "react-i18next";
 import { DEFAULT_LANGUAGE, useLanguageStore } from "@/shared/model";
 import enAuth from "./locales/en/auth.json";
 import enCommon from "./locales/en/common.json";
+import enNav from "./locales/en/nav.json";
 import ruAuth from "./locales/ru/auth.json";
 import ruCommon from "./locales/ru/common.json";
+import ruNav from "./locales/ru/nav.json";
 import uzAuth from "./locales/uz/auth.json";
 import uzCommon from "./locales/uz/common.json";
+import uzNav from "./locales/uz/nav.json";
 
 /**
- * Tarjimalar hozircha "common" (umumiy UI) va "auth" (kirish/ro'yxatdan
- * o'tish) nomlar maydonlariga bo'lingan — qolgan modullar bosqichma-bosqich,
- * har biri o'z alohida PR'ida shu yerga qo'shiladi.
+ * Tarjimalar hozircha "common" (umumiy UI), "auth" (kirish/ro'yxatdan o'tish)
+ * va "nav" (rol navigatsiyasi) nomlar maydonlariga bo'lingan — qolgan
+ * modullar bosqichma-bosqich, har biri o'z alohida PR'ida shu yerga
+ * qo'shiladi.
  */
 void i18next.use(initReactI18next).init({
   resources: {
-    uz: { common: uzCommon, auth: uzAuth },
-    en: { common: enCommon, auth: enAuth },
-    ru: { common: ruCommon, auth: ruAuth },
+    uz: { common: uzCommon, auth: uzAuth, nav: uzNav },
+    en: { common: enCommon, auth: enAuth, nav: enNav },
+    ru: { common: ruCommon, auth: ruAuth, nav: ruNav },
   },
   lng: useLanguageStore.getState().language,
   fallbackLng: DEFAULT_LANGUAGE,
-  ns: ["common", "auth"],
+  ns: ["common", "auth", "nav"],
   defaultNS: "common",
   interpolation: { escapeValue: false },
   returnNull: false,
