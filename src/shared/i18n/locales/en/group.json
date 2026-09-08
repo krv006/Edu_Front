@@ -1,0 +1,59 @@
+{
+  "tabs": {
+    "chat": "Chat",
+    "lessons": "Lessons",
+    "assignments": "Assignments",
+    "students": "Students",
+    "attendance": "Attendance"
+  },
+  "sendFailed": "Couldn't send the message",
+  "replyFallback": "Reply",
+  "lessons": {
+    "eyebrow": "LESSON SCHEDULE",
+    "title": "Lessons",
+    "subtitle": "Scheduled live sessions.",
+    "addLesson": "Add lesson",
+    "deleteDialogTitle": "Delete lesson",
+    "deleteDialogDescription": "\"{{title}}\" cannot be restored.",
+    "cancel": "Cancel",
+    "delete": "Delete"
+  },
+  "assignments": {
+    "eyebrow": "GROUP ASSIGNMENTS",
+    "title": "Assignments",
+    "subtitle": "Manage submissions and AI results.",
+    "addAssignment": "Assign homework",
+    "dueLabel": "Due: {{date}}",
+    "noDue": "No due date set",
+    "submissionsCount": "{{count}} submitted",
+    "results": "Results",
+    "editAria": "Edit assignment",
+    "editTitle": "Edit (e.g. adjust the due date)",
+    "deleteAria": "Delete assignment",
+    "emptyTitle": "No assignments given yet",
+    "emptyCreateFirst": "Give the first assignment",
+    "deleteDialogTitle": "Delete assignment",
+    "deleteDialogDescription": "\"{{title}}\" and its related data will be deleted.",
+    "cancel": "Cancel",
+    "delete": "Delete"
+  },
+  "students": {
+    "eyebrow": "PARTICIPANTS",
+    "title": "Students",
+    "countSuffix": "{{count}} students",
+    "addStudent": "Add student",
+    "searchPlaceholder": "Filter the list",
+    "removeAria": "Remove {{name}} from the course",
+    "empty": "No students found.",
+    "removeDialogTitle": "Remove from course",
+    "removeDialogDescription": "{{name}} will be removed from the course, chat, and assignments.",
+    "cancel": "Cancel",
+    "remove": "Remove"
+  },
+  "attendance": {
+    "eyebrow": "COURSE REPORT",
+    "title": "Attendance and focus",
+    "summary": "{{lessonCount}} lessons · {{recordCount}} records",
+    "empty": "No attendance yet."
+  }
+}

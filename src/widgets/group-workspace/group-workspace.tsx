@@ -15,7 +15,9 @@ import {
 } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "@/modules/auth";
+import { toIntlLocale } from "@/shared/i18n";
 import { AttendanceAccordion, useAttendance } from "@/modules/attendance";
 import { AddStudentDialog, useCourse, useCourseStudents, useUnenrollStudent } from "@/modules/course";
 import {
@@ -64,13 +66,16 @@ import {
 
 type TabId = "chat" | "lessons" | "assignments" | "students" | "attendance";
 
-const TABS: Array<{ id: TabId; label: string; icon: typeof BookOpen }> = [
-  { id: "chat", label: "Chat", icon: BookOpen },
-  { id: "lessons", label: "Darslar", icon: CalendarDays },
-  { id: "assignments", label: "Vazifalar", icon: ClipboardList },
-  { id: "students", label: "O‘quvchilar", icon: UsersRound },
-  { id: "attendance", label: "Davomat", icon: CheckCircle2 },
-];
+function useTabs(): Array<{ id: TabId; label: string; icon: typeof BookOpen }> {
+  const { t } = useTranslation("group");
+  return [
+    { id: "chat", label: t("tabs.chat"), icon: BookOpen },
+    { id: "lessons", label: t("tabs.lessons"), icon: CalendarDays },
+    { id: "assignments", label: t("tabs.assignments"), icon: ClipboardList },
+    { id: "students", label: t("tabs.students"), icon: UsersRound },
+    { id: "attendance", label: t("tabs.attendance"), icon: CheckCircle2 },
+  ];
+}
 
 
 export interface GroupWorkspaceProps {
@@ -88,6 +93,8 @@ export function GroupWorkspace({
   sendTyping,
   retryMessage,
 }: GroupWorkspaceProps) {
+  const { t } = useTranslation("group");
+  const TABS = useTabs();
   const { user } = useAuth();
   const [params, setParams] = useSearchParams();
   const [reply, setReply] = useState<ChatMessage | null>(null);
@@ -118,11 +125,11 @@ export function GroupWorkspace({
     try {
       await sendMessage.mutateAsync({
         ...payload,
-        replyTo: reply ? { author: reply.senderName || "Javob", text: reply.text } : undefined,
+        replyTo: reply ? { author: reply.senderName || t("replyFallback"), text: reply.text } : undefined,
       });
       setReply(null);
     } catch {
-      toast.error("Xabar yuborilmadi");
+      toast.error(t("sendFailed"));
     }
   }
 
@@ -229,6 +236,7 @@ interface LessonsPanelProps {
 }
 
 function LessonsPanel({ courseId, lessons = [], loading }: LessonsPanelProps) {
+  const { t } = useTranslation("group");
   const [dialog, setDialog] = useState(false);
   const [editing, setEditing] = useState<Lesson | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Lesson | null>(null);
@@ -294,9 +302,9 @@ function LessonsPanel({ courseId, lessons = [], loading }: LessonsPanelProps) {
     <div className="group-panel">
       <div className="group-panel-head">
         <div>
-          <span>DARS JADVALI</span>
-          <h2>Darslar</h2>
-          <p>Rejalashtirilgan jonli mashg‘ulotlar.</p>
+          <span>{t("lessons.eyebrow")}</span>
+          <h2>{t("lessons.title")}</h2>
+          <p>{t("lessons.subtitle")}</p>
         </div>
         <div className="group-panel-tools">
           <LessonViewSwitch view={view} onChange={setView} />
@@ -306,7 +314,7 @@ function LessonsPanel({ courseId, lessons = [], loading }: LessonsPanelProps) {
               setDialog(true);
             }}
           >
-            <Plus size={17} /> Dars qo‘shish
+            <Plus size={17} /> {t("lessons.addLesson")}
           </Button>
         </div>
       </div>
@@ -340,16 +348,16 @@ function LessonsPanel({ courseId, lessons = [], loading }: LessonsPanelProps) {
         }}
       >
         {deleteTarget && (
-          <DialogContent title="Darsni o‘chirish" description={`“${deleteTarget.title}” qayta tiklanmaydi.`}>
+          <DialogContent title={t("lessons.deleteDialogTitle")} description={t("lessons.deleteDialogDescription", { title: deleteTarget.title })}>
             <div className="dialog-actions">
               <Button variant="secondary" onClick={() => setDeleteTarget(null)}>
-                Bekor
+                {t("lessons.cancel")}
               </Button>
               <Button
                 loading={remove.isPending}
                 onClick={() => remove.mutateAsync(deleteTarget.id).then(() => setDeleteTarget(null))}
               >
-                O‘chirish
+                {t("lessons.delete")}
               </Button>
             </div>
           </DialogContent>
@@ -400,6 +408,7 @@ function AssignmentsPanel({
   loading,
   isLanguageSubject,
 }: AssignmentsPanelProps) {
+  const { t, i18n } = useTranslation("group");
   const [dialog, setDialog] = useState(false);
   const [editingAssignment, setEditingAssignment] = useState<Assignment | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Assignment | null>(null);
@@ -419,12 +428,12 @@ function AssignmentsPanel({
     <div className="group-panel">
       <div className="group-panel-head">
         <div>
-          <span>GURUH VAZIFALARI</span>
-          <h2>Vazifalar</h2>
-          <p>Topshiriqlar va AI natijalarini boshqaring.</p>
+          <span>{t("assignments.eyebrow")}</span>
+          <h2>{t("assignments.title")}</h2>
+          <p>{t("assignments.subtitle")}</p>
         </div>
         <Button onClick={() => setDialog(true)}>
-          <Plus size={17} /> Vazifa berish
+          <Plus size={17} /> {t("assignments.addAssignment")}
         </Button>
       </div>
 
@@ -450,12 +459,14 @@ function AssignmentsPanel({
                 <p>{item.description}</p>
                 <small>
                   {item.dueAt
-                    ? `Muddat: ${new Intl.DateTimeFormat("uz-UZ", {
-                        dateStyle: "medium",
-                        timeStyle: "short",
-                      }).format(new Date(item.dueAt))}`
-                    : "Muddat belgilanmagan"}{" "}
-                  · {item.submissionsCount ?? 0} topshirilgan
+                    ? t("assignments.dueLabel", {
+                        date: new Intl.DateTimeFormat(toIntlLocale(i18n.language), {
+                          dateStyle: "medium",
+                          timeStyle: "short",
+                        }).format(new Date(item.dueAt)),
+                      })
+                    : t("assignments.noDue")}{" "}
+                  · {t("assignments.submissionsCount", { count: item.submissionsCount ?? 0 })}
                 </small>
                 {/* Umumiy ro'yxatda vazifa qaysi darsga tegishli ekani ko'rinsin. */}
                 {item.lessonTitle ? (
@@ -466,7 +477,7 @@ function AssignmentsPanel({
               </div>
               <span className="assignment-subject">{item.subject}</span>
               <Button size="sm" variant="secondary" onClick={() => setDetailId(item.id)}>
-                <CheckCircle2 size={15} /> Natijalar
+                <CheckCircle2 size={15} /> {t("assignments.results")}
               </Button>
               <button
                 className="icon-button"
@@ -474,15 +485,15 @@ function AssignmentsPanel({
                   setEditingAssignment(item);
                   setDialog(true);
                 }}
-                aria-label="Vazifani tahrirlash"
-                title="Tahrirlash (masalan, muddatni to‘g‘irlash)"
+                aria-label={t("assignments.editAria")}
+                title={t("assignments.editTitle")}
               >
                 <Pencil size={16} />
               </button>
               <button
                 className="icon-button destructive-icon"
                 onClick={() => setDeleteTarget(item)}
-                aria-label="Vazifani o‘chirish"
+                aria-label={t("assignments.deleteAria")}
               >
                 <Trash2 size={16} />
               </button>
@@ -492,8 +503,8 @@ function AssignmentsPanel({
       ) : (
         <div className="premium-empty">
           <ClipboardList size={30} />
-          <h3>Hali vazifa berilmagan</h3>
-          <Button onClick={() => setDialog(true)}>Birinchi vazifani berish</Button>
+          <h3>{t("assignments.emptyTitle")}</h3>
+          <Button onClick={() => setDialog(true)}>{t("assignments.emptyCreateFirst")}</Button>
         </div>
       )}
 
@@ -528,18 +539,18 @@ function AssignmentsPanel({
       >
         {deleteTarget && (
           <DialogContent
-            title="Vazifani o‘chirish"
-            description={`“${deleteTarget.title}” va unga bog‘liq ma’lumotlar o‘chadi.`}
+            title={t("assignments.deleteDialogTitle")}
+            description={t("assignments.deleteDialogDescription", { title: deleteTarget.title })}
           >
             <div className="dialog-actions">
               <Button variant="secondary" onClick={() => setDeleteTarget(null)}>
-                Bekor
+                {t("assignments.cancel")}
               </Button>
               <Button
                 loading={remove.isPending}
                 onClick={() => remove.mutateAsync(deleteTarget.id).then(() => setDeleteTarget(null))}
               >
-                O‘chirish
+                {t("assignments.delete")}
               </Button>
             </div>
           </DialogContent>
@@ -564,6 +575,7 @@ interface StudentsPanelProps {
 }
 
 function StudentsPanel({ courseId, page, loading }: StudentsPanelProps) {
+  const { t } = useTranslation("group");
   const [search, setSearch] = useState("");
   const [addOpen, setAddOpen] = useState(false);
   const [removeTarget, setRemoveTarget] = useState<DomainUser | null>(null);
@@ -589,12 +601,12 @@ function StudentsPanel({ courseId, page, loading }: StudentsPanelProps) {
     <div className="group-panel">
       <div className="group-panel-head">
         <div>
-          <span>ISHTIROKCHILAR</span>
-          <h2>O‘quvchilar</h2>
-          <p>{page?.total ?? 0} o‘quvchi</p>
+          <span>{t("students.eyebrow")}</span>
+          <h2>{t("students.title")}</h2>
+          <p>{t("students.countSuffix", { count: page?.total ?? 0 })}</p>
         </div>
         <Button onClick={() => setAddOpen(true)}>
-          <UserPlus size={17} /> O‘quvchi qo‘shish
+          <UserPlus size={17} /> {t("students.addStudent")}
         </Button>
       </div>
 
@@ -603,7 +615,7 @@ function StudentsPanel({ courseId, page, loading }: StudentsPanelProps) {
         <input
           value={search}
           onChange={(event) => setSearch(event.target.value)}
-          placeholder="Ro‘yxat ichidan filtrlash"
+          placeholder={t("students.searchPlaceholder")}
         />
       </label>
 
@@ -622,14 +634,14 @@ function StudentsPanel({ courseId, page, loading }: StudentsPanelProps) {
               </div>
               <button
                 className="icon-button destructive-icon"
-                aria-label={`${student.name}ni kursdan chiqarish`}
+                aria-label={t("students.removeAria", { name: student.name })}
                 onClick={() => setRemoveTarget(student)}
               >
                 <UserMinus size={16} />
               </button>
             </article>
           ))}
-          {!students.length ? <p className="portal-muted">O‘quvchi topilmadi.</p> : null}
+          {!students.length ? <p className="portal-muted">{t("students.empty")}</p> : null}
         </div>
       )}
 
@@ -642,15 +654,15 @@ function StudentsPanel({ courseId, page, loading }: StudentsPanelProps) {
       >
         {removeTarget && (
           <DialogContent
-            title="Kursdan chiqarish"
-            description={`${removeTarget.name} kurs, chat va vazifalardan chiqariladi.`}
+            title={t("students.removeDialogTitle")}
+            description={t("students.removeDialogDescription", { name: removeTarget.name })}
           >
             <div className="dialog-actions">
               <Button variant="secondary" onClick={() => setRemoveTarget(null)}>
-                Bekor
+                {t("students.cancel")}
               </Button>
               <Button loading={unenroll.isPending} onClick={confirmRemove}>
-                Chiqarish
+                {t("students.remove")}
               </Button>
             </div>
           </DialogContent>
@@ -668,6 +680,7 @@ interface AttendancePanelProps {
 }
 
 function AttendancePanel({ lessons = [], rows = [], loading }: AttendancePanelProps) {
+  const { t } = useTranslation("group");
   const lessonIds = new Set(lessons.map((lesson) => lesson.id));
   const filtered = rows.filter((row) => lessonIds.has(row.lessonId));
   const lessonCount = new Set(filtered.map((row) => row.lessonId)).size;
@@ -683,14 +696,12 @@ function AttendancePanel({ lessons = [], rows = [], loading }: AttendancePanelPr
     <div className="group-panel">
       <div className="group-panel-head">
         <div>
-          <span>KURS HISOBOTI</span>
-          <h2>Davomat va fokus</h2>
-          <p>
-            {lessonCount} ta dars · {filtered.length} ta yozuv
-          </p>
+          <span>{t("attendance.eyebrow")}</span>
+          <h2>{t("attendance.title")}</h2>
+          <p>{t("attendance.summary", { lessonCount, recordCount: filtered.length })}</p>
         </div>
       </div>
-      <AttendanceAccordion rows={filtered} emptyLabel="Davomat hali yo‘q." />
+      <AttendanceAccordion rows={filtered} emptyLabel={t("attendance.empty")} />
     </div>
   );
 }
