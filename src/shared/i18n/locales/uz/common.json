@@ -13,5 +13,11 @@
     "back": "Orqaga",
     "retry": "Qayta urinish",
     "logout": "Chiqish"
+  },
+  "portal": {
+    "home": "Bosh sahifa",
+    "defaultUser": "Foydalanuvchi",
+    "openNav": "Navigatsiyani ochish",
+    "navLabel": "{{role}} navigatsiyasi"
   }
 }

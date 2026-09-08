@@ -1,6 +1,7 @@
 import { useState, type ComponentType, type ReactNode } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import { ChevronDown, LogOut, Menu, X } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { NavLink, Outlet } from "react-router-dom";
 import { NotificationBell } from "@/modules/notification";
 import type { AuthUser } from "@/shared/types";
@@ -22,6 +23,7 @@ export interface PortalLayoutProps {
 }
 
 export function PortalLayout({ navItems, roleLabel, user, onLogout, headerExtra = null }: PortalLayoutProps) {
+  const { t } = useTranslation();
   const [accountOpen, setAccountOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
@@ -33,7 +35,7 @@ export function PortalLayout({ navItems, roleLabel, user, onLogout, headerExtra 
     <div className="portal-shell">
       <header className="portal-header">
         <div className="portal-header-inner">
-          <NavLink to="/" className="portal-brand-link" aria-label="Bosh sahifa">
+          <NavLink to="/" className="portal-brand-link" aria-label={t("portal.home")}>
             <Brand />
           </NavLink>
           <div className="portal-header-actions">
@@ -48,7 +50,7 @@ export function PortalLayout({ navItems, roleLabel, user, onLogout, headerExtra 
                 onClick={() => setAccountOpen((value) => !value)}
                 aria-expanded={accountOpen}
               >
-                <Avatar name={user?.name ?? "Foydalanuvchi"} tone="violet" size="sm" status="online" />
+                <Avatar name={user?.name ?? t("portal.defaultUser")} tone="violet" size="sm" status="online" />
                 <span>
                   <strong>{user?.name}</strong>
                   <small>{roleLabel}</small>
@@ -69,7 +71,7 @@ export function PortalLayout({ navItems, roleLabel, user, onLogout, headerExtra 
                       <small>{user?.email}</small>
                     </div>
                     <button onClick={handleLogout}>
-                      <LogOut size={17} /> Chiqish
+                      <LogOut size={17} /> {t("actions.logout")}
                     </button>
                   </motion.div>
                 )}
@@ -78,13 +80,13 @@ export function PortalLayout({ navItems, roleLabel, user, onLogout, headerExtra 
             <button
               className="portal-mobile-toggle"
               onClick={() => setMobileOpen((value) => !value)}
-              aria-label="Navigatsiyani ochish"
+              aria-label={t("portal.openNav")}
             >
               {mobileOpen ? <X size={21} /> : <Menu size={21} />}
             </button>
           </div>
         </div>
-        <nav className={`portal-nav ${mobileOpen ? "is-open" : ""}`} aria-label={`${roleLabel} navigatsiyasi`}>
+        <nav className={`portal-nav ${mobileOpen ? "is-open" : ""}`} aria-label={t("portal.navLabel", { role: roleLabel })}>
           <div className="portal-nav-inner">
             {navItems.map((item) => {
               const Icon = item.icon;
