@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from "react";
 import { Calculator, Check, Eye, FilePlus2, Pencil, UserCheck, X } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { useCourseStudents } from "@/modules/course";
 import { Button, Dialog, DialogContent } from "@/shared/ui/legacy";
@@ -28,6 +29,7 @@ export interface BoardPanelProps {
 }
 
 export function BoardPanel({ lessonId, courseId, currentUserId }: BoardPanelProps) {
+  const { t } = useTranslation("board");
   const realtime = useBoardRealtime(lessonId, true, currentUserId);
   const board = useBoard(lessonId, { live: realtime.connected });
   const addStroke = useAddStroke(lessonId);
@@ -130,7 +132,7 @@ export function BoardPanel({ lessonId, courseId, currentUserId }: BoardPanelProp
     try {
       await erase.mutateAsync({ sheet, strokeIds: [selected], reason: reason.trim() });
       closeReasonDialog();
-      toast.success("Element o‘chirildi");
+      toast.success(t("eraseDialog.deleted"));
     } catch {
       // Xato bo'lsa oyna ochiq qoladi (qayta urinish uchun) — xabar
       // `useEraseStrokes`ning `onError`i orqali allaqachon ko'rsatiladi.
@@ -142,7 +144,7 @@ export function BoardPanel({ lessonId, courseId, currentUserId }: BoardPanelProp
     try {
       setSolution(await solve.mutateAsync(formula));
     } catch (error) {
-      toast.error(error instanceof Error ? error.message : "Formulani yechib bo‘lmadi");
+      toast.error(error instanceof Error ? error.message : t("formulaDialog.solveError"));
     }
   }
 
@@ -172,12 +174,12 @@ export function BoardPanel({ lessonId, courseId, currentUserId }: BoardPanelProp
     );
   }
 
-  if (board.isLoading) return <div className="board-loading">Doska yuklanmoqda…</div>;
+  if (board.isLoading) return <div className="board-loading">{t("status.loading")}</div>;
   if (board.isError || !state)
     return (
       <div className="board-error">
         <p>{board.error?.message}</p>
-        <Button onClick={() => board.refetch()}>Qayta urinish</Button>
+        <Button onClick={() => board.refetch()}>{t("status.retry")}</Button>
       </div>
     );
 
@@ -193,21 +195,17 @@ export function BoardPanel({ lessonId, courseId, currentUserId }: BoardPanelProp
         <div className="board-status">
           <span
             className={`board-permission ${canDraw ? "is-can-draw" : ""}`}
-            title={
-              canDraw
-                ? "Sizda doskada chizish ruxsati bor"
-                : "Sizda doskada chizish ruxsati yo‘q — o‘qituvchidan so‘rang"
-            }
+            title={canDraw ? t("status.canDrawTitle") : t("status.viewOnlyTitle")}
           >
             {canDraw ? <Pencil size={13} /> : <Eye size={13} />}
-            {canDraw ? "Chizish mumkin" : "Faqat ko‘rish"}
+            {canDraw ? t("status.canDraw") : t("status.viewOnly")}
           </span>
           <span
             className="board-live"
-            title={realtime.connected ? "Real-time ulangan" : "Sinxronlash sekin rejimda"}
+            title={realtime.connected ? t("status.liveConnectedTitle") : t("status.liveDisconnectedTitle")}
           >
             <i className={`board-live-dot ${realtime.connected ? "is-live" : ""}`} aria-hidden="true" />
-            {realtime.connected ? "Jonli" : "Sekin rejim"}
+            {realtime.connected ? t("status.live") : t("status.slowMode")}
           </span>
         </div>
 
@@ -224,7 +222,7 @@ export function BoardPanel({ lessonId, courseId, currentUserId }: BoardPanelProp
           ))}
           {state.isTeacher ? (
             <Button size="sm" variant="secondary" onClick={() => addSheet.mutate()}>
-              <FilePlus2 size={15} /> Sahifa
+              <FilePlus2 size={15} /> {t("sheet.addSheet")}
             </Button>
           ) : null}
         </div>
@@ -232,13 +230,13 @@ export function BoardPanel({ lessonId, courseId, currentUserId }: BoardPanelProp
         <div className="board-toolbar-actions">
           {state.isTeacher ? (
             <Button size="sm" variant="secondary" onClick={() => setGrantOpen(true)}>
-              <UserCheck size={15} /> Ruxsat
+              <UserCheck size={15} /> {t("permission.grantButton")}
             </Button>
           ) : null}
           {/* Formula yechuvchi faqat matematika kurslarida ishlaydi (docs/README). */}
           {state.mathEnabled ? (
             <Button size="sm" variant="secondary" onClick={() => setFormulaOpen(true)}>
-              <Calculator size={15} /> Yechuvchi
+              <Calculator size={15} /> {t("solver.button")}
             </Button>
           ) : null}
         </div>
@@ -292,15 +290,15 @@ export function BoardPanel({ lessonId, courseId, currentUserId }: BoardPanelProp
             onPointerDown={(event) => event.stopPropagation()}
             onSubmit={placeBlock}
           >
-            <span>{placement.tool === "math" ? "Formula" : "Matn"}</span>
+            <span>{placement.tool === "math" ? t("inline.formula") : t("inline.text")}</span>
             {placement.tool === "math" ? (
               <MathFieldInput value={draftText} onChange={setDraftText} />
             ) : (
               <input
                 autoFocus
                 value={draftText}
-                placeholder="Matn yozing…"
-                aria-label="Doskaga matn yozish"
+                placeholder={t("inline.placeholder")}
+                aria-label={t("inline.textAria")}
                 onChange={(event) => setDraftText(event.target.value)}
                 onKeyDown={(event) => {
                   if (event.key === "Escape") setPlacement(null);
@@ -308,14 +306,14 @@ export function BoardPanel({ lessonId, courseId, currentUserId }: BoardPanelProp
               />
             )}
             <div className="board-inline-actions">
-              <button type="button" onClick={() => setPlacement(null)} aria-label="Bekor qilish">
+              <button type="button" onClick={() => setPlacement(null)} aria-label={t("inline.cancelAria")}>
                 <X size={15} />
               </button>
               <button
                 type="submit"
                 className="is-primary"
                 disabled={!draftText.trim() || addStroke.isPending}
-                aria-label="Doskaga qo‘shish"
+                aria-label={t("inline.addAria")}
               >
                 <Check size={15} />
               </button>
@@ -330,12 +328,12 @@ export function BoardPanel({ lessonId, courseId, currentUserId }: BoardPanelProp
       >
         {reasonOpen && (
           <DialogContent
-            title="Elementni o‘chirish"
-            description="Audit uchun o‘chirish sababini kiriting."
+            title={t("eraseDialog.title")}
+            description={t("eraseDialog.description")}
           >
             <form className="dialog-form" onSubmit={removeSelected}>
               <label className="field-group">
-                <span>Sabab</span>
+                <span>{t("eraseDialog.reasonLabel")}</span>
                 <div className="input-shell">
                   <input
                     autoFocus
@@ -347,10 +345,10 @@ export function BoardPanel({ lessonId, courseId, currentUserId }: BoardPanelProp
               </label>
               <div className="dialog-actions">
                 <Button type="button" variant="secondary" onClick={closeReasonDialog}>
-                  Bekor
+                  {t("eraseDialog.cancel")}
                 </Button>
                 <Button type="submit" loading={erase.isPending}>
-                  O‘chirish
+                  {t("eraseDialog.confirm")}
                 </Button>
               </div>
             </form>
@@ -361,8 +359,8 @@ export function BoardPanel({ lessonId, courseId, currentUserId }: BoardPanelProp
       <Dialog open={grantOpen} onOpenChange={setGrantOpen}>
         {grantOpen && (
           <DialogContent
-            title="Doskada chizish ruxsati"
-            description="Ruxsat beriladigan o‘quvchini tanlang."
+            title={t("grantDialog.title")}
+            description={t("grantDialog.description")}
           >
             <div className="board-student-list">
               {(members.data?.items ?? []).map(({ student }) => (
@@ -371,7 +369,7 @@ export function BoardPanel({ lessonId, courseId, currentUserId }: BoardPanelProp
                   disabled={grant.isPending}
                   onClick={() =>
                     grant.mutate(student.id, {
-                      onSuccess: () => toast.success(`${student.name} doskada chiza oladi`),
+                      onSuccess: () => toast.success(t("grantDialog.granted", { name: student.name })),
                     })
                   }
                 >
@@ -382,7 +380,7 @@ export function BoardPanel({ lessonId, courseId, currentUserId }: BoardPanelProp
                   <UserCheck size={17} />
                 </button>
               ))}
-              {!members.isLoading && !members.data?.items?.length ? <p>O‘quvchi topilmadi.</p> : null}
+              {!members.isLoading && !members.data?.items?.length ? <p>{t("grantDialog.noStudents")}</p> : null}
             </div>
           </DialogContent>
         )}
@@ -390,10 +388,10 @@ export function BoardPanel({ lessonId, courseId, currentUserId }: BoardPanelProp
 
       <Dialog open={formulaOpen} onOpenChange={setFormulaOpen}>
         {formulaOpen && (
-          <DialogContent title="Formula yordamchisi" description="Masalan: 2x^2 - 5x + 3 = 0">
+          <DialogContent title={t("formulaDialog.title")} description={t("formulaDialog.description")}>
             <form className="dialog-form" onSubmit={solveFormula}>
               <label className="field-group">
-                <span>Formula</span>
+                <span>{t("formulaDialog.formulaLabel")}</span>
                 <div className="input-shell">
                   <input
                     autoFocus
@@ -412,11 +410,11 @@ export function BoardPanel({ lessonId, courseId, currentUserId }: BoardPanelProp
               ) : null}
               <div className="dialog-actions">
                 <Button type="submit" variant="secondary" loading={solve.isPending}>
-                  Yechish
+                  {t("formulaDialog.solve")}
                 </Button>
                 {solution && canDraw ? (
                   <Button type="button" loading={addStroke.isPending} onClick={placeSolution}>
-                    Doskaga qo‘yish
+                    {t("formulaDialog.place")}
                   </Button>
                 ) : null}
               </div>

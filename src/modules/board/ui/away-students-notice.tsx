@@ -1,4 +1,5 @@
 import { UserMinus } from "lucide-react";
+import { useTranslation } from "react-i18next";
 import { useBoard } from "../model/board.queries";
 
 export interface AwayStudentsNoticeProps {
@@ -14,6 +15,7 @@ export interface AwayStudentsNoticeProps {
  * uni bo'lmaslik kerak. Hech kim chiqib ketmagan bo'lsa umuman ko'rinmaydi.
  */
 export function AwayStudentsNotice({ lessonId, enabled }: AwayStudentsNoticeProps) {
+  const { t } = useTranslation("board");
   // Bir xil so'rov kaliti — doska paneli bilan bitta so'rovni baham ko'radi,
   // ya'ni qo'shimcha trafik yo'q.
   const board = useBoard(lessonId, { enabled });
@@ -25,7 +27,7 @@ export function AwayStudentsNotice({ lessonId, enabled }: AwayStudentsNoticeProp
     <aside className="away-students" role="status" aria-live="polite">
       <UserMinus size={15} />
       <div>
-        <strong>Darsdan chiqqan</strong>
+        <strong>{t("away.title")}</strong>
         <span>{away.map((student) => student.name).join(", ")}</span>
       </div>
     </aside>
