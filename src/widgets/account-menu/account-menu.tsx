@@ -1,4 +1,4 @@
-import { useRef, useState, type FormEvent } from "react";
+import { useEffect, useRef, useState, type FormEvent } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   Award,
@@ -33,6 +33,7 @@ import {
 import { RatingSummary } from "@/modules/lesson";
 import { NotificationInboxDialog } from "@/modules/notification";
 import { ROLES } from "@/shared/constants";
+import { useLanguageStore } from "@/shared/model";
 import { Avatar, Button, Dialog, DialogContent, LanguageToggle, ThemeToggle } from "@/shared/ui/legacy";
 
 type MenuItemId = "profile" | "logins" | "notifications" | "settings";
@@ -91,6 +92,17 @@ export function AccountMenu({
     phone: "",
     username: "",
   });
+
+  // Til Sozlamalar oynasidan almashtirilsa, o'zgarish darhol ko'rinadi
+  // (butun ilova qayta render bo'ladi) — oynani ochiq qoldirish shart emas.
+  const language = useLanguageStore((state) => state.language);
+  const previousLanguageRef = useRef(language);
+  useEffect(() => {
+    if (previousLanguageRef.current !== language) {
+      previousLanguageRef.current = language;
+      setSettingsOpen(false);
+    }
+  }, [language]);
 
   function selectItem(id: MenuItemId) {
     if (id === "profile") {

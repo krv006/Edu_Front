@@ -129,5 +129,34 @@
     "deletedForEveryone": "Message deleted for everyone",
     "deletedForMe": "Message deleted for you",
     "deleteFailed": "Couldn't delete the message"
+  },
+  "panel": {
+    "listAria": "Conversation list",
+    "filtersAria": "Conversation types",
+    "filters": {
+      "all": "All",
+      "direct": "Direct",
+      "group": "Groups",
+      "unread": "Unread"
+    },
+    "searchPlaceholder": "Search conversations",
+    "searchAria": "Search conversations",
+    "openSearchAria": "Open search",
+    "closeSearchAria": "Close search",
+    "searchButton": "Search",
+    "accountAria": "Profile menu",
+    "loadError": "Couldn't load conversations",
+    "loadErrorHint": "Check your internet connection and try again.",
+    "retry": "Retry",
+    "peopleLabel": "PEOPLE",
+    "emptyTitle": "No conversations found",
+    "emptyHint": "Try a different search term or filter.",
+    "clearFilters": "Clear filters",
+    "newGroupAria": "Create a new group or conversation",
+    "findTeacherAria": "Find a teacher or course",
+    "assignmentGroupNotFound": "Assignment group not found",
+    "assignmentOpenFailed": "Couldn't open the assignment",
+    "directOpened": "Conversation opened",
+    "directRequestSent": "Request sent — waiting for the teacher's approval"
   }
 }
