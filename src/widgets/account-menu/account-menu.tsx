@@ -33,7 +33,7 @@ import {
 import { RatingSummary } from "@/modules/lesson";
 import { NotificationInboxDialog } from "@/modules/notification";
 import { ROLES } from "@/shared/constants";
-import { Avatar, Button, Dialog, DialogContent, ThemeToggle } from "@/shared/ui/legacy";
+import { Avatar, Button, Dialog, DialogContent, LanguageToggle, ThemeToggle } from "@/shared/ui/legacy";
 
 type MenuItemId = "profile" | "logins" | "notifications" | "settings";
 
@@ -84,6 +84,7 @@ export function AccountMenu({
   const [editing, setEditing] = useState(false);
   const [loginsOpen, setLoginsOpen] = useState(false);
   const [inboxOpen, setInboxOpen] = useState(false);
+  const [settingsOpen, setSettingsOpen] = useState(false);
   const [draft, setDraft] = useState<ProfileFormValues>({
     firstName: "",
     lastName: "",
@@ -107,7 +108,8 @@ export function AccountMenu({
       setInboxOpen(true);
       return;
     }
-    toast.info(t("settingsToast"));
+    onOpenChange(false);
+    setSettingsOpen(true);
   }
 
   async function handleLogout() {
@@ -434,6 +436,27 @@ export function AccountMenu({
                 </Button>
               </>
             )}
+          </DialogContent>
+        )}
+      </Dialog>
+
+      <Dialog open={settingsOpen} onOpenChange={setSettingsOpen}>
+        {settingsOpen && (
+          <DialogContent
+            className="account-settings-dialog"
+            title={t("settingsDialog.title")}
+            description={t("settingsDialog.description")}
+          >
+            <div className="account-settings-list">
+              <div className="account-settings-row">
+                <span>{t("settingsDialog.languageLabel")}</span>
+                <LanguageToggle />
+              </div>
+              <div className="account-settings-row">
+                <span>{t("settingsDialog.themeLabel")}</span>
+                <ThemeToggle />
+              </div>
+            </div>
           </DialogContent>
         )}
       </Dialog>

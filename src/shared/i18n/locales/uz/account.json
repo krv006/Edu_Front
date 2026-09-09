@@ -7,7 +7,6 @@
   },
   "roleFallback": "O'qituvchi",
   "workspaceFallback": "Teacher workspace",
-  "settingsToast": "Sozlamalar ushbu qurilmada saqlanadi",
   "closeMenuAria": "Menyuni yopish",
   "closeAria": "Yopish",
   "menuAria": "{{role}} menyusi",
@@ -39,6 +38,12 @@
     "deleteCertificateAria": "{{title}}ni o'chirish",
     "noCertificates": "Hali sertifikat yuklanmagan.",
     "editButton": "Profilni tahrirlash"
+  },
+  "settingsDialog": {
+    "title": "Sozlamalar",
+    "description": "Interfeys tili va ko'rinish rejimini tanlang.",
+    "languageLabel": "Til",
+    "themeLabel": "Mavzu"
   },
   "toast": {
     "copied": "{{label}} nusxalandi",
