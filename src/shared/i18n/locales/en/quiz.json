@@ -59,6 +59,7 @@
     "notLinkedToLesson": "Not linked to a lesson",
     "questionNumber": "Question {{number}}",
     "correctAnswerGroupAria": "Correct answer for question {{number}}",
+    "correctAnswerLabel": "Correct answer:",
     "markCorrectAria": "Mark as correct answer",
     "questionTextPlaceholder": "Question text",
     "questionCountLabel": "How many questions?",

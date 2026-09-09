@@ -5545,9 +5545,9 @@ body > .ML__keyboard,
     padding-left: 16px;
     padding-right: 16px;
   }
-  .quiz-page-options {
-    grid-template-columns: 1fr;
-    padding-left: 0;
+  .quiz-page-options,
+  .quiz-page-answer-row {
+    padding-left: 16px;
   }
   .form-grid-two {
     grid-template-columns: 1fr;
@@ -5666,12 +5666,17 @@ body > .ML__keyboard,
 .quiz-page-question-number { flex: none; font-size: var(--fs-xl); font-weight: 800; color: var(--muted-foreground); }
 .quiz-page-question-text { flex: 1; min-width: 0; border: 0; border-bottom: 2px solid var(--border-strong); background: transparent; padding: 6px 2px; font-size: var(--fs-xl); font-weight: 650; color: var(--foreground); outline: 0; }
 .quiz-page-question-text:focus { border-color: var(--primary); }
-.quiz-page-options { display: grid; grid-template-columns: 1fr 1fr; gap: 14px 28px; padding-left: 38px; }
-.quiz-page-option { display: flex; align-items: center; gap: 10px; }
-.quiz-page-option-letter { flex: none; width: 28px; height: 28px; border-radius: var(--r-full); border: 2px solid var(--border-strong); background: transparent; color: var(--muted-foreground); font-size: var(--fs-sm); font-weight: 800; cursor: pointer; display: grid; place-items: center; }
-.quiz-page-option-letter.is-correct { border-color: var(--success); background: var(--success); color: #fff; }
+/* Aynan namunadagi (Word test varag'i) ko'rinishi: "A) ..." har biri o'z
+   qatorida, tagida "To'g'ri javob: A B C D" — harfni bosib belgilanadi. */
+.quiz-page-options { display: grid; gap: 10px; padding-left: 30px; }
+.quiz-page-option { display: flex; align-items: center; gap: 8px; }
+.quiz-page-option-letter { flex: none; font-weight: 800; color: var(--muted-foreground); }
 .quiz-page-option input { flex: 1; min-width: 0; border: 0; border-bottom: 1px solid var(--border-strong); background: transparent; padding: 5px 2px; font-size: var(--fs-md); color: var(--foreground); outline: 0; }
 .quiz-page-option input:focus { border-color: var(--primary); }
+.quiz-page-answer-row { display: flex; align-items: center; gap: 8px; padding-left: 30px; margin-top: 4px; }
+.quiz-page-answer-label { font-size: var(--fs-sm); font-weight: 700; color: var(--muted-foreground); margin-right: 4px; }
+.quiz-page-answer-letter { flex: none; width: 28px; height: 28px; border-radius: var(--r-full); border: 2px solid var(--border-strong); background: transparent; color: var(--muted-foreground); font-size: var(--fs-sm); font-weight: 800; cursor: pointer; display: grid; place-items: center; }
+.quiz-page-answer-letter.is-correct { border-color: var(--success); background: var(--success); color: #fff; }
 
 /* Quiz — o'quvchi yechish oynasi */
 .quiz-attempt-form { display: grid; gap: 16px; }

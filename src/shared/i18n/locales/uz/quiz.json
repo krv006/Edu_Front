@@ -59,6 +59,7 @@
     "notLinkedToLesson": "Darsga bog'lanmagan",
     "questionNumber": "{{number}}-savol",
     "correctAnswerGroupAria": "{{number}}-savol uchun to'g'ri javob",
+    "correctAnswerLabel": "To'g'ri javob:",
     "markCorrectAria": "To'g'ri javob sifatida belgilash",
     "questionTextPlaceholder": "Savol matni",
     "questionCountLabel": "Nechta savol?",

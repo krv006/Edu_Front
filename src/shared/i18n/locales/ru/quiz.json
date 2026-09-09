@@ -59,6 +59,7 @@
     "notLinkedToLesson": "Не привязан к уроку",
     "questionNumber": "Вопрос {{number}}",
     "correctAnswerGroupAria": "Правильный ответ для вопроса {{number}}",
+    "correctAnswerLabel": "Правильный ответ:",
     "markCorrectAria": "Отметить как правильный ответ",
     "questionTextPlaceholder": "Текст вопроса",
     "questionCountLabel": "Сколько вопросов?",

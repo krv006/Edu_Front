@@ -290,33 +290,40 @@ export function AddQuizDialog({ open, onOpenChange, onCreate, courses }: AddQuiz
                   placeholder={t("createDialog.questionTextPlaceholder")}
                 />
               </div>
+              <div className="quiz-page-options">
+                {question.options.map((option, optionIndex) => (
+                  <div key={option.key} className="quiz-page-option">
+                    <span className="quiz-page-option-letter">{optionLetter(optionIndex)})</span>
+                    <input
+                      value={option.text}
+                      onChange={(event) => updateOptionText(question.key, option.key, event.target.value)}
+                      placeholder={t("createDialog.optionPlaceholderLettered", {
+                        letter: optionLetter(optionIndex),
+                      })}
+                    />
+                  </div>
+                ))}
+              </div>
               <div
-                className="quiz-page-options"
+                className="quiz-page-answer-row"
                 role="radiogroup"
                 aria-label={t("createDialog.correctAnswerGroupAria", { number: index + 1 })}
               >
+                <span className="quiz-page-answer-label">{t("createDialog.correctAnswerLabel")}</span>
                 {question.options.map((option, optionIndex) => {
                   const active = question.correctKey === option.key;
                   return (
-                    <div key={option.key} className="quiz-page-option">
-                      <button
-                        type="button"
-                        role="radio"
-                        aria-checked={active}
-                        aria-label={t("createDialog.markCorrectAria")}
-                        className={`quiz-page-option-letter ${active ? "is-correct" : ""}`}
-                        onClick={() => updateQuestion(question.key, { correctKey: option.key })}
-                      >
-                        {optionLetter(optionIndex)}
-                      </button>
-                      <input
-                        value={option.text}
-                        onChange={(event) => updateOptionText(question.key, option.key, event.target.value)}
-                        placeholder={t("createDialog.optionPlaceholderLettered", {
-                          letter: optionLetter(optionIndex),
-                        })}
-                      />
-                    </div>
+                    <button
+                      key={option.key}
+                      type="button"
+                      role="radio"
+                      aria-checked={active}
+                      aria-label={t("createDialog.markCorrectAria")}
+                      className={`quiz-page-answer-letter ${active ? "is-correct" : ""}`}
+                      onClick={() => updateQuestion(question.key, { correctKey: option.key })}
+                    >
+                      {optionLetter(optionIndex)}
+                    </button>
                   );
                 })}
               </div>
