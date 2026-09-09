@@ -1,6 +1,6 @@
 import { useMemo, useRef, useState, type ChangeEvent, type FormEvent } from "react";
 import { motion } from "framer-motion";
-import { BookOpen, CalendarDays, FileUp, ListChecks, Plus, Trash2 } from "lucide-react";
+import { BookOpen, CalendarDays, FileUp, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useLessons } from "@/modules/lesson";
 import { Button, Dialog, DialogContent } from "@/shared/ui/legacy";
@@ -59,20 +59,14 @@ export function AddQuizDialog({ open, onOpenChange, onCreate, courses }: AddQuiz
     return `k${nextKey.current}`;
   }
 
+  const [step, setStep] = useState<"details" | "questions">("details");
   const [courseId, setCourseId] = useState(() => courses[0]?.id ?? "");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [lessonId, setLessonId] = useState("");
   const [dueAt, setDueAt] = useState("");
   const [opensAt, setOpensAt] = useState("");
-  // Boshlang'ich savol statik kalitlar bilan — `newKey()` (ref) faqat event
-  // handler'larda chaqiriladi, render paytida ref'ga murojaat qilinmaydi.
-  const [questions, setQuestions] = useState<QuizQuestionDraft[]>(() => [
-    emptyQuestion(
-      "q-initial",
-      Array.from({ length: DEFAULT_OPTION_COUNT }, (_, i) => `o-initial-${i + 1}`)
-    ),
-  ]);
+  const [questions, setQuestions] = useState<QuizQuestionDraft[]>([]);
   const [questionCount, setQuestionCount] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [importWarnings, setImportWarnings] = useState<QuizImportWarning[]>([]);
@@ -102,45 +96,55 @@ export function AddQuizDialog({ open, onOpenChange, onCreate, courses }: AddQuiz
   }
 
   function reset() {
+    setStep("details");
     setTitle("");
     setDescription("");
     setLessonId("");
     setDueAt("");
     setOpensAt("");
-    setQuestions([newQuestion()]);
+    setQuestions([]);
     setQuestionCount("");
     setImportWarnings([]);
     setError(null);
   }
 
-  function addQuestion() {
-    setQuestions((current) => [...current, newQuestion()]);
-  }
-
-  /** "Nechta savol?" maydoniga son kiritib, o'shancha bo'sh shablon (savol +
-   * 4 ta variant maydoni) bir zumda ochib beradi — o'qituvchi har bir
-   * savolni/variantni birma-bir qo'lda qo'shishga majbur bo'lmaydi. */
-  function generateTemplates() {
+  /** "Nechta savol?" maydoniga son kiritib davom etilsa — o'shancha bo'sh
+   * shablon (savol + 4 ta variant) bilan alohida, sodda "qog'oz" sahifasiga
+   * o'tiladi — o'qituvchi faqat yozadi, hech narsa qo'shish/o'chirish shart
+   * emas. */
+  function goToQuestions() {
+    if (!courseId || !title.trim()) {
+      setError(!courseId ? t("createDialog.validation.chooseCourse") : t("createDialog.validation.enterTitle"));
+      return;
+    }
     const count = Math.max(1, Math.min(100, Math.trunc(Number(questionCount)) || 0));
-    if (!count) return;
     const hasContent = questions.some(
       (question) => question.text.trim() || question.options.some((option) => option.text.trim())
     );
     if (
+      questions.length &&
       hasContent &&
       !window.confirm(t("createDialog.generateConfirm", { count: questions.length, newCount: count }))
     ) {
       return;
     }
+    setError(null);
     setQuestions(Array.from({ length: count }, () => newQuestion()));
+    setImportWarnings([]);
+    setStep("questions");
   }
 
-  /** `.docx` faylni tanlagach — parse qilingan savollarni draft'ga yuklaydi.
-   * Hech narsa saqlanmagan, o'qituvchi ko'rib chiqib "Test yaratish"ni bosishi kerak. */
+  /** `.docx` faylni tanlagach — parse qilingan savollarni to'g'ridan-to'g'ri
+   * savollar sahifasiga yuklaydi. Hech narsa saqlanmagan, o'qituvchi ko'rib
+   * chiqib "Test yaratish"ni bosishi kerak. */
   function handleImportFile(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
     event.target.value = "";
     if (!file) return;
+    if (!courseId || !title.trim()) {
+      setError(!courseId ? t("createDialog.validation.chooseCourse") : t("createDialog.validation.enterTitle"));
+      return;
+    }
     importDocx.mutate(file, {
       onSuccess: (preview) => {
         if (!title.trim() && preview.title) setTitle(preview.title);
@@ -159,40 +163,15 @@ export function AddQuizDialog({ open, onOpenChange, onCreate, courses }: AddQuiz
           })
         );
         setImportWarnings(preview.warnings);
+        setError(null);
+        setStep("questions");
       },
     });
-  }
-
-  function removeQuestion(questionKey: string) {
-    setQuestions((current) => current.filter((question) => question.key !== questionKey));
   }
 
   function updateQuestion(questionKey: string, patch: Partial<QuizQuestionDraft>) {
     setQuestions((current) =>
       current.map((question) => (question.key === questionKey ? { ...question, ...patch } : question))
-    );
-  }
-
-  function addOption(questionKey: string) {
-    setQuestions((current) =>
-      current.map((question) =>
-        question.key === questionKey
-          ? { ...question, options: [...question.options, emptyOption(newKey())] }
-          : question
-      )
-    );
-  }
-
-  function removeOption(questionKey: string, optionKey: string) {
-    setQuestions((current) =>
-      current.map((question) => {
-        if (question.key !== questionKey || question.options.length <= 2) return question;
-        return {
-          ...question,
-          options: question.options.filter((option) => option.key !== optionKey),
-          correctKey: question.correctKey === optionKey ? null : question.correctKey,
-        };
-      })
     );
   }
 
@@ -252,220 +231,202 @@ export function AddQuizDialog({ open, onOpenChange, onCreate, courses }: AddQuiz
     onOpenChange(false);
   }
 
+  if (!open) return null;
+
+  if (step === "questions") {
+    return (
+      <div className="quiz-page">
+        <div className="quiz-page-header">
+          <div>
+            <span className="quiz-page-eyebrow">{title || t("createDialog.title")}</span>
+            <h2>{t("createDialog.questionsPageTitle")}</h2>
+          </div>
+          <div className="quiz-page-header-actions">
+            <Button type="button" variant="ghost" onClick={() => setStep("details")}>
+              {t("createDialog.backButton")}
+            </Button>
+            <Button type="submit" form="quiz-questions-form">
+              {t("createDialog.create")}
+            </Button>
+            <button
+              type="button"
+              className="icon-button"
+              aria-label={t("createDialog.cancel")}
+              onClick={() => {
+                reset();
+                onOpenChange(false);
+              }}
+            >
+              <X size={19} />
+            </button>
+          </div>
+        </div>
+
+        {importWarnings.length ? (
+          <div className="form-alert form-alert--warning quiz-page-alert">
+            {importWarnings.map((warning) => (
+              <p key={warning.questionNumber}>
+                {t(
+                  warning.reason === "answer_not_detected"
+                    ? "createDialog.importWarningAnswerNotDetected"
+                    : "createDialog.importWarningNotEnoughOptions",
+                  { number: warning.questionNumber }
+                )}
+              </p>
+            ))}
+          </div>
+        ) : null}
+        {error ? <div className="form-alert quiz-page-alert">{error}</div> : null}
+
+        <form id="quiz-questions-form" className="quiz-page-body" onSubmit={submit}>
+          {questions.map((question, index) => (
+            <div key={question.key} className="quiz-page-question">
+              <div className="quiz-page-question-head">
+                <span className="quiz-page-question-number">{index + 1}.</span>
+                <input
+                  className="quiz-page-question-text"
+                  value={question.text}
+                  onChange={(event) => updateQuestion(question.key, { text: event.target.value })}
+                  placeholder={t("createDialog.questionTextPlaceholder")}
+                />
+              </div>
+              <div
+                className="quiz-page-options"
+                role="radiogroup"
+                aria-label={t("createDialog.correctAnswerGroupAria", { number: index + 1 })}
+              >
+                {question.options.map((option, optionIndex) => {
+                  const active = question.correctKey === option.key;
+                  return (
+                    <div key={option.key} className="quiz-page-option">
+                      <button
+                        type="button"
+                        role="radio"
+                        aria-checked={active}
+                        aria-label={t("createDialog.markCorrectAria")}
+                        className={`quiz-page-option-letter ${active ? "is-correct" : ""}`}
+                        onClick={() => updateQuestion(question.key, { correctKey: option.key })}
+                      >
+                        {optionLetter(optionIndex)}
+                      </button>
+                      <input
+                        value={option.text}
+                        onChange={(event) => updateOptionText(question.key, option.key, event.target.value)}
+                        placeholder={t("createDialog.optionPlaceholderLettered", {
+                          letter: optionLetter(optionIndex),
+                        })}
+                      />
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
+        </form>
+      </div>
+    );
+  }
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      {open ? (
-        <DialogContent
-          className="group-action-dialog quiz-dialog"
-          title={t("createDialog.title")}
-          description={t("createDialog.description")}
+      <DialogContent
+        className="group-action-dialog"
+        title={t("createDialog.title")}
+        description={t("createDialog.description")}
+      >
+        <motion.div
+          className="group-action-form"
+          initial={{ opacity: 0, y: 6 }}
+          animate={{ opacity: 1, y: 0 }}
         >
-          <motion.form
-            className="group-action-form"
-            onSubmit={submit}
-            initial={{ opacity: 0, y: 6 }}
-            animate={{ opacity: 1, y: 0 }}
-          >
-            <SelectPicker
-              label={t("createDialog.courseLabel")}
-              icon={BookOpen}
-              value={courseId}
-              onChange={(value) => {
-                setCourseId(value);
-                setLessonId("");
-              }}
-              options={courseOptions}
+          <SelectPicker
+            label={t("createDialog.courseLabel")}
+            icon={BookOpen}
+            value={courseId}
+            onChange={(value) => {
+              setCourseId(value);
+              setLessonId("");
+            }}
+            options={courseOptions}
+          />
+          <label>
+            <span>{t("createDialog.titleLabel")}</span>
+            <input
+              autoFocus
+              value={title}
+              onChange={(event) => setTitle(event.target.value)}
+              placeholder={t("createDialog.titlePlaceholder")}
             />
+          </label>
+          <label>
+            <span>{t("createDialog.descriptionLabel")}</span>
+            <textarea
+              value={description}
+              onChange={(event) => setDescription(event.target.value)}
+              placeholder={t("createDialog.descriptionPlaceholder")}
+              rows={2}
+            />
+          </label>
+
+          <div className="form-grid-two">
+            <DatePicker
+              label={t("createDialog.dueLabel")}
+              value={dueAt}
+              onChange={setDueAt}
+              includeTime
+              optional
+            />
+            <DatePicker
+              label={t("createDialog.opensLabel")}
+              value={opensAt}
+              onChange={setOpensAt}
+              includeTime
+              optional
+            />
+          </div>
+          <SelectPicker
+            label={t("createDialog.lessonLabel")}
+            icon={CalendarDays}
+            value={lessonId}
+            onChange={setLessonId}
+            options={lessonOptions}
+          />
+
+          <div className="quiz-template-gen">
             <label>
-              <span>{t("createDialog.titleLabel")}</span>
+              <span>{t("createDialog.questionCountLabel")}</span>
               <input
-                autoFocus
-                value={title}
-                onChange={(event) => setTitle(event.target.value)}
-                placeholder={t("createDialog.titlePlaceholder")}
+                inputMode="numeric"
+                value={questionCount}
+                onChange={(event) => setQuestionCount(event.target.value.replace(/[^\d]/g, ""))}
+                placeholder={t("createDialog.questionCountPlaceholder")}
               />
             </label>
-            <label>
-              <span>{t("createDialog.descriptionLabel")}</span>
-              <textarea
-                value={description}
-                onChange={(event) => setDescription(event.target.value)}
-                placeholder={t("createDialog.descriptionPlaceholder")}
-                rows={2}
-              />
-            </label>
+            <button type="button" className="quiz-generate-button" onClick={goToQuestions}>
+              {t("createDialog.continueButton")}
+            </button>
+            <span className="quiz-template-gen-or">{t("createDialog.importOr")}</span>
+            <input ref={fileInputRef} type="file" accept=".docx" hidden onChange={handleImportFile} />
+            <button
+              type="button"
+              className="quiz-generate-button quiz-generate-button--ghost"
+              disabled={importDocx.isPending}
+              onClick={() => fileInputRef.current?.click()}
+            >
+              <FileUp size={14} />{" "}
+              {importDocx.isPending ? t("createDialog.importButtonLoading") : t("createDialog.importButton")}
+            </button>
+          </div>
 
-            <div className="form-grid-two">
-              <DatePicker
-                label={t("createDialog.dueLabel")}
-                value={dueAt}
-                onChange={setDueAt}
-                includeTime
-                optional
-              />
-              <DatePicker
-                label={t("createDialog.opensLabel")}
-                value={opensAt}
-                onChange={setOpensAt}
-                includeTime
-                optional
-              />
-            </div>
-            <SelectPicker
-              label={t("createDialog.lessonLabel")}
-              icon={CalendarDays}
-              value={lessonId}
-              onChange={setLessonId}
-              options={lessonOptions}
-            />
+          {error ? <div className="form-alert">{error}</div> : null}
 
-            <div className="quiz-template-gen">
-              <label>
-                <span>{t("createDialog.questionCountLabel")}</span>
-                <input
-                  inputMode="numeric"
-                  value={questionCount}
-                  onChange={(event) => setQuestionCount(event.target.value.replace(/[^\d]/g, ""))}
-                  placeholder={t("createDialog.questionCountPlaceholder")}
-                />
-              </label>
-              <button type="button" className="quiz-generate-button" onClick={generateTemplates}>
-                <ListChecks size={14} /> {t("createDialog.generateButton")}
-              </button>
-              <span className="quiz-template-gen-or">{t("createDialog.importOr")}</span>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept=".docx"
-                hidden
-                onChange={handleImportFile}
-              />
-              <button
-                type="button"
-                className="quiz-generate-button quiz-generate-button--ghost"
-                disabled={importDocx.isPending}
-                onClick={() => fileInputRef.current?.click()}
-              >
-                <FileUp size={14} />{" "}
-                {importDocx.isPending ? t("createDialog.importButtonLoading") : t("createDialog.importButton")}
-              </button>
-            </div>
-            {importWarnings.length ? (
-              <div className="form-alert form-alert--warning">
-                {importWarnings.map((warning) => (
-                  <p key={warning.questionNumber}>
-                    {t(
-                      warning.reason === "answer_not_detected"
-                        ? "createDialog.importWarningAnswerNotDetected"
-                        : "createDialog.importWarningNotEnoughOptions",
-                      { number: warning.questionNumber }
-                    )}
-                  </p>
-                ))}
-              </div>
-            ) : null}
-
-            <div className="quiz-questions">
-              {questions.map((question, index) => (
-                <div key={question.key} className="quiz-question-card">
-                  <div className="quiz-question-head">
-                    <label>
-                      <span>{t("createDialog.questionNumber", { number: index + 1 })}</span>
-                      <input
-                        value={question.text}
-                        onChange={(event) => updateQuestion(question.key, { text: event.target.value })}
-                        placeholder={t("createDialog.optionPlaceholder")}
-                      />
-                    </label>
-                    <label>
-                      <span>{t("createDialog.pointsLabel")}</span>
-                      <input
-                        inputMode="numeric"
-                        value={question.points}
-                        onChange={(event) =>
-                          updateQuestion(question.key, {
-                            points: event.target.value.replace(/[^\d]/g, ""),
-                          })
-                        }
-                      />
-                    </label>
-                    <button
-                      type="button"
-                      className="icon-button destructive-icon"
-                      aria-label={t("createDialog.deleteQuestionAria", { number: index + 1 })}
-                      disabled={questions.length <= 1}
-                      onClick={() => removeQuestion(question.key)}
-                    >
-                      <Trash2 size={16} />
-                    </button>
-                  </div>
-
-                  <span className="quiz-option-caption">{t("createDialog.markCorrectCaption")}</span>
-                  <div
-                    className="quiz-option-list"
-                    role="radiogroup"
-                    aria-label={t("createDialog.correctAnswerGroupAria", { number: index + 1 })}
-                  >
-                    {question.options.map((option, optionIndex) => {
-                      const active = question.correctKey === option.key;
-                      return (
-                        <div key={option.key} className="quiz-option-row">
-                          <span className="quiz-option-letter">{optionLetter(optionIndex)}</span>
-                          <button
-                            type="button"
-                            role="radio"
-                            aria-checked={active}
-                            aria-label={t("createDialog.markCorrectAria")}
-                            className={`quiz-option-radio ${active ? "is-active" : ""}`}
-                            onClick={() => updateQuestion(question.key, { correctKey: option.key })}
-                          />
-                          <input
-                            value={option.text}
-                            onChange={(event) =>
-                              updateOptionText(question.key, option.key, event.target.value)
-                            }
-                            placeholder={t("createDialog.optionPlaceholderLettered", {
-                              letter: optionLetter(optionIndex),
-                            })}
-                          />
-                          <button
-                            type="button"
-                            className="icon-button destructive-icon"
-                            aria-label={t("createDialog.deleteOptionAria")}
-                            disabled={question.options.length <= 2}
-                            onClick={() => removeOption(question.key, option.key)}
-                          >
-                            <Trash2 size={14} />
-                          </button>
-                        </div>
-                      );
-                    })}
-                  </div>
-                  <button
-                    type="button"
-                    className="quiz-add-option"
-                    onClick={() => addOption(question.key)}
-                  >
-                    <Plus size={13} /> {t("createDialog.addOption")}
-                  </button>
-                </div>
-              ))}
-              <button type="button" className="quiz-add-question" onClick={addQuestion}>
-                <Plus size={14} /> {t("createDialog.addQuestion")}
-              </button>
-            </div>
-
-            {error ? <div className="form-alert">{error}</div> : null}
-
-            <div className="dialog-actions">
-              <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>
-                {t("createDialog.cancel")}
-              </Button>
-              <Button type="submit">{t("createDialog.create")}</Button>
-            </div>
-          </motion.form>
-        </DialogContent>
-      ) : null}
+          <div className="dialog-actions">
+            <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>
+              {t("createDialog.cancel")}
+            </Button>
+          </div>
+        </motion.div>
+      </DialogContent>
     </Dialog>
   );
 }
