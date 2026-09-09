@@ -7,7 +7,6 @@
   },
   "roleFallback": "Учитель",
   "workspaceFallback": "Рабочее пространство учителя",
-  "settingsToast": "Настройки сохраняются на этом устройстве",
   "closeMenuAria": "Закрыть меню",
   "closeAria": "Закрыть",
   "menuAria": "Меню — {{role}}",
@@ -39,6 +38,12 @@
     "deleteCertificateAria": "Удалить {{title}}",
     "noCertificates": "Сертификаты пока не загружены.",
     "editButton": "Редактировать профиль"
+  },
+  "settingsDialog": {
+    "title": "Настройки",
+    "description": "Выберите язык интерфейса и оформление.",
+    "languageLabel": "Язык",
+    "themeLabel": "Тема"
   },
   "toast": {
     "copied": "{{label}} скопирован",

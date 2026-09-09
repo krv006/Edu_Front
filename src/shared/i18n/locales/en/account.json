@@ -7,7 +7,6 @@
   },
   "roleFallback": "Teacher",
   "workspaceFallback": "Teacher workspace",
-  "settingsToast": "Settings are stored on this device",
   "closeMenuAria": "Close menu",
   "closeAria": "Close",
   "menuAria": "{{role}} menu",
@@ -39,6 +38,12 @@
     "deleteCertificateAria": "Delete {{title}}",
     "noCertificates": "No certificates uploaded yet.",
     "editButton": "Edit profile"
+  },
+  "settingsDialog": {
+    "title": "Settings",
+    "description": "Choose the interface language and appearance.",
+    "languageLabel": "Language",
+    "themeLabel": "Theme"
   },
   "toast": {
     "copied": "{{label}} copied",

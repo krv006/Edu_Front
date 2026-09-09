@@ -5822,6 +5822,21 @@ body > .ML__keyboard,
   border-radius: var(--r-md);
 }
 .teacher-menu-theme > span { font-size: var(--fs-md); font-weight: 600; }
+.account-settings-list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.account-settings-row {
+  padding: 11px 13px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-md);
+}
+.account-settings-row > span { font-size: var(--fs-md); font-weight: 600; }
 
 /* ============================================================
    Jonli dars sahifasi (/live/:lessonId) — Google Meet uslubi
