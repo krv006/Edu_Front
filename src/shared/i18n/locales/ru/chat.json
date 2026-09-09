@@ -129,5 +129,34 @@
     "deletedForEveryone": "Сообщение удалено у всех",
     "deletedForMe": "Сообщение удалено у вас",
     "deleteFailed": "Не удалось удалить сообщение"
+  },
+  "panel": {
+    "listAria": "Список бесед",
+    "filtersAria": "Типы бесед",
+    "filters": {
+      "all": "Все",
+      "direct": "Личные",
+      "group": "Группы",
+      "unread": "Непрочитанные"
+    },
+    "searchPlaceholder": "Поиск бесед",
+    "searchAria": "Поиск бесед",
+    "openSearchAria": "Открыть поиск",
+    "closeSearchAria": "Закрыть поиск",
+    "searchButton": "Поиск",
+    "accountAria": "Меню профиля",
+    "loadError": "Не удалось загрузить беседы",
+    "loadErrorHint": "Проверьте интернет-соединение и попробуйте снова.",
+    "retry": "Повторить",
+    "peopleLabel": "ЛЮДИ",
+    "emptyTitle": "Беседы не найдены",
+    "emptyHint": "Попробуйте изменить поисковый запрос или фильтр.",
+    "clearFilters": "Очистить фильтры",
+    "newGroupAria": "Создать новую группу или беседу",
+    "findTeacherAria": "Найти учителя или курс",
+    "assignmentGroupNotFound": "Группа задания не найдена",
+    "assignmentOpenFailed": "Не удалось открыть задание",
+    "directOpened": "Беседа открыта",
+    "directRequestSent": "Запрос отправлен — ожидайте подтверждения учителя"
   }
 }

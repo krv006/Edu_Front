@@ -4,6 +4,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { Plus, Search, UserRoundPlus, X } from "lucide-react";
 import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 import {
   ConversationItem,
   matchesConversationFilter,
@@ -27,12 +28,15 @@ import type { ConversationRole } from "@/shared/types";
  * Suhbat turlari — ro'yxat tepasidagi tugmachalar (Teams uslubi).
  * Ular BO'LIM emas, filtr: shuning uchun ustunda emas, shu yerda turadi.
  */
-const FILTERS: Array<{ id: ConversationFilter; label: string }> = [
-  { id: "all", label: "Barchasi" },
-  { id: "direct", label: "Shaxsiy" },
-  { id: "group", label: "Guruhlar" },
-  { id: "unread", label: "O‘qilmagan" },
-];
+function useFilters(): Array<{ id: ConversationFilter; label: string }> {
+  const { t } = useTranslation("chat");
+  return [
+    { id: "all", label: t("panel.filters.all") },
+    { id: "direct", label: t("panel.filters.direct") },
+    { id: "group", label: t("panel.filters.group") },
+    { id: "unread", label: t("panel.filters.unread") },
+  ];
+}
 
 export interface ConversationPanelProps {
   role?: ConversationRole;
@@ -41,6 +45,8 @@ export interface ConversationPanelProps {
 }
 
 export function ConversationPanel({ role = "teacher", onOpenMenu }: ConversationPanelProps) {
+  const { t } = useTranslation("chat");
+  const FILTERS = useFilters();
   const [search, setSearch] = useState("");
   // Panel qayta mount bo'lganda ham tanlov saqlanib qolishi kerak — shuning
   // uchun komponentdan tashqarida (izohi store faylida).
@@ -120,12 +126,12 @@ export function ConversationPanel({ role = "teacher", onOpenMenu }: Conversation
         });
         const room = data.find((item) => item.courseId === assignment.courseId);
         if (!room) {
-          toast.error("Vazifa guruhi topilmadi");
+          toast.error(t("panel.assignmentGroupNotFound"));
           return;
         }
         navigate(`${basePath}/${room.id}?tab=assignments&assignment=${link.id}`);
       } catch (error) {
-        toast.error(error instanceof Error ? error.message : "Vazifani ochib bo‘lmadi");
+        toast.error(error instanceof Error ? error.message : t("panel.assignmentOpenFailed"));
       }
       return;
     }
@@ -143,8 +149,8 @@ export function ConversationPanel({ role = "teacher", onOpenMenu }: Conversation
       onSuccess: (room) => {
         toast.success(
           room.directStatus === "active"
-            ? "Suhbat ochildi"
-            : "So‘rov yuborildi — o‘qituvchi tasdiqlashi kerak"
+            ? t("panel.directOpened")
+            : t("panel.directRequestSent")
         );
         setSearch("");
         setSearchOpen(false);
@@ -168,7 +174,7 @@ export function ConversationPanel({ role = "teacher", onOpenMenu }: Conversation
   return (
     <section
       className={`conversation-panel ${conversationId ? "has-active-chat" : ""}`}
-      aria-label="Suhbatlar ro‘yxati"
+      aria-label={t("panel.listAria")}
     >
       <div className="conversation-panel-header">
         <div className="panel-topbar">
@@ -188,15 +194,15 @@ export function ConversationPanel({ role = "teacher", onOpenMenu }: Conversation
                     autoFocus
                     value={search}
                     onChange={(event) => setSearch(event.target.value)}
-                    placeholder="Suhbatlarni qidirish"
-                    aria-label="Suhbatlarni qidirish"
+                    placeholder={t("panel.searchPlaceholder")}
+                    aria-label={t("panel.searchAria")}
                   />
                   <button
                     onClick={() => {
                       setSearch("");
                       setSearchOpen(false);
                     }}
-                    aria-label="Qidiruvni yopish"
+                    aria-label={t("panel.closeSearchAria")}
                   >
                     <X size={15} />
                   </button>
@@ -206,24 +212,24 @@ export function ConversationPanel({ role = "teacher", onOpenMenu }: Conversation
                   key="search-button"
                   className="panel-search-button"
                   onClick={() => setSearchOpen(true)}
-                  aria-label="Qidiruvni ochish"
+                  aria-label={t("panel.openSearchAria")}
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
                 >
                   <Search size={19} />
-                  <span>Qidirish</span>
+                  <span>{t("panel.searchButton")}</span>
                 </motion.button>
               )}
             </AnimatePresence>
           </div>
           <NotificationBell enabled={Boolean(user)} onOpenLink={openNotificationLink} />
-          <button className="panel-account" onClick={onOpenMenu} aria-label="Profil menyusi">
-            <Avatar name={user?.name ?? "Teacher"} tone="violet" size="sm" status="online" />
+          <button className="panel-account" onClick={onOpenMenu} aria-label={t("panel.accountAria")}>
+            <Avatar name={user?.name ?? t("common:portal.defaultUser")} tone="violet" size="sm" status="online" />
           </button>
         </div>
 
-        <div className="conversation-filter-pills" role="tablist" aria-label="Suhbat turlari">
+        <div className="conversation-filter-pills" role="tablist" aria-label={t("panel.filtersAria")}>
           {FILTERS.map((item) => (
             <button
               key={item.id}
@@ -251,9 +257,9 @@ export function ConversationPanel({ role = "teacher", onOpenMenu }: Conversation
           ))}
         {isError && (
           <div className="panel-state">
-            <strong>Suhbatlarni yuklab bo‘lmadi</strong>
-            <p>Internet aloqasini tekshirib, qayta urinib ko‘ring.</p>
-            <button onClick={() => refetch()}>Qayta urinish</button>
+            <strong>{t("panel.loadError")}</strong>
+            <p>{t("panel.loadErrorHint")}</p>
+            <button onClick={() => refetch()}>{t("panel.retry")}</button>
           </div>
         )}
         {!isLoading &&
@@ -269,7 +275,7 @@ export function ConversationPanel({ role = "teacher", onOpenMenu }: Conversation
           ))}
         {people.length ? (
           <>
-            <span className="conversation-list-label">ODAMLAR</span>
+            <span className="conversation-list-label">{t("panel.peopleLabel")}</span>
             {people.map((teacher) => (
               <button
                 key={teacher.id}
@@ -294,15 +300,15 @@ export function ConversationPanel({ role = "teacher", onOpenMenu }: Conversation
             <span>
               <Search size={22} />
             </span>
-            <strong>Suhbat topilmadi</strong>
-            <p>Qidiruv so‘zi yoki filterni o‘zgartirib ko‘ring.</p>
+            <strong>{t("panel.emptyTitle")}</strong>
+            <p>{t("panel.emptyHint")}</p>
             <button
               onClick={() => {
                 setSearch("");
                 setFilter("all");
               }}
             >
-              Filtrlarni tozalash
+              {t("panel.clearFilters")}
             </button>
           </div>
         )}
@@ -311,7 +317,7 @@ export function ConversationPanel({ role = "teacher", onOpenMenu }: Conversation
       <motion.button
         className="new-conversation-fab"
         onClick={() => setDialogOpen(true)}
-        aria-label={isTeacher ? "Yangi guruh yoki suhbat yaratish" : "O‘qituvchi yoki kurs topish"}
+        aria-label={isTeacher ? t("panel.newGroupAria") : t("panel.findTeacherAria")}
         whileHover={{ y: -3, scale: 1.03 }}
         whileTap={{ scale: 0.94 }}
       >

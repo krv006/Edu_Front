@@ -129,5 +129,34 @@
     "deletedForEveryone": "Xabar hamma uchun o'chirildi",
     "deletedForMe": "Xabar siz uchun o'chirildi",
     "deleteFailed": "Xabarni o'chirib bo'lmadi"
+  },
+  "panel": {
+    "listAria": "Suhbatlar ro'yxati",
+    "filtersAria": "Suhbat turlari",
+    "filters": {
+      "all": "Barchasi",
+      "direct": "Shaxsiy",
+      "group": "Guruhlar",
+      "unread": "O'qilmagan"
+    },
+    "searchPlaceholder": "Suhbatlarni qidirish",
+    "searchAria": "Suhbatlarni qidirish",
+    "openSearchAria": "Qidiruvni ochish",
+    "closeSearchAria": "Qidiruvni yopish",
+    "searchButton": "Qidirish",
+    "accountAria": "Profil menyusi",
+    "loadError": "Suhbatlarni yuklab bo'lmadi",
+    "loadErrorHint": "Internet aloqasini tekshirib, qayta urinib ko'ring.",
+    "retry": "Qayta urinish",
+    "peopleLabel": "ODAMLAR",
+    "emptyTitle": "Suhbat topilmadi",
+    "emptyHint": "Qidiruv so'zi yoki filterni o'zgartirib ko'ring.",
+    "clearFilters": "Filtrlarni tozalash",
+    "newGroupAria": "Yangi guruh yoki suhbat yaratish",
+    "findTeacherAria": "O'qituvchi yoki kurs topish",
+    "assignmentGroupNotFound": "Vazifa guruhi topilmadi",
+    "assignmentOpenFailed": "Vazifani ochib bo'lmadi",
+    "directOpened": "Suhbat ochildi",
+    "directRequestSent": "So'rov yuborildi — o'qituvchi tasdiqlashi kerak"
   }
 }
