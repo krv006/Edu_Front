@@ -5535,10 +5535,14 @@ body > .ML__keyboard,
     border-radius: var(--r-lg) 0 0 var(--r-lg);
   }
   .group-action-dialog,
-  .assignment-dialog {
+  .assignment-dialog,
+  .quiz-dialog {
     width: 100%;
     max-height: 92dvh;
     overflow-y: auto;
+  }
+  .quiz-option-list {
+    grid-template-columns: 1fr;
   }
   .form-grid-two {
     grid-template-columns: 1fr;
@@ -5632,6 +5636,10 @@ body > .ML__keyboard,
 .hw-result-state--error { color: var(--destructive-strong); border-color: var(--destructive-soft-border); background: var(--destructive-soft); }
 
 /* Quiz — yaratish formasi */
+/* Bir necha shablon (masalan 10 ta savol) generatsiya qilinganda kichik
+   (610px) modal ichida cheksiz pastga aylanib ketmasin deb — bu oyna
+   maxsus, sahifaga o'xshash keng va baland qilib ochiladi. */
+.quiz-dialog { width: min(96vw, 900px); max-height: 94dvh; }
 .quiz-template-gen { display: flex; align-items: end; gap: 10px; padding: 12px; border: 1px solid var(--border-accent); border-radius: var(--r-lg); background: var(--primary-tint); flex-wrap: wrap; }
 .quiz-template-gen label { flex: 0 0 auto; width: 140px; }
 .quiz-template-gen-or { color: var(--muted-foreground); font-size: var(--fs-xs); font-weight: 700; }
@@ -5644,7 +5652,9 @@ body > .ML__keyboard,
 .quiz-question-card { padding: 14px; border: 1px solid var(--border); border-radius: var(--r-lg); background: var(--surface-tint); display: grid; gap: 10px; }
 .quiz-question-head { display: grid; grid-template-columns: 1fr 84px auto; gap: 8px; align-items: end; }
 .quiz-option-caption { font-size: var(--fs-2xs); font-weight: 800; text-transform: uppercase; letter-spacing: .05em; color: var(--muted-foreground); }
-.quiz-option-list { display: grid; gap: 6px; }
+/* Haqiqiy test varag'idagi kabi A/B ustma-ust emas, 2 ustunda — ko'p
+   savolli shablonda vertikal skroll deyarli yarmiga tushadi. */
+.quiz-option-list { display: grid; grid-template-columns: 1fr 1fr; gap: 6px 10px; }
 .quiz-option-row { display: flex; align-items: center; gap: 8px; }
 .quiz-option-row input { flex: 1; min-height: 38px; }
 .quiz-option-letter { flex: 0 0 auto; width: 20px; text-align: center; font-size: var(--fs-xs); font-weight: 800; color: var(--muted-foreground); }
