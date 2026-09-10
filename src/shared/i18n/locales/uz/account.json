@@ -12,7 +12,6 @@
   "menuAria": "{{role}} menyusi",
   "sectionsAria": "Hisob bo'limlari",
   "online": "Onlayn",
-  "theme": "Mavzu",
   "sessionSecure": "Sessiya xavfsiz saqlanmoqda",
   "logout": "Tizimdan chiqish",
   "version": "EduTech · v1.0",
@@ -44,6 +43,13 @@
     "description": "Interfeys tili va ko'rinish rejimini tanlang.",
     "languageLabel": "Til",
     "themeLabel": "Mavzu"
+  },
+  "roleSwitcher": {
+    "triggerAria": "Boshqa akkauntlaringiz",
+    "panelAria": "Boshqa akkauntlaringiz",
+    "otherAccounts": "BOSHQA AKKAUNTLARINGIZ",
+    "switchHint": "Akkauntga bosilsa, parolsiz darhol o'sha akkauntga o'tasiz.",
+    "switched": "{{name}} sifatida kirdingiz"
   },
   "toast": {
     "copied": "{{label}} nusxalandi",

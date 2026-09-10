@@ -12,7 +12,6 @@
   "menuAria": "Меню — {{role}}",
   "sectionsAria": "Разделы аккаунта",
   "online": "В сети",
-  "theme": "Тема",
   "sessionSecure": "Сессия сохраняется безопасно",
   "logout": "Выйти из системы",
   "version": "EduTech · v1.0",
@@ -44,6 +43,13 @@
     "description": "Выберите язык интерфейса и оформление.",
     "languageLabel": "Язык",
     "themeLabel": "Тема"
+  },
+  "roleSwitcher": {
+    "triggerAria": "Другие ваши аккаунты",
+    "panelAria": "Другие ваши аккаунты",
+    "otherAccounts": "ДРУГИЕ ВАШИ АККАУНТЫ",
+    "switchHint": "Нажмите на аккаунт, чтобы сразу перейти в него — без пароля.",
+    "switched": "Вы вошли как {{name}}"
   },
   "toast": {
     "copied": "{{label}} скопирован",

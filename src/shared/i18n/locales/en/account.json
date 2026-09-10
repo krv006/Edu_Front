@@ -12,7 +12,6 @@
   "menuAria": "{{role}} menu",
   "sectionsAria": "Account sections",
   "online": "Online",
-  "theme": "Theme",
   "sessionSecure": "Your session is stored securely",
   "logout": "Log out",
   "version": "EduTech · v1.0",
@@ -44,6 +43,13 @@
     "description": "Choose the interface language and appearance.",
     "languageLabel": "Language",
     "themeLabel": "Theme"
+  },
+  "roleSwitcher": {
+    "triggerAria": "Your other accounts",
+    "panelAria": "Your other accounts",
+    "otherAccounts": "YOUR OTHER ACCOUNTS",
+    "switchHint": "Tap an account to switch to it instantly, no password needed.",
+    "switched": "Signed in as {{name}}"
   },
   "toast": {
     "copied": "{{label}} copied",

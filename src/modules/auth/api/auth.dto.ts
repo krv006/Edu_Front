@@ -14,6 +14,19 @@ export const certificateDtoSchema = z.object({
   created_at: z.string(),
 });
 
+/**
+ * Bitta telefon raqamiga bog'langan BOSHQA akkaunt (o'zi kirmaydi) —
+ * `PHONE_LINKED_ACCOUNTS_API.md`. Har biri mustaqil login/parolga ega,
+ * shuning uchun bu yerda faqat ko'rsatish uchun kerakli maydonlar bor.
+ */
+export const linkedAccountDtoSchema = z.object({
+  id: z.string(),
+  username: z.string(),
+  first_name: z.string().default(""),
+  last_name: z.string().default(""),
+  role: z.string(),
+});
+
 export const userDtoSchema = z.object({
   id: z.string(),
   username: z.string(),
@@ -31,6 +44,8 @@ export const userDtoSchema = z.object({
   is_approved: z.boolean().nullable().optional(),
   certificates: z.array(certificateDtoSchema).optional().default([]),
   preferred_language: z.string().default("uz"),
+  /** Xuddi shu telefondagi boshqa akkauntlar — bo'sh yoki telefon yo'q bo'lsa `[]`. */
+  linked_accounts: z.array(linkedAccountDtoSchema).optional().default([]),
 });
 
 /** `GET /api/v1/auth/logins/` — bitta kirish yozuvi (paginatsiyasiz massiv). */
@@ -42,10 +57,21 @@ export const loginRecordDtoSchema = z.object({
   new_device: z.boolean().default(false),
 });
 
+/**
+ * `POST /api/v1/auth/switch/<user_id>/` — joriy token bilan (parolsiz)
+ * bog'langan boshqa rol-akkauntga o'tish. Javobida yangi access/refresh
+ * HAM yangi akkauntning to'liq foydalanuvchi ma'lumoti keladi.
+ */
+export const switchAccountResponseDtoSchema = tokenPairDtoSchema.extend({
+  user: userDtoSchema,
+});
+
 export type TokenPairDto = z.infer<typeof tokenPairDtoSchema>;
 export type AuthUserDto = z.infer<typeof userDtoSchema>;
+export type LinkedAccountDto = z.infer<typeof linkedAccountDtoSchema>;
 export type LoginRecordDto = z.infer<typeof loginRecordDtoSchema>;
 export type CertificateDto = z.infer<typeof certificateDtoSchema>;
+export type SwitchAccountResponseDto = z.infer<typeof switchAccountResponseDtoSchema>;
 
 /** Kirishlar tarixining domen ko'rinishi. */
 export interface LoginRecord {

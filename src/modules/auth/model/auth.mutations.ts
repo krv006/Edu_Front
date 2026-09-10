@@ -6,10 +6,11 @@ import type { ProfileFormValues, RegisterFormValues } from "../api/auth.dto";
 import { mapCertificateDto, mapUserDto } from "../lib/auth.mappers";
 import { useAuthStore } from "./auth.store";
 
+/** Muvaffaqiyatli bo'lsa darhol AUTHENTICATED — alohida login shart emas. */
 export function useRegisterMutation() {
   return useMutation({
-    mutationFn: (values: RegisterFormValues) =>
-      authApi.register({
+    mutationFn: (values: RegisterFormValues): Promise<AuthUser> =>
+      useAuthStore.getState().register({
         username: values.username.trim(),
         password: values.password,
         first_name: values.firstName.trim(),
@@ -17,6 +18,13 @@ export function useRegisterMutation() {
         role: values.role,
         phone: values.phone?.trim() || "",
       }),
+  });
+}
+
+/** Bog'langan akkauntga parolsiz o'tish (PHONE_LINKED_ACCOUNTS_API.md). */
+export function useSwitchAccountMutation() {
+  return useMutation({
+    mutationFn: (userId: string): Promise<AuthUser> => useAuthStore.getState().switchAccount(userId),
   });
 }
 

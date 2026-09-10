@@ -39,5 +39,31 @@
     "hourUnit": "ч",
     "minuteUnit": "м",
     "secondUnit": "с"
+  },
+  "formPickers": {
+    "months": ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь", "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"],
+    "weekdays": ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"],
+    "selectPlaceholder": "Выберите",
+    "selectHeading": "Выбор",
+    "chooseDate": "Выберите дату",
+    "chooseDateTime": "Выберите дату и время",
+    "chooseTime": "Выберите время",
+    "prevMonth": "Предыдущий месяц",
+    "nextMonth": "Следующий месяц",
+    "adjustTimeAria": "Настроить время",
+    "increaseHourAria": "Увеличить час",
+    "decreaseHourAria": "Уменьшить час",
+    "increaseMinuteAria": "Увеличить минуту",
+    "decreaseMinuteAria": "Уменьшить минуту",
+    "hourLabel": "Час",
+    "minuteLabel": "Минута",
+    "presetTimesAria": "Готовые варианты времени",
+    "minuteUnit": "мин",
+    "presetDurationsAria": "Готовые варианты продолжительности",
+    "dueTimeSection": "Время сдачи",
+    "clear": "Очистить",
+    "today": "Сегодня",
+    "done": "Готово",
+    "schedule": "Расписание"
   }
 }

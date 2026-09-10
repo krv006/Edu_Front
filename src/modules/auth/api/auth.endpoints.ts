@@ -4,6 +4,8 @@ export const authEndpoints = Object.freeze({
   refresh: "/api/v1/auth/token/refresh/",
   me: "/api/v1/auth/me/",
   register: "/api/v1/auth/register/",
+  /** Bog'langan akkauntga parolsiz o'tish — PHONE_LINKED_ACCOUNTS_API.md. */
+  switchAccount: (id: string) => `/api/v1/auth/switch/${id}/`,
   children: "/api/v1/auth/children/",
   links: "/api/v1/auth/links/",
   requestLink: "/api/v1/auth/links/request/",

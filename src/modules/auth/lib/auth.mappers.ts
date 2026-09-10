@@ -1,12 +1,14 @@
 import { normalizeMediaUrl } from "@/shared/api";
 import { normalizeRole } from "@/modules/permission";
 import type { Role } from "@/shared/constants";
-import type { AuthUser, Certificate, LoginCredentials } from "@/shared/types";
+import type { AuthUser, Certificate, LinkedAccount, LoginCredentials } from "@/shared/types";
 import {
   certificateDtoSchema,
   loginRecordDtoSchema,
+  switchAccountResponseDtoSchema,
   tokenPairDtoSchema,
   userDtoSchema,
+  type LinkedAccountDto,
   type LoginRecord,
   type LoginRequestDto,
   type TokenPair,
@@ -33,6 +35,16 @@ export function mapCertificateDto(dto: unknown): Certificate {
   };
 }
 
+function mapLinkedAccountDto(dto: LinkedAccountDto): LinkedAccount {
+  const name = [dto.first_name, dto.last_name].filter(Boolean).join(" ") || dto.username;
+  return {
+    id: dto.id,
+    username: dto.username,
+    name,
+    role: normalizeRole(dto.role) as Role,
+  };
+}
+
 /** Zod bilan runtime validatsiya — backend shakli o'zgarsa darhol xato beradi. */
 export function mapUserDto(dto: unknown): AuthUser {
   const parsed = userDtoSchema.parse(dto);
@@ -55,6 +67,16 @@ export function mapUserDto(dto: unknown): AuthUser {
     isApproved: parsed.is_approved ?? null,
     certificates: parsed.certificates.map(mapCertificateDto),
     preferredLanguage: parsed.preferred_language,
+    linkedAccounts: parsed.linked_accounts.map(mapLinkedAccountDto),
+  };
+}
+
+/** `POST /auth/switch/<id>/` javobi — yangi tokenlar HAM yangi akkauntning to'liq ma'lumoti. */
+export function mapSwitchAccountResponse(dto: unknown): { tokens: TokenPair; user: AuthUser } {
+  const parsed = switchAccountResponseDtoSchema.parse(dto);
+  return {
+    tokens: { accessToken: parsed.access, refreshToken: parsed.refresh },
+    user: mapUserDto(parsed.user),
   };
 }
 
