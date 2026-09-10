@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
+import { downloadBlob } from "@/shared/lib";
 import type { QuizFormValues } from "@/shared/types";
 import { quizApi } from "../api/quiz.api";
 
@@ -47,6 +48,18 @@ export function useImportQuizDocx() {
   return useMutation({
     mutationFn: (file: File) => quizApi.importDocx(file),
     onSuccess: (preview) => toast.success(t("toast.importSuccess", { count: preview.questions.length })),
+    onError: (error: Error) => toast.error(error.message),
+  });
+}
+
+/** Bo'sh shablon (.docx/.xlsx) — brauzer darhol yuklab oladi, hech narsa saqlanmaydi. */
+export function useDownloadQuizTemplate() {
+  const { t } = useTranslation("quiz");
+  return useMutation({
+    mutationFn: ({ type, count }: { type: "docx" | "xlsx"; count: number }) =>
+      quizApi.downloadTemplate(type, count).then((blob) =>
+        downloadBlob(blob, t("createDialog.templateFileName", { ext: type }))
+      ),
     onError: (error: Error) => toast.error(error.message),
   });
 }

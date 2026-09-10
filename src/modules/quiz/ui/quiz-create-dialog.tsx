@@ -1,12 +1,12 @@
 import { useMemo, useRef, useState, type ChangeEvent, type FormEvent } from "react";
 import { motion } from "framer-motion";
-import { BookOpen, CalendarDays, FileUp, X } from "lucide-react";
+import { BookOpen, CalendarDays, Download, FileUp, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useLessons } from "@/modules/lesson";
 import { Button, Dialog, DialogContent } from "@/shared/ui/legacy";
 import { DatePicker, SelectPicker } from "@/shared/ui/legacy/form-pickers";
 import type { QuizFormValues, QuizImportWarning } from "@/shared/types";
-import { useImportQuizDocx } from "../model/quiz.queries";
+import { useDownloadQuizTemplate, useImportQuizDocx } from "../model/quiz.queries";
 
 interface QuizOptionDraft {
   key: string;
@@ -72,6 +72,7 @@ export function AddQuizDialog({ open, onOpenChange, onCreate, courses }: AddQuiz
   const [importWarnings, setImportWarnings] = useState<QuizImportWarning[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const importDocx = useImportQuizDocx();
+  const downloadTemplate = useDownloadQuizTemplate();
 
   const courseOptions = useMemo(
     () => courses.map((course) => ({ value: course.id, label: course.title })),
@@ -93,6 +94,17 @@ export function AddQuizDialog({ open, onOpenChange, onCreate, courses }: AddQuiz
       newKey(),
       Array.from({ length: DEFAULT_OPTION_COUNT }, () => newKey())
     );
+  }
+
+  /** "Nechta savol?" maydoni bo'sh bo'lsa ham shablonni yuklab olish
+   * ishlashi uchun — 1-100 oralig'ida, bo'sh bo'lsa 10 (placeholder bilan mos). */
+  function resolvedQuestionCount(): number {
+    const parsed = Math.trunc(Number(questionCount));
+    return Math.max(1, Math.min(100, parsed || 10));
+  }
+
+  function handleDownloadTemplate(type: "docx" | "xlsx") {
+    downloadTemplate.mutate({ type, count: resolvedQuestionCount() });
   }
 
   function reset() {
@@ -134,9 +146,9 @@ export function AddQuizDialog({ open, onOpenChange, onCreate, courses }: AddQuiz
     setStep("questions");
   }
 
-  /** `.docx` faylni tanlagach — parse qilingan savollarni to'g'ridan-to'g'ri
-   * savollar sahifasiga yuklaydi. Hech narsa saqlanmagan, o'qituvchi ko'rib
-   * chiqib "Test yaratish"ni bosishi kerak. */
+  /** `.docx` yoki `.xlsx` faylni tanlagach — parse qilingan savollarni
+   * to'g'ridan-to'g'ri savollar sahifasiga yuklaydi. Hech narsa saqlanmagan,
+   * o'qituvchi ko'rib chiqib "Test yaratish"ni bosishi kerak. */
   function handleImportFile(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
     event.target.value = "";
@@ -413,7 +425,13 @@ export function AddQuizDialog({ open, onOpenChange, onCreate, courses }: AddQuiz
               {t("createDialog.continueButton")}
             </button>
             <span className="quiz-template-gen-or">{t("createDialog.importOr")}</span>
-            <input ref={fileInputRef} type="file" accept=".docx" hidden onChange={handleImportFile} />
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".docx,.xlsx"
+              hidden
+              onChange={handleImportFile}
+            />
             <button
               type="button"
               className="quiz-generate-button quiz-generate-button--ghost"
@@ -422,6 +440,26 @@ export function AddQuizDialog({ open, onOpenChange, onCreate, courses }: AddQuiz
             >
               <FileUp size={14} />{" "}
               {importDocx.isPending ? t("createDialog.importButtonLoading") : t("createDialog.importButton")}
+            </button>
+          </div>
+
+          <div className="quiz-template-download">
+            <span className="quiz-template-download-label">{t("createDialog.downloadTemplateLabel")}</span>
+            <button
+              type="button"
+              className="quiz-generate-button quiz-generate-button--ghost"
+              disabled={downloadTemplate.isPending}
+              onClick={() => handleDownloadTemplate("docx")}
+            >
+              <Download size={14} /> {t("createDialog.downloadTemplateWord")}
+            </button>
+            <button
+              type="button"
+              className="quiz-generate-button quiz-generate-button--ghost"
+              disabled={downloadTemplate.isPending}
+              onClick={() => handleDownloadTemplate("xlsx")}
+            >
+              <Download size={14} /> {t("createDialog.downloadTemplateExcel")}
             </button>
           </div>
 

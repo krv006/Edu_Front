@@ -38,13 +38,21 @@ export const quizApi = {
   async create(form: QuizFormValues) {
     return mapQuizDto(await apiClient.post<QuizDto>(quizEndpoints.list, mapQuizRequest(form)));
   },
-  /** Hech narsa saqlanmaydi — faqat parse qilingan preview qaytadi. */
+  /** `.docx` yoki `.xlsx` — kengaytmaga qarab backend o'zi tanlaydi.
+   * Hech narsa saqlanmaydi — faqat parse qilingan preview qaytadi. */
   async importDocx(file: File) {
     const body = new FormData();
     body.set("file", file);
     return mapQuizImportPreviewDto(
       await apiClient.post<QuizImportPreviewDto>(quizEndpoints.import, body)
     );
+  },
+  /** Bo'sh shablon fayl — to'ldirib qaytadan `importDocx`ga yuborish uchun mo'ljallangan. */
+  async downloadTemplate(type: "docx" | "xlsx", count: number) {
+    return apiClient.get<Blob>(quizEndpoints.template, {
+      responseType: "blob",
+      query: { type, count },
+    });
   },
   async remove(id: string) {
     await apiClient.delete(quizEndpoints.detail(id));

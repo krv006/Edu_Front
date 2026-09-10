@@ -5649,6 +5649,8 @@ body > .ML__keyboard,
 .quiz-generate-button:disabled { opacity: .6; cursor: default; }
 .quiz-generate-button--ghost { color: var(--primary-text); background: var(--surface); border-color: var(--border-strong); }
 .quiz-generate-button--ghost:hover { background: var(--secondary); }
+.quiz-template-download { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+.quiz-template-download-label { color: var(--muted-foreground); font-size: var(--fs-xs); font-weight: 700; }
 
 /* Quiz — savollar sahifasi (2-bosqich). "Nechta savol?"dan keyin yoki .docx
    import qilingach shu yerga o'tiladi: to'liq ekranli, bitta "qog'oz varag'i"
