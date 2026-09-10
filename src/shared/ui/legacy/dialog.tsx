@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { AnimatePresence, motion } from "framer-motion";
 import { X } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 export function Dialog({
   open,
@@ -47,6 +48,7 @@ export function DialogContent({
   motionPreset = "modal",
   closeable = true,
 }: DialogContentProps) {
+  const { t } = useTranslation("common");
   const isSheet = motionPreset === "right-sheet";
   return (
     <AnimatePresence>
@@ -90,7 +92,7 @@ export function DialogContent({
                 {description && <DialogPrimitive.Description>{description}</DialogPrimitive.Description>}
               </div>
               {closeable ? (
-                <DialogPrimitive.Close className="icon-button" aria-label="Yopish">
+                <DialogPrimitive.Close className="icon-button" aria-label={t("actions.close")}>
                   <X size={19} />
                 </DialogPrimitive.Close>
               ) : null}

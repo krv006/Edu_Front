@@ -39,5 +39,31 @@
     "hourUnit": "s",
     "minuteUnit": "m",
     "secondUnit": "s"
+  },
+  "formPickers": {
+    "months": ["Yanvar", "Fevral", "Mart", "Aprel", "May", "Iyun", "Iyul", "Avgust", "Sentabr", "Oktabr", "Noyabr", "Dekabr"],
+    "weekdays": ["Du", "Se", "Cho", "Pa", "Ju", "Sha", "Ya"],
+    "selectPlaceholder": "Tanlang",
+    "selectHeading": "Tanlov",
+    "chooseDate": "Sanani tanlang",
+    "chooseDateTime": "Sana va vaqtni tanlang",
+    "chooseTime": "Vaqtni tanlang",
+    "prevMonth": "Oldingi oy",
+    "nextMonth": "Keyingi oy",
+    "adjustTimeAria": "Vaqtni sozlash",
+    "increaseHourAria": "Soatni oshirish",
+    "decreaseHourAria": "Soatni kamaytirish",
+    "increaseMinuteAria": "Daqiqani oshirish",
+    "decreaseMinuteAria": "Daqiqani kamaytirish",
+    "hourLabel": "Soat",
+    "minuteLabel": "Daqiqa",
+    "presetTimesAria": "Tayyor vaqtlar",
+    "minuteUnit": "daqiqa",
+    "presetDurationsAria": "Tayyor davomiyliklar",
+    "dueTimeSection": "Topshirish vaqti",
+    "clear": "Tozalash",
+    "today": "Bugun",
+    "done": "Tayyor",
+    "schedule": "Jadval"
   }
 }

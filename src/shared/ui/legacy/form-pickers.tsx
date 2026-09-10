@@ -12,6 +12,7 @@ import {
 import { createPortal } from "react-dom";
 import { FocusScope } from "@radix-ui/react-focus-scope";
 import { AnimatePresence, motion } from "framer-motion";
+import { useTranslation } from "react-i18next";
 import {
   CalendarDays,
   Check,
@@ -26,11 +27,6 @@ import {
 type IconComponent = ComponentType<{ size?: number | string; className?: string }>;
 type AnchorRef = RefObject<HTMLElement | null>;
 
-const MONTHS = [
-  "Yanvar", "Fevral", "Mart", "Aprel", "May", "Iyun",
-  "Iyul", "Avgust", "Sentabr", "Oktabr", "Noyabr", "Dekabr",
-];
-const WEEKDAYS = ["Du", "Se", "Cho", "Pa", "Ju", "Sha", "Ya"];
 const TIME_PRESETS = ["09:00", "14:00", "18:30", "20:00"];
 
 function pad(value: number): string {
@@ -50,10 +46,11 @@ function parseDateValue(value: string | null | undefined): Date | null {
   return new Date(year, month - 1, day);
 }
 
-function formatDateValue(value: string | null | undefined): string {
+/** `months` — joriy tildagi oy nomlari (`common:formPickers.months`), chaqiruvchi komponent beradi. */
+function formatDateValue(value: string | null | undefined, months: string[]): string {
   const date = parseDateValue(value);
-  if (!date) return "Sanani tanlang";
-  return `${date.getDate()} ${MONTHS[date.getMonth()].toLowerCase()}, ${date.getFullYear()}`;
+  if (!date) return "";
+  return `${date.getDate()} ${months[date.getMonth()].toLowerCase()}, ${date.getFullYear()}`;
 }
 
 function getTimeValue(value: string | null | undefined, fallback = "18:30"): string {
@@ -239,6 +236,7 @@ export interface SelectPickerProps {
 }
 
 export function SelectPicker({ label, value, onChange, options, icon }: SelectPickerProps) {
+  const { t } = useTranslation("common");
   const [open, setOpen] = useState(false);
   const anchorRef = useRef<HTMLButtonElement>(null);
   const labelId = useId();
@@ -256,11 +254,11 @@ export function SelectPicker({ label, value, onChange, options, icon }: SelectPi
         onClick={() => setOpen((current) => !current)}
         icon={icon ?? ChevronDown}
         value={selected?.label ?? ""}
-        placeholder="Tanlang"
+        placeholder={t("formPickers.selectPlaceholder")}
         labelledBy={labelId}
       />
       <FloatingPicker open={open} onClose={() => setOpen(false)} anchorRef={anchorRef} labelledBy={labelId} className="select-picker-popover">
-        <div className="picker-mini-heading"><span>Tanlov</span><strong>{label}</strong></div>
+        <div className="picker-mini-heading"><span>{t("formPickers.selectHeading")}</span><strong>{label}</strong></div>
         <div className="select-picker-options" role="listbox" aria-labelledby={labelId}>
           {normalizedOptions.map((option, index) => {
             const active = option.value === value;
@@ -304,6 +302,9 @@ interface CalendarGridProps {
 }
 
 function CalendarGrid({ value, onChange, viewDate, onViewDateChange }: CalendarGridProps) {
+  const { t } = useTranslation("common");
+  const months = t("formPickers.months", { returnObjects: true }) as string[];
+  const weekdays = t("formPickers.weekdays", { returnObjects: true }) as string[];
   const selected = parseDateValue(value);
   const todayValue = toDateValue(new Date());
   const cells = useMemo(() => {
@@ -321,7 +322,7 @@ function CalendarGrid({ value, onChange, viewDate, onViewDateChange }: CalendarG
         <button
           type="button"
           onClick={() => onViewDateChange(new Date(viewDate.getFullYear(), viewDate.getMonth() - 1, 1))}
-          aria-label="Oldingi oy"
+          aria-label={t("formPickers.prevMonth")}
         >
           <ChevronLeft size={18} />
         </button>
@@ -330,18 +331,18 @@ function CalendarGrid({ value, onChange, viewDate, onViewDateChange }: CalendarG
           initial={{ opacity: 0, y: -4 }}
           animate={{ opacity: 1, y: 0 }}
         >
-          {MONTHS[viewDate.getMonth()]} {viewDate.getFullYear()}
+          {months[viewDate.getMonth()]} {viewDate.getFullYear()}
         </motion.strong>
         <button
           type="button"
           onClick={() => onViewDateChange(new Date(viewDate.getFullYear(), viewDate.getMonth() + 1, 1))}
-          aria-label="Keyingi oy"
+          aria-label={t("formPickers.nextMonth")}
         >
           <ChevronRight size={18} />
         </button>
       </div>
       <div className="calendar-weekdays" aria-hidden="true">
-        {WEEKDAYS.map((day) => <span key={day}>{day}</span>)}
+        {weekdays.map((day, index) => <span key={index}>{day}</span>)}
       </div>
       <div className="calendar-days">
         {cells.map((date) => {
@@ -355,7 +356,7 @@ function CalendarGrid({ value, onChange, viewDate, onViewDateChange }: CalendarG
               type="button"
               className={`${inMonth ? "" : "is-outside"}${isSelected ? " is-selected" : ""}${isToday ? " is-today" : ""}`}
               onClick={() => onChange(dateValue)}
-              aria-label={`${date.getDate()} ${MONTHS[date.getMonth()]} ${date.getFullYear()}`}
+              aria-label={`${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}`}
               aria-pressed={isSelected}
               whileTap={{ scale: 0.86 }}
             >
@@ -428,6 +429,7 @@ function TimeField({
 }
 
 function TimeControl({ value, onChange, compact = false }: TimeControlProps) {
+  const { t } = useTranslation("common");
   const time = getTimeValue(value);
   const [hour, minute] = time.split(":").map(Number);
 
@@ -443,28 +445,28 @@ function TimeControl({ value, onChange, compact = false }: TimeControlProps) {
 
   return (
     <div className={`time-control${compact ? " is-compact" : ""}`}>
-      <div className="time-stepper" aria-label="Vaqtni sozlash">
+      <div className="time-stepper" aria-label={t("formPickers.adjustTimeAria")}>
         <div>
-          <button type="button" onClick={() => updateTime(hour + 1, minute)} aria-label="Soatni oshirish">
+          <button type="button" onClick={() => updateTime(hour + 1, minute)} aria-label={t("formPickers.increaseHourAria")}>
             <ChevronUp size={17} />
           </button>
-          <TimeField value={hour} max={23} label="Soat" onCommit={(next) => updateTime(next, minute)} />
-          <button type="button" onClick={() => updateTime(hour - 1, minute)} aria-label="Soatni kamaytirish">
+          <TimeField value={hour} max={23} label={t("formPickers.hourLabel")} onCommit={(next) => updateTime(next, minute)} />
+          <button type="button" onClick={() => updateTime(hour - 1, minute)} aria-label={t("formPickers.decreaseHourAria")}>
             <ChevronDown size={17} />
           </button>
         </div>
         <span>:</span>
         <div>
-          <button type="button" onClick={() => shiftMinute(5)} aria-label="Daqiqani oshirish">
+          <button type="button" onClick={() => shiftMinute(5)} aria-label={t("formPickers.increaseMinuteAria")}>
             <ChevronUp size={17} />
           </button>
-          <TimeField value={minute} max={59} label="Daqiqa" onCommit={(next) => updateTime(hour, next)} />
-          <button type="button" onClick={() => shiftMinute(-5)} aria-label="Daqiqani kamaytirish">
+          <TimeField value={minute} max={59} label={t("formPickers.minuteLabel")} onCommit={(next) => updateTime(hour, next)} />
+          <button type="button" onClick={() => shiftMinute(-5)} aria-label={t("formPickers.decreaseMinuteAria")}>
             <ChevronDown size={17} />
           </button>
         </div>
       </div>
-      <div className="time-presets" aria-label="Tayyor vaqtlar">
+      <div className="time-presets" aria-label={t("formPickers.presetTimesAria")}>
         {TIME_PRESETS.map((preset) => (
           <button
             key={preset}
@@ -511,6 +513,7 @@ export function DurationPicker({
   min = 5,
   max = 480,
 }: DurationPickerProps) {
+  const { t } = useTranslation("common");
   const [open, setOpen] = useState(false);
   const anchorRef = useRef<HTMLDivElement>(null);
   const labelId = useId();
@@ -549,11 +552,11 @@ export function DurationPicker({
             }
           }}
         />
-        <span className="duration-picker-unit">daqiqa</span>
+        <span className="duration-picker-unit">{t("formPickers.minuteUnit")}</span>
         <button
           type="button"
           className="duration-picker-toggle"
-          aria-label="Tayyor davomiyliklar"
+          aria-label={t("formPickers.presetDurationsAria")}
           aria-expanded={open}
           aria-haspopup="dialog"
           onClick={() => setOpen((current) => !current)}
@@ -570,7 +573,7 @@ export function DurationPicker({
         className="select-picker-popover"
       >
         <div className="picker-mini-heading">
-          <span>Tanlov</span>
+          <span>{t("formPickers.selectHeading")}</span>
           <strong>{label}</strong>
         </div>
         <div className="select-picker-options" role="listbox" aria-labelledby={labelId}>
@@ -591,7 +594,7 @@ export function DurationPicker({
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: index * 0.025 }}
               >
-                <span>{minutes} daqiqa</span>
+                <span>{minutes} {t("formPickers.minuteUnit")}</span>
                 {active ? (
                   <i>
                     <Check size={14} />
@@ -616,13 +619,17 @@ export interface DatePickerProps {
 }
 
 export function DatePicker({ label, value, onChange, includeTime = false, optional = false }: DatePickerProps) {
+  const { t } = useTranslation("common");
+  const months = t("formPickers.months", { returnObjects: true }) as string[];
   const [open, setOpen] = useState(false);
   const anchorRef = useRef<HTMLButtonElement>(null);
   const labelId = useId();
   const selectedDate = parseDateValue(value);
   const [viewDate, setViewDate] = useState<Date>(() => selectedDate ?? new Date());
   const timeValue = getTimeValue(value);
-  const displayValue = selectedDate ? `${formatDateValue(value)}${includeTime ? ` · ${timeValue}` : ""}` : "";
+  const displayValue = selectedDate
+    ? `${formatDateValue(value, months)}${includeTime ? ` · ${timeValue}` : ""}`
+    : "";
 
   function selectDate(dateValue: string) {
     onChange(includeTime ? `${dateValue}T${timeValue}` : dateValue);
@@ -644,7 +651,7 @@ export function DatePicker({ label, value, onChange, includeTime = false, option
         }}
         icon={includeTime ? Clock3 : CalendarDays}
         value={displayValue}
-        placeholder={includeTime ? "Sana va vaqtni tanlang" : "Sanani tanlang"}
+        placeholder={includeTime ? t("formPickers.chooseDateTime") : t("formPickers.chooseDate")}
         labelledBy={labelId}
       />
       <FloatingPicker
@@ -659,7 +666,7 @@ export function DatePicker({ label, value, onChange, includeTime = false, option
           <div className="datetime-time-section">
             <div className="picker-section-title">
               <Clock3 size={15} />
-              <span>Topshirish vaqti</span>
+              <span>{t("formPickers.dueTimeSection")}</span>
             </div>
             <TimeControl value={timeValue} onChange={selectTime} compact />
           </div>
@@ -674,7 +681,7 @@ export function DatePicker({ label, value, onChange, includeTime = false, option
                 setOpen(false);
               }}
             >
-              Tozalash
+              {t("formPickers.clear")}
             </button>
           ) : (
             <span />
@@ -687,10 +694,10 @@ export function DatePicker({ label, value, onChange, includeTime = false, option
               setViewDate(new Date());
             }}
           >
-            Bugun
+            {t("formPickers.today")}
           </button>
           <button type="button" className="picker-done" onClick={() => setOpen(false)}>
-            Tayyor
+            {t("formPickers.done")}
           </button>
         </div>
       </FloatingPicker>
@@ -705,6 +712,7 @@ export interface TimePickerProps {
 }
 
 export function TimePicker({ label, value, onChange }: TimePickerProps) {
+  const { t } = useTranslation("common");
   const [open, setOpen] = useState(false);
   const anchorRef = useRef<HTMLButtonElement>(null);
   const labelId = useId();
@@ -716,15 +724,15 @@ export function TimePicker({ label, value, onChange }: TimePickerProps) {
         onClick={() => setOpen((current) => !current)}
         icon={Clock3}
         value={value}
-        placeholder="Vaqtni tanlang"
+        placeholder={t("formPickers.chooseTime")}
         labelledBy={labelId}
       />
       <FloatingPicker open={open} onClose={() => setOpen(false)} anchorRef={anchorRef} labelledBy={labelId} className="time-picker-popover">
-        <div className="picker-mini-heading"><span>Jadval</span><strong>{label}</strong></div>
+        <div className="picker-mini-heading"><span>{t("formPickers.schedule")}</span><strong>{label}</strong></div>
         <TimeControl value={value} onChange={onChange} />
         <div className="picker-footer picker-footer--end">
           <button type="button" className="picker-done" onClick={() => setOpen(false)}>
-            Tayyor
+            {t("formPickers.done")}
           </button>
         </div>
       </FloatingPicker>
