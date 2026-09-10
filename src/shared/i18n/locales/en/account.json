@@ -12,7 +12,6 @@
   "menuAria": "{{role}} menu",
   "sectionsAria": "Account sections",
   "online": "Online",
-  "theme": "Theme",
   "sessionSecure": "Your session is stored securely",
   "logout": "Log out",
   "version": "EduTech · v1.0",
@@ -44,6 +43,12 @@
     "description": "Choose the interface language and appearance.",
     "languageLabel": "Language",
     "themeLabel": "Theme"
+  },
+  "roleSwitcher": {
+    "triggerAria": "Switch role",
+    "panelAria": "Choose a role",
+    "chooseRole": "Choose a role",
+    "comingSoon": "Role switching is coming soon"
   },
   "toast": {
     "copied": "{{label}} copied",

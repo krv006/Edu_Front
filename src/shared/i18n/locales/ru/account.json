@@ -12,7 +12,6 @@
   "menuAria": "Меню — {{role}}",
   "sectionsAria": "Разделы аккаунта",
   "online": "В сети",
-  "theme": "Тема",
   "sessionSecure": "Сессия сохраняется безопасно",
   "logout": "Выйти из системы",
   "version": "EduTech · v1.0",
@@ -44,6 +43,12 @@
     "description": "Выберите язык интерфейса и оформление.",
     "languageLabel": "Язык",
     "themeLabel": "Тема"
+  },
+  "roleSwitcher": {
+    "triggerAria": "Сменить роль",
+    "panelAria": "Выбор роли",
+    "chooseRole": "Выберите роль",
+    "comingSoon": "Смена роли скоро будет доступна"
   },
   "toast": {
     "copied": "{{label}} скопирован",

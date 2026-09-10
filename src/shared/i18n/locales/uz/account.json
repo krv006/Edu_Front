@@ -12,7 +12,6 @@
   "menuAria": "{{role}} menyusi",
   "sectionsAria": "Hisob bo'limlari",
   "online": "Onlayn",
-  "theme": "Mavzu",
   "sessionSecure": "Sessiya xavfsiz saqlanmoqda",
   "logout": "Tizimdan chiqish",
   "version": "EduTech · v1.0",
@@ -44,6 +43,12 @@
     "description": "Interfeys tili va ko'rinish rejimini tanlang.",
     "languageLabel": "Til",
     "themeLabel": "Mavzu"
+  },
+  "roleSwitcher": {
+    "triggerAria": "Rolni almashtirish",
+    "panelAria": "Rol tanlash",
+    "chooseRole": "Rolni tanlang",
+    "comingSoon": "Rol almashtirish tez orada faollashadi"
   },
   "toast": {
     "copied": "{{label}} nusxalandi",
