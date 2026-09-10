@@ -34,14 +34,10 @@ import { RatingSummary } from "@/modules/lesson";
 import { NotificationInboxDialog } from "@/modules/notification";
 import { ROLES, type Role } from "@/shared/constants";
 import { useLanguageStore } from "@/shared/model";
+import type { LinkedAccount, SwitchAccountState } from "@/shared/types";
 import { Avatar, Button, Dialog, DialogContent, LanguageToggle, ThemeToggle } from "@/shared/ui/legacy";
 
-/**
- * Rolni almashtirish — HOZIRCHA faqat vizual (backend tayyor emas).
- * Bosilgan chip belgilanadi, lekin hech qanday so'rov yuborilmaydi;
- * backend tayyor bo'lganda shu yerga haqiqiy mutatsiya ulanadi.
- */
-const SWITCHABLE_ROLES: Role[] = [ROLES.TEACHER, ROLES.STUDENT, ROLES.PARENT];
+/** Bog'langan akkaunt satrida rol nomini ko'rsatish uchun (PHONE_LINKED_ACCOUNTS_API.md). */
 const ROLE_I18N_KEY: Partial<Record<Role, string>> = {
   [ROLES.TEACHER]: "nav:roles.teacher",
   [ROLES.STUDENT]: "nav:roles.student",
@@ -105,13 +101,27 @@ export function AccountMenu({
     username: "",
   });
 
-  // Rol almashtirish flyout'i — hozircha faqat vizual (izohga qarang).
+  // Bog'langan akkauntlar flyout'i (PHONE_LINKED_ACCOUNTS_API.md).
   const profileRowRef = useRef<HTMLDivElement>(null);
   const roleFlyoutRef = useRef<HTMLDivElement>(null);
   const closeFlyoutTimerRef = useRef<number | null>(null);
   const [roleFlyoutOpen, setRoleFlyoutOpen] = useState(false);
   const [flyoutPosition, setFlyoutPosition] = useState<{ top: number; left: number } | null>(null);
-  const [previewRole, setPreviewRole] = useState<Role | undefined>(user?.role);
+  const [switchingAccountId, setSwitchingAccountId] = useState<string | null>(null);
+  const linkedAccounts = user?.linkedAccounts ?? [];
+
+  async function switchToAccount(account: LinkedAccount) {
+    if (switchingAccountId) return;
+    setSwitchingAccountId(account.id);
+    try {
+      await logout();
+      navigate("/login", {
+        state: { prefillUsername: account.username, switchAccountName: account.name } satisfies SwitchAccountState,
+      });
+    } finally {
+      setSwitchingAccountId(null);
+    }
+  }
 
   function cancelFlyoutClose() {
     if (closeFlyoutTimerRef.current !== null) {
@@ -149,15 +159,6 @@ export function AccountMenu({
     document.addEventListener("pointerdown", handleOutside);
     return () => document.removeEventListener("pointerdown", handleOutside);
   }, [roleFlyoutOpen]);
-
-  // Haqiqiy rol o'zgarsa (masalan boshqa hisobga kirilsa), vizual tanlov
-  // ham shunga qarab yangilansin — eskirib qolmasin. Render paytida to'g'ridan
-  // to'g'ri moslashtirish (effekt emas) — React'ning tavsiya qilingan naqshi.
-  const [syncedRole, setSyncedRole] = useState(user?.role);
-  if (user?.role !== syncedRole) {
-    setSyncedRole(user?.role);
-    setPreviewRole(user?.role);
-  }
 
   // Til Sozlamalar oynasidan almashtirilsa, o'zgarish darhol ko'rinadi
   // (butun ilova qayta render bo'ladi) — oynani ochiq qoldirish shart emas.
@@ -253,6 +254,7 @@ export function AccountMenu({
                 className="teacher-menu-profile-wrap"
                 ref={profileRowRef}
                 onMouseEnter={() => {
+                  if (!linkedAccounts.length) return;
                   cancelFlyoutClose();
                   openRoleFlyout();
                 }}
@@ -265,18 +267,20 @@ export function AccountMenu({
                     <small>{resolvedRoleLabel} · {t("online")}</small>
                   </span>
                 </button>
-                <button
-                  type="button"
-                  className={`teacher-menu-role-trigger ${roleFlyoutOpen ? "is-open" : ""}`}
-                  aria-label={t("roleSwitcher.triggerAria")}
-                  aria-expanded={roleFlyoutOpen}
-                  onClick={(event) => {
-                    event.stopPropagation();
-                    toggleRoleFlyout();
-                  }}
-                >
-                  <ChevronRight size={18} />
-                </button>
+                {linkedAccounts.length ? (
+                  <button
+                    type="button"
+                    className={`teacher-menu-role-trigger ${roleFlyoutOpen ? "is-open" : ""}`}
+                    aria-label={t("roleSwitcher.triggerAria")}
+                    aria-expanded={roleFlyoutOpen}
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      toggleRoleFlyout();
+                    }}
+                  >
+                    <ChevronRight size={18} />
+                  </button>
+                ) : null}
               </div>
               <div className="teacher-menu-status">
                 <ShieldCheck size={17} />
@@ -312,12 +316,11 @@ export function AccountMenu({
       </AnimatePresence>
 
       <AnimatePresence>
-        {open && roleFlyoutOpen && flyoutPosition && (
+        {open && roleFlyoutOpen && flyoutPosition && linkedAccounts.length ? (
           <motion.div
             ref={roleFlyoutRef}
             className="teacher-menu-role-flyout"
             style={{ top: flyoutPosition.top, left: flyoutPosition.left }}
-            role="radiogroup"
             aria-label={t("roleSwitcher.panelAria")}
             initial={{ opacity: 0, x: -6, scale: 0.97 }}
             animate={{ opacity: 1, x: 0, scale: 1 }}
@@ -326,22 +329,26 @@ export function AccountMenu({
             onMouseEnter={cancelFlyoutClose}
             onMouseLeave={scheduleFlyoutClose}
           >
-            <span className="teacher-menu-role-flyout-label">{t("roleSwitcher.chooseRole")}</span>
-            {SWITCHABLE_ROLES.map((role) => (
+            <span className="teacher-menu-role-flyout-label">{t("roleSwitcher.otherAccounts")}</span>
+            {linkedAccounts.map((account) => (
               <button
-                key={role}
+                key={account.id}
                 type="button"
-                role="radio"
-                aria-checked={previewRole === role}
-                className={previewRole === role ? "is-active" : ""}
-                onClick={() => setPreviewRole(role)}
+                disabled={switchingAccountId !== null}
+                onClick={() => switchToAccount(account)}
               >
-                {t(ROLE_I18N_KEY[role] ?? "")}
+                <span>
+                  <strong>{account.name}</strong>
+                  <small>
+                    {t(ROLE_I18N_KEY[account.role] ?? "")} · @{account.username}
+                  </small>
+                </span>
+                {switchingAccountId === account.id ? <Loader2 size={14} className="spin" /> : null}
               </button>
             ))}
-            <p className="teacher-menu-role-flyout-note">{t("roleSwitcher.comingSoon")}</p>
+            <p className="teacher-menu-role-flyout-note">{t("roleSwitcher.switchHint")}</p>
           </motion.div>
-        )}
+        ) : null}
       </AnimatePresence>
 
       <Dialog

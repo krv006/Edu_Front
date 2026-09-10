@@ -45,10 +45,10 @@
     "themeLabel": "Mavzu"
   },
   "roleSwitcher": {
-    "triggerAria": "Rolni almashtirish",
-    "panelAria": "Rol tanlash",
-    "chooseRole": "Rolni tanlang",
-    "comingSoon": "Rol almashtirish tez orada faollashadi"
+    "triggerAria": "Boshqa akkauntlaringiz",
+    "panelAria": "Boshqa akkauntlaringiz",
+    "otherAccounts": "BOSHQA AKKAUNTLARINGIZ",
+    "switchHint": "Akkauntga o'tish uchun uning parolini kiritishingiz kerak bo'ladi."
   },
   "toast": {
     "copied": "{{label}} nusxalandi",

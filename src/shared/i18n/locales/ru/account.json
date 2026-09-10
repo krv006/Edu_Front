@@ -45,10 +45,10 @@
     "themeLabel": "Тема"
   },
   "roleSwitcher": {
-    "triggerAria": "Сменить роль",
-    "panelAria": "Выбор роли",
-    "chooseRole": "Выберите роль",
-    "comingSoon": "Смена роли скоро будет доступна"
+    "triggerAria": "Другие ваши аккаунты",
+    "panelAria": "Другие ваши аккаунты",
+    "otherAccounts": "ДРУГИЕ ВАШИ АККАУНТЫ",
+    "switchHint": "Чтобы перейти в аккаунт, нужно будет ввести его пароль."
   },
   "toast": {
     "copied": "{{label}} скопирован",
