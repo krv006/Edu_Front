@@ -3,7 +3,13 @@ import { AppError, SESSION_EXPIRED_EVENT, tokenStorage } from "@/shared/api";
 import { SUPPORTED_LANGUAGES, useLanguageStore, type AppLanguage } from "@/shared/model";
 import type { AuthStatus, AuthUser, LoginCredentials } from "@/shared/types";
 import { authApi } from "../api/auth.api";
-import { mapLoginRequest, mapTokenPairDto, mapUserDto } from "../lib/auth.mappers";
+import type { RegisterRequestDto } from "../api/auth.dto";
+import {
+  mapLoginRequest,
+  mapSwitchAccountResponse,
+  mapTokenPairDto,
+  mapUserDto,
+} from "../lib/auth.mappers";
 import { configureAuthRefresh } from "../lib/auth-session";
 
 /**
@@ -39,6 +45,10 @@ interface AuthState {
   /** Ilova ochilganda bir marta chaqiriladi: saqlangan token bo'lsa profilni tiklaydi. */
   bootstrap: () => Promise<void>;
   login: (credentials: LoginCredentials) => Promise<AuthUser>;
+  /** Javobida access/refresh darhol keladi — muvaffaqiyatli bo'lsa darhol AUTHENTICATED. */
+  register: (dto: RegisterRequestDto) => Promise<AuthUser>;
+  /** Bog'langan akkauntga parolsiz o'tish (PHONE_LINKED_ACCOUNTS_API.md). */
+  switchAccount: (userId: string) => Promise<AuthUser>;
   logout: () => Promise<void>;
   setUser: (user: AuthUser) => void;
   /** Tarmoq xatosidan keyin "Qayta urinish". */
@@ -110,6 +120,41 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
       set({ user: null, status: AUTH_STATUS.ANONYMOUS, error: null });
       throw error;
     }
+  },
+
+  /**
+   * Ro'yxatdan o'tish javobida access/refresh darhol keladi — `login()` kabi
+   * alohida so'rov shart emas, lekin foydalanuvchi ma'lumoti javobda
+   * kafolatlanmagani uchun (backend hujjati faqat tokenlarni tasdiqlagan)
+   * ehtiyot shart bilan `getCurrentUser()` orqali olinadi.
+   */
+  async register(dto) {
+    try {
+      const tokens = mapTokenPairDto(await authApi.register(dto));
+      tokenStorage.setTokens(tokens, { persistent: true });
+      const user = mapUserDto(await authApi.getCurrentUser());
+      set({ user, status: AUTH_STATUS.AUTHENTICATED, error: null });
+      syncLanguageFromServer(user.preferredLanguage);
+      return user;
+    } catch (error) {
+      tokenStorage.clearTokens();
+      set({ user: null, status: AUTH_STATUS.ANONYMOUS, error: null });
+      throw error;
+    }
+  },
+
+  /**
+   * Bog'langan akkauntga parolsiz o'tish. Joriy sessiya davomiyligi
+   * (`remember me`) saqlanadi — bu yangi login emas, shuning uchun
+   * foydalanuvchidan qayta so'ralmaydi.
+   */
+  async switchAccount(userId) {
+    const persistent = tokenStorage.isPersistent();
+    const { tokens, user } = mapSwitchAccountResponse(await authApi.switchAccount(userId));
+    tokenStorage.setTokens(tokens, { persistent });
+    set({ user, status: AUTH_STATUS.AUTHENTICATED, error: null });
+    syncLanguageFromServer(user.preferredLanguage);
+    return user;
   },
 
   /**

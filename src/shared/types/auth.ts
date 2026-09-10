@@ -22,12 +22,6 @@ export interface LinkedAccount {
   role: Role;
 }
 
-/** Bog'langan akkauntlar flyout'idan `/login`ga "shu akkauntga o'tish" holati uchun uzatiladi. */
-export interface SwitchAccountState {
-  prefillUsername: string;
-  switchAccountName?: string;
-}
-
 /** `modules/auth` dagi `mapUserDto` qaytaradigan domen modeli. */
 export interface AuthUser {
   id: string;
