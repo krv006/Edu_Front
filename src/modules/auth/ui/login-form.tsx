@@ -12,9 +12,11 @@ import type { LoginCredentials } from "@/shared/types";
 
 export interface LoginFormProps {
   onSubmit: (values: LoginCredentials) => Promise<unknown>;
+  /** Bog'langan akkauntlar flyout'idan "shu akkauntga o'tish" bosilganda oldindan to'ldiriladi. */
+  defaultUsername?: string;
 }
 
-export function LoginForm({ onSubmit }: LoginFormProps) {
+export function LoginForm({ onSubmit, defaultUsername }: LoginFormProps) {
   const { t } = useTranslation("auth");
   const [showPassword, setShowPassword] = useState(false);
   const loginSchema = useMemo(() => createLoginSchema(t), [t]);
@@ -27,7 +29,7 @@ export function LoginForm({ onSubmit }: LoginFormProps) {
     formState: { errors, isSubmitting },
   } = useForm<LoginCredentials>({
     resolver: zodResolver(loginSchema),
-    defaultValues: { login: "", password: "", remember: true },
+    defaultValues: { login: defaultUsername ?? "", password: "", remember: true },
   });
   const remember = useWatch({ control, name: "remember" });
 
@@ -72,6 +74,7 @@ export function LoginForm({ onSubmit }: LoginFormProps) {
             id="password"
             type={showPassword ? "text" : "password"}
             autoComplete="current-password"
+            autoFocus={Boolean(defaultUsername)}
             placeholder={t("form.passwordPlaceholder")}
             {...register("password")}
           />

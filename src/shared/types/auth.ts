@@ -10,6 +10,24 @@ export interface Certificate {
   createdAt: string;
 }
 
+/**
+ * Xuddi shu telefon raqamiga bog'langan BOSHQA akkaunt (o'zi kirmaydi).
+ * Mustaqil login/parolga ega — almashish uchun qayta kirish kerak
+ * (PHONE_LINKED_ACCOUNTS_API.md).
+ */
+export interface LinkedAccount {
+  id: string;
+  username: string;
+  name: string;
+  role: Role;
+}
+
+/** Bog'langan akkauntlar flyout'idan `/login`ga "shu akkauntga o'tish" holati uchun uzatiladi. */
+export interface SwitchAccountState {
+  prefillUsername: string;
+  switchAccountName?: string;
+}
+
 /** `modules/auth` dagi `mapUserDto` qaytaradigan domen modeli. */
 export interface AuthUser {
   id: string;
@@ -32,6 +50,8 @@ export interface AuthUser {
   certificates: Certificate[];
   /** Hisobga bog'langan til (`uz`/`ru`/`en`) — qurilmadan mustaqil, `PATCH /auth/me/` bilan saqlanadi. */
   preferredLanguage: string;
+  /** Xuddi shu telefondagi boshqa akkauntlar — bo'sh yoki telefon yo'q bo'lsa `[]`. */
+  linkedAccounts: LinkedAccount[];
 }
 
 export type AuthStatus = "anonymous" | "initializing" | "authenticated" | "error";

@@ -32,9 +32,17 @@ import {
 } from "@/modules/auth";
 import { RatingSummary } from "@/modules/lesson";
 import { NotificationInboxDialog } from "@/modules/notification";
-import { ROLES } from "@/shared/constants";
+import { ROLES, type Role } from "@/shared/constants";
 import { useLanguageStore } from "@/shared/model";
+import type { LinkedAccount, SwitchAccountState } from "@/shared/types";
 import { Avatar, Button, Dialog, DialogContent, LanguageToggle, ThemeToggle } from "@/shared/ui/legacy";
+
+/** Bog'langan akkaunt satrida rol nomini ko'rsatish uchun (PHONE_LINKED_ACCOUNTS_API.md). */
+const ROLE_I18N_KEY: Partial<Record<Role, string>> = {
+  [ROLES.TEACHER]: "nav:roles.teacher",
+  [ROLES.STUDENT]: "nav:roles.student",
+  [ROLES.PARENT]: "nav:roles.parent",
+};
 
 type MenuItemId = "profile" | "logins" | "notifications" | "settings";
 
@@ -93,6 +101,65 @@ export function AccountMenu({
     username: "",
   });
 
+  // Bog'langan akkauntlar flyout'i (PHONE_LINKED_ACCOUNTS_API.md).
+  const profileRowRef = useRef<HTMLDivElement>(null);
+  const roleFlyoutRef = useRef<HTMLDivElement>(null);
+  const closeFlyoutTimerRef = useRef<number | null>(null);
+  const [roleFlyoutOpen, setRoleFlyoutOpen] = useState(false);
+  const [flyoutPosition, setFlyoutPosition] = useState<{ top: number; left: number } | null>(null);
+  const [switchingAccountId, setSwitchingAccountId] = useState<string | null>(null);
+  const linkedAccounts = user?.linkedAccounts ?? [];
+
+  async function switchToAccount(account: LinkedAccount) {
+    if (switchingAccountId) return;
+    setSwitchingAccountId(account.id);
+    try {
+      await logout();
+      navigate("/login", {
+        state: { prefillUsername: account.username, switchAccountName: account.name } satisfies SwitchAccountState,
+      });
+    } finally {
+      setSwitchingAccountId(null);
+    }
+  }
+
+  function cancelFlyoutClose() {
+    if (closeFlyoutTimerRef.current !== null) {
+      window.clearTimeout(closeFlyoutTimerRef.current);
+      closeFlyoutTimerRef.current = null;
+    }
+  }
+
+  function scheduleFlyoutClose() {
+    cancelFlyoutClose();
+    closeFlyoutTimerRef.current = window.setTimeout(() => setRoleFlyoutOpen(false), 150);
+  }
+
+  function openRoleFlyout() {
+    const rect = profileRowRef.current?.getBoundingClientRect();
+    if (rect) setFlyoutPosition({ top: rect.top, left: rect.right + 10 });
+    setRoleFlyoutOpen(true);
+  }
+
+  function toggleRoleFlyout() {
+    if (roleFlyoutOpen) {
+      setRoleFlyoutOpen(false);
+    } else {
+      openRoleFlyout();
+    }
+  }
+
+  useEffect(() => {
+    if (!roleFlyoutOpen) return undefined;
+    function handleOutside(event: PointerEvent) {
+      const target = event.target as Node;
+      if (profileRowRef.current?.contains(target) || roleFlyoutRef.current?.contains(target)) return;
+      setRoleFlyoutOpen(false);
+    }
+    document.addEventListener("pointerdown", handleOutside);
+    return () => document.removeEventListener("pointerdown", handleOutside);
+  }, [roleFlyoutOpen]);
+
   // Til Sozlamalar oynasidan almashtirilsa, o'zgarish darhol ko'rinadi
   // (butun ilova qayta render bo'ladi) — oynani ochiq qoldirish shart emas.
   const language = useLanguageStore((state) => state.language);
@@ -104,23 +171,30 @@ export function AccountMenu({
     }
   }, [language]);
 
+  // Drawer'ni yopishning barcha yo'llari shu orqali o'tadi — flyout ochiq
+  // qolib, keyingi safar hover/tapsiz ham bir zum ko'rinib qolmasin.
+  function closeDrawer() {
+    setRoleFlyoutOpen(false);
+    onOpenChange(false);
+  }
+
   function selectItem(id: MenuItemId) {
     if (id === "profile") {
-      onOpenChange(false);
+      closeDrawer();
       onProfileOpenChange(true);
       return;
     }
     if (id === "logins") {
-      onOpenChange(false);
+      closeDrawer();
       setLoginsOpen(true);
       return;
     }
     if (id === "notifications") {
-      onOpenChange(false);
+      closeDrawer();
       setInboxOpen(true);
       return;
     }
-    onOpenChange(false);
+    closeDrawer();
     setSettingsOpen(true);
   }
 
@@ -158,7 +232,7 @@ export function AccountMenu({
             <motion.button
               className="teacher-menu-overlay"
               aria-label={t("closeMenuAria")}
-              onClick={() => onOpenChange(false)}
+              onClick={closeDrawer}
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
@@ -172,21 +246,41 @@ export function AccountMenu({
               aria-label={t("menuAria", { role: resolvedRoleLabel })}
             >
               <div className="teacher-menu-top">
-                <button className="icon-button" onClick={() => onOpenChange(false)} aria-label={t("closeAria")}>
+                <button className="icon-button" onClick={closeDrawer} aria-label={t("closeAria")}>
                   <X size={19} />
                 </button>
               </div>
-              <button className="teacher-menu-profile" onClick={() => selectItem("profile")}>
-                <Avatar name={user?.name ?? resolvedRoleLabel} tone="violet" size="lg" status="online" src={user?.avatarUrl} />
-                <span>
-                  <strong>{user?.name}</strong>
-                  <small>{resolvedRoleLabel} · {t("online")}</small>
-                </span>
-                <ChevronRight size={18} />
-              </button>
-              <div className="teacher-menu-theme">
-                <span>{t("theme")}</span>
-                <ThemeToggle />
+              <div
+                className="teacher-menu-profile-wrap"
+                ref={profileRowRef}
+                onMouseEnter={() => {
+                  if (!linkedAccounts.length) return;
+                  cancelFlyoutClose();
+                  openRoleFlyout();
+                }}
+                onMouseLeave={scheduleFlyoutClose}
+              >
+                <button className="teacher-menu-profile" onClick={() => selectItem("profile")}>
+                  <Avatar name={user?.name ?? resolvedRoleLabel} tone="violet" size="lg" status="online" src={user?.avatarUrl} />
+                  <span>
+                    <strong>{user?.name}</strong>
+                    <small>{resolvedRoleLabel} · {t("online")}</small>
+                  </span>
+                </button>
+                {linkedAccounts.length ? (
+                  <button
+                    type="button"
+                    className={`teacher-menu-role-trigger ${roleFlyoutOpen ? "is-open" : ""}`}
+                    aria-label={t("roleSwitcher.triggerAria")}
+                    aria-expanded={roleFlyoutOpen}
+                    onClick={(event) => {
+                      event.stopPropagation();
+                      toggleRoleFlyout();
+                    }}
+                  >
+                    <ChevronRight size={18} />
+                  </button>
+                ) : null}
               </div>
               <div className="teacher-menu-status">
                 <ShieldCheck size={17} />
@@ -219,6 +313,42 @@ export function AccountMenu({
             </motion.aside>
           </>
         )}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {open && roleFlyoutOpen && flyoutPosition && linkedAccounts.length ? (
+          <motion.div
+            ref={roleFlyoutRef}
+            className="teacher-menu-role-flyout"
+            style={{ top: flyoutPosition.top, left: flyoutPosition.left }}
+            aria-label={t("roleSwitcher.panelAria")}
+            initial={{ opacity: 0, x: -6, scale: 0.97 }}
+            animate={{ opacity: 1, x: 0, scale: 1 }}
+            exit={{ opacity: 0, x: -6, scale: 0.97 }}
+            transition={{ duration: 0.14 }}
+            onMouseEnter={cancelFlyoutClose}
+            onMouseLeave={scheduleFlyoutClose}
+          >
+            <span className="teacher-menu-role-flyout-label">{t("roleSwitcher.otherAccounts")}</span>
+            {linkedAccounts.map((account) => (
+              <button
+                key={account.id}
+                type="button"
+                disabled={switchingAccountId !== null}
+                onClick={() => switchToAccount(account)}
+              >
+                <span>
+                  <strong>{account.name}</strong>
+                  <small>
+                    {t(ROLE_I18N_KEY[account.role] ?? "")} · @{account.username}
+                  </small>
+                </span>
+                {switchingAccountId === account.id ? <Loader2 size={14} className="spin" /> : null}
+              </button>
+            ))}
+            <p className="teacher-menu-role-flyout-note">{t("roleSwitcher.switchHint")}</p>
+          </motion.div>
+        ) : null}
       </AnimatePresence>
 
       <Dialog

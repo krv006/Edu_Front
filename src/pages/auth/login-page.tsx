@@ -1,15 +1,17 @@
 import { motion } from "framer-motion";
 import { Sparkles } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { Link, Navigate, useNavigate } from "react-router-dom";
+import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
 import { useAuth } from "@/modules/auth";
 import { LoginForm, resolveHomeRoute } from "@/modules/auth";
-import type { LoginCredentials } from "@/shared/types";
+import type { LoginCredentials, SwitchAccountState } from "@/shared/types";
 
 export function LoginPage() {
   const { user, login } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const { t } = useTranslation("auth");
+  const switchState = location.state as SwitchAccountState | null;
 
   if (user) return <Navigate to={resolveHomeRoute(user)} replace />;
 
@@ -33,9 +35,15 @@ export function LoginPage() {
             <Sparkles size={14} /> {t("tagline")}
           </span>
           <h1>{t("title")}</h1>
-          <p>{t("subtitle")}</p>
+          <p>
+            {switchState?.prefillUsername
+              ? t("switchAccountSubtitle", {
+                  name: switchState.switchAccountName ?? switchState.prefillUsername,
+                })
+              : t("subtitle")}
+          </p>
         </div>
-        <LoginForm onSubmit={handleLogin} />
+        <LoginForm onSubmit={handleLogin} defaultUsername={switchState?.prefillUsername} />
         <Link className="auth-switch-link" to="/register">{t("createAccount")}</Link>
       </motion.section>
       <p className="login-footer">{t("footer")}</p>

@@ -1,4 +1,12 @@
-export type { AuthContextValue, AuthStatus, AuthUser, Certificate, LoginCredentials } from "./auth";
+export type {
+  AuthContextValue,
+  AuthStatus,
+  AuthUser,
+  Certificate,
+  LinkedAccount,
+  LoginCredentials,
+  SwitchAccountState,
+} from "./auth";
 export type {
   AiQuestion,
   AiResult,
