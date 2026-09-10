@@ -23,8 +23,10 @@ import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import {
   LoginHistoryDialog,
+  resolveHomeRoute,
   useAuth,
   useDeleteCertificate,
+  useSwitchAccountMutation,
   useUpdateAvatarMutation,
   useUpdateProfileMutation,
   useUploadCertificate,
@@ -34,7 +36,7 @@ import { RatingSummary } from "@/modules/lesson";
 import { NotificationInboxDialog } from "@/modules/notification";
 import { ROLES, type Role } from "@/shared/constants";
 import { useLanguageStore } from "@/shared/model";
-import type { LinkedAccount, SwitchAccountState } from "@/shared/types";
+import type { LinkedAccount } from "@/shared/types";
 import { Avatar, Button, Dialog, DialogContent, LanguageToggle, ThemeToggle } from "@/shared/ui/legacy";
 
 /** Bog'langan akkaunt satrida rol nomini ko'rsatish uchun (PHONE_LINKED_ACCOUNTS_API.md). */
@@ -84,6 +86,7 @@ export function AccountMenu({
   const resolvedWorkspaceLabel = workspaceLabel ?? t("workspaceFallback");
   const { user, logout } = useAuth();
   const navigate = useNavigate();
+  const switchAccount = useSwitchAccountMutation();
   const updateProfile = useUpdateProfileMutation();
   const updateAvatar = useUpdateAvatarMutation();
   const uploadCertificate = useUploadCertificate();
@@ -107,20 +110,18 @@ export function AccountMenu({
   const closeFlyoutTimerRef = useRef<number | null>(null);
   const [roleFlyoutOpen, setRoleFlyoutOpen] = useState(false);
   const [flyoutPosition, setFlyoutPosition] = useState<{ top: number; left: number } | null>(null);
-  const [switchingAccountId, setSwitchingAccountId] = useState<string | null>(null);
   const linkedAccounts = user?.linkedAccounts ?? [];
 
-  async function switchToAccount(account: LinkedAccount) {
-    if (switchingAccountId) return;
-    setSwitchingAccountId(account.id);
-    try {
-      await logout();
-      navigate("/login", {
-        state: { prefillUsername: account.username, switchAccountName: account.name } satisfies SwitchAccountState,
-      });
-    } finally {
-      setSwitchingAccountId(null);
-    }
+  function switchToAccount(account: LinkedAccount) {
+    if (switchAccount.isPending) return;
+    switchAccount.mutate(account.id, {
+      onSuccess: (nextUser) => {
+        setRoleFlyoutOpen(false);
+        toast.success(t("roleSwitcher.switched", { name: nextUser.name }));
+        navigate(resolveHomeRoute(nextUser), { replace: true });
+      },
+      onError: (error: Error) => toast.error(error.message),
+    });
   }
 
   function cancelFlyoutClose() {
@@ -334,7 +335,7 @@ export function AccountMenu({
               <button
                 key={account.id}
                 type="button"
-                disabled={switchingAccountId !== null}
+                disabled={switchAccount.isPending}
                 onClick={() => switchToAccount(account)}
               >
                 <span>
@@ -343,7 +344,9 @@ export function AccountMenu({
                     {t(ROLE_I18N_KEY[account.role] ?? "")} · @{account.username}
                   </small>
                 </span>
-                {switchingAccountId === account.id ? <Loader2 size={14} className="spin" /> : null}
+                {switchAccount.isPending && switchAccount.variables === account.id ? (
+                  <Loader2 size={14} className="spin" />
+                ) : null}
               </button>
             ))}
             <p className="teacher-menu-role-flyout-note">{t("roleSwitcher.switchHint")}</p>

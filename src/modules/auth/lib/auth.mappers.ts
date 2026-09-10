@@ -5,6 +5,7 @@ import type { AuthUser, Certificate, LinkedAccount, LoginCredentials } from "@/s
 import {
   certificateDtoSchema,
   loginRecordDtoSchema,
+  switchAccountResponseDtoSchema,
   tokenPairDtoSchema,
   userDtoSchema,
   type LinkedAccountDto,
@@ -67,6 +68,15 @@ export function mapUserDto(dto: unknown): AuthUser {
     certificates: parsed.certificates.map(mapCertificateDto),
     preferredLanguage: parsed.preferred_language,
     linkedAccounts: parsed.linked_accounts.map(mapLinkedAccountDto),
+  };
+}
+
+/** `POST /auth/switch/<id>/` javobi — yangi tokenlar HAM yangi akkauntning to'liq ma'lumoti. */
+export function mapSwitchAccountResponse(dto: unknown): { tokens: TokenPair; user: AuthUser } {
+  const parsed = switchAccountResponseDtoSchema.parse(dto);
+  return {
+    tokens: { accessToken: parsed.access, refreshToken: parsed.refresh },
+    user: mapUserDto(parsed.user),
   };
 }
 

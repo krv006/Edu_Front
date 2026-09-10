@@ -27,6 +27,7 @@ export { useAuth, useCurrentUser, useIsAuthenticated } from "./model/use-auth";
 export { createLoginSchema, createRegisterSchema } from "./model/auth.schemas";
 export {
   useRegisterMutation,
+  useSwitchAccountMutation,
   useDeleteCertificate,
   useUpdateAvatarMutation,
   useUpdateProfileMutation,

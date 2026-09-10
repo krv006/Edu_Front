@@ -10,6 +10,7 @@ import type {
   LoginRequestDto,
   RefreshRequestDto,
   RegisterRequestDto,
+  SwitchAccountResponseDto,
   TokenPairDto,
 } from "./auth.dto";
 
@@ -59,8 +60,16 @@ export const authApi = {
     body.set("avatar", avatar ?? "");
     return apiClient.patch<AuthUserDto>(authEndpoints.me, body);
   },
+  /** Javobida access/refresh darhol keladi — ro'yxatdan o'tgach alohida login shart emas. */
   register(dto: RegisterRequestDto) {
-    return apiClient.post(authEndpoints.register, dto, { skipAuth: true, skipRefresh: true });
+    return apiClient.post<TokenPairDto>(authEndpoints.register, dto, {
+      skipAuth: true,
+      skipRefresh: true,
+    });
+  },
+  /** Bog'langan akkauntga parolsiz o'tish — joriy (eski akkaunt) token bilan yuboriladi. */
+  switchAccount(id: string) {
+    return apiClient.post<SwitchAccountResponseDto>(authEndpoints.switchAccount(id), {});
   },
   createChild(dto: CreateChildRequestDto) {
     return apiClient.post(authEndpoints.children, dto);

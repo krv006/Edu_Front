@@ -57,11 +57,21 @@ export const loginRecordDtoSchema = z.object({
   new_device: z.boolean().default(false),
 });
 
+/**
+ * `POST /api/v1/auth/switch/<user_id>/` — joriy token bilan (parolsiz)
+ * bog'langan boshqa rol-akkauntga o'tish. Javobida yangi access/refresh
+ * HAM yangi akkauntning to'liq foydalanuvchi ma'lumoti keladi.
+ */
+export const switchAccountResponseDtoSchema = tokenPairDtoSchema.extend({
+  user: userDtoSchema,
+});
+
 export type TokenPairDto = z.infer<typeof tokenPairDtoSchema>;
 export type AuthUserDto = z.infer<typeof userDtoSchema>;
 export type LinkedAccountDto = z.infer<typeof linkedAccountDtoSchema>;
 export type LoginRecordDto = z.infer<typeof loginRecordDtoSchema>;
 export type CertificateDto = z.infer<typeof certificateDtoSchema>;
+export type SwitchAccountResponseDto = z.infer<typeof switchAccountResponseDtoSchema>;
 
 /** Kirishlar tarixining domen ko'rinishi. */
 export interface LoginRecord {

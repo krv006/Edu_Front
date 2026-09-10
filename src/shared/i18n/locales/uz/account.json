@@ -48,7 +48,8 @@
     "triggerAria": "Boshqa akkauntlaringiz",
     "panelAria": "Boshqa akkauntlaringiz",
     "otherAccounts": "BOSHQA AKKAUNTLARINGIZ",
-    "switchHint": "Akkauntga o'tish uchun uning parolini kiritishingiz kerak bo'ladi."
+    "switchHint": "Akkauntga bosilsa, parolsiz darhol o'sha akkauntga o'tasiz.",
+    "switched": "{{name}} sifatida kirdingiz"
   },
   "toast": {
     "copied": "{{label}} nusxalandi",
