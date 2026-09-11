@@ -97,6 +97,23 @@ button:disabled {
   background: var(--primary-hover);
   box-shadow: 0 10px 24px rgba(43, 127, 255, 0.26);
 }
+.button--secondary {
+  /*
+   * Rangi ATAYLAB ochiq/qorong'i mavzuga bog'liq token'lardan olinadi (ambient
+   * `color`ga tayanmaydi) — aks holda `.live-page` kabi doim qorong'i fon
+   * ichida (rang atayin oq-yaqin qilib belgilangan) shu tugma matni ko'rinmay
+   * qolardi: doska panelining o'zi ochiq mavzuda oq fon bo'lsa ham, atrofdan
+   * meros qilingan oq matn shu fonda deyarli yo'qolib ketardi (2026-09-11,
+   * jonli darsning doska bo'limida "Ruxsat"/"Yechuvchi" tugmalari ko'rinmasligi).
+   */
+  border: 1px solid var(--border);
+  color: var(--foreground);
+  background: var(--surface);
+}
+.button--secondary:hover:not(:disabled) {
+  border-color: var(--border-accent-strong);
+  background: var(--primary-soft);
+}
 .button--ghost {
   background: transparent;
   color: var(--muted-foreground);
