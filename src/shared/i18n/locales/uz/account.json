@@ -48,6 +48,8 @@
     "triggerAria": "Boshqa akkauntlaringiz",
     "panelAria": "Boshqa akkauntlaringiz",
     "otherAccounts": "BOSHQA AKKAUNTLARINGIZ",
+    "openRoles": "BOSHQA ROLGA O'TISH",
+    "openHint": "Ro'yxatdan o'tishsiz avtomatik ochiladi",
     "switchHint": "Akkauntga bosilsa, parolsiz darhol o'sha akkauntga o'tasiz.",
     "switched": "{{name}} sifatida kirdingiz"
   },

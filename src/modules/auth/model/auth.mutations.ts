@@ -28,6 +28,13 @@ export function useSwitchAccountMutation() {
   });
 }
 
+/** Rolga o'tish — hali mavjud bo'lmasa ro'yxatdan o'tishsiz avtomatik ochiladi. */
+export function useSwitchRoleMutation() {
+  return useMutation({
+    mutationFn: (role: string): Promise<AuthUser> => useAuthStore.getState().switchRole(role),
+  });
+}
+
 export function useUpdateProfileMutation() {
   return useMutation({
     mutationFn: async (values: ProfileFormValues): Promise<AuthUser> => {

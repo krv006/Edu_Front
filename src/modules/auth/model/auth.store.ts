@@ -49,6 +49,8 @@ interface AuthState {
   register: (dto: RegisterRequestDto) => Promise<AuthUser>;
   /** Bog'langan akkauntga parolsiz o'tish (PHONE_LINKED_ACCOUNTS_API.md). */
   switchAccount: (userId: string) => Promise<AuthUser>;
+  /** Boshqa rolga o'tish — mavjud bo'lmasa backend uni avtomatik ochadi. */
+  switchRole: (role: string) => Promise<AuthUser>;
   logout: () => Promise<void>;
   setUser: (user: AuthUser) => void;
   /** Tarmoq xatosidan keyin "Qayta urinish". */
@@ -151,6 +153,16 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
   async switchAccount(userId) {
     const persistent = tokenStorage.isPersistent();
     const { tokens, user } = mapSwitchAccountResponse(await authApi.switchAccount(userId));
+    tokenStorage.setTokens(tokens, { persistent });
+    set({ user, status: AUTH_STATUS.AUTHENTICATED, error: null });
+    syncLanguageFromServer(user.preferredLanguage);
+    return user;
+  },
+
+  /** Rolga o'tish — hali mavjud bo'lmasa backend ro'yxatdan o'tishsiz ochadi. */
+  async switchRole(role) {
+    const persistent = tokenStorage.isPersistent();
+    const { tokens, user } = mapSwitchAccountResponse(await authApi.switchRole(role));
     tokenStorage.setTokens(tokens, { persistent });
     set({ user, status: AUTH_STATUS.AUTHENTICATED, error: null });
     syncLanguageFromServer(user.preferredLanguage);

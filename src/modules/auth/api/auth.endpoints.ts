@@ -6,6 +6,8 @@ export const authEndpoints = Object.freeze({
   register: "/api/v1/auth/register/",
   /** Bog'langan akkauntga parolsiz o'tish — PHONE_LINKED_ACCOUNTS_API.md. */
   switchAccount: (id: string) => `/api/v1/auth/switch/${id}/`,
+  /** Boshqa rolga o'tish — mavjud bo'lmasa ro'yxatdan o'tishsiz avtomatik ochiladi. */
+  switchRole: "/api/v1/auth/switch-role/",
   children: "/api/v1/auth/children/",
   links: "/api/v1/auth/links/",
   requestLink: "/api/v1/auth/links/request/",

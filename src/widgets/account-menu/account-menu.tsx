@@ -11,6 +11,7 @@ import {
   Loader2,
   LogOut,
   Phone,
+  Plus,
   Settings,
   ShieldAlert,
   ShieldCheck,
@@ -27,6 +28,7 @@ import {
   useAuth,
   useDeleteCertificate,
   useSwitchAccountMutation,
+  useSwitchRoleMutation,
   useUpdateAvatarMutation,
   useUpdateProfileMutation,
   useUploadCertificate,
@@ -45,6 +47,9 @@ const ROLE_I18N_KEY: Partial<Record<Role, string>> = {
   [ROLES.STUDENT]: "nav:roles.student",
   [ROLES.PARENT]: "nav:roles.parent",
 };
+
+/** O'zi ochib bo'ladigan rollar — backend ham faqat shu uchtasini qabul qiladi. */
+const SELF_SERVICE_ROLES: Role[] = [ROLES.TEACHER, ROLES.PARENT, ROLES.STUDENT];
 
 type MenuItemId = "profile" | "logins" | "notifications" | "settings";
 
@@ -87,6 +92,7 @@ export function AccountMenu({
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const switchAccount = useSwitchAccountMutation();
+  const switchRole = useSwitchRoleMutation();
   const updateProfile = useUpdateProfileMutation();
   const updateAvatar = useUpdateAvatarMutation();
   const uploadCertificate = useUploadCertificate();
@@ -111,10 +117,33 @@ export function AccountMenu({
   const [roleFlyoutOpen, setRoleFlyoutOpen] = useState(false);
   const [flyoutPosition, setFlyoutPosition] = useState<{ top: number; left: number } | null>(null);
   const linkedAccounts = user?.linkedAccounts ?? [];
+  // O'quvchi hisobidan boshqa rolga o'tib bo'lmaydi — backend ham shuni
+  // talab qiladi (services.switch_or_provision_role), shuning uchun bu
+  // yerda ro'yxat doim bo'sh, "ochish" tugmalari umuman ko'rinmaydi.
+  const missingRoles =
+    user && user.role !== ROLES.STUDENT
+      ? SELF_SERVICE_ROLES.filter(
+          (role) => role !== user.role && !linkedAccounts.some((account) => account.role === role)
+        )
+      : [];
+  const hasRoleSwitcher = linkedAccounts.length > 0 || missingRoles.length > 0;
 
   function switchToAccount(account: LinkedAccount) {
     if (switchAccount.isPending) return;
     switchAccount.mutate(account.id, {
+      onSuccess: (nextUser) => {
+        setRoleFlyoutOpen(false);
+        toast.success(t("roleSwitcher.switched", { name: nextUser.name }));
+        navigate(resolveHomeRoute(nextUser), { replace: true });
+      },
+      onError: (error: Error) => toast.error(error.message),
+    });
+  }
+
+  /** Hali ochilmagan rol — backend uni ro'yxatdan o'tishsiz avtomatik yaratadi. */
+  function switchToRole(role: Role) {
+    if (switchRole.isPending) return;
+    switchRole.mutate(role.toLowerCase(), {
       onSuccess: (nextUser) => {
         setRoleFlyoutOpen(false);
         toast.success(t("roleSwitcher.switched", { name: nextUser.name }));
@@ -255,7 +284,7 @@ export function AccountMenu({
                 className="teacher-menu-profile-wrap"
                 ref={profileRowRef}
                 onMouseEnter={() => {
-                  if (!linkedAccounts.length) return;
+                  if (!hasRoleSwitcher) return;
                   cancelFlyoutClose();
                   openRoleFlyout();
                 }}
@@ -268,7 +297,7 @@ export function AccountMenu({
                     <small>{resolvedRoleLabel} · {t("online")}</small>
                   </span>
                 </button>
-                {linkedAccounts.length ? (
+                {hasRoleSwitcher ? (
                   <button
                     type="button"
                     className={`teacher-menu-role-trigger ${roleFlyoutOpen ? "is-open" : ""}`}
@@ -317,7 +346,7 @@ export function AccountMenu({
       </AnimatePresence>
 
       <AnimatePresence>
-        {open && roleFlyoutOpen && flyoutPosition && linkedAccounts.length ? (
+        {open && roleFlyoutOpen && flyoutPosition && hasRoleSwitcher ? (
           <motion.div
             ref={roleFlyoutRef}
             className="teacher-menu-role-flyout"
@@ -330,25 +359,52 @@ export function AccountMenu({
             onMouseEnter={cancelFlyoutClose}
             onMouseLeave={scheduleFlyoutClose}
           >
-            <span className="teacher-menu-role-flyout-label">{t("roleSwitcher.otherAccounts")}</span>
-            {linkedAccounts.map((account) => (
-              <button
-                key={account.id}
-                type="button"
-                disabled={switchAccount.isPending}
-                onClick={() => switchToAccount(account)}
-              >
-                <span>
-                  <strong>{account.name}</strong>
-                  <small>
-                    {t(ROLE_I18N_KEY[account.role] ?? "")} · @{account.username}
-                  </small>
-                </span>
-                {switchAccount.isPending && switchAccount.variables === account.id ? (
-                  <Loader2 size={14} className="spin" />
-                ) : null}
-              </button>
-            ))}
+            {linkedAccounts.length ? (
+              <>
+                <span className="teacher-menu-role-flyout-label">{t("roleSwitcher.otherAccounts")}</span>
+                {linkedAccounts.map((account) => (
+                  <button
+                    key={account.id}
+                    type="button"
+                    disabled={switchAccount.isPending}
+                    onClick={() => switchToAccount(account)}
+                  >
+                    <span>
+                      <strong>{account.name}</strong>
+                      <small>
+                        {t(ROLE_I18N_KEY[account.role] ?? "")} · @{account.username}
+                      </small>
+                    </span>
+                    {switchAccount.isPending && switchAccount.variables === account.id ? (
+                      <Loader2 size={14} className="spin" />
+                    ) : null}
+                  </button>
+                ))}
+              </>
+            ) : null}
+            {missingRoles.length ? (
+              <>
+                <span className="teacher-menu-role-flyout-label">{t("roleSwitcher.openRoles")}</span>
+                {missingRoles.map((role) => (
+                  <button
+                    key={role}
+                    type="button"
+                    disabled={switchRole.isPending}
+                    onClick={() => switchToRole(role)}
+                  >
+                    <span>
+                      <strong>{t(ROLE_I18N_KEY[role] ?? "")}</strong>
+                      <small>{t("roleSwitcher.openHint")}</small>
+                    </span>
+                    {switchRole.isPending && switchRole.variables === role.toLowerCase() ? (
+                      <Loader2 size={14} className="spin" />
+                    ) : (
+                      <Plus size={14} />
+                    )}
+                  </button>
+                ))}
+              </>
+            ) : null}
             <p className="teacher-menu-role-flyout-note">{t("roleSwitcher.switchHint")}</p>
           </motion.div>
         ) : null}

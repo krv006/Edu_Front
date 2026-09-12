@@ -48,6 +48,8 @@
     "triggerAria": "Your other accounts",
     "panelAria": "Your other accounts",
     "otherAccounts": "YOUR OTHER ACCOUNTS",
+    "openRoles": "SWITCH TO ANOTHER ROLE",
+    "openHint": "Opens automatically, no registration needed",
     "switchHint": "Tap an account to switch to it instantly, no password needed.",
     "switched": "Signed in as {{name}}"
   },

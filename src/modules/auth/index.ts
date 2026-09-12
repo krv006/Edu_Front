@@ -28,6 +28,7 @@ export { createLoginSchema, createRegisterSchema } from "./model/auth.schemas";
 export {
   useRegisterMutation,
   useSwitchAccountMutation,
+  useSwitchRoleMutation,
   useDeleteCertificate,
   useUpdateAvatarMutation,
   useUpdateProfileMutation,

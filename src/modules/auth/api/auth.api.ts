@@ -71,6 +71,11 @@ export const authApi = {
   switchAccount(id: string) {
     return apiClient.post<SwitchAccountResponseDto>(authEndpoints.switchAccount(id), {});
   },
+  /** Boshqa rolga o'tish — mavjud bo'lmasa backend ro'yxatdan o'tishsiz avtomatik ochadi.
+   * `role` backend qiymatida (kichik harf: "teacher"/"parent"/"student") kutiladi. */
+  switchRole(role: string) {
+    return apiClient.post<SwitchAccountResponseDto>(authEndpoints.switchRole, { role });
+  },
   createChild(dto: CreateChildRequestDto) {
     return apiClient.post(authEndpoints.children, dto);
   },
