@@ -14,7 +14,7 @@
   "online": "В сети",
   "sessionSecure": "Сессия сохраняется безопасно",
   "logout": "Выйти из системы",
-  "version": "EduTech · v1.0",
+  "version": "YolUp · v1.0",
   "profileDialog": {
     "title": "Профиль — {{role}}",
     "description": "Реальные данные профиля с сервера.",
