@@ -309,6 +309,12 @@ button:disabled {
   margin-bottom: 30px;
   color: var(--foreground);
 }
+/* Kirish/ro'yxatdan o'tish kartasida logo kattaroq: bu yerda u sarlavhadan
+   oldingi asosiy brend belgisi, header'dagi kichik nishoncha emas. */
+.login-card > .brand .brand-mark {
+  width: 64px;
+  height: 64px;
+}
 .login-heading {
   text-align: center;
 }

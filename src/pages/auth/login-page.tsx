@@ -5,6 +5,7 @@ import { Link, Navigate, useNavigate } from "react-router-dom";
 import { useAuth } from "@/modules/auth";
 import { LoginForm, resolveHomeRoute } from "@/modules/auth";
 import type { LoginCredentials } from "@/shared/types";
+import { Brand } from "@/shared/ui/legacy";
 
 export function LoginPage() {
   const { user, login } = useAuth();
@@ -28,6 +29,7 @@ export function LoginPage() {
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.4 }}
       >
+        <Brand />
         <div className="login-heading">
           <span className="eyebrow">
             <Sparkles size={14} /> {t("tagline")}
