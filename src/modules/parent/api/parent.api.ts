@@ -34,24 +34,27 @@ export const parentApi = {
 
   /** Faqat tasdiqlangan bog'lanishlar — rozilik modeli (docs/ARCHITECTURE.md §5). */
   async getChildren(options?: RequestOptions) {
-    const [links, attendancePage] = await Promise.all([
-      this.getLinks(options),
-      attendanceApi.getAll({ ...options, query: { page_size: 100 } }),
-    ]);
-    return links
-      .filter((item) => item.status === "approved")
-      .map((link) => mapChildFromLink(link, attendancePage.items));
+    const links = await this.getLinks(options);
+    const approved = links.filter((item) => item.status === "approved");
+    // Tasdiqlangan farzand yo'q ekan, davomat so'rovi ortiqcha: uni filtrlab
+    // beradigan o'quvchi yo'q, server esa bunday so'rovni rad etadi va butun
+    // sahifa xatoga aylanadi. Bo'sh ro'yxat — xato emas, oddiy boshlang'ich holat.
+    if (!approved.length) return [];
+    const attendancePage = await attendanceApi.getAll({ ...options, query: { page_size: 100 } });
+    return approved.map((link) => mapChildFromLink(link, attendancePage.items));
   },
 
   async getDashboard(options: ParentDashboardOptions = {}) {
     const { selectedChildId, ...requestOptions } = options;
-    const [links, attendancePage] = await Promise.all([
-      this.getLinks(requestOptions),
-      attendanceApi.getAll({
-        ...requestOptions,
-        query: { page_size: 100, ...(selectedChildId ? { student: selectedChildId } : {}) },
-      }),
-    ]);
+    const links = await this.getLinks(requestOptions);
+    // Yuqoridagi sabab: farzand biriktirilmagan ota-onaga davomat so'ralmaydi.
+    if (!links.some((item) => item.status === "approved")) {
+      return createParentDashboard(links, []);
+    }
+    const attendancePage = await attendanceApi.getAll({
+      ...requestOptions,
+      query: { page_size: 100, ...(selectedChildId ? { student: selectedChildId } : {}) },
+    });
     return createParentDashboard(links, attendancePage.items);
   },
 

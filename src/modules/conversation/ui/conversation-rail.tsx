@@ -1,6 +1,7 @@
 import { CalendarDays, FileQuestion, Menu, MessagesSquare, Sparkles, Trophy } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useResolvedPath } from "react-router-dom";
+import logoUrl from "@/shared/assets/y-logo.svg";
 import type { ConversationRole } from "@/shared/types";
 import { useConversations } from "../model/use-conversations";
 
@@ -53,6 +54,10 @@ export function ConversationRail({ role, section, onOpenMenu }: ConversationRail
 
   return (
     <nav className="conversation-rail" aria-label={t("rail.sectionsLabel")}>
+      {/* Brend belgisi ustun tepasida. Ataylab tugma emas: bu ustundagi har
+          bir bosiladigan element — bo'lim, logo esa bo'lim emas. */}
+      <img className="conversation-rail-logo" src={logoUrl} alt="YolUp" />
+
       {/* Yozuvsiz — hamburger o'zi tushunarli, yorlig'i faqat aria uchun. */}
       <button
         className="conversation-rail-menu"

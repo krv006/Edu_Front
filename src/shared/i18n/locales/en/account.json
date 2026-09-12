@@ -14,7 +14,7 @@
   "online": "Online",
   "sessionSecure": "Your session is stored securely",
   "logout": "Log out",
-  "version": "EduTech · v1.0",
+  "version": "YolUp · v1.0",
   "profileDialog": {
     "title": "{{role}} profile",
     "description": "Actual profile data from the backend.",
