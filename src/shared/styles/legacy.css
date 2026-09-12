@@ -730,7 +730,7 @@ button:disabled {
 .conversation-rail {
   width: 76px;
   flex: 0 0 auto;
-  /* Tepadagi bo'shliq sarlavhaniki bilan bir xil — "Menyu" ikonkasi
+  /* Tepadagi bo'shliq sarlavhaniki bilan bir xil — brend belgisi
      qidiruv maydoni bilan bir chiziqda turadi. */
   padding: 20px 5px 8px;
   border-right: 1px solid var(--border);
@@ -767,6 +767,20 @@ button:disabled {
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+/* Brend belgisi — ustunning eng tepasida, qidiruv maydoni bilan bir chiziqda.
+   Balandlik va tepadagi -4px `.panel-topbar` nikidan olingan: ikkala ustun ham
+   20px bo'shliqdan boshlanadi, shuning uchun bir xil quti = bir xil markaz.
+   `object-position` esa SVG ichidagi nomutanosiblikni qoplaydi — belgining
+   siyohi quti markazidan bir oz pastda turadi. */
+.conversation-rail-logo {
+  width: 32px;
+  height: 38px;
+  margin: -4px auto 12px;
+  display: block;
+  object-fit: contain;
+  object-position: center calc(50% - 1px);
 }
 
 /* Hamburger — ro'yxat tepasida, yozuvsiz. Ajratgich chizig'i ataylab yo'q:
@@ -1932,6 +1946,11 @@ button:disabled {
     border-right: 0;
     border-bottom: 1px solid var(--border);
     overflow-x: auto;
+  }
+  /* Mobilda ustun gorizontal tasma — logo bo'lim tugmalari orasida
+     turib qolmasligi uchun yashiriladi. */
+  .conversation-rail-logo {
+    display: none;
   }
   .conversation-rail button {
     min-width: 72px;
