@@ -11,22 +11,31 @@
 
 :root {
   /* --- Brend ---
-     Tugma va aktiv holat foni #1A66E0 — brend ko'kining to'qroq pog'onasi.
-     Aynan shu qiymat tanlangani uchun ustidagi matn OQ bo'la oladi (5.22:1).
-     Yorug'roq #2B7FFF da oq matn atigi 3.76:1 berardi va o'qilmasdi;
-     u endi faqat MATN/IKONKA rangi sifatida ishlatiladi (--primary-text). */
+     Logo gradienti binafsha (#5D0CFE) → ko'k (#1690FF) → teal (#03E7B4).
+     Tugma foni sifatida aynan gradientning BOSHI olinadi: u oq matn bilan
+     7.12:1 beradi. Gradientning teal uchi (#03E7B4) esa atigi 1.60:1 —
+     shuning uchun u hech qachon tugma foni bo'lolmaydi, faqat bezak
+     (logo, gradient chiziqlar) sifatida ishlatiladi. */
   --background: #f5f7fa;
   --foreground: #1a1f26;
   --surface: #ffffff;
   --surface-elevated: #ffffff;
 
-  --primary: #1a66e0;
-  --primary-hover: #1557bf;
+  --primary: #5d0cfe;
+  --primary-hover: #4e08d8;
   --primary-foreground: #ffffff;
-  --primary-soft: #e8f1ff;
-  /* Yuza ustidagi MATN sifatidagi brend rangi — alohida, to'qroq qiymat.
-     --primary o'zi oq fonda atigi 3.76:1 berardi; bu esa 5.13:1. */
-  --primary-text: #1466e8;
+  --primary-soft: #efe9ff;
+  /* Yuza ustidagi MATN sifatidagi brend rangi. Bu yerda --primary ning o'zi
+     yetarli: oq fonda 7.12:1, sahifa fonida 6.63:1. */
+  --primary-text: #5d0cfe;
+  /* Brend rangining RGB uchligi — shaffof soya/nur uchun
+     (`rgb(var(--primary-rgb) / 0.22)`). --surface-rgb bilan bir xil naqsh:
+     shu tufayli brend almashganda soyalar ham o'z-o'zidan moslashadi. */
+  --primary-rgb: 93 12 254;
+  /* Brend gradientining yorug' uchi (FAB, kurs muqovasi, tanlangan kun...).
+     --primary kabi IKKALA mavzuda ham bir xil: bu bezak yuzalar, ustidagi
+     matn doim oq — shuning uchun mavzuga qarab o'zgarishi shart emas. */
+  --primary-bright: #7c3aff;
 
   --secondary: #eef1f6;
   --secondary-foreground: #1a1f26;
@@ -35,8 +44,8 @@
   /* WCAG AA: oq fonda 5.87:1, sahifa fonida 5.47:1. */
   --muted-foreground: #5a6672;
 
-  --accent: #e8f1ff;
-  --accent-foreground: #0f4fb3;
+  --accent: #efe9ff;
+  --accent-foreground: #4a15c0;
 
   --card: #ffffff;
   --card-foreground: #1a1f26;
@@ -46,7 +55,7 @@
   --border: #e2e7ef;
   --border-strong: #d2d9e4;
   --input: #e2e7ef;
-  --ring: #2b7fff;
+  --ring: #7c3aff;
 
   /* WCAG AA: oq matn bilan 4.88:1. */
   --destructive: #cd3a4b;
@@ -63,12 +72,12 @@
   --sidebar: #101720;
   --sidebar-muted: #8b98a5;
   --sidebar-foreground: #e6edf3;
-  --sidebar-primary: #1a66e0;
+  --sidebar-primary: #5d0cfe;
   --sidebar-primary-foreground: #ffffff;
-  --sidebar-accent: #192739;
+  --sidebar-accent: #20193a;
   --sidebar-accent-foreground: #ffffff;
   --sidebar-border: #232c36;
-  --sidebar-ring: #2b7fff;
+  --sidebar-ring: #7c3aff;
 
   /* --- Kengaytirilgan semantik tokenlar ---
      legacy.css da qattiq yozilgan ranglar shu tokenlarga bog'landi,
@@ -82,11 +91,11 @@
      pufakchalari va yon panel bir-biridan aniq ajralib turadi. */
   --chat-bg: #f5f7fa;
 
-  /* Brend ko'k yuvindilari (kartochka fonlari, hover holatlar) */
-  --primary-tint: #f3f8ff;
-  --primary-tint-strong: #deebff;
-  --border-accent: #c7ddff;
-  --border-accent-strong: #a9cbff;
+  /* Brend binafshasining yuvindilari (kartochka fonlari, hover holatlar) */
+  --primary-tint: #f7f4ff;
+  --primary-tint-strong: #e5dcff;
+  --border-accent: #d4c4ff;
+  --border-accent-strong: #b9a1ff;
 
   /* Holat ranglari — yumshoq fon + kontrastli matn */
   --destructive-soft: #fff0f2;
@@ -118,7 +127,7 @@
 
   --shadow-sm: 0 1px 3px rgba(26, 31, 38, 0.08);
   --shadow-md: 0 10px 26px rgba(26, 31, 38, 0.1);
-  --shadow-primary: 0 10px 26px rgba(43, 127, 255, 0.22);
+  --shadow-primary: 0 10px 26px rgb(var(--primary-rgb) / 0.22);
   --shadow-float: 0 18px 50px rgba(26, 31, 38, 0.12);
 
   /* --- Tipografiya shkalasi ---
@@ -160,16 +169,18 @@
   --surface: #161c23;
   --surface-elevated: #1b242e;
 
-  /* Tugma foni ikkala mavzuda bir xil — oq matn bilan 5.22:1.
+  /* Tugma foni ikkala mavzuda bir xil — oq matn bilan 7.12:1.
      Hover qorong'ida YORUG'ROQ bo'ladi (fondan ajralib tursin), lekin oq
-     matn baribir AA saqlaydi: #1F6FF0 -> 4.57:1. */
-  --primary: #1a66e0;
-  --primary-hover: #1f6ff0;
+     matn baribir AA saqlaydi: #6F2BFF -> 6.06:1. */
+  --primary: #5d0cfe;
+  --primary-hover: #6f2bff;
   --primary-foreground: #ffffff;
-  --primary-soft: #192739;
-  /* Matn/ikonka uchun yorug'roq ko'k: eng yomon holatda (aktiv tab ustida)
-     4.90:1. --primary o'zi u yerda atigi 4.01:1 berardi. */
-  --primary-text: #4d91ff;
+  --primary-soft: #20193a;
+  /* Matn/ikonka uchun yorug'roq binafsha: eng yomon holatda (aktiv tab
+     ustida) 6.25:1. --primary o'zi u yerda AA dan o'tmasdi. */
+  --primary-text: #a98cff;
+  --primary-rgb: 93 12 254;
+  --primary-bright: #7c3aff;
 
   --secondary: #1b232b;
   --secondary-foreground: #e6edf3;
@@ -178,8 +189,8 @@
   /* Yuzada 5.82:1, aktiv tabda 5.13:1. */
   --muted-foreground: #8b98a5;
 
-  --accent: #192739;
-  --accent-foreground: #8cbbff;
+  --accent: #20193a;
+  --accent-foreground: #b9a3ff;
 
   --card: #161c23;
   --card-foreground: #e6edf3;
@@ -189,7 +200,7 @@
   --border: #26313d;
   --border-strong: #33404e;
   --input: #26313d;
-  --ring: #4d91ff;
+  --ring: #a98cff;
 
   /* Tugma foni — oq matn bilan 4.88:1. Avval yorug' #f0616f edi va ustidagi
      matn qora bo'lishga majbur qilardi. Qizil MATN uchun alohida
@@ -202,7 +213,7 @@
   --sidebar: #0a0e13;
   --sidebar-muted: #7a8794;
   --sidebar-foreground: #e6edf3;
-  --sidebar-accent: #192739;
+  --sidebar-accent: #20193a;
   --sidebar-border: #1e2731;
 
   /* --- Kengaytirilgan semantik tokenlar (qorong‘i variant) --- */
@@ -211,10 +222,10 @@
 
   --chat-bg: #0d1217;
 
-  --primary-tint: #151e29;
-  --primary-tint-strong: #192739;
-  --border-accent: #23384f;
-  --border-accent-strong: #2c4a6b;
+  --primary-tint: #1a1430;
+  --primary-tint-strong: #20193a;
+  --border-accent: #33265c;
+  --border-accent-strong: #46337d;
 
   --destructive-soft: #2a1418;
   --destructive-soft-border: #4a2028;
