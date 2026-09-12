@@ -1,5 +1,6 @@
-import { ArrowRight, MessageCircleMore, Sparkles } from "lucide-react";
+import { ArrowRight, Sparkles } from "lucide-react";
 import { useTranslation } from "react-i18next";
+import logoUrl from "@/shared/assets/y-logo.svg";
 
 export function ChatEmptyState({ onOpenConversations }: { onOpenConversations?: () => void }) {
   const { t } = useTranslation("chat");
@@ -9,7 +10,8 @@ export function ChatEmptyState({ onOpenConversations }: { onOpenConversations?: 
         <span className="empty-orbit empty-orbit--one" />
         <span className="empty-orbit empty-orbit--two" />
         <div className="empty-icon">
-          <MessageCircleMore size={34} />
+          {/* Bezak — sarlavha nima ekanini aytadi, shuning uchun alt bo'sh. */}
+          <img className="empty-icon-logo" src={logoUrl} alt="" />
           <span>
             <Sparkles size={14} />
           </span>
