@@ -34,7 +34,6 @@ import {
   useUploadCertificate,
   type ProfileFormValues,
 } from "@/modules/auth";
-import { RatingSummary } from "@/modules/lesson";
 import { NotificationInboxDialog } from "@/modules/notification";
 import { ROLES, type Role } from "@/shared/constants";
 import { useLanguageStore } from "@/shared/model";
@@ -560,12 +559,6 @@ export function AccountMenu({
                     {user.isApproved === false ? (
                       <div className="form-alert">
                         <ShieldAlert size={15} /> {t("profileDialog.notApproved")}
-                      </div>
-                    ) : null}
-                    {user.ratingCount ? (
-                      <div className="teacher-profile-rating">
-                        <span>{t("profileDialog.ratingLabel")}</span>
-                        <RatingSummary average={user.avgRating} count={user.ratingCount} />
                       </div>
                     ) : null}
                     <div className="teacher-profile-certificates-head">

@@ -3251,8 +3251,6 @@ body.is-resizing-sidebar {
   margin-top: 14px;
 }
 .teacher-profile-certificates { margin-top: 14px; display: grid; gap: 10px; }
-.teacher-profile-rating { padding: 10px 12px; border: 1px solid var(--border); border-radius: var(--r-md); display: flex; align-items: center; justify-content: space-between; gap: 10px; background: var(--surface-tint); }
-.teacher-profile-rating span { color: var(--muted-foreground); font-size: var(--fs-sm); font-weight: 700; }
 .teacher-profile-certificates-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
 .teacher-profile-certificates-head span { color: var(--muted-foreground); font-size: var(--fs-2xs); font-weight: 900; letter-spacing: .08em; text-transform: uppercase; }
 .teacher-profile-certificates-head button { display: inline-flex; align-items: center; gap: 6px; padding: 6px 11px; border: 1px solid var(--border); border-radius: var(--r-sm); color: var(--primary-text); background: var(--surface); font-size: var(--fs-xs); font-weight: 700; cursor: pointer; }
