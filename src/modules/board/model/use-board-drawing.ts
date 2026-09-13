@@ -13,7 +13,6 @@ export interface UseBoardDrawingInit {
   strokeWidth: number;
   enabled: boolean;
   onCommit: (stroke: StrokeShapeDto) => void;
-  /** Matn/formula asboblari bosilganda — inline editor uchun nuqta beriladi. */
   onPlacePoint: (point: Point) => void;
 }
 
@@ -23,13 +22,6 @@ export interface BoardDraft {
   points: Point[];
 }
 
-/**
- * Doskadagi sudrash → stroke mantig'i.
- *
- * SVG viewBox koordinatalari ekran o'lchamidan farq qiladi, shuning uchun har bir
- * pointer hodisasi doska koordinata tizimiga o'giriladi. Chizilayotgan element
- * `draft` sifatida qaytadi — panel uni oldindan ko'rsatadi (server javobini kutmasdan).
- */
 export function useBoardDrawing({
   width,
   height,
@@ -55,7 +47,6 @@ export function useBoardDrawing({
     if (!enabled || tool === "erase") return;
     const point = toBoardPoint(event);
 
-    // Matn va formula sudrab emas, bitta bosish bilan joylashtiriladi.
     if (PLACED_TOOLS.has(tool)) {
       onPlacePoint(point);
       return;

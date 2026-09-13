@@ -6,13 +6,6 @@ export interface MathFieldInputProps {
   onChange: (latex: string) => void;
 }
 
-/**
- * MathLive `<math-field>` — LaTeX'ni qo'lda yozmasdan formula kiritish
- * (docs/README §Doska matematik rejimi).
- *
- * Custom element bo'lgani uchun React JSX'da emas, `ref` orqali boshqariladi.
- * Kutubxona yuklanguncha oddiy `<input>` ko'rsatiladi — LaTeX'ni qo'lda ham yozsa bo'ladi.
- */
 export function MathFieldInput({ value, onChange }: MathFieldInputProps) {
   const hostRef = useRef<HTMLDivElement>(null);
   const [ready, setReady] = useState(false);
@@ -43,8 +36,6 @@ export function MathFieldInput({ value, onChange }: MathFieldInputProps) {
       field.removeEventListener("input", handleInput);
       host.replaceChildren();
     };
-    // `value` ataylab kuzatilmaydi: tahrirlash paytida maydonni qayta yaratish
-    // kursorni boshiga uloqtiradi. Boshlang'ich qiymat yetarli.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [ready]);
 

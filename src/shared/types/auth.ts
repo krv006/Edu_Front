@@ -1,20 +1,13 @@
 import type { AppError } from "@/shared/api";
 import type { Role } from "@/shared/constants";
 
-/** O'qituvchi yuklagan sertifikat (`/auth/me/certificates/`). */
 export interface Certificate {
   id: string;
-  /** To'liq fayl havolasi (rasm yoki PDF). */
   file: string;
   title: string;
   createdAt: string;
 }
 
-/**
- * Xuddi shu telefon raqamiga bog'langan BOSHQA akkaunt (o'zi kirmaydi).
- * Mustaqil login/parolga ega — almashish uchun qayta kirish kerak
- * (PHONE_LINKED_ACCOUNTS_API.md).
- */
 export interface LinkedAccount {
   id: string;
   username: string;
@@ -22,7 +15,6 @@ export interface LinkedAccount {
   role: Role;
 }
 
-/** `modules/auth` dagi `mapUserDto` qaytaradigan domen modeli. */
 export interface AuthUser {
   id: string;
   username: string;
@@ -32,21 +24,15 @@ export interface AuthUser {
   role: Role;
   phone: string | null;
   inviteCode: string | null;
-  /** Profil rasmi (to'liq havola) — bo'lmasa harfli avatar ko'rsatiladi. */
   avatarUrl: string | null;
   email: string | null;
   status: string;
-  /** Faqat `role: teacher`da mazmunli — boshqa rollarda `null`. */
   avgRating: number | null;
   ratingCount: number | null;
-  /** Faqat o'qituvchida mazmunli — admin tasdiqlamaguncha `false`. */
   isApproved: boolean | null;
   certificates: Certificate[];
-  /** Hisobga bog'langan til (`uz`/`ru`/`en`) — qurilmadan mustaqil, `PATCH /auth/me/` bilan saqlanadi. */
   preferredLanguage: string;
-  /** Dars boshlanishidan necha daqiqa oldin eslatma kelsin. `null` — server standarti. */
   lessonReminderMinutes: number | null;
-  /** Xuddi shu telefondagi boshqa akkauntlar — bo'sh yoki telefon yo'q bo'lsa `[]`. */
   linkedAccounts: LinkedAccount[];
 }
 

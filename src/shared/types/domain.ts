@@ -1,17 +1,8 @@
-/**
- * Modul mapper'lari qaytaradigan domen modellari.
- *
- * Bular qatlamlararo shartnoma: `widgets` va `pages` shu tiplarga tayanadi,
- * `modules/*_/lib/*.mappers` esa aynan shu shaklni ishlab chiqaradi.
- * Modullar TS'ga ko'chgach, mapper'lar shu tiplarni qaytish qiymati sifatida e'lon qiladi.
- */
 
 export type AvatarTone = "violet" | "blue" | "emerald" | "amber" | "rose";
 
-/** Chat qobig‘i qaysi rol uchun render qilinayotgani. */
 export type ConversationRole = "teacher" | "student";
 
-// ─── Foydalanuvchi ──────────────────────────────────────────────────────────
 export interface DomainUser {
   id: string;
   username: string;
@@ -25,8 +16,6 @@ export interface DomainUser {
   status?: string;
 }
 
-// ─── Suhbat / xabar ─────────────────────────────────────────────────────────
-/** Backend `DirectStatusEnum`: pending | active | blocked. */
 export type DirectStatus = "pending" | "active" | "blocked";
 
 export interface ConversationParticipant {
@@ -56,9 +45,7 @@ export interface Conversation {
   typingName?: string | null;
   avatarTone: string;
   memberCount: number;
-  /** Guruh chat rasmi — o'qituvchi o'rnatadi, bo'lmasa `null` (harfli avatar). */
   imageUrl: string | null;
-  /** `GroupWorkspace` kurs ma'lumoti bilan to'ldiradi. */
   subject?: string;
   description?: string;
 }
@@ -80,11 +67,6 @@ export interface MessageReaction {
   reacted: boolean;
 }
 
-/**
- * Xabarga biriktirilgan fayl. Havola emas, `messageId` saqlanadi: fayl
- * `/api/v1/chat/files/<messageId>/` dan Authorization header bilan olinadi,
- * shuning uchun uni to'g'ridan-to'g'ri `<a href>` ga qo'yib bo'lmaydi.
- */
 export interface MessageAttachment {
   messageId: string;
   name: string;
@@ -97,7 +79,6 @@ export interface ChatMessage {
   senderId: string;
   senderName: string;
   senderUsername: string;
-  /** O'qituvchi/o'quvchi ranglarini chatda farqlash uchun (backend `UserDto.role`). */
   senderRole?: string;
   text: string;
   replyTo?: MessageReply;
@@ -108,13 +89,10 @@ export interface ChatMessage {
   failed: boolean;
   editedAt?: string | null;
   retryPayload?: SendMessagePayload;
-  /** Doska PDF'i kabi biriktirmalar — backend dars tugagach yuboradi. */
   attachment?: MessageAttachment;
-  /** Backend hozircha reaksiyani qo‘llamaydi — maydon kelajak uchun ochiq qoldirilgan. */
   reactions?: MessageReaction[];
 }
 
-// ─── Kurs ───────────────────────────────────────────────────────────────────
 export interface Course {
   id: string;
   title: string;
@@ -127,7 +105,6 @@ export interface Course {
   status: string;
   enrollmentStatus: string | null;
   isActive: boolean;
-  /** Til fani — faqat shunda vazifaga "tekshiruv turi" tanlovi beriladi. */
   isLanguageSubject: boolean;
   createdAt: string | null;
   color: string;
@@ -144,24 +121,16 @@ export interface Enrollment {
   createdAt: string;
 }
 
-/** `search-students` natijasi — kursdagi holati bilan. */
 export interface CourseStudentSearchResult extends DomainUser {
   enrollStatus: EnrollmentStatus | null;
 }
 
-// ─── Dars ───────────────────────────────────────────────────────────────────
 export type LessonStatus = "scheduled" | "live" | "finished" | "cancelled";
 
-/** `recording` — egress hali dars davomida yozmoqda (docs/COMPLETED_WORK.md §1). */
 export type LessonRecordingStatus = "recording" | "merging" | "completed" | "failed";
 
-/**
- * Dars video yozuvi. `streamUrl` — 3 soatlik imzolangan havola, doimiy URL emas:
- * saqlab qo'yib bo'lmaydi, har safar qayta so'raladi.
- */
 export interface LessonRecording {
   status: LessonRecordingStatus;
-  /** Faqat shu bayroq `true` bo'lganda `streamUrl` keladi. */
   ready: boolean;
   title: string;
   streamUrl: string | null;
@@ -184,19 +153,13 @@ export interface Lesson {
   createdAt: string;
   date: string;
   time: string;
-  /** O'rtacha baho (1–5). Hali hech kim baholamagan bo'lsa — `null`. */
   avgRating: number | null;
   ratingCount: number;
 }
 
-/**
- * O'quvchining tugagan darsga qo'ygan bahosi (docs/COMPLETED_WORK.md — baholash API).
- * Anonim emas: kim qo'yganini o'qituvchi ko'radi.
- */
 export interface LessonRating {
   id: string;
   lessonId: string;
-  /** 1 dan 5 gacha. */
   stars: number;
   description: string;
   studentId: string | null;
@@ -211,7 +174,6 @@ export interface LessonFormValues {
   duration: number;
 }
 
-// ─── Uy vazifasi ────────────────────────────────────────────────────────────
 export type SubmissionStatus = "checking" | "done" | "error";
 
 export interface AiQuestion {
@@ -256,13 +218,6 @@ export interface Submission {
   createdAt: string;
   checkedAt: string | null;
   result: AiResult | null;
-  /**
-   * Serverdan kelgan AI natijasining ASL JSON’i.
-   *
-   * O‘qituvchi bahoni tuzatganda shu obyekt tahrirlanib qaytariladi. Domen
-   * ko‘rinishidan qayta yig‘sak, mapper bilmaydigan maydonlar (AI yangi
-   * kalit qo‘shsa) jimgina yo‘qolib ketardi.
-   */
   rawResult: Record<string, unknown> | null;
 }
 
@@ -284,7 +239,6 @@ export interface Assignment {
   hasAttachment: boolean;
   dueAt: string | null;
   skillKey: string;
-  /** Vazifa bog'langan tugagan dars — bog'lanmagan bo'lsa `null`. */
   lessonId: string | null;
   lessonTitle: string;
   createdAt: string;
@@ -304,21 +258,16 @@ export interface AssignmentFormValues {
   file?: File | null;
 }
 
-/** `GET /api/v1/homework/report/` — bitta kurs yoki umumiy qator uchun ko'rsatkichlar. */
 export interface HomeworkReportSummary {
   assignedCount: number;
   submittedCount: number;
-  /** 0-100, `assignedCount` bo'lmasa 0. */
   submissionRate: number;
-  /** Faqat o'qituvchi tasdiqlagan (DONE) baholarning o'rtachasi — `null` hali baho yo'q bo'lsa. */
   averageScore: number | null;
 }
 
-// ─── Test (Quiz) ────────────────────────────────────────────────────────────
 export interface QuizOption {
   id: string;
   text: string;
-  /** Faqat o'qituvchi/adminga keladi — o'quvchida `undefined` (javob kaliti yashiringan). */
   isCorrect?: boolean;
 }
 
@@ -330,7 +279,6 @@ export interface QuizQuestion {
   options: QuizOption[];
 }
 
-/** `GET /quizzes/` ro'yxat elementi — savollarsiz, faqat soni. */
 export interface QuizSummary {
   id: string;
   courseId: string;
@@ -338,13 +286,11 @@ export interface QuizSummary {
   title: string;
   description: string;
   dueAt: string | null;
-  /** Kelajakda bo'lsa, o'quvchi/ota-ona bu testni umuman ko'rmaydi (backend filtrlaydi). */
   opensAt: string | null;
   createdAt: string;
   questionCount: number;
 }
 
-/** `GET /quizzes/{id}/` — to'liq, savollari bilan. */
 export interface QuizDetail extends QuizSummary {
   questions: QuizQuestion[];
 }
@@ -355,11 +301,9 @@ export interface QuizAttemptAnswer {
   selectedOptionId: string | null;
   selectedOptionText: string | null;
   isCorrect: boolean;
-  /** HAR DOIM keladi — o'quvchi xato qilgan bo'lsa ham to'g'ri javobni ko'rsatadi. */
   correctOption: { id: string; text: string } | null;
 }
 
-/** `GET /quizzes/{id}/attempts/` ro'yxat elementi — javoblarsiz. */
 export interface QuizAttemptSummary {
   id: string;
   quizId: string;
@@ -370,7 +314,6 @@ export interface QuizAttemptSummary {
   createdAt: string;
 }
 
-/** `POST /quizzes/{id}/attempts/` javobi — darhol natija, har savol tafsiloti bilan. */
 export interface QuizAttemptResult extends QuizAttemptSummary {
   answers: QuizAttemptAnswer[];
 }
@@ -391,7 +334,6 @@ export interface QuizFormValues {
   questions: QuizQuestionFormValues[];
 }
 
-/** Admin boshqaruv paneli — `apps.analytics` (faqat o'qish, `audit.view` ruxsati). */
 export interface TopCourseStat {
   id: string;
   title: string;
@@ -432,7 +374,6 @@ export interface DashboardTrends {
   attendanceRate: Array<number | null>;
 }
 
-/** `.docx` import preview — hech narsa saqlanmagan, o'qituvchi ko'rib tahrirlaydi. */
 export interface QuizImportWarning {
   questionNumber: number;
   reason: string;
@@ -450,32 +391,23 @@ export interface CourseHomeworkReport extends HomeworkReportSummary {
   courseTitle: string;
 }
 
-/** O'quvchining reytingi: har bir kurs bo'yicha va barcha fanlar bo'yicha yagona ko'rsatkich. */
 export interface HomeworkReport {
   courses: CourseHomeworkReport[];
   overall: HomeworkReportSummary;
 }
 
-// ─── Davomat ────────────────────────────────────────────────────────────────
 
-/** O'quvchi dars oynasidan chiqib turgan bitta oraliq. */
 export interface FocusExit {
   leftAt: string;
-  /** `null` — dars tugaguncha qaytmagan. */
   returnedAt: string | null;
   seconds: number;
 }
 
-/**
- * Fokus jurnali (docs/PROJECT.md §10) — ota-ona "necha marta chiqdi va
- * har safar qancha turdi" degan savolga shu yerdan javob oladi.
- */
 export interface FocusJournal {
   exits: number;
   awaySeconds: number;
   longestSeconds: number;
   timeline: FocusExit[];
-  /** Chegaradan oshgan — ota-onaga signal ketgan (docs/COMPLETED_WORK.md §3). */
   alert: boolean;
 }
 

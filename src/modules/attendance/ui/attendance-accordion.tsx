@@ -9,12 +9,10 @@ import { FocusJournalCell } from "./focus-journal-cell";
 
 export interface AttendanceAccordionProps {
   rows: AttendanceRow[];
-  /** Boshida ochiq turadigan darslar soni — odatda eng so'nggisi. */
   defaultOpenCount?: number;
   emptyLabel?: string;
 }
 
-/** Diqqat tekshiruviga javob berish ulushi; tekshiruv bo'lmasa foiz ko'rsatilmaydi. */
 function attentionRate(answered: number, total: number): number | null {
   return total > 0 ? Math.round((answered / total) * 100) : null;
 }
@@ -26,16 +24,6 @@ const TONE = {
   bad: "bg-destructive-soft text-destructive-strong",
 } as const;
 
-/**
- * Davomatni dars bo'yicha akkordeonga yig'adi: sarlavhada dars nomi va yig'ma
- * ko'rsatkichlar, ichida o'sha darsdagi o'quvchilar ro'yxati.
- *
- * Yassi jadvalda o'nlab qator aralashib ketardi; dars bo'yicha guruhlash
- * o'qituvchiga "shu darsda kim qanday qatnashdi" degan savolga to'g'ridan-to'g'ri javob beradi.
- *
- * Sarlavha shadcn/Tailwind bilan yoziladi (komponent shu idiomada), ichidagi jadval esa
- * mavjud `.attendance-table` uslublarini qayta ishlatadi.
- */
 export function AttendanceAccordion({
   rows,
   defaultOpenCount = 1,
@@ -53,7 +41,6 @@ export function AttendanceAccordion({
     <Accordion
       type="multiple"
       className="attendance-groups"
-      // `key` — darslar ro'yxati o'zgarganda boshlang'ich ochiq holat qayta hisoblansin.
       key={defaultOpen.join("|")}
       defaultValue={defaultOpen}
     >

@@ -31,7 +31,6 @@ export function useCoursePage(params: QueryParams = {}) {
   });
 }
 
-/** `enabled` — katalog faqat dialog ochilganda kerak. */
 export function useCourseCatalog(params: QueryParams = {}, enabled = true) {
   return useQuery({
     queryKey: courseKeys.catalog(params),
@@ -72,7 +71,6 @@ export function useCreateCourse() {
       client.invalidateQueries({ queryKey: courseKeys.all });
       toast.success("Kurs yaratildi");
     },
-    // Admin hali tasdiqlamagan o'qituvchi kurs yarata olmaydi (403) — sabab aniq ko'rsatiladi.
     onError: (error) => toast.error(describeCreateError(error)),
   });
 }
@@ -112,7 +110,6 @@ export function useCreateEnrollment() {
   });
 }
 
-/** O‘qituvchi username bo‘yicha bazadan qidiradi (EduTech.docx talabi) — kamida 2 belgi. */
 export function useSearchCourseStudents(courseId: string | null, query: string) {
   const term = query.trim();
   return useQuery({
@@ -123,12 +120,6 @@ export function useSearchCourseStudents(courseId: string | null, query: string) 
   });
 }
 
-/**
- * Yangi o'quvchi hisobi + shu kursga yozish (bitta amal).
- *
- * Xato `onError` da toast qilinmaydi — forma uni maydon ostida ko'rsatadi,
- * chunki xatolar odatda kiritilgan ma'lumotga tegishli ("username band").
- */
 export function useCreateCourseStudent() {
   const client = useQueryClient();
   return useMutation({

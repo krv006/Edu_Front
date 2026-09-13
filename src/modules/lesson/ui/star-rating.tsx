@@ -6,19 +6,13 @@ const STARS = [1, 2, 3, 4, 5] as const;
 const MAX_STARS = STARS.length;
 
 export interface StarRatingProps {
-  /** 0 — hali baholanmagan. */
   value: number;
   onChange?: (value: number) => void;
   size?: number;
   disabled?: boolean;
-  /** Faqat ko'rsatish — bosib bo'lmaydi. */
   readOnly?: boolean;
 }
 
-/**
- * Yulduzli baho: tanlash ham, ko'rsatish ham shu bitta komponent orqali —
- * shunda formadagi va ro'yxatdagi yulduzlar bir xil ko'rinadi.
- */
 export function StarRating({
   value,
   onChange,
@@ -27,7 +21,6 @@ export function StarRating({
   readOnly = false,
 }: StarRatingProps) {
   const { t } = useTranslation("lesson");
-  // Sichqoncha ustidan o'tganda oldindan ko'rsatish — tanlov faqat bosilganda o'zgaradi.
   const [preview, setPreview] = useState(0);
 
   if (readOnly) {
@@ -76,11 +69,9 @@ export function StarRating({
 export interface RatingSummaryProps {
   average: number | null;
   count: number;
-  /** Faqat yulduz va raqam — "N ta baho" yozuvisiz (tor joylar uchun). */
   compact?: boolean;
 }
 
-/** O'rtacha baho nishoni. Hali baho yo'q bo'lsa umuman ko'rsatilmaydi. */
 export function RatingSummary({ average, count, compact = false }: RatingSummaryProps) {
   const { t } = useTranslation("lesson");
   if (!count || average === null) return null;

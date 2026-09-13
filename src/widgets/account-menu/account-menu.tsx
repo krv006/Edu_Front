@@ -41,14 +41,12 @@ import { useLanguageStore } from "@/shared/model";
 import type { LinkedAccount } from "@/shared/types";
 import { Avatar, Button, Dialog, DialogContent, LanguageToggle, ThemeToggle } from "@/shared/ui/legacy";
 
-/** Bog'langan akkaunt satrida rol nomini ko'rsatish uchun (PHONE_LINKED_ACCOUNTS_API.md). */
 const ROLE_I18N_KEY: Partial<Record<Role, string>> = {
   [ROLES.TEACHER]: "nav:roles.teacher",
   [ROLES.STUDENT]: "nav:roles.student",
   [ROLES.PARENT]: "nav:roles.parent",
 };
 
-/** O'zi ochib bo'ladigan rollar — backend ham faqat shu uchtasini qabul qiladi. */
 const SELF_SERVICE_ROLES: Role[] = [ROLES.TEACHER, ROLES.PARENT, ROLES.STUDENT];
 
 type MenuItemId = "profile" | "logins" | "notifications" | "settings";
@@ -110,16 +108,12 @@ export function AccountMenu({
     username: "",
   });
 
-  // Bog'langan akkauntlar flyout'i (PHONE_LINKED_ACCOUNTS_API.md).
   const profileRowRef = useRef<HTMLDivElement>(null);
   const roleFlyoutRef = useRef<HTMLDivElement>(null);
   const closeFlyoutTimerRef = useRef<number | null>(null);
   const [roleFlyoutOpen, setRoleFlyoutOpen] = useState(false);
   const [flyoutPosition, setFlyoutPosition] = useState<{ top: number; left: number } | null>(null);
   const linkedAccounts = user?.linkedAccounts ?? [];
-  // O'quvchi hisobidan boshqa rolga o'tib bo'lmaydi — backend ham shuni
-  // talab qiladi (services.switch_or_provision_role), shuning uchun bu
-  // yerda ro'yxat doim bo'sh, "ochish" tugmalari umuman ko'rinmaydi.
   const missingRoles =
     user && user.role !== ROLES.STUDENT
       ? SELF_SERVICE_ROLES.filter(
@@ -140,7 +134,6 @@ export function AccountMenu({
     });
   }
 
-  /** Hali ochilmagan rol — backend uni ro'yxatdan o'tishsiz avtomatik yaratadi. */
   function switchToRole(role: Role) {
     if (switchRole.isPending) return;
     switchRole.mutate(role.toLowerCase(), {
@@ -190,8 +183,6 @@ export function AccountMenu({
     return () => document.removeEventListener("pointerdown", handleOutside);
   }, [roleFlyoutOpen]);
 
-  // Til Sozlamalar oynasidan almashtirilsa, o'zgarish darhol ko'rinadi
-  // (butun ilova qayta render bo'ladi) — oynani ochiq qoldirish shart emas.
   const language = useLanguageStore((state) => state.language);
   const previousLanguageRef = useRef(language);
   useEffect(() => {
@@ -201,8 +192,6 @@ export function AccountMenu({
     }
   }, [language]);
 
-  // Drawer'ni yopishning barcha yo'llari shu orqali o'tadi — flyout ochiq
-  // qolib, keyingi safar hover/tapsiz ham bir zum ko'rinib qolmasin.
   function closeDrawer() {
     setRoleFlyoutOpen(false);
     onOpenChange(false);
@@ -428,7 +417,6 @@ export function AccountMenu({
               initial={{ opacity: 0, scale: 0.96 }}
               animate={{ opacity: 1, scale: 1 }}
             >
-              {/* Rasmni faqat egasi almashtiradi (`PATCH /auth/me/`). */}
               <span className="info-avatar-slot">
                 <Avatar
                   name={user?.name ?? resolvedRoleLabel}
@@ -508,7 +496,6 @@ export function AccountMenu({
                     />
                   </div>
                 </label>
-                {/* Login yagona bo'lishi shart — band bo'lsa backend 400 beradi. */}
                 <p className="portal-muted">{t("profileDialog.usernameNote")}</p>
                 <label className="field-group">
                   <span>{t("profileDialog.phone")}</span>

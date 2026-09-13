@@ -1,10 +1,3 @@
-/**
- * Fokus'ning eski (qo'lda yozilgan CSS'ga tayanadigan) primitivlari.
- *
- * Bular `shared/styles/legacy.css` dagi klasslar bilan ishlaydi va bosqichma-bosqich
- * `@/shared/ui/*` dagi shadcn komponentlariga ko'chiriladi. Yangi ekranlarda shadcn'ni
- * ishlating; bu yerga yangi komponent QO'SHMANG.
- */
 export { Avatar } from "./avatar";
 export type { AvatarProps, AvatarSize, AvatarTone } from "./avatar";
 export { Brand } from "./brand";

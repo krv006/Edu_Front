@@ -1,12 +1,10 @@
 import { z } from "zod";
 
-/** Auth — yagona modul, DTO'lar zod bilan runtime'da ham tekshiriladi. */
 export const tokenPairDtoSchema = z.object({
   access: z.string().min(1),
   refresh: z.string().min(1),
 });
 
-/** O'qituvchi sertifikati (`/auth/me/certificates/`) — `UserSerializer` ichida ham keladi. */
 export const certificateDtoSchema = z.object({
   id: z.string(),
   file: z.string(),
@@ -14,11 +12,6 @@ export const certificateDtoSchema = z.object({
   created_at: z.string(),
 });
 
-/**
- * Bitta telefon raqamiga bog'langan BOSHQA akkaunt (o'zi kirmaydi) —
- * `PHONE_LINKED_ACCOUNTS_API.md`. Har biri mustaqil login/parolga ega,
- * shuning uchun bu yerda faqat ko'rsatish uchun kerakli maydonlar bor.
- */
 export const linkedAccountDtoSchema = z.object({
   id: z.string(),
   username: z.string(),
@@ -35,22 +28,16 @@ export const userDtoSchema = z.object({
   role: z.string(),
   phone: z.string().nullable().optional(),
   invite_code: z.string().nullable().optional(),
-  /** Profil rasmi — `PATCH /auth/me/` orqali yuklanadi. */
   avatar: z.string().nullable().optional(),
-  /** Faqat `role: teacher`da — boshqa rollarda `null` keladi. */
   avg_rating: z.number().nullable().optional(),
   rating_count: z.number().nullable().optional(),
-  /** Faqat o'qituvchida mazmunli — admin tasdiqlamaguncha `false`. */
   is_approved: z.boolean().nullable().optional(),
   certificates: z.array(certificateDtoSchema).optional().default([]),
   preferred_language: z.string().default("uz"),
-  /** Dars boshlanishidan necha daqiqa oldin eslatilsin. */
   lesson_reminder_minutes: z.number().nullable().optional(),
-  /** Xuddi shu telefondagi boshqa akkauntlar — bo'sh yoki telefon yo'q bo'lsa `[]`. */
   linked_accounts: z.array(linkedAccountDtoSchema).optional().default([]),
 });
 
-/** `GET /api/v1/auth/logins/` — bitta kirish yozuvi (paginatsiyasiz massiv). */
 export const loginRecordDtoSchema = z.object({
   at: z.string(),
   ip: z.string().nullable().default(null),
@@ -59,11 +46,6 @@ export const loginRecordDtoSchema = z.object({
   new_device: z.boolean().default(false),
 });
 
-/**
- * `POST /api/v1/auth/switch/<user_id>/` — joriy token bilan (parolsiz)
- * bog'langan boshqa rol-akkauntga o'tish. Javobida yangi access/refresh
- * HAM yangi akkauntning to'liq foydalanuvchi ma'lumoti keladi.
- */
 export const switchAccountResponseDtoSchema = tokenPairDtoSchema.extend({
   user: userDtoSchema,
 });
@@ -75,12 +57,10 @@ export type LoginRecordDto = z.infer<typeof loginRecordDtoSchema>;
 export type CertificateDto = z.infer<typeof certificateDtoSchema>;
 export type SwitchAccountResponseDto = z.infer<typeof switchAccountResponseDtoSchema>;
 
-/** Kirishlar tarixining domen ko'rinishi. */
 export interface LoginRecord {
   id: string;
   at: string;
   ip: string;
-  /** Foydalanuvchiga tushunarli qurilma nomi: "Chrome · Windows". */
   device: string;
   userAgent: string;
   isNewIp: boolean;
@@ -118,7 +98,6 @@ export interface ConsentRequestDto {
   granted: boolean;
 }
 
-/** Bola ota-ona so'roviga javobi. */
 export type LinkAction = "approve" | "decline";
 
 export interface RegisterFormValues {
@@ -139,9 +118,5 @@ export interface ProfileFormValues {
   firstName: string;
   lastName: string;
   phone?: string;
-  /**
-   * Login. Backend uni `PATCH /auth/me/` da qabul qiladi, lekin u YAGONA
-   * bo'lishi shart — band bo'lsa 400 qaytadi va forma xatoni ko'rsatadi.
-   */
   username?: string;
 }

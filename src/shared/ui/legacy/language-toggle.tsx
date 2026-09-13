@@ -4,7 +4,6 @@ import { cn } from "@/shared/lib";
 
 const CODE_LABELS: Record<AppLanguage, string> = { uz: "UZ", en: "EN", ru: "RU" };
 
-/** `ThemeToggle` bilan bir xil segmentli naqsh — uchta til, uchta tugma. */
 export function LanguageToggle({ className }: { className?: string }) {
   const { t } = useTranslation();
   const language = useLanguageStore((state) => state.language);

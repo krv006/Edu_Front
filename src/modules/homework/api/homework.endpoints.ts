@@ -4,6 +4,5 @@ export const homeworkEndpoints = Object.freeze({
   submission: (id: string) => `/api/v1/homework/submissions/${id}/`, submissionFile: (id: string) => `/api/v1/homework/submissions/${id}/file/`,
   recheck: (id: string) => `/api/v1/homework/submissions/${id}/recheck/`,
   review: (id: string) => `/api/v1/homework/submissions/${id}/review/`,
-  /** O'quvchining reytingi — `student` query param bilan ota-ona bolasinikini ham so'raydi. */
   report: "/api/v1/homework/report/",
 });

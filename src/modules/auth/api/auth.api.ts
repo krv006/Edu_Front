@@ -15,13 +15,6 @@ import type {
 } from "./auth.dto";
 
 export const authApi = {
-  // login/refresh — Authorization sarlavhasisiz va 401 da qayta urinishsiz yuboriladi.
-  /**
-   * Sessiyani server tomonda yopadi — refresh token bekor qilinadi.
-   *
-   * `skipRefresh`: access token allaqachon eskirgan bo'lsa, 401 ni ushlab
-   * yangilashga urinish ma'nosiz — biz baribir chiqmoqchimiz.
-   */
   logout(refreshToken: string | null) {
     return apiClient.post(
       authEndpoints.logout,
@@ -47,36 +40,26 @@ export const authApi = {
   updateCurrentUser(dto: Partial<RegisterRequestDto>) {
     return apiClient.patch<AuthUserDto>(authEndpoints.me, dto);
   },
-  /** Hisobga bog'laydi — boshqa qurilma/brauzerda ham shu til tiklanadi. */
   updateLanguage(language: string) {
     return apiClient.patch<AuthUserDto>(authEndpoints.me, { preferred_language: language });
   },
-  /** Dars eslatmasi vaqti — hisobga bog'lanadi, qurilmadan mustaqil. */
   updateLessonReminderMinutes(minutes: number) {
     return apiClient.patch<AuthUserDto>(authEndpoints.me, { lesson_reminder_minutes: minutes });
   },
-  /**
-   * Profil rasmi — multipart, shuning uchun alohida chaqiruv.
-   * Bo'sh `File` yuborilmaydi: rasmni o'chirish uchun bo'sh satr yuboriladi.
-   */
   updateAvatar(avatar: File | null) {
     const body = new FormData();
     body.set("avatar", avatar ?? "");
     return apiClient.patch<AuthUserDto>(authEndpoints.me, body);
   },
-  /** Javobida access/refresh darhol keladi — ro'yxatdan o'tgach alohida login shart emas. */
   register(dto: RegisterRequestDto) {
     return apiClient.post<TokenPairDto>(authEndpoints.register, dto, {
       skipAuth: true,
       skipRefresh: true,
     });
   },
-  /** Bog'langan akkauntga parolsiz o'tish — joriy (eski akkaunt) token bilan yuboriladi. */
   switchAccount(id: string) {
     return apiClient.post<SwitchAccountResponseDto>(authEndpoints.switchAccount(id), {});
   },
-  /** Boshqa rolga o'tish — mavjud bo'lmasa backend ro'yxatdan o'tishsiz avtomatik ochadi.
-   * `role` backend qiymatida (kichik harf: "teacher"/"parent"/"student") kutiladi. */
   switchRole(role: string) {
     return apiClient.post<SwitchAccountResponseDto>(authEndpoints.switchRole, { role });
   },
@@ -98,7 +81,6 @@ export const authApi = {
   setConsent(dto: ConsentRequestDto) {
     return apiClient.post(authEndpoints.consents, dto);
   },
-  /** `studentId` berilsa — ota-ona bolasining kirishlar tarixini oladi. */
   async getLogins(studentId: string | null, options?: RequestOptions) {
     return mapLoginRecords(
       await apiClient.get(authEndpoints.logins, {
@@ -107,18 +89,15 @@ export const authApi = {
       })
     );
   },
-  /** Admin: barcha o'qituvchilar (`avg_rating`/`rating_count` bilan). */
   getTeachers(options?: RequestOptions) {
     return apiClient.get<AuthUserDto[]>(authEndpoints.teachers, options);
   },
-  /** Admin: hali tasdiqlanmagan o'qituvchilar. */
   getPendingTeachers(options?: RequestOptions) {
     return apiClient.get<AuthUserDto[]>(authEndpoints.teachersPending, options);
   },
   approveTeacher(id: string) {
     return apiClient.post<AuthUserDto>(authEndpoints.teacherApprove(id), {});
   },
-  /** O'qituvchi o'zi uchun sertifikat yuklaydi — rasm yoki PDF. */
   uploadCertificate(file: File, title?: string) {
     const body = new FormData();
     body.set("file", file);

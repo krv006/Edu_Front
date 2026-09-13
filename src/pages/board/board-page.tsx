@@ -4,10 +4,6 @@ import { BoardPanel } from "@/modules/board";
 import { useLesson } from "@/modules/lesson";
 import { LoadingFallback, RouteState } from "@/shared/ui/legacy";
 
-/**
- * Dars tugagach backend kurs chatiga ".../boards/<lesson_id>" havolasini yuboradi
- * (docs/README §Frontend integratsiyasi) — shu havola aynan shu sahifaga tushadi.
- */
 export function BoardPage() {
   const { lessonId } = useParams();
   const navigate = useNavigate();

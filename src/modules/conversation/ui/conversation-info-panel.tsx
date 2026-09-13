@@ -30,8 +30,6 @@ export function ConversationInfoPanel({ conversation, open, onOpenChange }: Conv
   const [editOpen, setEditOpen] = useState(false);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [courseForm, setCourseForm] = useState<CourseFormInput>({ title: "", subject: "", description: "" });
-  // O'quvchiga guruh a'zolari ko'rinmaydi, lekin darsni KIM o'tishini bilishi kerak.
-  // `null` — panel yopiq: aks holda har chat ochilganda ortiqcha so'rov ketardi.
   const course = useCourse(open ? conversation.courseId : null);
   const respond = useRespondDirect();
   const updateCourse = useUpdateCourse();
@@ -111,7 +109,6 @@ export function ConversationInfoPanel({ conversation, open, onOpenChange }: Conv
             <div className="info-profile">
               <span className="info-avatar-slot">
                 <Avatar name={conversation.title} tone={conversation.avatarTone} size="lg" src={conversation.imageUrl} />
-                {/* Guruh rasmini faqat kurs egasi almashtira oladi. */}
                 {teacherGroup ? (
                   <>
                     <input
@@ -179,14 +176,9 @@ export function ConversationInfoPanel({ conversation, open, onOpenChange }: Conv
                 </button>
               )}
             </div>
-            {/* Guruh a'zolari — ilgari alohida "O'quvchilar" bo'limi edi. Ular
-                guruh haqidagi ma'lumot, shuning uchun Telegram'dagidek shu
-                panelda turadi. Faqat o'qituvchida: o'quvchiga sinfdoshlarining
-                ro'yxati ko'rsatilmaydi. */}
             {teacherGroup ? (
               <CourseMembersSection courseId={conversation.courseId} canManage />
             ) : null}
-            {/* O‘qituvchi — kurs egasiga o‘z ismini ko‘rsatishdan ma’no yo‘q. */}
             {isGroup && !teacherGroup ? (
               <div className="info-section">
                 <span className="info-section-title">{t("info.teacherSection")}</span>
@@ -203,7 +195,6 @@ export function ConversationInfoPanel({ conversation, open, onOpenChange }: Conv
                 )}
               </div>
             ) : null}
-            {/* Backend DirectStatusEnum: pending | active | blocked (/api/schema/). */}
             {!isGroup && user?.role === "TEACHER" && conversation.directStatus === DIRECT_STATUS.PENDING ? (
               <Button loading={respond.isPending} onClick={() => respondDirect("accept")}>
                 <Check size={18} /> {t("info.acceptConversation")}

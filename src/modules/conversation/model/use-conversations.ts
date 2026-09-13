@@ -13,13 +13,6 @@ export function useConversations(role: ConversationRole = "teacher") {
   });
 }
 
-/**
- * Yon paneldagi ro'yxatdan bitta suhbatni oladi.
- *
- * Ro'yxat ham, detal ham `mapConversationDto` orqali bir xil shaklga keladi,
- * shuning uchun chat sahifasi detal so'rovi kelguncha shu nusxani ko'rsatib
- * turishi mumkin — skeleton umuman chiqmaydi.
- */
 export function readCachedConversation(
   client: QueryClient,
   id: string | undefined,
@@ -30,7 +23,6 @@ export function readCachedConversation(
   return page?.items.find((item) => item.id === id);
 }
 
-/** `enabled` — o'qituvchilar ro'yxati faqat dialog ochilganda kerak. */
 export function useTeachersForDirect(enabled = true) {
   return useQuery({
     queryKey: ["conversations", "teachers"],
@@ -47,7 +39,6 @@ export function useRequestDirect() {
   });
 }
 
-/** Guruh chat rasmini o'rnatish (o'qituvchi). */
 export function useSetRoomImage() {
   const client = useQueryClient();
   return useMutation({

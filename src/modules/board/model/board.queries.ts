@@ -8,14 +8,8 @@ export const boardKeys = Object.freeze({
   state: (id: string) => ["board", id] as const,
 });
 
-/** WebSocket uzilgan holat uchun zaxira — kanal ishlaganda polling o'chadi. */
 const FALLBACK_POLL_MS = 2000;
 
-/**
- * Doska holati. Real-time kanal ulangan bo'lsa (`live = true`) polling kerak emas:
- * yangilanishlar `useBoardRealtime` orqali to'g'ridan-to'g'ri keshga tushadi
- * (docs/PROJECT.md §5.2 — "polling KERAK EMAS").
- */
 export function useBoard(lessonId: string, { enabled = true, live = false } = {}) {
   return useQuery({
     queryKey: boardKeys.state(lessonId),
@@ -48,7 +42,6 @@ export function useEraseStrokes(lessonId: string) {
     mutationFn: ({ sheet, strokeIds, reason }: { sheet: number; strokeIds: string[]; reason: string }) =>
       boardApi.erase(lessonId, sheet, strokeIds, reason),
     onSuccess: () => client.invalidateQueries({ queryKey: boardKeys.state(lessonId) }),
-    // Avval xato bo'lsa hech narsa ko'rsatilmasdi — "o'chirish" oynasi jimgina osilib qolardi.
     onError: (error: Error) => toast.error(error.message),
   });
 }

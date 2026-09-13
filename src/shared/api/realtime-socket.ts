@@ -9,11 +9,6 @@ export interface SocketClosePolicy {
   reconnect: boolean;
 }
 
-/**
- * Yopilish kodlari (docs/PROJECT.md §5) — chat va doska kanallari uchun bir xil:
- * `4401` — token yaroqsiz (refresh qilib qayta ulanamiz),
- * `4403` — xonaga a'zo emas (qayta urinmaymiz).
- */
 export function getSocketClosePolicy(code: number): SocketClosePolicy {
   if (code === 4403) return { refresh: false, reconnect: false };
   if (code === 4401) return { refresh: true, reconnect: true };
@@ -21,7 +16,6 @@ export function getSocketClosePolicy(code: number): SocketClosePolicy {
 }
 
 export interface RealtimeSocketInit {
-  /** JWT'siz yo'l, masalan `/ws/chat/<room_id>/`. */
   path: string;
   onMessage?: (raw: string) => void;
   onState?: (state: SocketState) => void;
@@ -30,13 +24,6 @@ export interface RealtimeSocketInit {
 const MAX_RETRIES = 6;
 const MAX_RETRY_DELAY_MS = 30_000;
 
-/**
- * WebSocket ulanishini boshqaradi: JWT bilan ulanish, uzilganda eksponensial
- * qayta urinish, `4401` da tokenni yangilash, tarmoq/oyna holatiga reaksiya.
- *
- * Xabar formatini bilmaydi — xom matnni qaytaradi. Har bir modul (chat, doska)
- * o'z shartnomasini o'zi parse qiladi.
- */
 export class RealtimeSocket {
   private readonly path: string;
   private readonly onMessage?: (raw: string) => void;
@@ -99,7 +86,6 @@ export class RealtimeSocket {
     };
   }
 
-  /** Exponential backoff: 700ms, 1.4s, 2.8s … maksimum 30s, 6 martagacha. */
   private scheduleReconnect(): void {
     if (this.closed || this.retryTimer || this.retries >= MAX_RETRIES) return;
     const delay = Math.min(MAX_RETRY_DELAY_MS, 700 * 2 ** this.retries++);
@@ -109,7 +95,6 @@ export class RealtimeSocket {
     }, delay);
   }
 
-  /** Ulanish yopiq bo'lsa `false` qaytaradi — chaqiruvchi REST'ga o'tishi mumkin. */
   send(payload: unknown): boolean {
     if (!this.isOpen) return false;
     this.socket!.send(JSON.stringify(payload));

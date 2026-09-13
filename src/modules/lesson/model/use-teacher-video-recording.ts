@@ -13,12 +13,6 @@ const INITIAL_SNAPSHOT: TeacherVideoRecordingSnapshot = {
   error: null,
 };
 
-/**
- * `stream` — `getDisplayMedia` orqali pre-join gesture ichida olingan
- * ekran oqimi. Pre-join buni o'qituvchi uchun MAJBURIY qiladi (ruxsat
- * berilmasa kirish bloklanadi), shuning uchun bu yerda deyarli har doim
- * mavjud bo'ladi — `null` faqat teorik holat.
- */
 export function useTeacherVideoRecording(
   lessonId: string,
   stream: MediaStream | null,

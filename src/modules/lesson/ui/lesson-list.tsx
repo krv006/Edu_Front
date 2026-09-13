@@ -22,11 +22,6 @@ function buildSections(lessons: Lesson[]): DaySection[] {
   const byDay = groupLessonsByDay(lessons);
   const todayKey = toDayKey(new Date());
   return [...byDay.entries()]
-    /*
-     * Yaqinlashayotgan (bugungi va kelajakdagi) kunlar birinchi, eng
-     * yaqinidan boshlab — o'qituvchi/o'quvchi keyingi darsni darhol ko'rsin.
-     * O'tgan kunlar pastda, eng so'nggisidan boshlab.
-     */
     .sort((a, b) => {
       const aUpcoming = a[0] >= todayKey;
       const bUpcoming = b[0] >= todayKey;
@@ -36,12 +31,6 @@ function buildSections(lessons: Lesson[]): DaySection[] {
     .map(([key, items]) => ({ key, date: new Date(items[0].startsAt), lessons: items }));
 }
 
-/**
- * Darslar ro'yxati — sana bo'yicha bo'limlarga ajratilgan.
- *
- * Avval barcha darslar bitta uzun oqim edi va qaysi kun ekanini har kartochkadan
- * alohida o'qishga to'g'ri kelardi; sana sarlavhasi shu takrorni olib tashlaydi.
- */
 export function LessonList({ lessons, ...actions }: LessonListProps) {
   const { t, i18n } = useTranslation("lesson");
   const lessonStatusMeta = useLessonStatusMeta();

@@ -4,7 +4,6 @@ import { mapTokenPairDto } from "./auth.mappers";
 
 let configured = false;
 
-/** `apiClient` 401 olganda chaqiradigan refresh strategiyasini bir marta ro'yxatdan o'tkazadi. */
 export function configureAuthRefresh(): void {
   if (configured) return;
   refreshTokenManager.configure(async () => {

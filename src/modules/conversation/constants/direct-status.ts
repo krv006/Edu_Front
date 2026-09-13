@@ -1,6 +1,5 @@
 import { useTranslation } from "react-i18next";
 
-/** Backend DirectStatusEnum (/api/schema/): pending | active | blocked. */
 export const DIRECT_STATUS = Object.freeze({
   PENDING: "pending",
   ACTIVE: "active",
@@ -9,7 +8,6 @@ export const DIRECT_STATUS = Object.freeze({
 
 export type DirectStatusValue = (typeof DIRECT_STATUS)[keyof typeof DIRECT_STATUS];
 
-/** Til o'zgarganda yorliq ham darhol yangilanishi uchun hook sifatida. */
 export function useDirectStatusLabel() {
   const { t } = useTranslation("chat");
   return (status: DirectStatusValue | null | undefined, fallback?: string): string => {

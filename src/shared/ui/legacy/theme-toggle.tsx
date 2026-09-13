@@ -8,7 +8,6 @@ const MODES: Array<{ id: ThemeMode; label: string; icon: typeof Sun }> = [
   { id: "system", label: "Tizim", icon: Monitor },
 ];
 
-/** Uchta holatli segment: yorug‘ / qorong‘i / tizim. */
 export function ThemeToggle({ className }: { className?: string }) {
   const { mode, setMode } = useTheme();
 
@@ -35,7 +34,6 @@ export function ThemeToggle({ className }: { className?: string }) {
   );
 }
 
-/** Bitta tugmali variant — joy tor bo'lgan panellar uchun. */
 export function ThemeToggleButton({ className }: { className?: string }) {
   const { resolved, toggle } = useTheme();
   return (

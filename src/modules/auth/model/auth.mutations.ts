@@ -6,7 +6,6 @@ import type { ProfileFormValues, RegisterFormValues } from "../api/auth.dto";
 import { mapCertificateDto, mapUserDto } from "../lib/auth.mappers";
 import { useAuthStore } from "./auth.store";
 
-/** Muvaffaqiyatli bo'lsa darhol AUTHENTICATED — alohida login shart emas. */
 export function useRegisterMutation() {
   return useMutation({
     mutationFn: (values: RegisterFormValues): Promise<AuthUser> =>
@@ -21,14 +20,12 @@ export function useRegisterMutation() {
   });
 }
 
-/** Bog'langan akkauntga parolsiz o'tish (PHONE_LINKED_ACCOUNTS_API.md). */
 export function useSwitchAccountMutation() {
   return useMutation({
     mutationFn: (userId: string): Promise<AuthUser> => useAuthStore.getState().switchAccount(userId),
   });
 }
 
-/** Rolga o'tish — hali mavjud bo'lmasa ro'yxatdan o'tishsiz avtomatik ochiladi. */
 export function useSwitchRoleMutation() {
   return useMutation({
     mutationFn: (role: string): Promise<AuthUser> => useAuthStore.getState().switchRole(role),
@@ -44,18 +41,14 @@ export function useUpdateProfileMutation() {
           first_name: values.firstName.trim(),
           last_name: values.lastName.trim(),
           phone: values.phone?.trim() || "",
-          // Faqat haqiqatan o'zgargan bo'lsa yuboriladi — aks holda har
-          // saqlashda backend uni band deb hisoblab qolishi mumkin.
           ...(username ? { username } : {}),
         })
       );
     },
-    // Server javobi global auth holatiga ko'chiriladi.
     onSuccess: (user) => useAuthStore.getState().setUser(user),
   });
 }
 
-/** Dars eslatmasi vaqti — javob global auth holatiga ko'chiriladi. */
 export function useUpdateLessonReminderMutation() {
   return useMutation({
     mutationFn: async (minutes: number): Promise<AuthUser> =>
@@ -64,7 +57,6 @@ export function useUpdateLessonReminderMutation() {
   });
 }
 
-/** Profil rasmi — `null` yuborilsa rasm o'chiriladi. */
 export function useUpdateAvatarMutation() {
   return useMutation({
     mutationFn: async (avatar: File | null): Promise<AuthUser> =>
@@ -73,10 +65,6 @@ export function useUpdateAvatarMutation() {
   });
 }
 
-/**
- * O'qituvchi o'ziga sertifikat qo'shadi. Javob — faqat bitta sertifikat
- * (butun user emas), shuning uchun store'dagi ro'yxatga qo'lda qo'shiladi.
- */
 export function useUploadCertificate() {
   return useMutation({
     mutationFn: async ({ file, title }: { file: File; title?: string }) =>

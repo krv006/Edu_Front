@@ -12,14 +12,6 @@ import {
 } from "../lib/auth.mappers";
 import { configureAuthRefresh } from "../lib/auth-session";
 
-/**
- * Hisobga bog'langan til bilan qurilmadagi tilni ikki tomonlama sinxronlaydi:
- *  - login/bootstrap'da serverdan kelgan qiymat qurilmaga yoziladi (boshqa
- *    qurilmada tanlangan til shu yerda ham tiklanadi);
- *  - foydalanuvchi shu yerda tilni almashtirsa, pastdagi `subscribe` serverga
- *    yozadi (auth.store.ts'dagi so'nggi bo'lim).
- * `suppressLanguagePush` — serverdan o'qiganda orqaga PATCH ketmasligi uchun.
- */
 let suppressLanguagePush = false;
 
 function syncLanguageFromServer(preferred: string) {
@@ -42,18 +34,13 @@ interface AuthState {
   status: AuthStatus;
   error: AppError | null;
 
-  /** Ilova ochilganda bir marta chaqiriladi: saqlangan token bo'lsa profilni tiklaydi. */
   bootstrap: () => Promise<void>;
   login: (credentials: LoginCredentials) => Promise<AuthUser>;
-  /** Javobida access/refresh darhol keladi — muvaffaqiyatli bo'lsa darhol AUTHENTICATED. */
   register: (dto: RegisterRequestDto) => Promise<AuthUser>;
-  /** Bog'langan akkauntga parolsiz o'tish (PHONE_LINKED_ACCOUNTS_API.md). */
   switchAccount: (userId: string) => Promise<AuthUser>;
-  /** Boshqa rolga o'tish — mavjud bo'lmasa backend uni avtomatik ochadi. */
   switchRole: (role: string) => Promise<AuthUser>;
   logout: () => Promise<void>;
   setUser: (user: AuthUser) => void;
-  /** Tarmoq xatosidan keyin "Qayta urinish". */
   retry: () => Promise<void>;
 }
 
@@ -65,11 +52,6 @@ function toAppError(error: unknown): AppError {
       });
 }
 
-/**
- * Ketayotgan `me/` so'rovi. React StrictMode (dev) effektni ikki marta
- * chaqiradi, shuningdek daraxt qayta mount bo'lishi ham mumkin — ikkalasida
- * ham bitta so'rov yetarli, chaqiruvchilar bir xil natijani kutadi.
- */
 let pendingBootstrap: Promise<void> | null = null;
 
 export const useAuthStore = create<AuthState>()((set, get) => ({
@@ -90,7 +72,6 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
         syncLanguageFromServer(user.preferredLanguage);
       } catch (error) {
         const appError = toAppError(error);
-        // 401 — token yaroqsiz: sessiyani jimgina tozalaymiz, xato ekrani chiqarmaymiz.
         if (appError.status === 401) {
           tokenStorage.clearTokens();
           set({ user: null, status: AUTH_STATUS.ANONYMOUS, error: null });
@@ -100,7 +81,6 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
       }
     })();
 
-    // Tugagach tozalaymiz — "Qayta urinish" yangi so'rov yubora olsin.
     try {
       await pendingBootstrap;
     } finally {
@@ -117,19 +97,12 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
       syncLanguageFromServer(user.preferredLanguage);
       return user;
     } catch (error) {
-      // Yarim ochilgan sessiya qolmasin.
       tokenStorage.clearTokens();
       set({ user: null, status: AUTH_STATUS.ANONYMOUS, error: null });
       throw error;
     }
   },
 
-  /**
-   * Ro'yxatdan o'tish javobida access/refresh darhol keladi — `login()` kabi
-   * alohida so'rov shart emas, lekin foydalanuvchi ma'lumoti javobda
-   * kafolatlanmagani uchun (backend hujjati faqat tokenlarni tasdiqlagan)
-   * ehtiyot shart bilan `getCurrentUser()` orqali olinadi.
-   */
   async register(dto) {
     try {
       const tokens = mapTokenPairDto(await authApi.register(dto));
@@ -145,11 +118,6 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
     }
   },
 
-  /**
-   * Bog'langan akkauntga parolsiz o'tish. Joriy sessiya davomiyligi
-   * (`remember me`) saqlanadi — bu yangi login emas, shuning uchun
-   * foydalanuvchidan qayta so'ralmaydi.
-   */
   async switchAccount(userId) {
     const persistent = tokenStorage.isPersistent();
     const { tokens, user } = mapSwitchAccountResponse(await authApi.switchAccount(userId));
@@ -159,7 +127,6 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
     return user;
   },
 
-  /** Rolga o'tish — hali mavjud bo'lmasa backend ro'yxatdan o'tishsiz ochadi. */
   async switchRole(role) {
     const persistent = tokenStorage.isPersistent();
     const { tokens, user } = mapSwitchAccountResponse(await authApi.switchRole(role));
@@ -169,21 +136,12 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
     return user;
   },
 
-  /**
-   * Chiqish: avval serverga aytamiz (refresh token bekor qilinsin), keyin
-   * lokal holatni tozalaymiz.
-   *
-   * So'rov xatosi ATAYLAB YUTILADI: tarmoq uzilgan, token eskirgan yoki
-   * endpoint hali chiqarilmagan bo'lishi mumkin — bularning hech biri
-   * foydalanuvchini tizimda ushlab qolishga sabab emas. Shuning uchun
-   * tokenlar `finally` da, har qanday holatda tozalanadi.
-   */
   async logout() {
     const refreshToken = tokenStorage.getRefreshToken();
     try {
       await authApi.logout(refreshToken);
-    } catch {
-      // Sababi muhim emas — chiqish baribir davom etadi.
+    } catch (error) {
+      void error;
     } finally {
       tokenStorage.clearTokens();
       set({ user: null, status: AUTH_STATUS.ANONYMOUS, error: null });
@@ -199,27 +157,20 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
   },
 }));
 
-// ─── Bir martalik yon-effektlar ─────────────────────────────────────────────
 configureAuthRefresh();
 
-// `LanguageToggle` (shared/ui) qaysi modulda ishlatilishidan bexabar bo'lib
-// qolishi uchun ataylab shu yerda ulanadi: foydalanuvchi tizimga kirgan bo'lsa,
-// tanlagan tili hisobiga yoziladi (boshqa qurilmada ham tiklanishi uchun).
 useLanguageStore.subscribe((state, prevState) => {
   if (suppressLanguagePush || state.language === prevState.language) return;
   if (useAuthStore.getState().status !== AUTH_STATUS.AUTHENTICATED) return;
   authApi.updateLanguage(state.language).catch(() => {
-    // Muhim emas — brauzerda tanlov baribir saqlanadi, keyingi harakatda qayta urinamiz.
   });
 });
 
 if (typeof window !== "undefined") {
-  // Refresh muvaffaqiyatsiz bo'lganda API qatlami shu hodisani yuboradi.
   window.addEventListener(SESSION_EXPIRED_EVENT, () => {
     useAuthStore.setState({ user: null, status: AUTH_STATUS.ANONYMOUS, error: null });
   });
 
-  // Boshqa tabda chiqilsa — bu tab ham sessiyani yopadi.
   window.addEventListener("storage", (event) => {
     if (!event.key?.startsWith("fokus_")) return;
     if (!tokenStorage.hasSession() && useAuthStore.getState().user) {

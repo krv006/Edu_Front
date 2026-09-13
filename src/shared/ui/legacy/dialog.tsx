@@ -23,7 +23,6 @@ export function Dialog({
 
 export const DialogTrigger = DialogPrimitive.Trigger;
 
-/** Date/Time picker popoveri portalda ochiladi — uni bosish dialogni yopmasligi kerak. */
 function keepPickerInteractionInside(event: { target: EventTarget | null; preventDefault: () => void }) {
   const target = event.target;
   if (target instanceof Element && target.closest(".form-picker-popover")) {

@@ -10,7 +10,6 @@ export interface AvatarProps {
   size?: AvatarSize;
   status?: "online" | "offline";
   className?: string;
-  /** Rasm bo'lsa ko'rsatiladi; yuklanmasa harfli variantga qaytadi. */
   src?: string | null;
 }
 

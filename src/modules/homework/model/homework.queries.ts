@@ -18,7 +18,6 @@ export const homeworkKeys = Object.freeze({
   report: (studentId?: string | null) => ["homework", "report", studentId ?? "me"] as const,
 });
 
-/** AI tekshiruvi `checking` holatida ekan polling davom etadi, ammo cheklangan vaqt ichida. */
 export function getHomeworkPollingInterval(
   submission: Submission | undefined,
   elapsedMs: number,
@@ -69,11 +68,6 @@ export function useSubmission(
   });
 }
 
-/**
- * O'quvchining reytingi. `studentId` berilmasa backend joriy foydalanuvchini
- * oladi (o'quvchi o'zinikini ko'radi); ota-ona bog'langan bolasi uchun
- * `enabled` odatda `selectedChildId` borligiga qarab beriladi.
- */
 export function useHomeworkReport(studentId?: string | null, enabled = true) {
   return useQuery({
     queryKey: homeworkKeys.report(studentId),
@@ -95,7 +89,6 @@ export function useCreateAssignment() {
   });
 }
 
-/** Vazifani tahrirlash — masalan noto'g'ri kiritilgan muddatni to'g'irlash uchun. */
 export function useUpdateAssignment() {
   const { t } = useTranslation("homework");
   const client = useQueryClient();
@@ -128,7 +121,6 @@ export function useSubmitHomework() {
       client.invalidateQueries({ queryKey: homeworkKeys.all });
       toast.success(t("toast.submitted"));
     },
-    // Avval xato bo'lsa hech narsa ko'rsatilmasdi — tugma jimgina "ishlamayotgandek" tuyulardi.
     onError: (error: Error) => toast.error(error.message),
   });
 }
@@ -159,12 +151,6 @@ export function useRecheckSubmission() {
   });
 }
 
-/**
- * O‘qituvchi AI bahosini tuzatadi.
- *
- * Javob — yangilangan topshiriq, shuning uchun keshga to‘g‘ridan-to‘g‘ri
- * yoziladi: oyna qayta so‘rov kutmasdan yangi bahoni ko‘rsatadi.
- */
 export function useReviewSubmission() {
   const { t } = useTranslation("homework");
   const client = useQueryClient();
@@ -180,8 +166,6 @@ export function useReviewSubmission() {
   });
 }
 
-// Fayllar auth talab qiladi — to‘g‘ridan-to‘g‘ri /media/ URL ishlatilmaydi
-// (docs/README §Frontend integratsiyasi).
 export function useDownloadAssignmentFile() {
   return useMutation({
     mutationFn: async ({ id, fileName }: { id: string; fileName?: string }) =>

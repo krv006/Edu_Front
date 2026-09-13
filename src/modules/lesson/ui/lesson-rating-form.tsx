@@ -11,21 +11,11 @@ const MAX_DESCRIPTION = 500;
 
 export interface LessonRatingFormProps {
   lesson: Lesson;
-  /** O'z bahosini topish uchun — topilsa forma o'rniga "rahmat" holati chiqadi. */
   currentUserId?: string;
-  /** Baho yuborilgandan keyin (dialogni yopish uchun). */
   onSubmitted?: () => void;
-  /** Bekor tugmasi — dialogda kerak, sahifa ichida emas. */
   onCancel?: () => void;
 }
 
-/**
- * O'quvchining dars bahosi: yulduz + izoh.
- *
- * Faqat tugagan darsda ochiladi — backend ham shuni talab qiladi, shuning uchun
- * boshqa holatda forma o'rniga tushuntirish ko'rsatiladi. Baho anonim emas va
- * bu forma tepasida ochiq aytiladi.
- */
 export function LessonRatingForm({
   lesson,
   currentUserId,
@@ -37,8 +27,6 @@ export function LessonRatingForm({
   const ratings = useLessonRatings(lesson.id, lesson.status === "finished");
   const rate = useRateLesson();
 
-  // Ro'yxatni ko'rish huquqi bo'lmasa `data` bo'sh qoladi — forma baribir ochiladi,
-  // takroriy bahoni backend rad etadi va xabari shu yerda ko'rinadi.
   const mine = currentUserId
     ? (ratings.data?.find((item) => item.studentId === currentUserId) ?? null)
     : null;
@@ -70,7 +58,6 @@ export function LessonRatingForm({
     );
   }
 
-  // `null` — baholash API bu backendda hali yo'q: formani ko'rsatishdan ma'no yo'q.
   if (ratings.data === null) {
     return <p className="portal-muted">{t("ratingForm.disabled")}</p>;
   }

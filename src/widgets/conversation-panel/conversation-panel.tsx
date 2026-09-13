@@ -24,10 +24,6 @@ import { useAuth } from "@/modules/auth";
 import { StudentEnrollmentDialog } from "@/modules/student";
 import type { ConversationRole } from "@/shared/types";
 
-/**
- * Suhbat turlari — ro'yxat tepasidagi tugmachalar (Teams uslubi).
- * Ular BO'LIM emas, filtr: shuning uchun ustunda emas, shu yerda turadi.
- */
 function useFilters(): Array<{ id: ConversationFilter; label: string }> {
   const { t } = useTranslation("chat");
   return [
@@ -40,7 +36,6 @@ function useFilters(): Array<{ id: ConversationFilter; label: string }> {
 
 export interface ConversationPanelProps {
   role?: ConversationRole;
-  /** Menyu layout darajasida turadi — panel faqat ochilishini so'raydi. */
   onOpenMenu: () => void;
 }
 
@@ -48,8 +43,6 @@ export function ConversationPanel({ role = "teacher", onOpenMenu }: Conversation
   const { t } = useTranslation("chat");
   const FILTERS = useFilters();
   const [search, setSearch] = useState("");
-  // Panel qayta mount bo'lganda ham tanlov saqlanib qolishi kerak — shuning
-  // uchun komponentdan tashqarida (izohi store faylida).
   const { filter, setFilter } = useConversationFilter();
   const [dialogOpen, setDialogOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
@@ -61,23 +54,11 @@ export function ConversationPanel({ role = "teacher", onOpenMenu }: Conversation
   const isTeacher = role === "teacher";
   const basePath = isTeacher ? "/teacher/chats" : "/student/chats";
 
-  /**
-   * Telegram uslubi: qidiruvda mavjud suhbatlardan tashqari ODAM ham topiladi.
-   *
-   * O'quvchi uchun `GET /chat/rooms/teachers/` ishlatiladi — bu unga ochiq
-   * yagona odam ro'yxati. O'qituvchida bunday qidiruv yo'q: shaxsiy suhbatni
-   * faqat o'quvchi boshlay oladi (backend o'qituvchidan so'rovni qabul
-   * qilmaydi), shuning uchun unga topilgan odam bilan qiladigan ish qolmaydi.
-   */
   const query = search.trim();
   const peopleEnabled = !isTeacher && query.length >= 2;
   const teachers = useTeachersForDirect(peopleEnabled);
   const requestDirect = useRequestDirect();
 
-  /**
-   * Qaysi guruhda dars ketyapti — chatga kirmasdan ko'rinishi uchun.
-   * Dars kurs bilan bog'langan, chat ham: bog'lovchi kalit `courseId`.
-   */
   const liveLessons = useLiveLessons(Boolean(user)).data;
   const liveCourses = useMemo(
     () => new Set((liveLessons ?? []).map((lesson) => lesson.courseId)),
@@ -95,7 +76,6 @@ export function ConversationPanel({ role = "teacher", onOpenMenu }: Conversation
     [data, search, filter]
   );
 
-  /** Allaqachon suhbati borlar ro'yxatda chiqadi — ularni takrorlamaymiz. */
   const people = useMemo(() => {
     if (!peopleEnabled) return [];
     const lowered = query.toLowerCase();
@@ -107,14 +87,6 @@ export function ConversationPanel({ role = "teacher", onOpenMenu }: Conversation
     );
   }, [peopleEnabled, query, data, teachers.data]);
 
-  /*
-   * Bildirishnomadagi havolani ochish.
-   *
-   * Vazifa xabari faqat vazifa id'sini beradi, vazifa esa o'z guruh chatining
-   * "Vazifalar" bo'limida yashaydi. Shuning uchun avval vazifa olinadi
-   * (`courseId` uchun), so'ng shu kursning suhbati topiladi. Test esa endi
-   * (rail'dagi) umumiy "Testlar" bo'limida — kurs/xona qidirish shart emas.
-   */
   const queryClient = useQueryClient();
 
   async function openNotificationLink(link: NotificationLink) {

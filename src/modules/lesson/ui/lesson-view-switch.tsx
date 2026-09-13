@@ -12,7 +12,6 @@ export interface LessonViewSwitchProps {
   onChange: (view: LessonView) => void;
 }
 
-/** Ro'yxat ⇄ kalendar almashtirgichi. Tanlov `lesson-view.store` da saqlanadi. */
 export function LessonViewSwitch({ view, onChange }: LessonViewSwitchProps) {
   const { t } = useTranslation("lesson");
   return (

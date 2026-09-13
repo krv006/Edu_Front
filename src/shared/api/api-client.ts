@@ -17,7 +17,6 @@ interface ManagedSignal {
   cleanup: () => void;
 }
 
-/** Tashqi `signal` va timeout'ni bitta AbortController ostida birlashtiradi. */
 function createSignal(externalSignal: AbortSignal | undefined, timeoutMs: number): ManagedSignal {
   const controller = new AbortController();
   let timedOut = false;
@@ -68,7 +67,6 @@ export class ApiClient {
         createRequestInit(requestOptions, requestSignal.signal, apiConfig.defaultHeaders)
       );
 
-      // 401 → bir marta refresh qilib, so‘rovni qaytadan yuboramiz.
       if (
         response.status === 401 &&
         !isRetry &&

@@ -87,7 +87,6 @@ export function mapQuizAttemptResultDto(dto: QuizAttemptResultDto): QuizAttemptR
   };
 }
 
-/** `POST /quizzes/` uchun JSON body — bo'sh `lesson`/sanalar `null` sifatida yuboriladi. */
 export function mapQuizRequest(form: QuizFormValues): Record<string, unknown> {
   return {
     course: form.courseId,
@@ -126,7 +125,6 @@ export function mapQuizImportPreviewDto(dto: QuizImportPreviewDto): QuizImportPr
   };
 }
 
-/** `POST /quizzes/{id}/attempts/` uchun JSON body. */
 export function mapQuizAttemptRequest(
   answers: Array<{ questionId: string; selectedOptionId: string | null }>
 ): Record<string, unknown> {

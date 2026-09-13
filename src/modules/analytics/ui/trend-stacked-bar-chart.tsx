@@ -22,9 +22,6 @@ const PLOT_W = W - PAD_L - PAD_R;
 const PLOT_H = H - PAD_T - PAD_B;
 const GAP = 1.5;
 
-/** Faqat yuqori burchaklari dumaloq to'rtburchak — SVG `rx` barcha 4 burchakni
- * bir xilda dumaloqlaydi, shuning uchun stack pastki (baza) qismi kvadrat
- * qolishi uchun path qo'lda quriladi. */
 function topRoundedRectPath(x: number, y: number, w: number, h: number, r: number): string {
   if (h <= 0.5) return "";
   const radius = Math.min(r, w / 2, h);

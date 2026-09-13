@@ -11,14 +11,6 @@ interface ErrorBoundaryState {
   error: Error | null;
 }
 
-/**
- * Yangi deploy chiqqach, ochiq turgan eski tab endi serverda yo'q JS
- * chunkini so'raydi — server SPA fallback (HTML) qaytaradi, brauzer buni
- * "module script" sifatida rad etadi. Foydalanuvchi buni tushunmaydi va
- * qo'lda "Qayta yuklash"ni bosishi shart emas — bir marta o'zimiz
- * yangilaymiz. `sessionStorage` bayrog'i cheksiz reload siklidan saqlaydi
- * (masalan haqiqiy tarmoq uzilishi bo'lsa).
- */
 const CHUNK_LOAD_ERROR =
   /Failed to fetch dynamically imported module|error loading dynamically imported module|Failed to load module script|Importing a module script failed/i;
 const CHUNK_RELOAD_FLAG = "chunk-reload-attempted";
@@ -31,7 +23,6 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   }
 
   componentDidMount(): void {
-    // Xatosiz sahifa muvaffaqiyatli ochildi — keyingi safar yangi eskirish bo'lsa yana avtomatik urinamiz.
     if (!this.state.error) sessionStorage.removeItem(CHUNK_RELOAD_FLAG);
   }
 
@@ -61,7 +52,6 @@ class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundaryState> {
   }
 }
 
-/** `key={location.key}` — yangi marshrutga o'tganda xato holati tozalanadi. */
 export function RouteErrorBoundary({ children }: { children: ReactNode }) {
   const location = useLocation();
   return <ErrorBoundary key={location.key}>{children}</ErrorBoundary>;

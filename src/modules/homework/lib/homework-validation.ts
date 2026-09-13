@@ -9,9 +9,7 @@ import {
 const AUDIO_EXTENSIONS = ["mp3", "wav", "m4a", "ogg"];
 
 export interface ValidateHomeworkFileOptions {
-  /** O‘qituvchi biriktiradigan fayl — boshqa kengaytmalar ro‘yxati. */
   assignment?: boolean;
-  /** Speaking vazifasi — audio ham qabul qilinadi. */
   speaking?: boolean;
 }
 

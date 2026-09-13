@@ -2,7 +2,6 @@ function getBrowserStorage(): Storage | null {
   return typeof window === "undefined" ? null : window.localStorage;
 }
 
-/** localStorage o‘chirilgan / private rejimda ham xato tashlamaydigan o‘ram. */
 export const storage = {
   get(key: string, fallback: string | null = null): string | null {
     try {

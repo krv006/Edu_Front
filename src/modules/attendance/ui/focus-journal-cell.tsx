@@ -6,17 +6,10 @@ import { Dialog, DialogContent } from "@/shared/ui/legacy";
 
 export interface FocusJournalCellProps {
   focus: FocusJournal;
-  /** Dialog sarlavhasida ko'rsatiladigan kontekst: o'quvchi va dars nomi. */
   student: string;
   lesson: string;
 }
 
-/**
- * Davomat jadvalidagi "Fokus" katagi: qisqacha xulosa + bosilganda to'liq jurnal.
- *
- * O'qituvchi jadvali ham, ota-ona jadvali ham shu bitta komponentdan foydalanadi —
- * fokus ma'lumotini ko'rsatish mantig'i faqat shu yerda turadi.
- */
 export function FocusJournalCell({ focus, student, lesson }: FocusJournalCellProps) {
   const [open, setOpen] = useState(false);
 

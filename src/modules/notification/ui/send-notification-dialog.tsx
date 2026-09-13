@@ -14,12 +14,6 @@ const TARGETS: Array<{ id: NotificationTarget; label: string; hint: string; icon
   { id: "all", label: "Hammaga", hint: "Barcha foydalanuvchilar", icon: Megaphone },
 ];
 
-/**
- * Admin xabar yuborish formasi (docs/COMPLETED_WORK.md §2).
- *
- * Matn oddiy paragraflar sifatida yuboriladi — backend `nh3` bilan tozalaydi,
- * shuning uchun formatlash teglari saqlanib qoladi, xavflisi tashlanadi.
- */
 export function SendNotificationDialog({ open, onOpenChange }: SendNotificationDialogProps) {
   const [target, setTarget] = useState<NotificationTarget>("user");
   const [query, setQuery] = useState("");
@@ -42,7 +36,6 @@ export function SendNotificationDialog({ open, onOpenChange }: SendNotificationD
 
     send.mutate(
       {
-        // Har bir qator alohida paragraf bo'ladi.
         description: text
           .trim()
           .split(/\n{2,}/)

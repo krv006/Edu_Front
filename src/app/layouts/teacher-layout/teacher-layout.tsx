@@ -7,10 +7,6 @@ export function TeacherLayout() {
   const { user } = useAuth();
   const warned = useRef(false);
 
-  /**
-   * Bir marta ogohlantiramiz — har render/qayta-fetchda emas, aks holda
-   * darsdan darsga o'tganda ham qayta-qayta chiqib bezovta qiladi.
-   */
   useEffect(() => {
     if (user?.isApproved === false && !warned.current) {
       warned.current = true;

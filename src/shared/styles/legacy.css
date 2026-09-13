@@ -71,7 +71,6 @@ button:disabled {
 .route-state p { max-width: 470px; margin: 0 0 20px; color: var(--muted-foreground); line-height: 1.6; }
 .route-state a { text-decoration: none; }
 
-/* Shared primitives */
 .button {
   min-height: 44px;
   padding: 0 18px;
@@ -98,14 +97,6 @@ button:disabled {
   box-shadow: 0 10px 24px rgb(var(--primary-rgb) / 0.26);
 }
 .button--secondary {
-  /*
-   * Rangi ATAYLAB ochiq/qorong'i mavzuga bog'liq token'lardan olinadi (ambient
-   * `color`ga tayanmaydi) — aks holda `.live-page` kabi doim qorong'i fon
-   * ichida (rang atayin oq-yaqin qilib belgilangan) shu tugma matni ko'rinmay
-   * qolardi: doska panelining o'zi ochiq mavzuda oq fon bo'lsa ham, atrofdan
-   * meros qilingan oq matn shu fonda deyarli yo'qolib ketardi (2026-09-11,
-   * jonli darsning doska bo'limida "Ruxsat"/"Yechuvchi" tugmalari ko'rinmasligi).
-   */
   border: 1px solid var(--border);
   color: var(--foreground);
   background: var(--surface);
@@ -172,10 +163,6 @@ button:disabled {
   align-items: center;
   gap: 11px;
 }
-/* Logo o'zi to'liq rangli gradient monogramm, shuning uchun orqasiga TO'YINGAN
-   fon qo'yilmaydi — gradient gradient ustiga tushib, belgi yo'qolib ketardi.
-   Sarlavhalardagi mayin katak (pastdagi `.portal-brand-link`) bunga kirmaydi:
-   u deyarli oq/qora, belgini bosmaydi. */
 .brand-mark {
   width: 38px;
   height: 38px;
@@ -187,10 +174,6 @@ button:disabled {
   height: 40px;
 }
 
-/* Portal sarlavhasidagi logo — suhbatlar ustunidagi bilan bir xil katak
-   (`.conversation-rail-logo`), shunda brend belgisi ilovaning har ikkala
-   qobig'ida bir xil ko'rinadi. To'ldirish 38px qutida belgini 22px qoldiradi —
-   ustundagi bilan tep-teng. */
 .portal-brand-link .brand-mark {
   padding: 7px;
   border: 1px solid var(--border-accent);
@@ -263,7 +246,6 @@ button:disabled {
   background: var(--success);
 }
 
-/* Login */
 .login-page {
   position: relative;
   width: 100%;
@@ -323,8 +305,6 @@ button:disabled {
   margin-bottom: 30px;
   color: var(--foreground);
 }
-/* Kirish/ro'yxatdan o'tish kartasida logo kattaroq: bu yerda u sarlavhadan
-   oldingi asosiy brend belgisi, header'dagi kichik nishoncha emas. */
 .login-card > .brand .brand-mark {
   width: 64px;
   height: 64px;
@@ -511,7 +491,6 @@ button:disabled {
   font-size: var(--fs-sm);
 }
 
-/* Teacher shell & sidebar */
 .teacher-shell {
   width: 100%;
   height: 100dvh;
@@ -700,7 +679,6 @@ button:disabled {
   display: none;
 }
 
-/* Conversations */
 .conversation-panel {
   min-width: 0;
   height: 100%;
@@ -711,7 +689,6 @@ button:disabled {
   overflow: hidden;
 }
 
-/* Suhbat turlari — ro'yxat tepasidagi tugmachalar (Teams uslubi) */
 .conversation-filter-pills {
   margin-top: 12px;
   display: flex;
@@ -740,12 +717,9 @@ button:disabled {
   background: var(--primary);
 }
 
-/* Asosiy bo'limlar ustuni — ikonka tepada, yozuv ostida */
 .conversation-rail {
   width: 76px;
   flex: 0 0 auto;
-  /* Tepadagi bo'shliq sarlavhaniki bilan bir xil — brend belgisi
-     qidiruv maydoni bilan bir chiziqda turadi. */
   padding: 20px 5px 8px;
   border-right: 1px solid var(--border);
   display: flex;
@@ -756,7 +730,6 @@ button:disabled {
   background: var(--surface-subtle);
 }
 .conversation-rail::-webkit-scrollbar { display: none; }
-/* Faqat RANG o'zgaradi: fon yoki o'lcham o'zgarsa ikonkalar sakraydi. */
 .conversation-rail button {
   position: relative;
   padding: 9px 3px;
@@ -783,12 +756,6 @@ button:disabled {
   white-space: nowrap;
 }
 
-/* Brend belgisi — ustunning eng tepasida, qidiruv maydoni bilan bir chiziqda.
-   Balandlik va tepadagi -4px `.panel-topbar` nikidan olingan: ikkala ustun ham
-   20px bo'shliqdan boshlanadi, shuning uchun bir xil quti = bir xil markaz.
-   Katak fon va ramka bilan: yalang'och logo ustundagi ikonkalar orasida
-   osilib qolgandek ko'rinardi. Uslub bo'sh holat ekranidagi nishonchadan
-   olingan, faqat kichikroq va sokinroq — bu yerda u bosh qahramon emas. */
 .conversation-rail-logo {
   width: 38px;
   height: 38px;
@@ -804,14 +771,9 @@ button:disabled {
   height: 22px;
   display: block;
   object-fit: contain;
-  /* Belgining siyohi SVG qutisining markazidan ~3% pastda — shu qadar
-     qaytaramiz, aks holda katak ichida pastroqda o'tirgandek ko'rinadi. */
   object-position: center calc(50% - 0.7px);
 }
 
-/* Hamburger — ro'yxat tepasida, yozuvsiz. Ajratgich chizig'i ataylab yo'q:
-   u sarlavhaning chizig'idan boshqa balandlikda tugab, ikki xil chiziq
-   bo'lib ko'rinardi. */
 .conversation-rail-menu {
   margin-bottom: 10px;
   color: var(--foreground) !important;
@@ -836,9 +798,6 @@ button:disabled {
   font-style: normal;
   font-weight: 900;
 }
-/* Pastki chegara ataylab yo'q: u faqat ro'yxat ustunida turib, vertikal
-   panelga yetmasdan uzilib qolardi. Ro'yxatning o'zi allaqachon ajralib
-   turadi, qo'shimcha chiziq kerak emas. */
 .conversation-panel-header {
   padding: 20px 18px 14px;
 }
@@ -1026,10 +985,6 @@ button:disabled {
   color: var(--primary-text) !important;
   font-weight: 650;
 }
-/*
- * Jonli dars belgisi. Avatar atrofidagi halqa uzoqdan ham ilinadi, ostidagi
- * yozuv esa nima bo'layotganini aytadi — o'quvchi chatni ochmasdan biladi.
- */
 .conversation-avatar {
   position: relative;
   flex: 0 0 auto;
@@ -1069,7 +1024,6 @@ button:disabled {
   font-weight: 700;
   white-space: nowrap;
 }
-/* Harakat sezgirligi yoqilgan bo'lsa halqa turadi, lekin ko'rinadi. */
 @media (prefers-reduced-motion: reduce) {
   .conversation-live-ring {
     animation: none;
@@ -1161,7 +1115,6 @@ button:disabled {
   background: var(--primary-soft);
 }
 
-/* Menus and dialogs */
 .dropdown-content {
   z-index: 100;
   min-width: 190px;
@@ -1305,7 +1258,6 @@ button:disabled {
   font-size: var(--fs-lg);
 }
 
-/* Main chat */
 .teacher-main {
   min-width: 0;
   height: 100%;
@@ -1458,11 +1410,9 @@ button:disabled {
   white-space: pre-wrap;
   overflow-wrap: anywhere;
 }
-/* Doska/yozuv havolalari — chatdagi matn ichida ajralib tursin */
 .message-link { color: var(--primary-text); font-weight: 700; text-decoration: underline; text-underline-offset: 2px; }
 .message-link:hover { text-decoration-thickness: 2px; }
 .message-row--outgoing .message-link { color: inherit; }
-/* Video yozuvi havolasi — oddiy matn link emas, darhol tanish belgi bilan */
 .message-recording-chip { margin-top: 3px; padding: 7px 12px; border-radius: var(--r-full); display: inline-flex; gap: 6px; align-items: center; color: var(--primary-foreground); background: var(--primary); font-size: var(--fs-sm); font-weight: 700; text-decoration: none; transition: background .16s ease; }
 .message-recording-chip:hover { background: var(--primary-hover); }
 .message-meta {
@@ -1765,7 +1715,6 @@ button:disabled {
   font-weight: 700;
 }
 
-/* Empty chat */
 .chat-empty-state {
   width: min(90%, 520px);
   height: 100%;
@@ -1954,27 +1903,22 @@ button:disabled {
     width: 100%;
     height: 100%;
     border-right: 0;
-    /* Mobilda vertikal panel kenglikni yeydi — yuqoriga, gorizontal holga o'tadi */
     flex-direction: column;
   }
   .conversation-panel.has-active-chat {
     display: none;
   }
-  /* Suhbat ochilganda ustun ham yashirinadi — chat butun ekranni oladi */
   .teacher-shell.has-conversation .conversation-rail {
     display: none;
   }
   .conversation-rail {
     width: 100%;
     flex-direction: row;
-    /* Mobilda gorizontal — tepadagi katta bo'shliq kerak emas */
     padding: 6px 8px;
     border-right: 0;
     border-bottom: 1px solid var(--border);
     overflow-x: auto;
   }
-  /* Mobilda ustun gorizontal tasma — logo bo'lim tugmalari orasida
-     turib qolmasligi uchun yashiriladi. */
   .conversation-rail-logo {
     display: none;
   }
@@ -2148,7 +2092,6 @@ button:disabled {
   }
 }
 
-/* Refined two-column teacher experience */
 .teacher-shell,
 .teacher-shell.is-sidebar-collapsed {
   grid-template-columns: 368px minmax(0, 1fr);
@@ -2319,7 +2262,6 @@ button:disabled {
   font-size: var(--fs-xs);
   font-weight: 800;
 }
-/* O'qituvchi va o'quvchi xabarlarini rangda farqlash uchun (student rangi o'zgarishsiz qoldi). */
 .message-sender-name.is-teacher { color: var(--tone-violet-fg); }
 
 .info-sheet {
@@ -2425,8 +2367,6 @@ button:disabled {
   align-items: center;
   gap: 10px;
 }
-/* Guruh a'zolari kurs ma'lumotlari panelida (Telegram uslubi). Panel tor —
-   400px dan keng emas — shuning uchun kartochka emas, zich qatorlar. */
 .info-members-head {
   display: flex;
   align-items: baseline;
@@ -2478,8 +2418,6 @@ button:disabled {
   background: transparent;
   font-size: var(--fs-sm);
 }
-/* Ataylab o'z siljishi yo'q: panelning o'zi (`.dialog-content`) allaqachon
-   siljiydi, ichiga yana bitta qo'shilsa ikkita scroll ustma-ust tushadi. */
 .info-members-list {
   display: flex;
   flex-direction: column;
@@ -2494,8 +2432,6 @@ button:disabled {
   gap: 10px;
 }
 .info-member-row:hover { background: var(--surface-subtle); }
-/* `> span` DEYILMAYDI: avatar o'rami ham `<span>`, u ham `flex: 1` olib,
-   ism ustunini nariga surib yuborardi. */
 .info-member-identity {
   min-width: 0;
   flex: 1;
@@ -2511,7 +2447,6 @@ button:disabled {
   white-space: nowrap;
 }
 .info-member-identity small { color: var(--muted-foreground); font-size: var(--fs-2xs); }
-/* Chiqarish tugmasi doim ko'rinadi: teginish ekranida hover yo'q. */
 .info-member-remove {
   flex: 0 0 auto;
   width: 30px;
@@ -2555,8 +2490,6 @@ button:disabled {
   min-height: 52px;
   padding: 0 18px;
   border-bottom: 1px solid var(--border);
-  /* Tab soni rolga qarab o'zgaradi (o'qituvchida 5, o'quvchida 3) —
-     shuning uchun qat'iy ustun soni emas, flex ishlatiladi. */
   display: flex;
   align-items: stretch;
   background: var(--surface);
@@ -2817,22 +2750,15 @@ button:disabled {
   }
 }
 
-/* Teams uslubi: bo'limlar ustuni | suhbatlar | tortish dastasi | asosiy */
 .teacher-shell,
 .teacher-shell.is-sidebar-collapsed {
   grid-template-columns: 76px var(--conversation-width, 368px) 6px minmax(0, 1fr);
 }
-/* Har bola o'z ustunida turadi.
-   Bu SHART: `display: none` element grid oqimidan butunlay chiqadi va qolgan
-   bolalar birinchi bo'sh ustunlarga suriladi — asosiy maydon 0 kenglikdagi
-   ustunga tushib, ko'rinmay qolardi. */
 .conversation-shell > .conversation-rail { grid-column: 1; }
 .conversation-shell > .conversation-panel { grid-column: 2; }
 .conversation-shell > .conversation-resize-handle { grid-column: 3; }
 .conversation-shell > .teacher-main { grid-column: 4; }
 
-/* Kalendar va AI bo'limlari: suhbatlar ustuni yopiladi, mazmun butun
-   maydonni oladi. Bo'limlar ustuni qoladi — usiz qaytib bo'lmasdi. */
 .teacher-shell.is-wide-section,
 .teacher-shell.is-wide-section.is-sidebar-collapsed {
   grid-template-columns: 76px 0 0 minmax(0, 1fr);
@@ -3026,11 +2952,6 @@ body.is-resizing-sidebar {
   color: var(--muted-foreground);
   background: var(--muted);
 }
-/* Profil qatori — ko'zga BITTA karta. Ichida ikkita tugma turadi (kartaning
-   o'zi va rol almashtirgich), chunki tugma ichiga tugma joylab bo'lmaydi va
-   almashtirgich teginish uchun alohida nishon bo'lishi kerak — hoversiz
-   ekranda flyout'ni boshqa ochib bo'lmaydi. Ramka, fon va hover holati
-   o'ramda: shuning uchun ichkarida chegara ko'rinmaydi. */
 .teacher-menu-profile-wrap {
   margin: 12px 0 14px;
   border: 1px solid var(--border);
@@ -3088,7 +3009,6 @@ body.is-resizing-sidebar {
   cursor: pointer;
   transition: color 0.16s ease;
 }
-/* Alohida quti ham, fon ham yo'q — kartaga kelganda ikonkaning o'zi buriladi. */
 .teacher-menu-profile-wrap:hover .teacher-menu-role-trigger,
 .teacher-menu-role-trigger.is-open { color: var(--accent-foreground); }
 .teacher-menu-profile-wrap:hover .teacher-menu-role-trigger svg,
@@ -3579,11 +3499,6 @@ body.is-resizing-sidebar {
 .dialog-form { display: grid; gap: 14px; }
 .dialog-actions { display: flex; justify-content: flex-end; gap: 9px; }
 .inline-actions { display: flex; align-items: center; gap: 6px; }
-/* Admin sahifalari (dashboard/teachers) hech qanday Layout ichida emas —
-   PortalLayout'dagi kabi `.portal-main{overflow:auto}` o'rovchisi yo'q. `#root`
-   o'zi `overflow:hidden` (legacy.css:6), shuning uchun bu sahifa o'ZI o'z
-   scroll hududini yaratishi kerak, aks holda balandligi ekrandan oshgan
-   tarkib scroll bo'lmasdan shunchaki kesilib qoladi. */
 .admin-page {
   height: 100dvh;
   overflow-y: auto;
@@ -3605,7 +3520,6 @@ body.is-resizing-sidebar {
   .inline-actions { flex-wrap: wrap; justify-content: flex-end; }
 }
 
-/* Admin — boshqaruv paneli (KPI, trend grafiklar, top jadvallar) */
 .dash-topbar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 .dash-period-switch { display: flex; background: var(--muted); border-radius: var(--r-sm); padding: 3px; gap: 2px; }
 .dash-period-switch button { border: 0; background: transparent; color: var(--muted-foreground); font-size: var(--fs-xs); font-weight: 700; padding: 6px 12px; border-radius: 8px; cursor: pointer; }
@@ -3747,7 +3661,6 @@ body.is-resizing-sidebar {
 .board-canvas--pen, .board-canvas--marker, .board-canvas--line, .board-canvas--arrow, .board-canvas--rect, .board-canvas--ellipse { cursor: crosshair; }
 .board-loading, .board-error { display: grid; place-content: center; justify-items: center; gap: 12px; min-height: 320px; color: var(--muted-foreground); }
 
-/* Chizish asboblari paneli */
 .board-tools { display: flex; align-items: center; gap: 12px; padding: 8px 9px; overflow-x: auto; border-bottom: 1px solid var(--border); background: var(--surface-subtle); }
 .board-tool-group { display: flex; align-items: center; gap: 4px; padding: 3px; border: 1px solid var(--border); border-radius: var(--r-sm); background: var(--surface); }
 .board-tool-group > button { width: 30px; height: 30px; border: 0; border-radius: var(--r-sm); display: grid; place-items: center; color: var(--muted-foreground); background: transparent; cursor: pointer; transition: color .15s, background .15s; }
@@ -3759,7 +3672,6 @@ body.is-resizing-sidebar {
 .board-colors > button.is-active { box-shadow: 0 0 0 2px var(--surface), 0 0 0 4px var(--primary); }
 .board-widths > button span { width: 18px; border-radius: var(--r-full); display: block; background: currentColor; }
 
-/* Miro uslubidagi inline matn/formula editori — modal emas, bosilgan nuqtada ochiladi. */
 .board-inline-editor {
   position: absolute;
   z-index: 20;
@@ -3788,12 +3700,10 @@ body.is-resizing-sidebar {
 .board-inline-actions button.is-primary { color: var(--primary-foreground); background: var(--primary); }
 .board-inline-actions button:disabled { opacity: .45; cursor: not-allowed; }
 
-/* MathLive */
 .math-markup { display: inline-block; line-height: 1.2; }
 .math-markup--raw { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; }
 .math-field-host { width: 100%; }
 .math-field-host .math-field, .math-field-host math-field { width: 100%; padding: 9px 11px; border: 1px solid var(--input); border-radius: var(--radius-sm); color: var(--foreground); background: var(--surface); font-size: var(--fs-2xl); }
-/* MathLive klaviaturasi live-room va dialog qatlamlarining orqasida qolmasin. */
 body > .ML__keyboard,
 .ML__keyboard { z-index: 100000 !important; }
 
@@ -3805,7 +3715,6 @@ body > .ML__keyboard,
   .enrollment-request-box article { align-items: flex-start; flex-direction: column; }
 }
 
-/* Telegram-style student workspace */
 .conversation-shell--student .conversation-panel-header {
   background: linear-gradient(180deg, var(--surface) 0%, var(--surface-tint) 100%);
 }
@@ -3921,7 +3830,6 @@ body > .ML__keyboard,
   }
 }
 
-/* Student and parent portals */
 .portal-shell {
   width: 100%;
   height: 100dvh;
@@ -4056,8 +3964,6 @@ body > .ML__keyboard,
 .portal-page-heading { margin-bottom: 22px; display: flex; align-items: flex-end; justify-content: space-between; gap: 20px; }
 .portal-page-heading h1 { margin: 6px 0; font-size: var(--fs-6xl); letter-spacing: -.035em; }
 .portal-page-heading p { margin: 0; color: var(--muted-foreground); font-size: var(--fs-md); }
-/* Sarlavha ostidagi ma'lumot nishonlari. Ikonkalar `display: block` bo'lgani uchun
-   oddiy matn oqimida har biri yangi qatorga tushardi — nishon buni ham hal qiladi. */
 .page-meta { margin-top: 11px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
 .page-meta > span { padding: 5px 11px; border: 1px solid var(--border); border-radius: var(--r-full); display: inline-flex; align-items: center; gap: 6px; color: var(--muted-foreground); background: var(--surface); font-size: var(--fs-sm); font-weight: 600; white-space: nowrap; }
 .page-meta > span svg { flex: 0 0 auto; color: var(--primary-text); }
@@ -4065,8 +3971,6 @@ body > .ML__keyboard,
 .portal-search { width: min(480px, 100%); min-height: 44px; padding: 0 14px; border: 1px solid var(--border); border-radius: var(--r-md); display: flex; align-items: center; gap: 9px; color: var(--muted-foreground); background: var(--surface); }
 .portal-search:focus-within { border-color: var(--primary); box-shadow: 0 0 0 4px rgb(var(--primary-rgb) / .09); }
 .portal-search input { width: 100%; border: 0; outline: 0; color: var(--foreground); background: transparent; font-size: var(--fs-md); }
-/* Workspace kartalari. `auto-fill` — kartalar soni vaqt o'tib ortadi, ustunlar
-   sonini qo'lda belgilab qo'ysak, har qo'shilganda qayta sozlash kerak bo'lardi. */
 .workspace-grid {
   margin-top: 18px;
   display: grid;
@@ -4104,7 +4008,6 @@ a.workspace-card:hover {
 }
 .workspace-card strong { color: var(--foreground); font-size: var(--fs-xl); }
 .workspace-card p { margin: 0; color: var(--muted-foreground); font-size: var(--fs-sm); line-height: 1.5; }
-/* Tayyor bo'lmagan karta — bosilmaydi, shuning uchun hover ham yo'q. */
 .workspace-card.is-soon { background: var(--surface-subtle); cursor: default; }
 .workspace-card.is-soon .workspace-card-icon { color: var(--muted-foreground); background: var(--surface); }
 .workspace-card.is-soon strong { color: var(--muted-foreground); }
@@ -4169,10 +4072,6 @@ a.workspace-card:hover {
 .student-course-chat form input:focus { border-color: var(--primary); }
 .student-course-chat form button { width: 40px; height: 40px; border: 0; border-radius: var(--r-sm); display: grid; place-items: center; color: var(--primary-foreground); background: var(--primary); cursor: pointer; }
 .student-workspace-list { padding: 15px; display: grid; gap: 9px; }
-/*
- * Bildirishnomadan kelingan vazifa. Ranglar bilan emas, halqa bilan
- * ajratiladi: "muddati o'tgan" kabi holat ranglariga xalaqit bermasin.
- */
 .assignment-card.is-highlighted,
 .student-workspace-list article.is-highlighted {
   border-color: var(--primary);
@@ -4240,7 +4139,6 @@ a.workspace-card:hover {
 .attendance-status { padding: 5px 8px; border-radius: var(--r-full); color: var(--tone-emerald-fg); background: var(--success-soft); font-size: var(--fs-2xs); font-weight: 850; }
 .attendance-status--active { color: var(--tone-amber-fg); background: var(--tone-amber-bg); }
 
-/* Dars bo'yicha guruhlangan davomat — akkordeon ichidagi jadval */
 .attendance-groups { padding: 6px 10px; border: 1px solid var(--border); border-radius: var(--radius-lg); background: var(--surface); }
 .attendance-table--nested { min-width: 640px; }
 .attendance-table--nested th { background: transparent; }
@@ -4248,7 +4146,6 @@ a.workspace-card:hover {
 .attendance-student { display: inline-flex; gap: 8px; align-items: center; }
 .attendance-student strong { white-space: nowrap; }
 
-/* Fokus jurnali — davomat jadvalidagi katak va uning dialogi */
 .focus-cell { padding: 5px 9px; border: 1px solid var(--destructive-soft-border); border-radius: var(--r-full); display: inline-flex; gap: 6px; align-items: center; color: var(--destructive-strong); background: var(--destructive-soft); font-size: var(--fs-2xs); font-weight: 800; cursor: pointer; transition: border-color .18s, transform .18s; }
 .focus-cell:hover { border-color: var(--destructive); transform: translateY(-1px); }
 .focus-cell small { color: var(--muted-foreground); font-weight: 700; }
@@ -4267,7 +4164,6 @@ a.workspace-card:hover {
 .focus-timeline-body p { margin: 0; display: flex; gap: 5px; align-items: center; color: var(--muted-foreground); font-size: var(--fs-xs); }
 .focus-timeline-duration { color: var(--destructive-strong); font-size: var(--fs-sm); }
 
-/* ─── Bildirishnomalar ──────────────────────────────────────────────────── */
 
 .notification-bell { position: relative; width: 36px; height: 36px; flex: 0 0 auto; border: 1px solid var(--border); border-radius: var(--r-sm); display: grid; place-items: center; color: var(--muted-foreground); background: var(--surface); cursor: pointer; transition: color .16s, border-color .16s; }
 .notification-bell:hover { color: var(--foreground); border-color: var(--border-accent-strong); }
@@ -4293,7 +4189,6 @@ a.workspace-card:hover {
 .notification-empty { min-height: 180px; display: grid; gap: 10px; place-content: center; justify-items: center; color: var(--muted-foreground); text-align: center; }
 .notification-empty p { margin: 0; font-size: var(--fs-sm); }
 
-/* Admin: xabar yuborish */
 .notification-target { display: grid; gap: 8px; grid-template-columns: repeat(2, minmax(0, 1fr)); }
 .notification-target button { padding: 11px 12px; border: 1px solid var(--border); border-radius: var(--radius-md); display: flex; gap: 9px; align-items: center; color: var(--muted-foreground); background: var(--surface); text-align: left; cursor: pointer; transition: border-color .16s, background .16s; }
 .notification-target button.is-active { border-color: var(--primary); color: var(--primary-text); background: var(--primary-tint); }
@@ -4307,7 +4202,6 @@ a.workspace-card:hover {
 .notification-user-list strong { color: var(--foreground); font-size: var(--fs-sm); }
 .notification-user-list small { color: var(--muted-foreground); font-size: var(--fs-2xs); }
 
-/* Admin: yuborilganlar */
 .sent-notification-list { display: grid; gap: 8px; }
 .sent-notification-list > button { padding: 12px 14px; border: 1px solid var(--border); border-radius: var(--radius-md); display: grid; gap: 12px; grid-template-columns: auto 1fr auto; align-items: center; background: var(--surface); text-align: left; cursor: pointer; transition: border-color .16s; }
 .sent-notification-list > button:hover { border-color: var(--border-accent-strong); }
@@ -4333,7 +4227,6 @@ a.workspace-card:hover {
   .sent-notification-stat { grid-column: 2; justify-items: start; }
 }
 
-/* Kirishlar tarixi */
 .login-history { max-height: 380px; margin: 0; padding: 0; overflow-y: auto; display: grid; gap: 8px; list-style: none; }
 .login-history li { padding: 11px 13px; border: 1px solid var(--border); border-radius: var(--radius-md); display: grid; gap: 11px; grid-template-columns: auto 1fr auto; align-items: center; background: var(--surface); }
 .login-history li.is-alert { border-color: var(--destructive-soft-border); background: var(--destructive-soft); }
@@ -4345,7 +4238,6 @@ a.workspace-card:hover {
 .login-history-flags { display: grid; gap: 4px; justify-items: end; }
 .login-history-flags span { padding: 3px 7px; border-radius: var(--r-full); color: var(--tone-amber-fg); background: var(--tone-amber-bg); font-size: var(--fs-2xs); font-weight: 800; white-space: nowrap; }
 
-/* Dars video yozuvi */
 .recording-page-card { padding: 18px; }
 .recording-player { display: grid; gap: 14px; }
 .recording-player video { width: 100%; max-height: 68dvh; border-radius: var(--radius-lg); background: #000; aspect-ratio: 16 / 9; }
@@ -4403,7 +4295,6 @@ a.workspace-card:hover {
   .student-message-list article > div { max-width: 88%; }
   .student-workspace-list article { align-items: flex-start; flex-wrap: wrap; }
   .student-workspace-list article .button, .grade-pill, .assignment-missed-pill { margin-left: 53px; }
-  /* Tugagan darsda bir nechta amal bor — faqat birinchisi ikonka ostidan boshlanadi */
   .student-workspace-list article .rating-summary { margin-left: 53px; }
   .student-workspace-list article .rating-summary + .button, .student-workspace-list article .button + .button { margin-left: 0; }
   .attendance-toolbar { align-items: flex-start; flex-direction: column; }
@@ -4417,7 +4308,6 @@ a.workspace-card:hover {
   .teacher-contact .button, .join-course-row .button { width: 100%; }
 }
 
-/* Telegram-style swipe filters and compact contextual actions */
 .panel-search-zone {
   min-width: 0;
   display: flex;
@@ -4449,7 +4339,6 @@ a.workspace-card:hover {
   }
 }
 
-/* Interaction polish: compact sidebar, reactions, sheets and group forms */
 .panel-topbar {
   min-height: 46px;
   margin: -4px 0 15px;
@@ -4789,7 +4678,6 @@ a.workspace-card:hover {
   gap: 11px;
 }
 
-/* Qidiruvda topilgan odamlar — hali suhbat boshlanmaganlar */
 .conversation-list-label { padding: 14px 16px 6px; display: block; color: var(--muted-foreground); font-size: var(--fs-2xs); font-weight: 900; letter-spacing: .1em; }
 .conversation-person { width: 100%; padding: 10px 16px; border: 0; display: flex; gap: 12px; align-items: center; color: var(--foreground); background: transparent; font: inherit; text-align: left; cursor: pointer; transition: background .16s; }
 .conversation-person:hover:not(:disabled) { background: var(--muted); }
@@ -4799,7 +4687,6 @@ a.workspace-card:hover {
 .conversation-person small { color: var(--muted-foreground); font-size: var(--fs-xs); }
 .conversation-person > svg { flex: 0 0 auto; color: var(--primary-text); }
 
-/* Darsga taklif va chetlashtirish oynasi */
 .invite-dialog { display: grid; gap: 12px; }
 .invite-list { max-height: min(340px, 44dvh); overflow-y: auto; display: grid; gap: 7px; }
 .invite-list article { padding: 9px 11px; border: 1px solid var(--border); border-radius: var(--r-md); display: flex; gap: 10px; align-items: center; }
@@ -4807,7 +4694,6 @@ a.workspace-card:hover {
 .invite-list strong { overflow: hidden; font-size: var(--fs-sm); text-overflow: ellipsis; white-space: nowrap; }
 .invite-list small { color: var(--muted-foreground); font-size: var(--fs-2xs); }
 
-/* Kalendar va AI bo'limlari — butun maydonni egallaydigan sahifalar */
 .schedule-page { height: 100%; padding: 22px 24px; display: flex; flex-direction: column; gap: 18px; overflow-y: auto; }
 .schedule-page-head { display: flex; gap: 16px; align-items: flex-end; justify-content: space-between; flex-wrap: wrap; }
 .schedule-page-head h1 { margin: 5px 0 3px; font-size: var(--fs-6xl); letter-spacing: -.03em; }
@@ -4818,10 +4704,8 @@ a.workspace-card:hover {
   .schedule-page { padding: 16px 12px; }
 }
 
-/* Vazifa qaysi darsga tegishli */
 .assignment-lesson-tag { margin-top: 6px; padding: 3px 9px; border-radius: var(--r-full); display: inline-flex; gap: 5px; align-items: center; color: var(--primary-text); background: var(--primary-tint); font-size: var(--fs-2xs); font-weight: 700; }
 
-/* Xabarga biriktirilgan fayl (doska PDF'i) */
 .message-attachment { margin-top: 8px; padding: 9px 11px; border: 1px solid var(--border); border-radius: var(--r-md); display: flex; gap: 10px; align-items: center; width: 100%; color: var(--foreground); background: var(--surface-subtle); font: inherit; text-align: left; cursor: pointer; transition: border-color .16s, background .16s; }
 .message-attachment:hover:not(:disabled) { border-color: var(--border-accent-strong); background: var(--primary-tint); }
 .message-attachment:disabled { cursor: default; opacity: .75; }
@@ -4830,7 +4714,6 @@ a.workspace-card:hover {
 .message-attachment-body strong { overflow: hidden; font-size: var(--fs-sm); text-overflow: ellipsis; white-space: nowrap; }
 .message-attachment-body small { color: var(--muted-foreground); font-size: var(--fs-2xs); }
 
-/* Faylni platforma ichida ko'rish oynasi — hujjat uchun keng joy kerak. */
 .file-viewer-dialog { width: min(94vw, 940px); max-height: 92dvh; display: grid; grid-template-rows: auto 1fr auto; gap: 14px; overflow: hidden; }
 .file-viewer-body { min-height: 0; border: 1px solid var(--border); border-radius: var(--r-md); display: grid; place-items: center; overflow: auto; background: var(--surface-subtle); user-select: none; -webkit-user-drag: none; }
 .file-viewer-dialog .dialog-actions { align-items: center; }
@@ -4842,7 +4725,6 @@ a.workspace-card:hover {
 .file-viewer-state { padding: 44px 22px; display: grid; gap: 10px; justify-items: center; color: var(--muted-foreground); text-align: center; }
 .file-viewer-state p { margin: 0; font-size: var(--fs-sm); }
 
-/* Chat tepasidagi "dars ketmoqda" chizig'i */
 .live-lesson-bar { padding: 9px 16px; border-bottom: 1px solid var(--border); display: flex; gap: 10px; align-items: center; background: var(--success-soft); }
 .live-lesson-bar-dot { width: 8px; height: 8px; flex: 0 0 auto; border-radius: var(--r-full); background: var(--success-strong); animation: pulse 1.4s infinite; }
 .live-lesson-bar-text { min-width: 0; flex: 1; display: grid; gap: 1px; }
@@ -4851,7 +4733,6 @@ a.workspace-card:hover {
 .live-lesson-bar button { min-height: 32px; padding: 0 13px; border: 0; border-radius: var(--r-full); display: inline-flex; gap: 6px; align-items: center; color: var(--primary-foreground); background: var(--primary); font: inherit; font-size: var(--fs-xs); font-weight: 800; cursor: pointer; }
 .live-lesson-bar button:hover { background: var(--primary-hover); }
 
-/* Darsga kirishdan oldingi ekran */
 .pre-join { height: 100dvh; padding: 20px; display: grid; place-items: center; background: var(--background); }
 .pre-join-card { width: min(940px, 100%); padding: 20px; border: 1px solid var(--border); border-radius: var(--r-xl); display: grid; gap: 22px; grid-template-columns: minmax(0, 1.25fr) minmax(0, 1fr); align-items: center; background: var(--surface); box-shadow: var(--shadow-float); }
 .pre-join-preview { position: relative; aspect-ratio: 16 / 10; border-radius: var(--r-lg); overflow: hidden; background: #0d1217; }
@@ -4862,21 +4743,18 @@ a.workspace-card:hover {
 .pre-join-toggles button { width: 44px; height: 44px; border: 1px solid rgb(255 255 255 / .16); border-radius: var(--r-full); display: grid; place-items: center; color: #fff; background: rgb(13 18 23 / .72); cursor: pointer; transition: background .16s; }
 .pre-join-toggles button:hover { background: rgb(13 18 23 / .9); }
 .pre-join-toggles button.is-off { color: #ffb3bd; border-color: #5d2030; background: #3a1520; }
-/* Ruxsat yo'q — "buzuq" emas, shunchaki hozir bo'lmaydi degan ko'rinish. */
 .pre-join-toggles button:disabled { opacity: .5; cursor: not-allowed; }
 .pre-join-info { display: grid; gap: 10px; }
 .pre-join-info h1 { margin: 4px 0 0; font-size: var(--fs-5xl); letter-spacing: -.03em; }
 .pre-join-info > p { margin: 0; color: var(--muted-foreground); font-size: var(--fs-md); }
 .pre-join-actions { margin-top: 8px; display: flex; gap: 9px; }
 
-/* Darsdan chiqib ketganlar — jonli dars chekkasida */
 .away-students { position: absolute; right: 16px; bottom: 96px; z-index: 7; max-width: 280px; padding: 9px 12px; border: 1px solid #5d2030; border-radius: var(--r-md); display: flex; gap: 9px; align-items: flex-start; color: #ffb3bd; background: rgb(58 21 32 / .94); }
 .away-students > svg { flex: 0 0 auto; margin-top: 1px; }
 .away-students > div { min-width: 0; display: grid; gap: 2px; }
 .away-students strong { font-size: var(--fs-xs); }
 .away-students span { overflow-wrap: anywhere; color: #e6edf3; font-size: var(--fs-2xs); }
 
-/* Guruh rasmini almashtirish */
 .info-avatar-slot { position: relative; display: inline-block; }
 .info-avatar-edit { position: absolute; right: -2px; bottom: -2px; width: 28px; height: 28px; border: 2px solid var(--surface); border-radius: var(--r-full); display: grid; place-items: center; color: var(--primary-foreground); background: var(--primary); cursor: pointer; }
 .info-avatar-edit:hover:not(:disabled) { background: var(--primary-hover); }
@@ -4886,13 +4764,11 @@ a.workspace-card:hover {
   .pre-join-card { grid-template-columns: minmax(0, 1fr); }
 }
 
-/* Dialog ichidagi bo'limlar (qidirish / yangi hisob) */
 .dialog-tabs { margin-bottom: 16px; padding: 3px; border: 1px solid var(--border); border-radius: var(--r-md); display: grid; grid-template-columns: 1fr 1fr; gap: 3px; background: var(--surface-subtle); }
 .dialog-tabs button { min-height: 38px; border: 0; border-radius: var(--r-sm); display: inline-flex; gap: 6px; align-items: center; justify-content: center; color: var(--muted-foreground); background: transparent; font: inherit; font-size: var(--fs-sm); font-weight: 700; cursor: pointer; transition: color .16s, background .16s; }
 .dialog-tabs button:hover { color: var(--foreground); }
 .dialog-tabs button.is-active { color: var(--primary-foreground); background: var(--primary); }
 
-/* Dars jadvali: bitta dars / takrorlanuvchi almashtirgichi */
 .schedule-mode { padding: 3px; border: 1px solid var(--border); border-radius: var(--r-md); display: grid; grid-template-columns: 1fr 1fr; gap: 3px; background: var(--surface-subtle); }
 .schedule-mode button { min-height: 38px; border: 0; border-radius: var(--r-sm); display: inline-flex; gap: 6px; align-items: center; justify-content: center; color: var(--muted-foreground); background: transparent; font: inherit; font-size: var(--fs-sm); font-weight: 700; cursor: pointer; transition: color .16s, background .16s; }
 .schedule-mode button:hover { color: var(--foreground); }
@@ -5004,9 +4880,6 @@ a.workspace-card:hover {
   white-space: nowrap;
 }
 
-/* Branded select, calendar and time controls */
-/* Ko'zdan yashirin, ammo ekran o'quvchi uchun ochiq. `display: none` YARAMAYDI:
-   u elementni ochiq daraxtdan ham olib tashlaydi va `aria-labelledby` uziladi. */
 .is-visually-hidden {
   position: absolute;
   width: 1px;
@@ -5092,7 +4965,6 @@ a.workspace-card:hover {
   color: var(--primary-text);
   rotate: 180deg;
 }
-/* Davomiylik: qiymat qo‘lda yoziladi, o‘ngdagi tugma tayyor tanlovlarni ochadi. */
 .duration-picker { grid-template-columns: 32px minmax(0, 1fr) auto 26px; cursor: text; }
 .duration-picker-input {
   min-width: 0;
@@ -5323,7 +5195,6 @@ a.workspace-card:hover {
   color: var(--primary-text);
   background: var(--surface);
 }
-/* Raqamning o'zi kiritish maydoni — ko'rinishi avvalgidek qoladi. */
 .time-stepper strong,
 .time-stepper .time-field {
   min-width: 58px;
@@ -5460,17 +5331,14 @@ a.workspace-card:hover {
   gap: 10px;
 }
 
-/* ─── Darslar: ro'yxat va kalendar ko'rinishlari ─────────────────────────── */
 
 .group-panel-tools { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
 
-/* Ro'yxat ⇄ kalendar almashtirgichi */
 .view-switch { padding: 3px; border: 1px solid var(--border); border-radius: var(--r-sm); display: inline-flex; gap: 3px; background: var(--surface); }
 .view-switch button { height: 30px; padding: 0 11px; border: 0; border-radius: var(--r-sm); display: inline-flex; gap: 6px; align-items: center; color: var(--muted-foreground); background: transparent; font-size: var(--fs-sm); font-weight: 700; cursor: pointer; transition: color .16s, background .16s; }
 .view-switch button:hover { color: var(--foreground); background: var(--muted); }
 .view-switch button.is-active { color: var(--primary-foreground); background: var(--primary); }
 
-/* Dars holati nishoni — kalendar ham, ro'yxat ham shu klassni ishlatadi */
 .lesson-status { padding: 4px 9px; border-radius: var(--r-full); display: inline-flex; gap: 5px; align-items: center; font-size: var(--fs-2xs); font-weight: 800; font-style: normal; }
 .lesson-status--scheduled { color: var(--tone-blue-fg); background: var(--tone-blue-bg); }
 .lesson-status--live { color: var(--destructive-strong); background: var(--destructive-soft); }
@@ -5489,7 +5357,6 @@ a.workspace-card:hover {
 .lesson-empty svg { color: var(--primary-text); }
 .lesson-empty p { margin: 0; font-size: var(--fs-sm); }
 
-/* Dars bahosi: yulduzlar, o'quvchi formasi va o'qituvchi ko'radigan ro'yxat */
 .star-rating { display: inline-flex; gap: 2px; align-items: center; }
 .star-rating svg { color: var(--border-strong); transition: color .14s, transform .14s; }
 .star-rating svg.is-filled { color: var(--warning); fill: var(--warning); }
@@ -5504,7 +5371,6 @@ a.workspace-card:hover {
 
 .rating-chip { padding: 4px 9px; border: 1px solid var(--border); border-radius: var(--r-full); display: inline-flex; gap: 5px; align-items: center; color: var(--tone-amber-fg); background: var(--tone-amber-bg); font-size: var(--fs-xs); font-weight: 800; cursor: pointer; transition: border-color .16s; }
 .rating-chip:hover { border-color: var(--warning); }
-/* O'quvchida nishon faqat ko'rsatiladi — baholar ro'yxati unga ochiq emas */
 .rating-chip--static { cursor: default; }
 .rating-chip--static:hover { border-color: var(--border); }
 
@@ -5537,7 +5403,6 @@ a.workspace-card:hover {
 .rating-empty { padding: 26px; border: 1px dashed var(--border-accent); border-radius: var(--radius-lg); display: grid; gap: 10px; justify-items: center; background: var(--surface-subtle); text-align: center; }
 .rating-empty p { margin: 0; color: var(--muted-foreground); font-size: var(--fs-sm); }
 
-/* Kalendar */
 .lesson-calendar { display: grid; gap: 12px; }
 .calendar-toolbar { display: flex; gap: 12px; align-items: center; justify-content: space-between; flex-wrap: wrap; }
 .calendar-title { display: grid; gap: 2px; }
@@ -5850,7 +5715,6 @@ a.workspace-card:hover {
   }
 }
 
-/* ===== Uy vazifasi: AI natijasi va o‘qituvchi paneli ===== */
 .grade-pill--button { border: 0; cursor: pointer; font-family: inherit; transition: transform .15s ease, filter .15s ease; }
 .grade-pill--button:hover { transform: translateY(-1px); filter: brightness(.97); }
 .grade-pill--button:focus-visible { outline: 2px solid var(--primary); outline-offset: 2px; }
@@ -5866,7 +5730,6 @@ a.workspace-card:hover {
 .hw-badge { display: inline-flex; align-items: center; gap: 5px; padding: 6px 10px; border-radius: var(--r-full); background: var(--surface); border: 1px solid var(--border); font-size: var(--fs-xs); font-weight: 700; color: var(--muted-foreground); }
 .hw-badge--warn { color: var(--warning-strong); background: var(--warning-soft); border-color: var(--warning); }
 .hw-result-actions { display: flex; gap: 6px; flex-wrap: wrap; }
-/* O‘qituvchi AI bahosini tuzatayotgan holat. */
 .hw-score--edit { flex-direction: row; gap: 10px; }
 .hw-score-field { display: grid; gap: 4px; }
 .hw-score-field > span { color: var(--muted-foreground); font-size: var(--fs-2xs); font-weight: 700; }
@@ -5889,7 +5752,6 @@ a.workspace-card:hover {
 .hw-result-state p { margin: 0; font-size: var(--fs-md); }
 .hw-result-state--error { color: var(--destructive-strong); border-color: var(--destructive-soft-border); background: var(--destructive-soft); }
 
-/* Quiz — yaratish formasi (1-bosqich: kurs/nom/sana/nechta savol) */
 .quiz-template-gen { display: flex; align-items: end; gap: 10px; padding: 12px; border: 1px solid var(--border-accent); border-radius: var(--r-lg); background: var(--primary-tint); flex-wrap: wrap; }
 .quiz-template-gen label { flex: 0 0 auto; width: 140px; }
 .quiz-template-gen-or { color: var(--muted-foreground); font-size: var(--fs-xs); font-weight: 700; }
@@ -5901,10 +5763,6 @@ a.workspace-card:hover {
 .quiz-template-download { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
 .quiz-template-download-label { color: var(--muted-foreground); font-size: var(--fs-xs); font-weight: 700; }
 
-/* Quiz — savollar sahifasi (2-bosqich). "Nechta savol?"dan keyin yoki .docx
-   import qilingach shu yerga o'tiladi: to'liq ekranli, bitta "qog'oz varag'i"
-   kabi sodda ko'rinish — hech qanday qo'shish/o'chirish tugmasi yo'q, faqat
-   yozish (savol soni bosqichning boshida belgilangan, keyin o'zgarmaydi). */
 .quiz-page { position: fixed; inset: 0; z-index: 111; background: var(--surface); overflow-y: auto; }
 .quiz-page-header { position: sticky; top: 0; z-index: 2; display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; padding: 18px clamp(16px, 6vw, 100px); background: var(--surface); border-bottom: 1px solid var(--border); }
 .quiz-page-eyebrow { display: block; color: var(--primary-text); font-size: var(--fs-xs); font-weight: 800; }
@@ -5917,8 +5775,6 @@ a.workspace-card:hover {
 .quiz-page-question-number { flex: none; font-size: var(--fs-xl); font-weight: 800; color: var(--muted-foreground); }
 .quiz-page-question-text { flex: 1; min-width: 0; border: 0; border-bottom: 2px solid var(--border-strong); background: transparent; padding: 6px 2px; font-size: var(--fs-xl); font-weight: 650; color: var(--foreground); outline: 0; }
 .quiz-page-question-text:focus { border-color: var(--primary); }
-/* Aynan namunadagi (Word test varag'i) ko'rinishi: "A) ..." har biri o'z
-   qatorida, tagida "To'g'ri javob: A B C D" — harfni bosib belgilanadi. */
 .quiz-page-options { display: grid; gap: 10px; padding-left: 30px; }
 .quiz-page-option { display: flex; align-items: center; gap: 8px; }
 .quiz-page-option-letter { flex: none; font-weight: 800; color: var(--muted-foreground); }
@@ -5929,7 +5785,6 @@ a.workspace-card:hover {
 .quiz-page-answer-letter { flex: none; width: 28px; height: 28px; border-radius: var(--r-full); border: 2px solid var(--border-strong); background: transparent; color: var(--muted-foreground); font-size: var(--fs-sm); font-weight: 800; cursor: pointer; display: grid; place-items: center; }
 .quiz-page-answer-letter.is-correct { border-color: var(--success); background: var(--success); color: #fff; }
 
-/* Quiz — o'quvchi yechish oynasi */
 .quiz-attempt-form { display: grid; gap: 16px; }
 .quiz-attempt-question { padding: 14px; border: 1px solid var(--border); border-radius: var(--r-lg); background: var(--surface); display: grid; gap: 8px; }
 .quiz-attempt-question-head { display: flex; align-items: center; justify-content: space-between; color: var(--muted-foreground); font-size: var(--fs-xs); font-weight: 800; text-transform: uppercase; letter-spacing: .05em; }
@@ -5942,7 +5797,6 @@ a.workspace-card:hover {
 .quiz-attempt-option.is-active { border-color: var(--primary); background: var(--primary-tint); }
 .quiz-attempt-option .quiz-option-radio { pointer-events: none; }
 
-/* Quiz — natija */
 .quiz-result { display: grid; gap: 14px; }
 .quiz-result-score { padding: 18px; border-radius: var(--r-lg); display: grid; justify-items: center; gap: 4px; background: var(--primary-tint); }
 .quiz-result-score strong { font-size: var(--fs-6xl); color: var(--primary-text); }
@@ -5959,7 +5813,6 @@ a.workspace-card:hover {
 .quiz-result-row small { color: var(--muted-foreground); }
 .quiz-result-correct { color: var(--tone-emerald-fg) !important; font-weight: 700; }
 
-/* Quiz — urinishlar tarixi */
 .quiz-attempt-history { display: grid; gap: 6px; }
 .quiz-attempt-history article { padding: 10px 4px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 10px; }
 .quiz-attempt-history article:last-child { border-bottom: 0; }
@@ -6017,13 +5870,9 @@ a.workspace-card:hover {
   .hw-question-title { white-space: normal; }
 }
 
-/* ===== Doska sahifasi (/boards/:lessonId) ===== */
 .board-page-canvas { padding: 0; overflow: hidden; }
 .board-page .portal-page-heading p { display: flex; align-items: center; gap: 5px; flex-wrap: wrap; }
 
-/* ============================================================
-   Mavzu almashtirgich
-   ============================================================ */
 .theme-toggle {
   display: inline-flex;
   align-items: center;
@@ -6105,10 +5954,7 @@ a.workspace-card:hover {
 }
 .account-settings-row > span { font-size: var(--fs-md); font-weight: 600; }
 .account-settings-control { flex: 0 0 auto; display: flex; align-items: center; gap: 8px; }
-/* Tanlagich qatorning o'ng yarmida turadi: qolgan sozlamalar bilan bir xil
-   ko'rinish uchun kenglik cheklanadi, aks holda u butun qatorni egallardi. */
 .account-settings-control--picker { width: min(210px, 52%); }
-/* Yoqilgan holat rang bilan ko'rsatiladi: qator tor, alohida yozuvga joy yo'q. */
 .push-toggle {
   min-height: 34px;
   padding: 0 13px;
@@ -6134,9 +5980,6 @@ a.workspace-card:hover {
 .account-settings-hint { margin: 0; color: var(--muted-foreground); font-size: var(--fs-xs); line-height: 1.5; }
 .account-settings-error { margin: 0; color: var(--destructive); font-size: var(--fs-xs); line-height: 1.5; }
 
-/* ============================================================
-   Jonli dars sahifasi (/live/:lessonId) — Google Meet uslubi
-   ============================================================ */
 .live-page {
   width: 100%;
   height: 100dvh;
@@ -6315,7 +6158,6 @@ a.workspace-card:hover {
 .live-room.has-panel .live-room-body { grid-template-columns: minmax(0, 1fr) minmax(320px, 34%); }
 .live-room-stage { min-width: 0; min-height: 0; padding: 12px; overflow: hidden; }
 
-/* Kamera o‘chiq participantlarni ulkan placeholder o‘rniga ixcham avatar-card qiladi. */
 .live-camera-grid {
   height: 100%;
   display: grid;
@@ -6341,7 +6183,6 @@ a.workspace-card:hover {
 .live-camera-placeholder .avatar { width: 72px; height: 72px; font-size: var(--fs-4xl); box-shadow: 0 0 0 8px rgb(255 255 255 / 4%); }
 .live-camera-name { position: absolute; left: 10px; bottom: 9px; z-index: 3; max-width: calc(100% - 20px); overflow: hidden; color: #f3f7fa; font-size: var(--fs-sm); font-weight: 700; text-overflow: ellipsis; white-space: nowrap; text-shadow: 0 1px 5px #000; }
 
-/* Screen share bitta asosiy sahna; kameralar o‘ngdagi ixcham filmstripda. */
 .live-presentation-layout { height: 100%; min-height: 0; display: grid; grid-template-columns: minmax(0, 1fr) 150px; gap: 12px; }
 .live-presentation-stage { min-width: 0; min-height: 0; overflow: hidden; border: 1px solid #26313d; border-radius: 16px; background: #090d11; }
 .live-presentation-stage > .lk-participant-tile { width: 100%; height: 100%; border: 0; background: #090d11; }
@@ -6351,7 +6192,6 @@ a.workspace-card:hover {
 .live-camera-tile.is-compact .live-camera-placeholder .avatar { width: 40px; height: 40px; font-size: var(--fs-lg); box-shadow: 0 0 0 5px rgb(255 255 255 / 4%); }
 .live-camera-tile.is-compact .live-camera-name { left: 7px; bottom: 6px; font-size: var(--fs-xs); }
 
-/* Doska ochilganda u butun sahnani egallaydi; video thumbnail doska ustiga chiqmaydi. */
 .live-room.is-board-full .live-room-body { position: relative; grid-template-columns: minmax(0, 1fr); }
 
 .live-room-empty {
@@ -6393,9 +6233,7 @@ a.workspace-card:hover {
 .live-room-panel-tabs button.is-active { background: #20193a; color: #b9a3ff; }
 .live-room-panel-tabs .icon-button { margin-left: auto; color: #8b98a5; }
 .live-room-panel-body { min-height: 0; overflow: auto; }
-/* Doska panelning butun balandligini egallaydi — atrofidagi ramka bu yerda ortiqcha */
 .live-room-panel-body > .board-panel { height: 100%; border: 0; border-radius: 0; }
-/* Sahna kengligida kanvas o'zi cho'ziladi, eng kichik balandlik uni cheklamasin */
 .live-room.is-board-full .live-room-panel-body > .board-panel .board-canvas { min-height: 0; }
 .live-room.is-board-full .live-room-panel { border-left: 0; }
 
@@ -6440,16 +6278,12 @@ a.workspace-card:hover {
 }
 .live-control:hover { background: #1e2731; }
 .live-control.is-active { background: #20193a; border-color: #46337d; color: #b9a3ff; }
-/* LiveKit TrackToggle holatni `data-lk-enabled` atributida beradi.
-   Ekran ulashish bundan mustasno: ulashilmayotgani xato emas, shuning uchun
-   unda qizil holat ham, ikkinchi ikonka ham yo'q. */
 .live-control[data-lk-enabled="false"]:not(.live-control--share) { background: #3a1520; border-color: #5d2030; color: #ffb3bd; }
 .live-control:not(.live-control--share)[data-lk-enabled="false"] > :not(.live-control-off) { display: none; }
 .live-control:not(.live-control--share)[data-lk-enabled="true"] > .live-control-off { display: none; }
 .live-control--share[data-lk-enabled="true"] { background: #20193a; border-color: #46337d; color: #b9a3ff; }
 .live-control--share-request { position: relative; }
 .live-control-request-dot { position: absolute; top: 5px; right: 5px; width: 7px; height: 7px; border-radius: 50%; background: #f0ac57; box-shadow: 0 0 0 2px #161c23; }
-/* Mikrofon o'chiq, lekin bu xato emas — ruxsat so'rash mumkin degan holat. */
 .live-control--mic-request { position: relative; background: #2b2417; border-color: #4d3f22; color: #f0ac57; }
 .live-control--mic-request:hover:not(:disabled) { background: #3a301d; }
 .live-control--mic-request:disabled { opacity: 0.65; cursor: progress; }
@@ -6470,11 +6304,9 @@ a.workspace-card:hover {
   font-size: var(--fs-2xs);
   font-weight: 800;
 }
-/* Ishtirokchilar panelidagi "gapirmoqchi" ro'yxati — eng tepada turadi. */
 .live-mic-requests { display: grid; gap: 8px; padding-bottom: 10px; border-bottom: 1px solid #26313d; }
 .live-mic-requests h4 { display: flex; align-items: center; gap: 6px; color: #f0ac57; font-size: var(--fs-sm); font-weight: 750; }
 .live-mic-requests article { border-color: #4d3f22; background: #241d12; }
-/* Navbat raqami — kim oldin so'raganini bir qarashda ko'rsatadi. */
 .live-mic-queue-number {
   width: 20px;
   height: 20px;
@@ -6487,7 +6319,6 @@ a.workspace-card:hover {
   font-size: var(--fs-2xs);
   font-weight: 800;
 }
-/* So'rov yuborilgan, javob kutilmoqda — tugma "tirik" ekani ko'rinib tursin. */
 .live-control--mic-request.is-waiting { cursor: default; opacity: 1; animation: mic-waiting 1.6s ease-in-out infinite; }
 @keyframes mic-waiting {
   0%, 100% { border-color: #4d3f22; }
@@ -6502,12 +6333,10 @@ a.workspace-card:hover {
 .live-control--finish:hover { background: #2b2417; }
 .live-control-divider { width: 1px; height: 26px; background: #26313d; margin: 0 4px; }
 
-/* LiveKit ichki gridi to'liq joyni egallasin */
 .live-room-stage .lk-grid-layout { height: 100%; }
 
 @media (max-width: 900px) {
   .live-room.has-panel .live-room-body { grid-template-columns: minmax(0, 1fr); }
-  /* Mobil: panel ochilganda sahna yashiriladi, panel butun joyni egallaydi */
   .live-room.has-panel .live-room-stage { display: none; }
   .live-room-panel { border-left: 0; border-top: 1px solid #1e2731; }
   .live-presentation-layout { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 1fr) 82px; }
@@ -6522,7 +6351,6 @@ a.workspace-card:hover {
   .live-audio-recording > span:not(.live-audio-recording-dot) { display: none; }
   .live-room-controls { gap: 6px; padding: 10px 8px calc(10px + env(safe-area-inset-bottom)); }
   .live-control { min-height: 42px; padding: 0 12px; }
-  /* Faqat ikonka qoladi — matn joy egallamasin */
   .live-control--leave span { display: none; }
   .live-control--finish span { display: none; }
   .live-control-divider { display: none; }
@@ -6531,24 +6359,18 @@ a.workspace-card:hover {
   .board-inline-editor { width: min(280px, calc(100% - 16px)); }
 }
 
-/* ============================================================
-   Mobil moslashuv — umumiy yaxshilanishlar
-   ============================================================ */
 
-/* Notchli telefonlarda pastki/yon xavfsiz zonalar */
 .composer-wrap { padding-bottom: env(safe-area-inset-bottom); }
 .teacher-menu-drawer { padding-bottom: env(safe-area-inset-bottom); }
 .portal-main { padding-bottom: env(safe-area-inset-bottom); }
 
 @media (max-width: 768px) {
-  /* iOS input'ga fokuslanganda sahifani kattalashtirmasin (16px dan kichik bo'lmasin) */
   input,
   textarea,
   select {
     font-size: var(--fs-2xl);
   }
 
-  /* Barmoq uchun yetarli teginish maydoni (WCAG 2.5.5) */
   .icon-button,
   .composer-action,
   .send-button,
@@ -6560,7 +6382,6 @@ a.workspace-card:hover {
     min-height: 44px;
   }
 
-  /* Guruh tablari ko'p — gorizontal siljisin, sig'masa ham buzilmasin */
   .group-tabs {
     overflow-x: auto;
     scrollbar-width: none;
@@ -6569,7 +6390,6 @@ a.workspace-card:hover {
   .group-tabs::-webkit-scrollbar { display: none; }
   .group-tabs button { flex-shrink: 0; }
 
-  /* Dialoglar mobil ekranda to'liq balandlikni egallaydi va ichkarida siljiydi */
   .dialog-content {
     width: 100%;
     max-width: 100%;
@@ -6578,11 +6398,9 @@ a.workspace-card:hover {
     overscroll-behavior: contain;
   }
 
-  /* Portal sarlavhasi tor ekranda siqiladi: ism yashirinadi, avatar qoladi */
   .portal-header-actions { gap: 7px; }
   .portal-account-identity { display: none; }
 
-  /* Keng jadvallar gorizontal siljiydi, sahifa emas */
   .attendance-table-scroll,
   .admin-course-list {
     overflow-x: auto;
@@ -6590,7 +6408,6 @@ a.workspace-card:hover {
   }
   .attendance-table { min-width: 560px; }
 
-  /* Uy vazifasi natijasi: savol sarlavhasi bir necha qatorga bo'linsin */
   .hw-result-head { flex-wrap: wrap; gap: 10px; }
   .hw-summary-grid { grid-template-columns: 1fr; }
 }
@@ -6602,7 +6419,6 @@ a.workspace-card:hover {
   .assignment-stat-grid { grid-template-columns: 1fr; }
 }
 
-/* Sichqonchasiz qurilmalarda hover effektlari "yopishib" qolmasin */
 @media (hover: none) {
   .conversation-item:hover,
   .student-enrollment-list article:hover,

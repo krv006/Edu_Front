@@ -5,13 +5,8 @@ import { usePushNotifications } from "@/modules/notification";
 import { ROLES } from "@/shared/constants";
 import { SelectPicker } from "@/shared/ui/legacy/form-pickers";
 
-/** Tanlanadigan eslatma vaqtlari (daqiqa). */
 const MINUTE_OPTIONS = [5, 10, 15, 30, 60];
 
-/**
- * Qiymat hali saqlanmagan bo'lsa rolga qarab standart ko'rsatiladi:
- * o'quvchiga 15, boshqalarga 10 daqiqa.
- */
 function defaultMinutes(role: string | undefined): number {
   return role === ROLES.STUDENT ? 15 : 10;
 }
@@ -44,7 +39,6 @@ export function NotificationSettings() {
           )}
         </div>
       </div>
-      {/* Rad etilgan ruxsatni sahifadan qayta so'rab bo'lmaydi — buni aytib qo'yamiz. */}
       {push.supported && push.blocked ? (
         <p className="account-settings-hint">{t("settingsDialog.pushBlocked")}</p>
       ) : null}
@@ -53,7 +47,6 @@ export function NotificationSettings() {
       <div className="account-settings-row">
         <span>{t("settingsDialog.reminderLabel")}</span>
         <div className="account-settings-control account-settings-control--picker">
-          {/* Yorliq chapda allaqachon yozilgan — tanlagich uni takrorlamaydi. */}
           <SelectPicker
             hideLabel
             label={t("settingsDialog.reminderLabel")}

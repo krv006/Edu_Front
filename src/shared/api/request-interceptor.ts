@@ -15,9 +15,7 @@ export interface RequestOptions {
   timeoutMs?: number;
   responseType?: ResponseType;
   requestId?: string;
-  /** `Authorization` sarlavhasini qo‘shmaslik (login/refresh uchun). */
   skipAuth?: boolean;
-  /** 401 da avtomatik refresh qilmaslik (login/refresh uchun). */
   skipRefresh?: boolean;
 }
 
@@ -59,7 +57,6 @@ export function createRequestInit(
     credentials: options.credentials ?? "omit",
     headers: {
       ...defaultHeaders,
-      // Backend gettext (`locale/en`, `locale/ru`) shu sarlavhaga qarab tarjima qiladi.
       "Accept-Language": getStoredLanguage(),
       ...(hasBody && !isRawBody ? { "Content-Type": "application/json" } : {}),
       ...(token ? { Authorization: `Bearer ${token}` } : {}),

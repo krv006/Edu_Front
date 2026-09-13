@@ -31,12 +31,10 @@ export interface HomeworkResultDialogProps {
   onOpenChange: (open: boolean) => void;
   canRecheck?: boolean;
   canDownloadFile?: boolean;
-  /** O‘qituvchi AI bahosini tuzata oladimi. */
   canReview?: boolean;
   title?: string;
 }
 
-/** Backend matnlarni string yoki obyekt sifatida qaytarishi mumkin — ikkalasini ham xavfsiz ko‘rsatamiz. */
 function asText(value: unknown): string {
   if (value === null || value === undefined) return "";
   return typeof value === "string" ? value : JSON.stringify(value);
@@ -67,7 +65,6 @@ function QuestionCard({
 }: {
   question: AiQuestion;
   index: number;
-  /** `undefined` — tahrirlash rejimi yoqilmagan. */
   scoreDraft?: string;
   onScoreChange?: (value: string) => void;
 }) {
@@ -96,8 +93,6 @@ function QuestionCard({
         </span>
       </summary>
       <div className="hw-question-body">
-        {/* Ball aynan shu yerda: `summary` ichidagi input bosilganda savol
-            yopilib-ochilib ketardi. */}
         {editing ? (
           <label className="hw-score-field">
             <span>{t("resultDialog.scoreLabel")}</span>
@@ -178,12 +173,10 @@ export function HomeworkResultDialog({
     poll: initial?.status !== "done",
   });
   const recheck = useRecheckSubmission();
-  /* Topshirilgan ish yuklab olinmaydi — oyna ichida ochiladi. */
   const [fileOpen, setFileOpen] = useState(false);
   const review = useReviewSubmission();
   const submission = query.data ?? initial;
 
-  /** `null` — tahrirlash rejimi yopiq. Kalitlar — savol tartib raqami. */
   const [draft, setDraft] = useState<{
     score: string;
     grade: string;
@@ -204,10 +197,6 @@ export function HomeworkResultDialog({
     });
   }
 
-  /**
-   * Tahrirlangan natija ASL JSON asosida yig‘iladi: mapper bilmaydigan
-   * maydonlar (AI yangi kalit qo‘shsa) saqlanib qolishi kerak.
-   */
   function buildResult(edited: NonNullable<typeof draft>, score: number | null) {
     const raw = submission?.rawResult;
     if (!raw) return undefined;
@@ -320,8 +309,6 @@ export function HomeworkResultDialog({
                       </Button>
                     </>
                   ) : null}
-                  {/* Tuzatish faqat tekshiruv tugagach mantiqiy — AI hali
-                      ishlayotgan bo‘lsa natijasi ustiga yozib yuborardi. */}
                   {canReview && !draft && submission.status === "done" ? (
                     <Button size="sm" variant="secondary" onClick={beginEdit}>
                       <PencilLine size={15} /> {t("resultDialog.editGrade")}

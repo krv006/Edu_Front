@@ -11,11 +11,6 @@ export interface QuizAttemptDialogProps {
   onOpenChange: (open: boolean) => void;
 }
 
-/**
- * O'quvchi testni yechadi. `Quiz` obyekti bu yerda `is_correct`siz keladi
- * (backend yashiradi) — javob kaliti faqat submit javobida (`correctOption`)
- * ochiladi, shu bilan oldindan ko'rib qo'yish imkonsiz.
- */
 export function QuizAttemptDialog({ quizId, open, onOpenChange }: QuizAttemptDialogProps) {
   const { t } = useTranslation("quiz");
   const quiz = useQuiz(open ? quizId : null);
@@ -23,7 +18,6 @@ export function QuizAttemptDialog({ quizId, open, onOpenChange }: QuizAttemptDia
   const [answers, setAnswers] = useState<Record<string, string | null>>({});
   const [result, setResult] = useState<QuizAttemptResult | null>(null);
 
-  /** Yopilganda draft va natija tozalanadi — keyingi ochilish toza boshlansin. */
   function handleOpenChange(next: boolean) {
     if (!next) {
       setAnswers({});
@@ -160,7 +154,6 @@ function QuizResultView({
           </div>
         ))}
       </div>
-      {/* Cheklanmagan qayta urinish — o'quvchi shu yerdan darhol qayta boshlashi mumkin. */}
       <div className="dialog-actions">
         <Button variant="secondary" onClick={onRetry}>
           {t("attemptDialog.retry")}

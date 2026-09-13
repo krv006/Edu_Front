@@ -20,7 +20,6 @@ export type LessonCalendarProps = Omit<LessonActionsProps, "lesson" | "compact">
   lessons: Lesson[];
 };
 
-/** Katakda ko'rsatiladigan maksimal chip — qolgani "+N" bo'lib yig'iladi. */
 const MAX_CHIPS = 3;
 
 function DayCell({
@@ -57,7 +56,6 @@ function DayCell({
     >
       <span className="calendar-day-number">{day.dayOfMonth}</span>
 
-      {/* Keng ekranda to'liq chip, mobilda nuqta — CSS almashtiradi. */}
       <span className="calendar-day-chips" aria-hidden="true">
         {day.lessons.slice(0, MAX_CHIPS).map((lesson) => (
           <span
@@ -80,13 +78,6 @@ function DayCell({
   );
 }
 
-/**
- * Darslarning oylik kalendari.
- *
- * Kun katagi ekran kengligiga qarab ikki xil ko'rinadi: keng ekranda dars chiplari,
- * mobilda holat nuqtalari. Kun tanlanganda uning darslari pastdagi panelda to'liq
- * amallari bilan ochiladi — mobil qurilmada asosiy ishchi yuza shu.
- */
 export function LessonCalendar({ lessons, ...actions }: LessonCalendarProps) {
   const { t, i18n } = useTranslation("lesson");
   const lessonStatusMeta = useLessonStatusMeta();
@@ -97,19 +88,16 @@ export function LessonCalendar({ lessons, ...actions }: LessonCalendarProps) {
 
   const days = useMemo(() => buildMonthGrid(month, lessons), [month, lessons]);
 
-  /** Tanlov bo'lmasa (yoki boshqa oyga o'tilgan bo'lsa) — bugun, aks holda birinchi darsli kun. */
   const fallbackKey = useMemo(() => {
     const today = days.find((day) => day.isToday && day.inCurrentMonth);
     if (today) return today.key;
     return days.find((day) => day.inCurrentMonth && day.lessons.length)?.key ?? null;
   }, [days]);
 
-  // Effekt emas, hosila: panjara o'zgarganda tanlov o'z-o'zidan mos kunga tushadi.
   const activeKey =
     selectedKey && days.some((day) => day.key === selectedKey) ? selectedKey : fallbackKey;
   const selected = days.find((day) => day.key === activeKey) ?? null;
 
-  /** Chetdagi (oldingi/keyingi oy) kun tanlansa — o'sha oyga o'tamiz. */
   function selectDay(day: CalendarDay) {
     setSelectedKey(day.key);
     if (!day.inCurrentMonth) setMonth(startOfMonth(day.date));

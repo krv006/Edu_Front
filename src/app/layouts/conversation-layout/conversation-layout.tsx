@@ -20,11 +20,9 @@ const MIN_WIDTH = 300;
 const MAX_WIDTH = 480;
 const DEFAULT_WIDTH = 368;
 
-/** Yo'ldan bo'limni aniqlaymiz — bo'lim holati URL'da turadi. */
 function sectionFromPath(pathname: string): ConversationSection {
   if (pathname.endsWith("/schedule")) return "schedule";
   if (pathname.endsWith("/ai")) return "ai";
-  // Testlar Workspace ichidagi karta — u yerda ham ustunda Workspace yonadi.
   if (pathname.endsWith("/workspace") || pathname.endsWith("/quizzes")) return "workspace";
   if (pathname.endsWith("/report")) return "report";
   return "chat";
@@ -37,7 +35,6 @@ export function ConversationLayout({ role = "teacher" }: { role?: ConversationRo
   const [menuOpen, setMenuOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const section = sectionFromPath(pathname);
-  /** Chatdan boshqa bo'limda suhbatlar ustuni yopiladi. */
   const wideSection = section !== "chat";
   const storageKey = WIDTH_KEYS[role] ?? WIDTH_KEYS.teacher;
   const [panelWidth, setPanelWidth] = useState(() => {
@@ -85,8 +82,6 @@ export function ConversationLayout({ role = "teacher" }: { role?: ConversationRo
       className={`teacher-shell conversation-shell conversation-shell--${role} ${resizing ? "is-resizing" : ""} ${wideSection ? "is-wide-section" : ""} ${conversationId ? "has-conversation" : ""}`}
       style={{ "--conversation-width": `${panelWidth}px` } as CSSProperties}
     >
-      {/* Ustun paneldan TASHQARIDA: kalendar va AI bo'limlarida suhbatlar
-          ustuni yopiladi, ustun esa qolishi kerak — aks holda qaytib bo'lmaydi. */}
       <ConversationRail role={role} section={section} onOpenMenu={() => setMenuOpen(true)} />
       <ConversationPanel role={role} onOpenMenu={() => setMenuOpen(true)} />
       <div
@@ -106,12 +101,6 @@ export function ConversationLayout({ role = "teacher" }: { role?: ConversationRo
           conversationId || wideSection ? "has-conversation" : ""
         }`}
       >
-        {/*
-          `AnimatePresence mode="wait"` ataylab olib tashlandi: u eski sahifa
-          chiqib ketmaguncha yangisini umuman mount qilmasdi, ya'ni har suhbat
-          almashganda 180 ms sof kechikish va so'rovlarning shuncha kechikishi.
-          Endi yangi sahifa darhol mount bo'lib, joyida ochiladi.
-        */}
         <motion.div
           key={wideSection ? section : (conversationId ?? "empty")}
           className="route-motion"
@@ -123,7 +112,6 @@ export function ConversationLayout({ role = "teacher" }: { role?: ConversationRo
         </motion.div>
       </main>
 
-      {/* Menyu ustundagi tugmadan ochiladi, shuning uchun u ham shu yerda. */}
       <AccountMenu
         open={menuOpen}
         onOpenChange={setMenuOpen}

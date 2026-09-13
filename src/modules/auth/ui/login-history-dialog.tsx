@@ -6,16 +6,11 @@ import { useLoginHistory } from "../model/auth.queries";
 export interface LoginHistoryDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  /** Ota-ona bolasining tarixini ko'rsatmoqchi bo'lsa — bolaning id'si. */
   studentId?: string | null;
   title?: string;
   description?: string;
 }
 
-/**
- * Kirishlar jurnali (docs/PROJECT.md §10): har login IP va qurilma bilan yoziladi.
- * `new_ip` / `new_device` bayroqlari — "bu men emasmanmi?" degan shubhani ko'rsatish uchun.
- */
 export function LoginHistoryDialog({
   open,
   onOpenChange,

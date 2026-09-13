@@ -5,18 +5,10 @@ import type { NotificationLink } from "../api/notification.dto";
 import { NotificationInboxDialog } from "./notification-inbox-dialog";
 
 export interface NotificationBellProps {
-  /** Auth bo'lmaganda so'rov yubormaymiz. */
   enabled?: boolean;
-  /** Xabar bog'langan obyektni ochadi (masalan uy vazifasi). */
   onOpenLink?: (link: NotificationLink) => void;
 }
 
-/**
- * Sarlavhadagi qo'ng'iroq va o'qilmagan xabarlar badge'i.
- *
- * Backendda bildirishnoma moduli bo'lmasa (`available: false`) — hech narsa
- * ko'rsatilmaydi; foydalanuvchi buzuq tugmani ko'rmaydi.
- */
 export function NotificationBell({ enabled = true, onOpenLink }: NotificationBellProps) {
   const [open, setOpen] = useState(false);
   const { available, unreadCount } = useNotificationFeed(enabled, onOpenLink);

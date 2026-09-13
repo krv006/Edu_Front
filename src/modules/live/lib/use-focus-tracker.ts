@@ -3,14 +3,8 @@ import { toast } from "sonner";
 import { liveApi } from "../api/live.api";
 import type { FocusKind, FocusResult } from "../api/live.dto";
 
-/** Bir xil hodisa qayta-qayta yuborilmasin (`blur` va `visibilitychange` birga keladi). */
 const DEDUPE_MS = 2000;
 
-/**
- * Chegaraga yetganda ota-onaga signal ketadi. Backend `parent_notified` ni
- * keyingi chiqishlarda ham `true` qaytaradi, lekin qayta signal yaratmaydi —
- * shuning uchun o'quvchiga ham bu xabar faqat bir marta ko'rsatiladi.
- */
 function warnStudent(result: FocusResult, alreadyWarned: boolean): boolean {
   if (!result.tracked || !result.exitCount) return alreadyWarned;
 
@@ -32,13 +26,6 @@ function warnStudent(result: FocusResult, alreadyWarned: boolean): boolean {
   return alreadyWarned;
 }
 
-/**
- * O'quvchi oynadan chiqib-kirganini backendga yozadi (anti-cheat fokus jurnali)
- * va eskalatsiya haqida o'quvchining o'zini ogohlantiradi
- * (docs/COMPLETED_WORK.md §3).
- *
- * Eskirgan backend faqat `{ok:true}` qaytaradi — u holda ogohlantirish chiqmaydi.
- */
 export function useFocusTracker(lessonId: string | undefined, enabled: boolean) {
   const lastEvent = useRef<{ kind: FocusKind | null; at: number }>({ kind: null, at: 0 });
   const parentWarned = useRef(false);
@@ -55,8 +42,8 @@ export function useFocusTracker(lessonId: string | undefined, enabled: boolean) 
       try {
         const result = await liveApi.sendFocus(lessonId, kind);
         if (kind === "exit") parentWarned.current = warnStudent(result, parentWarned.current);
-      } catch {
-        // Fokus jurnali ikkinchi darajali — dars oqimini to'xtatib qo'ymaymiz.
+      } catch (error) {
+        void error;
       }
     };
 

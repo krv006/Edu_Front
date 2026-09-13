@@ -5,15 +5,12 @@ import type { NotificationDto, NotificationLink, NotificationTarget } from "../a
 
 export type { SocketState };
 
-/** WS orqali keladigan yangi xabar — badge/toast uchun (docs/COMPLETED_WORK.md §2). */
 export interface LiveNotification {
   id: string;
   html: string;
   targetType: NotificationTarget;
-  /** `null` — oddiy xabar. */
   kind: string | null;
   senderName: string;
-  /** `null` — xabar hech qayerga olib bormaydi. */
   link: NotificationLink | null;
   createdAt: string;
 }
@@ -48,12 +45,6 @@ export interface NotificationSocketManagerInit {
   onState?: (state: SocketState) => void;
 }
 
-/**
- * Bildirishnoma kanali — `wss://<domain>/ws/notifications/`.
- *
- * Xona id'si yo'q: server tokendan foydalanuvchini aniqlaydi. Yopilish kodi
- * `4401` — token yaroqsiz (`RealtimeSocket` uni o'zi yangilab qayta ulanadi).
- */
 export class NotificationSocketManager {
   private readonly socket: RealtimeSocket;
 
@@ -65,8 +56,8 @@ export class NotificationSocketManager {
         try {
           const parsed = parseNotificationEvent(raw);
           if (parsed) onNotification?.(parsed);
-        } catch {
-          // Noto'g'ri payload — badge baribir REST orqali yangilanadi.
+        } catch (error) {
+          void error;
         }
       },
     });

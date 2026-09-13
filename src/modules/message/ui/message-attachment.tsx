@@ -6,13 +6,6 @@ import type { MessageAttachment as Attachment } from "@/shared/types";
 import { FileViewer } from "@/shared/ui/file-viewer";
 import { messageApi } from "../api/message.api";
 
-/**
- * Xabarga biriktirilgan fayl (odatda dars doskasining PDF'i).
- *
- * Bosilganda platforma ichida ochiladi — yuklab olish shart emas. Fayl
- * `/api/v1/chat/files/<messageId>/` dan Authorization header bilan olinadi,
- * shuning uchun oddiy `<a href>` ishlamaydi: ko'ruvchi oyna blob oladi.
- */
 export function MessageAttachment({ attachment }: { attachment: Attachment }) {
   const { t } = useTranslation("chat");
   const [open, setOpen] = useState(false);

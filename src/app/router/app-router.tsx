@@ -20,10 +20,6 @@ const LoginPage = lazy(() =>
 const RegisterPage = lazy(() =>
   import("@/pages/auth/register-page").then((module) => ({ default: module.RegisterPage }))
 );
-/*
- * Asosiy yo'ldagi bo'laklar oldindan yuklanishi uchun import funksiyalari
- * alohida nomlangan — `usePrefetchRoutes` aynan shularni chaqiradi.
- */
 const loadTeacherLayout = () => import("@/app/layouts/teacher-layout");
 const loadChatsPage = () => import("@/pages/teacher/chats-page");
 const loadConversationPage = () => import("@/pages/teacher/conversation-page");
@@ -80,13 +76,11 @@ const StudentQuizzesPage = lazy(() => import("@/pages/student/quizzes/student-qu
 
 type ChunkLoader = () => Promise<unknown>;
 
-/** Rolga qarab keyingi bosiladigan sahifalarning bo'laklari. */
 const PREFETCH_BY_ROLE: Partial<Record<Role, ChunkLoader[]>> = {
   [ROLES.TEACHER]: [loadTeacherLayout, loadChatsPage, loadConversationPage],
   [ROLES.STUDENT]: [loadStudentLayout, loadChatsPage, loadStudentConversationPage],
 };
 
-/** `requestIdleCallback` hamma brauzerda yo'q — bo'lmasa oddiy taymer. */
 function scheduleIdle(task: () => void): () => void {
   if (typeof window.requestIdleCallback === "function") {
     const handle = window.requestIdleCallback(task, { timeout: 3000 });
@@ -96,14 +90,6 @@ function scheduleIdle(task: () => void): () => void {
   return () => window.clearTimeout(handle);
 }
 
-/**
- * Sahifa bo'laklarini brauzer bo'sh turganda oldindan yuklaydi.
- *
- * Aks holda suhbat birinchi marta ochilganda bo'lak endi yuklana boshlaydi va
- * shu vaqt ichida butun ilova (yon panel bilan birga) `LoadingFallback`ga
- * almashadi. Jonli dars va doska bo'laklari ataylab yuklanmaydi — ular og'ir
- * (LiveKit, MathLive) va kamdan-kam kerak bo'ladi.
- */
 function usePrefetchRoutes(role: Role | undefined) {
   useEffect(() => {
     const loaders = role ? PREFETCH_BY_ROLE[role] : undefined;
@@ -135,7 +121,6 @@ export function AppRouter() {
               </Route>
 
               <Route element={<ProtectedRoute />}>
-                {/* Doska va yozuv havolalari chat xabaridan keladi — rol cheklovi backend tomonda. */}
                 <Route path="/boards/:lessonId" element={<BoardPage />} />
                 <Route path="/recordings/:lessonId" element={<RecordingPage />} />
 
@@ -153,8 +138,6 @@ export function AppRouter() {
                     element={<TeacherLayout />}
                   >
                     <Route index element={<ChatsPage />} />
-                    {/* Statik yo'llar dinamikdan ustun turadi — "schedule"
-                        hech qachon suhbat id'si sifatida talqin qilinmaydi. */}
                     <Route path="schedule" element={<SchedulePage />} />
                     <Route path="ai" element={<AiPage />} />
                     <Route path="workspace" element={<WorkspacePage />} />
@@ -196,8 +179,6 @@ export function AppRouter() {
                     element={<StudentLayout />}
                   >
                     <Route index element={<ChatsPage />} />
-                    {/* Statik yo'llar dinamikdan ustun turadi — "schedule"
-                        hech qachon suhbat id'si sifatida talqin qilinmaydi. */}
                     <Route path="schedule" element={<SchedulePage />} />
                     <Route path="ai" element={<AiPage />} />
                     <Route path="workspace" element={<WorkspacePage />} />
