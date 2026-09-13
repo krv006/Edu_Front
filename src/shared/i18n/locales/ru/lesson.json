@@ -37,7 +37,9 @@
     "rate": "Оценить",
     "editAria": "Редактировать урок",
     "deleteAria": "Удалить урок",
-    "ratingsAria": "Оценки урока — {{count}}"
+    "ratingsAria": "Оценки урока — {{count}}",
+    "createQuiz": "Создать тест",
+    "createQuizAria": "Создать тест для этого урока"
   },
   "viewSwitch": {
     "list": "Список",
