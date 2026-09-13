@@ -772,15 +772,27 @@ button:disabled {
 /* Brend belgisi — ustunning eng tepasida, qidiruv maydoni bilan bir chiziqda.
    Balandlik va tepadagi -4px `.panel-topbar` nikidan olingan: ikkala ustun ham
    20px bo'shliqdan boshlanadi, shuning uchun bir xil quti = bir xil markaz.
-   `object-position` esa SVG ichidagi nomutanosiblikni qoplaydi — belgining
-   siyohi quti markazidan bir oz pastda turadi. */
+   Katak fon va ramka bilan: yalang'och logo ustundagi ikonkalar orasida
+   osilib qolgandek ko'rinardi. Uslub bo'sh holat ekranidagi nishonchadan
+   olingan, faqat kichikroq va sokinroq — bu yerda u bosh qahramon emas. */
 .conversation-rail-logo {
-  width: 32px;
+  width: 38px;
   height: 38px;
   margin: -4px auto 12px;
+  border: 1px solid var(--border-accent);
+  border-radius: var(--r-md);
+  display: grid;
+  place-items: center;
+  background: linear-gradient(145deg, var(--surface), var(--primary-soft));
+}
+.conversation-rail-logo img {
+  width: 22px;
+  height: 22px;
   display: block;
   object-fit: contain;
-  object-position: center calc(50% - 1px);
+  /* Belgining siyohi SVG qutisining markazidan ~3% pastda — shu qadar
+     qaytaramiz, aks holda katak ichida pastroqda o'tirgandek ko'rinadi. */
+  object-position: center calc(50% - 0.7px);
 }
 
 /* Hamburger — ro'yxat tepasida, yozuvsiz. Ajratgich chizig'i ataylab yo'q:
@@ -3251,8 +3263,6 @@ body.is-resizing-sidebar {
   margin-top: 14px;
 }
 .teacher-profile-certificates { margin-top: 14px; display: grid; gap: 10px; }
-.teacher-profile-rating { padding: 10px 12px; border: 1px solid var(--border); border-radius: var(--r-md); display: flex; align-items: center; justify-content: space-between; gap: 10px; background: var(--surface-tint); }
-.teacher-profile-rating span { color: var(--muted-foreground); font-size: var(--fs-sm); font-weight: 700; }
 .teacher-profile-certificates-head { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
 .teacher-profile-certificates-head span { color: var(--muted-foreground); font-size: var(--fs-2xs); font-weight: 900; letter-spacing: .08em; text-transform: uppercase; }
 .teacher-profile-certificates-head button { display: inline-flex; align-items: center; gap: 6px; padding: 6px 11px; border: 1px solid var(--border); border-radius: var(--r-sm); color: var(--primary-text); background: var(--surface); font-size: var(--fs-xs); font-weight: 700; cursor: pointer; }
