@@ -1,5 +1,5 @@
-import type { ReactNode } from "react";
-import { ArrowLeft, ShieldCheck, Users } from "lucide-react";
+import { useState, type ReactNode } from "react";
+import { ArrowLeft, BarChart3, ShieldCheck, Users } from "lucide-react";
 import { Link } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useApproveTeacher, usePendingTeachers, useTeachers } from "@/modules/auth";
@@ -7,8 +7,18 @@ import { RatingSummary } from "@/modules/lesson";
 import { ROUTES } from "@/shared/config";
 import type { AuthUser } from "@/shared/types";
 import { Avatar, Button, LoadingFallback } from "@/shared/ui/legacy";
+import { TeacherStatsDialog } from "./teacher-stats-dialog";
 
-function TeacherRow({ teacher, action }: { teacher: AuthUser; action?: ReactNode }) {
+function TeacherRow({
+  teacher,
+  action,
+  onStats,
+}: {
+  teacher: AuthUser;
+  action?: ReactNode;
+  onStats?: (teacher: AuthUser) => void;
+}) {
+  const { t } = useTranslation("admin");
   return (
     <article className="admin-teacher-row">
       <Avatar name={teacher.name} src={teacher.avatarUrl} size="sm" />
@@ -17,6 +27,16 @@ function TeacherRow({ teacher, action }: { teacher: AuthUser; action?: ReactNode
         <small>@{teacher.username}</small>
       </div>
       <RatingSummary average={teacher.avgRating} count={teacher.ratingCount ?? 0} compact />
+      {onStats ? (
+        <button
+          className="icon-button"
+          onClick={() => onStats(teacher)}
+          aria-label={t("stats.openAria", { name: teacher.name })}
+          title={t("stats.open")}
+        >
+          <BarChart3 size={16} />
+        </button>
+      ) : null}
       {action}
     </article>
   );
@@ -27,6 +47,7 @@ export function AdminTeachersPage() {
   const pending = usePendingTeachers();
   const teachers = useTeachers();
   const approve = useApproveTeacher();
+  const [statsTarget, setStatsTarget] = useState<AuthUser | null>(null);
 
   return (
     <main className="portal-page admin-page">
@@ -56,6 +77,7 @@ export function AdminTeachersPage() {
             <TeacherRow
               key={teacher.id}
               teacher={teacher}
+              onStats={setStatsTarget}
               action={
                 <Button
                   size="sm"
@@ -85,13 +107,15 @@ export function AdminTeachersPage() {
         {teachers.isLoading ? <LoadingFallback label={t("teachers.loading")} /> : null}
         <div className="admin-teacher-list">
           {(teachers.data ?? []).map((teacher) => (
-            <TeacherRow key={teacher.id} teacher={teacher} />
+            <TeacherRow key={teacher.id} teacher={teacher} onStats={setStatsTarget} />
           ))}
           {!teachers.isLoading && !teachers.data?.length ? (
             <p className="portal-muted">{t("teachers.noTeachers")}</p>
           ) : null}
         </div>
       </section>
+
+      <TeacherStatsDialog teacher={statsTarget} onClose={() => setStatsTarget(null)} />
     </main>
   );
 }

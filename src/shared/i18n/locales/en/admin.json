@@ -49,6 +49,25 @@
       "noTeachers": "No active teachers found."
     }
   },
+  "stats": {
+    "title": "{{name}} — statistics",
+    "description": "Overall figures for ratings, courses and lessons.",
+    "loading": "Loading statistics",
+    "loadError": "Could not load statistics",
+    "retry": "Retry",
+    "open": "Statistics",
+    "openAria": "Open statistics for {{name}}",
+    "avgRating": "Average rating",
+    "ratingCount": "Ratings",
+    "courseCount": "Courses",
+    "studentCount": "Students",
+    "lessonsFinished": "Lessons held",
+    "lessonsScheduled": "Scheduled",
+    "lessonsCancelled": "Cancelled",
+    "reliability": "Reliability",
+    "breakdown": "RATING BREAKDOWN",
+    "comments": "RECENT FEEDBACK"
+  },
   "teachers": {
     "eyebrow": "ADMINISTRATOR",
     "title": "Teachers",

@@ -49,6 +49,25 @@
       "noTeachers": "Активные учителя не найдены."
     }
   },
+  "stats": {
+    "title": "{{name}} — статистика",
+    "description": "Общие показатели по оценкам, курсам и урокам.",
+    "loading": "Загрузка статистики",
+    "loadError": "Не удалось загрузить статистику",
+    "retry": "Повторить",
+    "open": "Статистика",
+    "openAria": "Открыть статистику: {{name}}",
+    "avgRating": "Средняя оценка",
+    "ratingCount": "Всего оценок",
+    "courseCount": "Курсы",
+    "studentCount": "Ученики",
+    "lessonsFinished": "Проведено уроков",
+    "lessonsScheduled": "Запланировано",
+    "lessonsCancelled": "Отменено",
+    "reliability": "Надёжность",
+    "breakdown": "РАСПРЕДЕЛЕНИЕ ОЦЕНОК",
+    "comments": "ПОСЛЕДНИЕ ОТЗЫВЫ"
+  },
   "teachers": {
     "eyebrow": "АДМИНИСТРАТОР",
     "title": "Учителя",

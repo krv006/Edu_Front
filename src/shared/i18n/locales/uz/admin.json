@@ -49,6 +49,25 @@
       "noTeachers": "Faol o'qituvchi topilmadi."
     }
   },
+  "stats": {
+    "title": "{{name}} — statistika",
+    "description": "Baholar, kurslar va darslar bo'yicha umumiy ko'rsatkichlar.",
+    "loading": "Statistika yuklanmoqda",
+    "loadError": "Statistikani yuklab bo'lmadi",
+    "retry": "Qayta urinish",
+    "open": "Statistika",
+    "openAria": "{{name}} statistikasini ochish",
+    "avgRating": "O'rtacha baho",
+    "ratingCount": "Baholar soni",
+    "courseCount": "Kurslar",
+    "studentCount": "O'quvchilar",
+    "lessonsFinished": "O'tilgan darslar",
+    "lessonsScheduled": "Rejalashtirilgan",
+    "lessonsCancelled": "Bekor qilingan",
+    "reliability": "Ishonchlilik",
+    "breakdown": "BAHOLAR TAQSIMOTI",
+    "comments": "SO'NGGI IZOHLAR"
+  },
   "teachers": {
     "eyebrow": "ADMINISTRATOR",
     "title": "O'qituvchilar",
