@@ -3,7 +3,6 @@
     "chat": "Чат",
     "lessons": "Уроки",
     "assignments": "Задания",
-    "students": "Ученики",
     "attendance": "Посещаемость"
   },
   "sendFailed": "Не удалось отправить сообщение",

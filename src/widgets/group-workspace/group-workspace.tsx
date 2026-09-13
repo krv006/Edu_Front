@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   BookOpen,
@@ -7,11 +7,7 @@ import {
   ClipboardList,
   Pencil,
   Plus,
-  Search,
   Trash2,
-  UserMinus,
-  UserPlus,
-  UsersRound,
 } from "lucide-react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
@@ -19,7 +15,7 @@ import { useTranslation } from "react-i18next";
 import { useAuth } from "@/modules/auth";
 import { toIntlLocale } from "@/shared/i18n";
 import { AttendanceAccordion, useAttendance } from "@/modules/attendance";
-import { AddStudentDialog, useCourse, useCourseStudents, useUnenrollStudent } from "@/modules/course";
+import { useCourse } from "@/modules/course";
 import {
   AssignmentDetailDialog,
   useAssignments,
@@ -48,14 +44,11 @@ import type {
   AttendanceRow,
   ChatMessage,
   Conversation,
-  DomainUser,
-  Enrollment,
   Lesson,
   SendMessagePayload,
 } from "@/shared/types";
 import type { ChatController } from "@/modules/message";
-import type { Page } from "@/shared/api";
-import { Avatar, Button, Dialog, DialogContent } from "@/shared/ui/legacy";
+import { Button, Dialog, DialogContent } from "@/shared/ui/legacy";
 import { ROUTES } from "@/shared/config";
 import {
   AddAssignmentDialog,
@@ -64,7 +57,7 @@ import {
   type LessonScheduleDraft,
 } from "./group-action-dialogs";
 
-type TabId = "chat" | "lessons" | "assignments" | "students" | "attendance";
+type TabId = "chat" | "lessons" | "assignments" | "attendance";
 
 function useTabs(): Array<{ id: TabId; label: string; icon: typeof BookOpen }> {
   const { t } = useTranslation("group");
@@ -72,7 +65,6 @@ function useTabs(): Array<{ id: TabId; label: string; icon: typeof BookOpen }> {
     { id: "chat", label: t("tabs.chat"), icon: BookOpen },
     { id: "lessons", label: t("tabs.lessons"), icon: CalendarDays },
     { id: "assignments", label: t("tabs.assignments"), icon: ClipboardList },
-    { id: "students", label: t("tabs.students"), icon: UsersRound },
     { id: "attendance", label: t("tabs.attendance"), icon: CheckCircle2 },
   ];
 }
@@ -118,7 +110,6 @@ export function GroupWorkspace({
     activeTab === "lessons" || activeTab === "attendance"
   );
   const assignments = useAssignments(courseId, activeTab === "assignments");
-  const students = useCourseStudents(courseId, { page_size: 100 }, activeTab === "students");
   const attendance = useAttendance({ page_size: 100 }, activeTab === "attendance");
 
   async function send(payload: SendMessagePayload) {
@@ -200,9 +191,6 @@ export function GroupWorkspace({
               loading={assignments.isLoading}
               isLanguageSubject={Boolean(course.data?.isLanguageSubject)}
             />
-          ) : null}
-          {activeTab === "students" ? (
-            <StudentsPanel courseId={courseId} page={students.data} loading={students.isLoading} />
           ) : null}
           {activeTab === "attendance" ? (
             <AttendancePanel
@@ -563,111 +551,6 @@ function AssignmentsPanel({
           if (!open) setDetailId(null);
         }}
       />
-    </div>
-  );
-}
-
-// ─── O‘quvchilar ────────────────────────────────────────────────────────────
-interface StudentsPanelProps {
-  courseId: string | null;
-  page?: Page<Enrollment>;
-  loading: boolean;
-}
-
-function StudentsPanel({ courseId, page, loading }: StudentsPanelProps) {
-  const { t } = useTranslation("group");
-  const [search, setSearch] = useState("");
-  const [addOpen, setAddOpen] = useState(false);
-  const [removeTarget, setRemoveTarget] = useState<DomainUser | null>(null);
-  const unenroll = useUnenrollStudent();
-
-  const students = useMemo(
-    () =>
-      (page?.items ?? [])
-        .map((item) => item.student)
-        .filter((item) => `${item.name} ${item.username}`.toLowerCase().includes(search.toLowerCase())),
-    [page, search]
-  );
-
-  function confirmRemove() {
-    if (!removeTarget) return;
-    unenroll.mutate(
-      { courseId, studentId: removeTarget.id },
-      { onSuccess: () => setRemoveTarget(null) }
-    );
-  }
-
-  return (
-    <div className="group-panel">
-      <div className="group-panel-head">
-        <div>
-          <span>{t("students.eyebrow")}</span>
-          <h2>{t("students.title")}</h2>
-          <p>{t("students.countSuffix", { count: page?.total ?? 0 })}</p>
-        </div>
-        <Button onClick={() => setAddOpen(true)}>
-          <UserPlus size={17} /> {t("students.addStudent")}
-        </Button>
-      </div>
-
-      <label className="student-search">
-        <Search size={18} />
-        <input
-          value={search}
-          onChange={(event) => setSearch(event.target.value)}
-          placeholder={t("students.searchPlaceholder")}
-        />
-      </label>
-
-      {loading ? (
-        <div className="student-tab-loading">
-          <span />
-        </div>
-      ) : (
-        <div className="student-grid">
-          {students.map((student) => (
-            <article className="student-card" key={student.id}>
-              <Avatar name={student.name} tone={student.avatarTone} size="md" />
-              <div>
-                <strong>{student.name}</strong>
-                <span>@{student.username}</span>
-              </div>
-              <button
-                className="icon-button destructive-icon"
-                aria-label={t("students.removeAria", { name: student.name })}
-                onClick={() => setRemoveTarget(student)}
-              >
-                <UserMinus size={16} />
-              </button>
-            </article>
-          ))}
-          {!students.length ? <p className="portal-muted">{t("students.empty")}</p> : null}
-        </div>
-      )}
-
-      <AddStudentDialog courseId={courseId} open={addOpen} onOpenChange={setAddOpen} />
-      <Dialog
-        open={Boolean(removeTarget)}
-        onOpenChange={(open) => {
-          if (!open) setRemoveTarget(null);
-        }}
-      >
-        {removeTarget && (
-          <DialogContent
-            title={t("students.removeDialogTitle")}
-            description={t("students.removeDialogDescription", { name: removeTarget.name })}
-          >
-            <div className="dialog-actions">
-              <Button variant="secondary" onClick={() => setRemoveTarget(null)}>
-                {t("students.cancel")}
-              </Button>
-              <Button loading={unenroll.isPending} onClick={confirmRemove}>
-                {t("students.remove")}
-              </Button>
-            </div>
-          </DialogContent>
-        )}
-      </Dialog>
     </div>
   );
 }

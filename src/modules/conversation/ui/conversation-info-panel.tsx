@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { storage } from "@/shared/lib";
 import { useAuth } from "@/modules/auth";
-import { useCourse, useDeleteCourse, useUpdateCourse } from "@/modules/course";
+import { CourseMembersSection, useCourse, useDeleteCourse, useUpdateCourse } from "@/modules/course";
 import { DIRECT_STATUS, useDirectStatusLabel, useRespondDirect, useSetRoomImage } from "@/modules/conversation";
 import type { CourseFormInput } from "@/modules/course";
 import type { Conversation } from "@/shared/types";
@@ -179,6 +179,13 @@ export function ConversationInfoPanel({ conversation, open, onOpenChange }: Conv
                 </button>
               )}
             </div>
+            {/* Guruh a'zolari — ilgari alohida "O'quvchilar" bo'limi edi. Ular
+                guruh haqidagi ma'lumot, shuning uchun Telegram'dagidek shu
+                panelda turadi. Faqat o'qituvchida: o'quvchiga sinfdoshlarining
+                ro'yxati ko'rsatilmaydi. */}
+            {teacherGroup ? (
+              <CourseMembersSection courseId={conversation.courseId} canManage />
+            ) : null}
             {/* O‘qituvchi — kurs egasiga o‘z ismini ko‘rsatishdan ma’no yo‘q. */}
             {isGroup && !teacherGroup ? (
               <div className="info-section">
