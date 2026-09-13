@@ -205,16 +205,23 @@ function FieldShell({
   icon: Icon,
   children,
   labelId,
+  hideLabel = false,
 }: {
   label: string;
   icon?: IconComponent;
   children: ReactNode;
   labelId: string;
+  hideLabel?: boolean;
 }) {
   return (
     <div className="form-picker-field">
-      <span id={labelId} className="form-picker-label">
-        {Icon ? <Icon size={14} /> : null}
+      {/* Yorliq yashirilganda ham DOM'da qoladi: `aria-labelledby` unga
+          murojaat qiladi, ya'ni ekran o'quvchi maydonni baribir nomlaydi. */}
+      <span
+        id={labelId}
+        className={`form-picker-label ${hideLabel ? "is-visually-hidden" : ""}`}
+      >
+        {Icon && !hideLabel ? <Icon size={14} /> : null}
         {label}
       </span>
       {children}
@@ -233,9 +240,11 @@ export interface SelectPickerProps {
   onChange: (value: string) => void;
   options: Array<SelectOption | string>;
   icon?: IconComponent;
+  /** Yorliq yonida allaqachon yozilgan bo'lsa — masalan sozlamalar qatorida. */
+  hideLabel?: boolean;
 }
 
-export function SelectPicker({ label, value, onChange, options, icon }: SelectPickerProps) {
+export function SelectPicker({ label, value, onChange, options, icon, hideLabel }: SelectPickerProps) {
   const { t } = useTranslation("common");
   const [open, setOpen] = useState(false);
   const anchorRef = useRef<HTMLButtonElement>(null);
@@ -247,7 +256,7 @@ export function SelectPicker({ label, value, onChange, options, icon }: SelectPi
   const selected = normalizedOptions.find((option) => option.value === value);
 
   return (
-    <FieldShell label={label} icon={icon} labelId={labelId}>
+    <FieldShell label={label} icon={icon} labelId={labelId} hideLabel={hideLabel}>
       <PickerTrigger
         anchorRef={anchorRef}
         open={open}

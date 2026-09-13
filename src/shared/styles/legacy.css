@@ -5005,6 +5005,18 @@ a.workspace-card:hover {
 }
 
 /* Branded select, calendar and time controls */
+/* Ko'zdan yashirin, ammo ekran o'quvchi uchun ochiq. `display: none` YARAMAYDI:
+   u elementni ochiq daraxtdan ham olib tashlaydi va `aria-labelledby` uziladi. */
+.is-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
 .form-picker-field {
   min-width: 0;
   display: grid;
