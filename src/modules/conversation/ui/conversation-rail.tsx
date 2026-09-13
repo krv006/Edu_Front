@@ -56,7 +56,9 @@ export function ConversationRail({ role, section, onOpenMenu }: ConversationRail
     <nav className="conversation-rail" aria-label={t("rail.sectionsLabel")}>
       {/* Brend belgisi ustun tepasida. Ataylab tugma emas: bu ustundagi har
           bir bosiladigan element — bo'lim, logo esa bo'lim emas. */}
-      <img className="conversation-rail-logo" src={logoUrl} alt="YolUp" />
+      <span className="conversation-rail-logo">
+        <img src={logoUrl} alt="YolUp" />
+      </span>
 
       {/* Yozuvsiz — hamburger o'zi tushunarli, yorlig'i faqat aria uchun. */}
       <button
