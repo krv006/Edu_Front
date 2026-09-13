@@ -33,7 +33,6 @@ function pad(value: number): string {
   return String(value).padStart(2, "0");
 }
 
-/** Date → `YYYY-MM-DD` (mahalliy vaqt zonasida, toISOString emas). */
 function toDateValue(date: Date): string {
   return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
 }
@@ -73,15 +72,6 @@ interface FloatingPickerProps {
   className?: string;
 }
 
-/**
- * Dialog ichida ham to‘g‘ri joylashishi uchun `document.body` ga portal qilinadi.
- *
- * Ana shu portal tufayli panel dialogning fokus doirasidan TASHQARIDA qoladi:
- * Radix dialogi fokusni o‘z ichiga qaytarib tortadi va paneldagi maydonga
- * hech narsa yozib bo‘lmaydi. Shuning uchun panel o‘z `FocusScope` iga
- * o‘raladi — u ochilganda dialogning tuzog‘i vaqtincha to‘xtaydi (Radix fokus
- * doiralari stek bo‘lib ishlaydi), yopilganda o‘z-o‘zidan tiklanadi.
- */
 function FloatingPicker({ open, onClose, anchorRef, children, labelledBy, className = "" }: FloatingPickerProps) {
   const panelRef = useRef<HTMLDivElement>(null);
   const [position, setPosition] = useState<PanelPosition>({ left: 12, top: 12, width: 320, origin: "top" });
@@ -145,8 +135,6 @@ function FloatingPicker({ open, onClose, anchorRef, children, labelledBy, classN
         <FocusScope
           asChild
           trapped
-          /* Ochilishi bilan fokus ko'chmasin: sichqoncha bilan ishlayotgan
-             odam uchun bu kutilmagan sakrash bo'lardi. */
           onMountAutoFocus={(event) => event.preventDefault()}
           onUnmountAutoFocus={(event) => event.preventDefault()}
         >
@@ -171,7 +159,6 @@ function FloatingPicker({ open, onClose, anchorRef, children, labelledBy, classN
 }
 
 interface PickerTriggerProps {
-  /** Tugmaning o‘zi — `AnchorRef` dan torroq: u faqat joylashuvni o‘lchaydi. */
   anchorRef: RefObject<HTMLButtonElement | null>;
   open: boolean;
   onClick: () => void;
@@ -381,14 +368,6 @@ interface TimeControlProps {
   compact?: boolean;
 }
 
-/**
- * Vaqtning bir bo‘lagi (soat yoki daqiqa): o‘qlar bilan ham, QO‘LDA yozib ham
- * o‘zgartiriladi.
- *
- * Terish paytida qiymat tashqariga berilmaydi — aks holda “20” yozmoqchi
- * bo‘lgan odam “2” ni bosishi bilan raqam “02” ga aylanib ketardi. Shuning
- * uchun mahalliy nusxa faqat fokus turgan vaqt yashaydi.
- */
 function TimeField({
   value,
   max,
@@ -489,11 +468,9 @@ function TimeControl({ value, onChange, compact = false }: TimeControlProps) {
 
 export interface DurationPickerProps {
   label: string;
-  /** Daqiqa, matn ko‘rinishida — forma qiymatlarni shunday saqlaydi. */
   value: string;
   onChange: (value: string) => void;
   icon?: IconComponent;
-  /** Tayyor tanlovlar (daqiqa). */
   options?: readonly number[];
   min?: number;
   max?: number;
@@ -501,14 +478,6 @@ export interface DurationPickerProps {
 
 const DEFAULT_DURATIONS = [30, 45, 60, 90] as const;
 
-/**
- * Davomiylik maydoni: qiymatni QO‘LDA yozish ham, tayyor tanlovdan olish ham
- * mumkin. Ro‘yxatda yo‘q davomiylik (masalan 25 yoki 120 daqiqa) uchun
- * select yaramaydi, faqat input esa har safar raqam terishga majbur qiladi.
- *
- * Qiymat faqat fokus ketganda tuzatiladi — terish paytida emas: “9” yozib
- * “90” qilmoqchi bo‘lgan odamning raqami sakrab ketmasligi kerak.
- */
 export function DurationPicker({
   label,
   value,
@@ -523,7 +492,6 @@ export function DurationPicker({
   const anchorRef = useRef<HTMLDivElement>(null);
   const labelId = useId();
 
-  /** Chegaradan chiqqan yoki bo‘sh qiymat fokus ketganda tuzatiladi. */
   function commit() {
     const parsed = Number.parseInt(value, 10);
     if (!Number.isFinite(parsed)) {
@@ -618,7 +586,6 @@ export interface DatePickerProps {
   label: string;
   value: string;
   onChange: (value: string) => void;
-  /** `YYYY-MM-DDTHH:mm` qaytaradi (aks holda faqat `YYYY-MM-DD`). */
   includeTime?: boolean;
   optional?: boolean;
 }

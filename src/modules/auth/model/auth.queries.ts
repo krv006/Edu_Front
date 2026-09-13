@@ -10,10 +10,6 @@ export const authKeys = Object.freeze({
   teachersPending: ["auth", "teachers", "pending"] as const,
 });
 
-/**
- * Kirishlar tarixi. `studentId` — ota-ona bolasining tarixini ko'rmoqchi bo'lganda.
- * Dialog yopiq turganda so'rov yuborilmasligi uchun `enabled` bilan boshqariladi.
- */
 export function useLoginHistory(studentId: string | null = null, enabled = true) {
   return useQuery({
     queryKey: authKeys.logins(studentId),
@@ -23,7 +19,6 @@ export function useLoginHistory(studentId: string | null = null, enabled = true)
   });
 }
 
-/** Admin: barcha o'qituvchilar, reyting bilan. */
 export function useTeachers() {
   return useQuery({
     queryKey: authKeys.teachers,
@@ -31,7 +26,6 @@ export function useTeachers() {
   });
 }
 
-/** Admin: hali tasdiqlanmagan o'qituvchilar. */
 export function usePendingTeachers() {
   return useQuery({
     queryKey: authKeys.teachersPending,

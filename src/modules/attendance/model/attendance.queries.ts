@@ -8,10 +8,6 @@ export const attendanceKeys = Object.freeze({
   detail: (id: string) => ["attendance", "detail", id] as const,
 });
 
-/**
- * `enabled` — davomat og'ir so'rov (har qatorda o'quvchi obyekti va fokus
- * jurnali), shuning uchun uni faqat ko'rinib turgan bo'lim so'rashi kerak.
- */
 export function useAttendance(params: QueryParams = {}, enabled = true) {
   return useQuery({
     queryKey: attendanceKeys.list(params),

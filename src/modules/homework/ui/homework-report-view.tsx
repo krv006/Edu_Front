@@ -51,7 +51,6 @@ export interface HomeworkReportViewProps {
   report: HomeworkReport;
 }
 
-/** O'quvchi/ota-ona reyting sahifasida qayta ishlatiladi. */
 export function HomeworkReportView({ report }: HomeworkReportViewProps) {
   const { t } = useTranslation("homework");
   const { overall, courses } = report;

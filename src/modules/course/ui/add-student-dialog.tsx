@@ -13,7 +13,6 @@ export interface AddStudentDialogProps {
   courseId: string | null;
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  /** Qaysi bo'lim ochiq holda boshlansin — chaqiruvchi tugmaga qarab. */
   initialTab?: StudentDialogTab;
 }
 
@@ -23,7 +22,6 @@ const enrollLabels: Record<EnrollmentStatus, string> = {
   declined: "Rad etilgan",
 };
 
-/** Faqat dialog ochiqligida mount bo‘ladi — yopilganda qidiruv holati o‘zi tozalanadi. */
 function AddStudentBody({ courseId }: { courseId: string | null }) {
   const [term, setTerm] = useState("");
   const [debounced, setDebounced] = useState("");
@@ -99,13 +97,6 @@ const EMPTY_STUDENT: CreateChildRequestDto = {
   last_name: "",
 };
 
-/**
- * Yangi o'quvchi hisobi.
- *
- * O'quvchi o'zi ro'yxatdan o'ta olmaydi (`docs/STUDENT_API.md`) — hisobni
- * o'qituvchi yoki ota-ona yaratadi. Yaratilgan hisob darhol shu kursga
- * yoziladi, shuning uchun o'qituvchi qayta qidirib o'tirmaydi.
- */
 function CreateStudentBody({
   courseId,
   onCreated,
@@ -191,7 +182,6 @@ function CreateStudentBody({
         </div>
       </label>
 
-      {/* Parol ochiq ko'rsatiladi: o'qituvchi uni o'quvchiga aytib berishi kerak. */}
       <p className="portal-muted">
         Parolni o‘quvchiga aytib qo‘ying — u birinchi kirishdan keyin o‘zgartira oladi.
       </p>

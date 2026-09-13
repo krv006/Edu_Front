@@ -13,11 +13,9 @@ const LESSON_REMINDER_KIND = "lesson_reminder";
 export interface NotificationInboxDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  /** Xabar biror obyektga bog‘langan bo‘lsa — o‘sha yerga olib boradi. */
   onOpenLink?: (link: NotificationLink) => void;
 }
 
-/** Foydalanuvchining bildirishnomalar qutisi (docs/COMPLETED_WORK.md §2). */
 export function NotificationInboxDialog({
   open,
   onOpenChange,
@@ -77,11 +75,6 @@ export function NotificationInboxDialog({
                     <NotificationHtml html={item.html} />
                   </div>
 
-                  {/*
-                    Havolasi bor xabarda "o‘qidim" ortiqcha: o‘quvchiga kerak
-                    bo‘lgani — vazifaning o‘zi. O‘tish paytida o‘qilgan deb
-                    ham belgilanadi, ya’ni bir bosishda ikkalasi bajariladi.
-                  */}
                   {item.link && onOpenLink ? (
                     <Button
                       size="sm"

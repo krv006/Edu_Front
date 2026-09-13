@@ -14,17 +14,6 @@ import { useTranslation } from "react-i18next";
 import { BOARD_COLORS, BOARD_WIDTHS } from "../constants/board.constants";
 import type { DrawKind } from "../lib/board.geometry";
 
-/**
- * Sudrab chiziladigan asboblar + bosib joylashtiriladigan `text`/`math`
- * + biror elementni bosib o'chiradigan `erase` rejimi.
- *
- * Avval o'chirish alohida "Tanlash" rejimi + pastdagi disabled lastik
- * tugmasi orqali ikki bosqichda ishlardi ("tanlash" nima ekani
- * tushunarsiz edi — o'qituvchilar to'g'ridan-to'g'ri lastikni bosib,
- * hech narsa sodir bo'lmasligidan chalkashardi). Endi lastik — oddiy
- * asbob: bosilgach, istalgan elementga bosish uni darhol o'chirishga
- * yuboradi.
- */
 export type BoardTool = DrawKind | "text" | "math" | "erase";
 
 interface ToolDefinition {
@@ -44,7 +33,6 @@ const TOOLS: ToolDefinition[] = [
   { id: "text", labelKey: "tools.text", icon: Type },
 ];
 
-/** Formula bloki faqat `math_enabled` kurslarda — boshqasida server 400 beradi. */
 const MATH_TOOL: ToolDefinition = { id: "math", labelKey: "tools.math", icon: Sigma };
 
 export interface BoardToolbarProps {
@@ -52,7 +40,6 @@ export interface BoardToolbarProps {
   color: string;
   width: number;
   canDraw: boolean;
-  /** `GET /board/<id>/` javobidagi `math_enabled` — formula vositasini ko'rsatadi. */
   mathEnabled: boolean;
   onToolChange: (tool: BoardTool) => void;
   onColorChange: (color: string) => void;

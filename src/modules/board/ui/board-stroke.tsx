@@ -5,14 +5,9 @@ import { MathMarkup } from "./math-markup";
 export interface BoardStrokeProps {
   stroke: StrokeDto;
   selected: boolean;
-  /** Tanlash rejimida stroke bosilganda chaqiriladi (o'chirish uchun). */
   onSelect: (id: string) => void;
 }
 
-/**
- * Bitta stroke'ni chizadi. Turlar docs/PROJECT.md §5.3 dagi jadvalga mos:
- * qalam/marker, chiziq-strelka, to'rtburchak, ellips, matn, formula.
- */
 export function BoardStroke({ stroke, selected, onSelect }: BoardStrokeProps) {
   const color = selected ? "var(--destructive)" : (stroke.color ?? "currentColor");
   const shared = {
@@ -97,7 +92,6 @@ export function BoardStroke({ stroke, selected, onSelect }: BoardStrokeProps) {
       );
 
     default:
-      // `type` yo'q — qalam yoki marker (farqi `opacity` da).
       return (
         <polyline
           {...shared}

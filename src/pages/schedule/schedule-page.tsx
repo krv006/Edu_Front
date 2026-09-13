@@ -16,13 +16,6 @@ import { ROUTES } from "@/shared/config";
 import type { Lesson } from "@/shared/types";
 import { LoadingFallback, RouteState } from "@/shared/ui/legacy";
 
-/**
- * Barcha guruhlardagi darslar bitta kalendarda.
- *
- * Guruh ichidagi "Darslar" bo'limidan farqi — `course` filtri yo'q. Backend
- * ro'yxatni o'zi rolga moslashtiradi: o'quvchi yozilgan kurslarining,
- * o'qituvchi esa o'z kurslarining darslarini oladi.
- */
 export function SchedulePage() {
   const { t } = useTranslation("lesson");
   const navigate = useNavigate();
@@ -33,10 +26,6 @@ export function SchedulePage() {
 
   const isStudent = user?.role === ROLES.STUDENT;
 
-  /**
-   * Jadvalda dars TAHRIRLANMAYDI — u kursga tegishli amal va guruh ichida
-   * qilinadi. Bu yerda faqat kirish, yozuv va (o'quvchida) baholash.
-   */
   const actions = {
     onJoin: (lesson: Lesson) => navigate(ROUTES.live(lesson.id)),
     onRecording: (lesson: Lesson) => navigate(ROUTES.recording(lesson.id)),

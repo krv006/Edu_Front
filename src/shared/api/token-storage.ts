@@ -5,7 +5,6 @@ export interface TokenPair {
   refreshToken?: string | null;
 }
 
-/** [sessionStorage, localStorage] — o‘qishda ikkalasi ham tekshiriladi. */
 function storages(): Storage[] {
   if (typeof window === "undefined") return [];
   return [window.sessionStorage, window.localStorage];
@@ -16,8 +15,8 @@ function read(key: string): string | null {
     try {
       const value = target.getItem(key);
       if (value) return value;
-    } catch {
-      /* storage mavjud emas (private rejim / o‘chirilgan) */
+    } catch (error) {
+      void error;
     }
   }
   return null;
@@ -27,8 +26,8 @@ function removeEverywhere(key: string): void {
   storages().forEach((target) => {
     try {
       target.removeItem(key);
-    } catch {
-      /* storage mavjud emas */
+    } catch (error) {
+      void error;
     }
   });
 }
@@ -42,7 +41,6 @@ export const tokenStorage = {
     return Boolean(this.getAccessToken() || this.getRefreshToken());
   },
 
-  /** `localStorage` da refresh bor bo‘lsa — "meni eslab qol" tanlangan. */
   isPersistent(): boolean {
     if (typeof window === "undefined") return false;
     try {

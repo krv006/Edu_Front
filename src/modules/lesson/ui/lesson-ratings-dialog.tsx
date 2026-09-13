@@ -7,17 +7,10 @@ import { useLessonRatings } from "../model/lesson.queries";
 import { StarRating } from "./star-rating";
 
 export interface LessonRatingsDialogProps {
-  /** `null` — dialog yopiq. */
   lesson: Lesson | null;
   onOpenChange: (open: boolean) => void;
 }
 
-/**
- * Darsga qo'yilgan baholar (o'qituvchi ko'rinishi).
- *
- * Baholar anonim emas, shuning uchun har qatorda o'quvchi ismi turadi.
- * O'rtacha ko'rsatkich darslar ro'yxatidan keladi — bu yerda qayta hisoblanmaydi.
- */
 export function LessonRatingsDialog({ lesson, onOpenChange }: LessonRatingsDialogProps) {
   const { t } = useTranslation("lesson");
   const ratings = useLessonRatings(lesson?.id ?? null);

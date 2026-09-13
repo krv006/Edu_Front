@@ -20,7 +20,6 @@ import type {
   LessonRequestDto,
 } from "../api/lesson.dto";
 
-/** Baho hali yo'q darsda backend `null` yoki bo'sh satr qaytaradi — bu 0 emas. */
 function toAverage(value: number | string | null | undefined): number | null {
   if (value === null || value === undefined || value === "") return null;
   const parsed = Number(value);
@@ -61,10 +60,8 @@ export function mapLessonRecordingDto(dto: LessonRecordingDto): LessonRecording 
 
   return {
     status,
-    // `stream_url` faqat `ready` bo'lganda keladi — ikkalasini ham talab qilamiz.
     ready: Boolean(dto.ready && dto.stream_url),
     title: dto.title || "Dars yozuvi",
-    // `<video src>` uchun to'liq havola kerak — apiClient bazasi qo'llanadi.
     streamUrl: normalizeMediaUrl(dto.stream_url),
     createdAt: dto.created_at ?? null,
     endedAt: dto.ended_at ?? null,
@@ -87,7 +84,6 @@ export function mapLessonRatingDto(dto: LessonRatingDto): LessonRating {
   };
 }
 
-/** Ro'yxat massiv ham, DRF sahifasi ham bo'lishi mumkin — ikkalasi ham bir shaklga keladi. */
 export function mapLessonRatingList(dto: unknown): LessonRating[] {
   return normalizePagination<LessonRatingDto>(dto).items.map(mapLessonRatingDto);
 }

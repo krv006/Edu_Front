@@ -1,12 +1,3 @@
-/**
- * Kaskad tartibi ATAYIN shu yerda e'lon qilinadi.
- *
- * `fokus-legacy` — qo'lda yozilgan eski uslublar — `utilities` dan PASTDA turadi.
- * Shu sabab shadcn komponentlaridagi Tailwind utilitalari (`text-primary-foreground`,
- * `outline-hidden`) legacy'dagi `button { color: inherit }` va `input:focus-visible`
- * kabi element selektorlarini yenga oladi. Ayni paytda legacy Tailwind preflight'dan
- * (`base`) ustun bo'lib qoladi, ya'ni eski ekranlar o'zgarmaydi.
- */
 @layer theme, base, components, fokus-legacy, utilities;
 
 @import "tailwindcss";

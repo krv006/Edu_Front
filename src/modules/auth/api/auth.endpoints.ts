@@ -12,9 +12,7 @@ export const authEndpoints = Object.freeze({
   respondLink: (id: string) => `/api/v1/auth/links/${id}/respond/`,
   consents: "/api/v1/auth/consents/",
   logins: "/api/v1/auth/logins/",
-  /** Admin: barcha o'qituvchilar, `avg_rating`/`rating_count` bilan. */
   teachers: "/api/v1/auth/teachers/",
-  /** Admin: hali tasdiqlanmagan (`is_approved=false`) o'qituvchilar. */
   teachersPending: "/api/v1/auth/teachers/pending/",
   teacherApprove: (id: string) => `/api/v1/auth/teachers/${id}/approve/`,
   meCertificates: "/api/v1/auth/me/certificates/",

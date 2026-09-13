@@ -95,16 +95,7 @@ export function GroupWorkspace({
   const tabParam = params.get("tab") as TabId | null;
   const activeTab: TabId = TABS.some((item) => item.id === tabParam) ? (tabParam as TabId) : "chat";
 
-  /**
-   * Har bir bo'lim faqat o'zi ochilganda so'rov yuboradi.
-   *
-   * Avval beshalasi ham chat ochilishi bilan birdan ketardi — davomat va
-   * o'quvchilar ro'yxati `page_size: 100` bilan og'ir, natijada foydalanuvchi
-   * xabarlarni ko'rishdan oldin bir necha soniya kutardi. Kurs ma'lumoti
-   * bundan mustasno: u chat sarlavhasini to'ldiradi.
-   */
   const course = useCourse(courseId);
-  // Davomat jadvali darslar ro'yxatiga tayanadi — u ikki bo'limda kerak.
   const lessons = useLessons(
     { course: courseId, page_size: 100 },
     activeTab === "lessons" || activeTab === "attendance"
@@ -124,7 +115,6 @@ export function GroupWorkspace({
     }
   }
 
-  /** Sarlavha kurs ma'lumoti bilan boyitiladi — chat xonasi faqat `title` beradi. */
   const hydrated: Conversation = {
     ...conversation,
     title: course.data?.title ?? conversation.title,
@@ -136,7 +126,6 @@ export function GroupWorkspace({
   return (
     <section className="chat-page group-workspace">
       <ChatHeader conversation={hydrated} />
-      {/* Jonli dars bo'lsa chat tepasida chiziq turadi — Telegram uslubi. */}
       <LiveLessonBar courseId={courseId} />
       <nav className="group-tabs">
         {TABS.map((tab) => {
@@ -216,7 +205,6 @@ export function GroupWorkspace({
   );
 }
 
-// ─── Darslar ────────────────────────────────────────────────────────────────
 interface LessonsPanelProps {
   courseId: string | null;
   lessons?: Lesson[];
@@ -237,10 +225,6 @@ function LessonsPanel({ courseId, lessons = [], loading }: LessonsPanelProps) {
   const remove = useDeleteLesson();
   const { view, setView } = useLessonView();
 
-  /**
-   * To'qnashuvni tekshirish uchun o'qituvchining BARCHA darslari kerak —
-   * shu kurs emas, hamma kurslari bo'yicha. Faqat dialog ochilganda so'raladi.
-   */
   const allLessons = useLessons({ page_size: 200 }, dialog);
 
   function save(form: LessonDraft) {
@@ -273,7 +257,6 @@ function LessonsPanel({ courseId, lessons = [], loading }: LessonsPanelProps) {
       });
   }
 
-  // Ikkala ko'rinish ham aynan shu amallarni oladi.
   const actions = {
     onJoin: (lesson: Lesson) => navigate(ROUTES.live(lesson.id)),
     onFinish: setFinishTarget,
@@ -367,20 +350,13 @@ function LessonsPanel({ courseId, lessons = [], loading }: LessonsPanelProps) {
   );
 }
 
-// ─── Vazifalar ──────────────────────────────────────────────────────────────
 interface AssignmentsPanelProps {
   courseId: string | null;
   assignments?: Assignment[];
   loading: boolean;
-  /** Til fani bo'lsa vazifaga "tekshiruv turi" tanlovi beriladi. */
   isLanguageSubject: boolean;
 }
 
-/**
- * Bildirishnomadan kelingan vazifani ko'rsatadi: ro'yxatda ajratib qo'yadi va
- * ekranga suradi. Ro'yxat kechroq yuklanishi mumkin, shuning uchun element
- * paydo bo'lgach qidiriladi.
- */
 function useAssignmentHighlight(assignmentId: string | null, ready: boolean) {
   useEffect(() => {
     if (!assignmentId || !ready) return;
@@ -401,7 +377,6 @@ function AssignmentsPanel({
   const [editingAssignment, setEditingAssignment] = useState<Assignment | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Assignment | null>(null);
   const [detailId, setDetailId] = useState<string | null>(null);
-  /* Havola vazifani ajratib ko'rsatadi, dialogni o'zi ochmaydi. */
   const [assignmentParams] = useSearchParams();
   const highlightId = assignmentParams.get("assignment");
   useAssignmentHighlight(highlightId, (assignments?.length ?? 0) > 0);
@@ -409,7 +384,6 @@ function AssignmentsPanel({
   const update = useUpdateAssignment();
   const remove = useDeleteAssignment();
 
-  // Vazifani darsga bog'lash uchun kurs darslari kerak — faqat dialog ochilganda.
   const lessons = useLessons({ course: courseId, page_size: 100 }, dialog);
 
   return (
@@ -456,7 +430,6 @@ function AssignmentsPanel({
                     : t("assignments.noDue")}{" "}
                   · {t("assignments.submissionsCount", { count: item.submissionsCount ?? 0 })}
                 </small>
-                {/* Umumiy ro'yxatda vazifa qaysi darsga tegishli ekani ko'rinsin. */}
                 {item.lessonTitle ? (
                   <span className="assignment-lesson-tag">
                     <CalendarDays size={12} /> {item.lessonTitle}
@@ -497,8 +470,6 @@ function AssignmentsPanel({
       )}
 
       <AddAssignmentDialog
-        // Tahrirlanadigan vazifa almashsa forma qayta boshlab to'ldirilsin —
-        // aks holda ichki state eski vazifadan qolib ketardi.
         key={editingAssignment?.id ?? "new"}
         open={dialog}
         onOpenChange={(open) => {
@@ -555,7 +526,6 @@ function AssignmentsPanel({
   );
 }
 
-// ─── Davomat ────────────────────────────────────────────────────────────────
 interface AttendancePanelProps {
   lessons?: Lesson[];
   rows?: AttendanceRow[];

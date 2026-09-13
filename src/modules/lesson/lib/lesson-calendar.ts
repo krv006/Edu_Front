@@ -9,11 +9,9 @@ import {
 } from "date-fns";
 import type { Lesson } from "@/shared/types";
 
-/** Hafta dushanbadan boshlanadi — O'zbekistondagi odat. */
 const WEEK_OPTIONS = { weekStartsOn: 1 } as const;
 
 export interface CalendarDay {
-  /** `yyyy-MM-dd` — React kaliti va tanlangan kunni solishtirish uchun. */
   key: string;
   date: Date;
   dayOfMonth: number;
@@ -22,7 +20,6 @@ export interface CalendarDay {
   lessons: Lesson[];
 }
 
-/** Mahalliy vaqt bo'yicha `yyyy-MM-dd`. `toISOString()` UTC'ga surib yuboradi. */
 export function toDayKey(value: Date | string): string {
   const date = typeof value === "string" ? new Date(value) : value;
   const month = String(date.getMonth() + 1).padStart(2, "0");
@@ -30,7 +27,6 @@ export function toDayKey(value: Date | string): string {
   return `${date.getFullYear()}-${month}-${day}`;
 }
 
-/** Darslarni kun bo'yicha indekslaydi, har kun ichida vaqt bo'yicha saralaydi. */
 export function groupLessonsByDay(lessons: Lesson[]): Map<string, Lesson[]> {
   const byDay = new Map<string, Lesson[]>();
 
@@ -47,10 +43,6 @@ export function groupLessonsByDay(lessons: Lesson[]): Map<string, Lesson[]> {
   return byDay;
 }
 
-/**
- * Oyning to'liq panjarasi: oldingi/keyingi oyning "quyruq" kunlari bilan
- * to'ldirilgan, ya'ni panjara har doim butun haftalardan iborat bo'ladi.
- */
 export function buildMonthGrid(month: Date, lessons: Lesson[]): CalendarDay[] {
   const byDay = groupLessonsByDay(lessons);
 
@@ -82,10 +74,6 @@ export function formatDayTitle(date: Date, locale = "uz-UZ"): string {
   }).format(date);
 }
 
-/**
- * Ochiladigan oy: darslar orasida bugungi kun bo'lsa shu oy, aks holda eng
- * yaqin kelayotgan dars oyi, u ham bo'lmasa oxirgi dars oyi.
- */
 export function resolveInitialMonth(lessons: Lesson[], now = new Date()): Date {
   if (!lessons.length) return startOfMonth(now);
 

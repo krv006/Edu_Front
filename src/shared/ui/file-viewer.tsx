@@ -15,29 +15,15 @@ export interface FileViewerProps {
   onOpenChange: (open: boolean) => void;
   name: string;
   mimeType?: string;
-  /** Faylni olib keladi. Auth kerak bo'lgani uchun URL emas, blob qaytariladi. */
   load: (signal: AbortSignal) => Promise<Blob>;
 }
 
 interface LoadedFile {
   url: string;
   kind: FileKind;
-  /** Kengaytmasi bilan to'ldirilgan nom — sarlavhada ko'rinadi. */
   fileName: string;
 }
 
-/**
- * Faylni FAQAT platforma ichida ochadi — yuklab olish taklif qilinmaydi.
- *
- * Fayl auth bilan olinadi, shuning uchun to'g'ridan-to'g'ri `src` berib
- * bo'lmaydi: blob olinib, uning object URL'i ko'rsatiladi. URL oyna yopilishi
- * bilan bekor qilinadi, aks holda blob xotirada qolib ketadi.
- *
- * DIQQAT: bu — nusxa olishga to'siq emas, xulq-atvor chegarasi. Fayl brauzer
- * xotirasida turadi va uni devtools orqali olish mumkin. Haqiqiy himoya faqat
- * server tomonda bo'ladi (masalan vaqtinchalik imzolangan havola yoki
- * watermark). Bu yerda maqsad — oddiy yo'l bilan saqlab qo'yishning oldini olish.
- */
 export function FileViewer({ open, onOpenChange, name, mimeType = "", load }: FileViewerProps) {
   const { t } = useTranslation();
   const [file, setFile] = useState<LoadedFile | null>(null);
@@ -51,12 +37,6 @@ export function FileViewer({ open, onOpenChange, name, mimeType = "", load }: Fi
     load(controller.signal)
       .then((blob) => {
         if (controller.signal.aborted) return;
-        /*
-         * Turni AYNAN yuklangan fayl aytadi. Xabar ma'lumotidagi `file_type`
-         * ko'pincha bo'sh keladi va u holda hamma narsa "boshqa fayl" bo'lib
-         * ko'rinardi; javobning `content-type` sarlavhasi esa to'g'ri
-         * (`application/pdf`) va blob shuni saqlaydi.
-         */
         const type = blob.type || mimeType;
         const kind = fileKindOf(type, name);
         objectUrl = URL.createObjectURL(blobForViewing(blob, kind));
@@ -73,8 +53,6 @@ export function FileViewer({ open, onOpenChange, name, mimeType = "", load }: Fi
       setFile(null);
       setError(null);
     };
-    // `load` har renderda yangi bo'lishi mumkin — qayta yuklashni oyna
-    // ochilishi va faylning o'zi belgilaydi.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, name, mimeType]);
 
@@ -86,7 +64,6 @@ export function FileViewer({ open, onOpenChange, name, mimeType = "", load }: Fi
           description={file ? fileKindLabel(file.kind) : t("fileViewer.opening")}
           className="file-viewer-dialog"
         >
-          {/* Kontekst menyusi ("Rasmni saqlash", "Videoni saqlash") yopiladi. */}
           <div className="file-viewer-body" onContextMenu={(event) => event.preventDefault()}>
             {error ? (
               <div className="file-viewer-state">
@@ -99,8 +76,6 @@ export function FileViewer({ open, onOpenChange, name, mimeType = "", load }: Fi
                 <p>{t("fileViewer.opening")}</p>
               </div>
             ) : file.kind === "pdf" ? (
-              // `#toolbar=0` — brauzerning PDF paneli, ya'ni yuklash va chop
-              // etish tugmalari ko'rinmaydi.
               <iframe src={`${file.url}#toolbar=0`} title={file.fileName} />
             ) : file.kind === "image" ? (
               <img src={file.url} alt={file.fileName} draggable={false} />

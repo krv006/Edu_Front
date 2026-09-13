@@ -4,13 +4,11 @@ import { Dialog, DialogContent } from "@/shared/ui/legacy";
 import { LessonRatingForm } from "./lesson-rating-form";
 
 export interface RateLessonDialogProps {
-  /** `null` — dialog yopiq. */
   lesson: Lesson | null;
   currentUserId?: string;
   onOpenChange: (open: boolean) => void;
 }
 
-/** Dars tugagach o'quvchi o'qituvchini baholaydigan oyna. */
 export function RateLessonDialog({ lesson, currentUserId, onOpenChange }: RateLessonDialogProps) {
   const { t } = useTranslation("lesson");
   return (
@@ -20,7 +18,6 @@ export function RateLessonDialog({ lesson, currentUserId, onOpenChange }: RateLe
           title={t("rateDialog.title")}
           description={t("rateDialog.description", { title: lesson.title })}
         >
-          {/* Dialog yopilib qayta ochilganda forma toza boshlansin. */}
           <LessonRatingForm
             key={lesson.id}
             lesson={lesson}

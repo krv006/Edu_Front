@@ -2,12 +2,6 @@ import { AppError } from "@/shared/api";
 import { lessonApi } from "../api/lesson.api";
 
 const CHUNK_INTERVAL_MS = 30_000;
-/**
- * Birinchi bo‘lak alohida, ertaroq so‘raladi.
- *
- * Aks holda quvur ishlayotgani faqat 30 soniyadan keyin bilinardi va undan
- * qisqa dars (yoki sinov) serverga umuman hech narsa yubormasdi.
- */
 const FIRST_CHUNK_MS = 5_000;
 const MAX_RETRY_DELAY_MS = 30_000;
 const MIME_CANDIDATES = ["audio/webm;codecs=opus", "audio/webm"] as const;
@@ -51,12 +45,6 @@ function waitUntilOnline(): Promise<void> {
   });
 }
 
-/**
- * Bitta darsning teacher-browser audio sessiyasi.
- *
- * Blob navbati faqat server 204 qaytargach `shift()` qilinadi. Tarmoq uzilsa
- * navbat xotirada qoladi va online bo‘lgach exponential backoff bilan davom etadi.
- */
 export class TeacherAudioRecordingSession {
   readonly lessonId: string;
 
@@ -128,17 +116,11 @@ export class TeacherAudioRecordingSession {
       };
       this.recorder.onstop = () => this.resolveStopped?.();
 
-      /*
-       * Kontekst to‘xtagan bo‘lsa MediaRecorder namuna olmaydi va bo‘sh
-       * bo‘laklar keladi — ular esa yuborilmaydi. Shuning uchun yozishdan
-       * OLDIN uyg‘otamiz.
-       */
       if (this.audioContext.state === "suspended") {
         void this.audioContext.resume().catch(() => undefined);
       }
       this.attachSilence();
 
-      // Backend video bilan sinxronlash uchun aynan recorder boshlangan vaqtni kutadi.
       this.startedAt = new Date().toISOString();
       this.recorder.start(CHUNK_INTERVAL_MS);
       this.setState("recording", null);
@@ -155,14 +137,6 @@ export class TeacherAudioRecordingSession {
     }
   }
 
-  /**
-   * Eshitilmaydigan doimiy manba.
-   *
-   * Aralashtirgichga hech nima ulanmagan bo‘lsa (o‘qituvchi mikrofoni o‘chiq,
-   * o‘quvchilar hali kirmagan) ba’zi brauzerlar umuman namuna bermaydi va
-   * bo‘laklar bo‘sh chiqadi. Nol kuchaytirishli osilator oqimni tirik
-   * saqlaydi — yozuvda eshitilmaydi.
-   */
   private attachSilence(): void {
     if (!this.audioContext || !this.destination || this.keepAlive) return;
     const oscillator = this.audioContext.createOscillator();
@@ -174,7 +148,6 @@ export class TeacherAudioRecordingSession {
     this.keepAlive = { oscillator, gain };
   }
 
-  /** LiveKit publikatsiyalari o‘zgarganda mixer source-larini yangilaydi. */
   syncTracks(tracks: readonly MediaStreamTrack[]): void {
     if (!this.audioContext || !this.destination) return;
     const currentIds = new Set(tracks.filter((track) => track.readyState === "live").map((track) => track.id));
@@ -253,7 +226,6 @@ export class TeacherAudioRecordingSession {
           chunk,
           this.firstChunkUploaded ? undefined : (this.startedAt ?? undefined)
         );
-        // Faqat muvaffaqiyatli 204 dan keyin blob xotiradan chiqariladi.
         this.pendingChunks.shift();
         this.firstChunkUploaded = true;
         this.uploadedChunks += 1;
@@ -301,11 +273,9 @@ export function releaseTeacherAudioRecording(session: TeacherAudioRecordingSessi
       sessions?.delete(session);
       if (!sessions?.size) sessionsByLesson.delete(session.lessonId);
     })
-    // Xato bo‘lsa session va bloblar registryda qoladi — finish bosilganda yana uriniladi.
     .catch(() => undefined);
 }
 
-/** Finish mutation shu promise tugamaguncha lesson va finalize endpointlarini chaqirmaydi. */
 export async function flushTeacherAudioRecording(lessonId: string): Promise<void> {
   const sessions = [...(sessionsByLesson.get(lessonId) ?? [])];
   await Promise.all(sessions.map((session) => session.stopAndFlush()));

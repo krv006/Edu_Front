@@ -417,7 +417,6 @@ export function AccountMenu({
               initial={{ opacity: 0, scale: 0.96 }}
               animate={{ opacity: 1, scale: 1 }}
             >
-              {/* Rasmni faqat egasi almashtiradi (`PATCH /auth/me/`). */}
               <span className="info-avatar-slot">
                 <Avatar
                   name={user?.name ?? resolvedRoleLabel}
@@ -497,7 +496,6 @@ export function AccountMenu({
                     />
                   </div>
                 </label>
-                {/* Login yagona bo'lishi shart — band bo'lsa backend 400 beradi. */}
                 <p className="portal-muted">{t("profileDialog.usernameNote")}</p>
                 <label className="field-group">
                   <span>{t("profileDialog.phone")}</span>

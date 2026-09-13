@@ -12,7 +12,6 @@ export const quizKeys = Object.freeze({
   attempts: (id: string) => ["quizzes", "attempts", id] as const,
 });
 
-/** `courseId: null` — foydalanuvchining BARCHA kurslaridagi testlari (rolga qarab backend filtrlaydi). */
 export function useQuizzes(courseId: string | null, enabled = true) {
   return useQuery({
     queryKey: quizKeys.list(courseId),
@@ -75,7 +74,6 @@ export function useDeleteQuiz() {
   });
 }
 
-/** Natija darhol keladi — polling shart emas (AI kutish yo'q). */
 export function useSubmitQuizAttempt() {
   const client = useQueryClient();
   return useMutation({
@@ -93,7 +91,6 @@ export function useSubmitQuizAttempt() {
   });
 }
 
-/** O'quvchi faqat o'zinikini, o'qituvchi/admin/ota-ona barchasini ko'radi (backend cheklaydi). */
 export function useQuizAttempts(quizId: string | null, enabled = true) {
   return useQuery({
     queryKey: quizKeys.attempts(quizId ?? ""),

@@ -26,7 +26,6 @@ export default defineConfig([
     },
   },
 
-  // --- Qatlam chegaralari (FSD): app > pages > widgets > modules > shared ---
   {
     files: [`src/shared/${SOURCE}`],
     rules: {

@@ -1,6 +1,5 @@
 import { i18n } from "@/shared/i18n";
 
-/** Faylni platforma ichida qanday ko'rsatish mumkinligi. */
 export type FileKind = "pdf" | "image" | "video" | "audio" | "other";
 
 const EXTENSION_KINDS: Array<[FileKind, string[]]> = [
@@ -10,7 +9,6 @@ const EXTENSION_KINDS: Array<[FileKind, string[]]> = [
   ["audio", ["mp3", "wav", "ogg", "m4a", "aac"]],
 ];
 
-/** MIME turi ishonchli bo'lmasa (masalan `application/octet-stream`) kengaytmaga tayanamiz. */
 export function fileKindOf(mimeType = "", name = ""): FileKind {
   const mime = mimeType.toLowerCase();
   if (mime.includes("pdf")) return "pdf";
@@ -30,11 +28,6 @@ const KIND_MIME: Record<Exclude<FileKind, "other">, string> = {
   audio: "audio/*",
 };
 
-/**
- * Brauzer faylni ichida ochishi uchun blob turi to'g'ri bo'lishi shart:
- * `application/octet-stream` kelsa `<iframe>` uni ko'rsatmay, yuklab oladi.
- * Aniq tur faqat PDF uchun ma'lum — qolganlarida server berganini qoldiramiz.
- */
 export function blobForViewing(blob: Blob, kind: FileKind): Blob {
   if (kind === "pdf" && blob.type !== KIND_MIME.pdf) {
     return new Blob([blob], { type: KIND_MIME.pdf });
@@ -42,12 +35,6 @@ export function blobForViewing(blob: Blob, kind: FileKind): Blob {
   return blob;
 }
 
-/**
- * Nom kengaytmasiz kelsa (backend `file_name` yubormasa — shunchaki "Fayl"),
- * uni javobning MIME turidan to'ldiramiz: aks holda saqlangan faylni tizim
- * ochib bilmaydi. Faqat qisqa, haqiqiy kengaytmaga o'xshash qismi olinadi —
- * `application/vnd.openxmlformats-…` kabi uzunlari e'tiborsiz qoldiriladi.
- */
 export function fileNameFor(name: string, mimeType = ""): string {
   if (/\.[a-z0-9]{2,5}$/i.test(name)) return name;
   const subtype = mimeType.split("/")[1]?.split(";")[0]?.trim().toLowerCase() ?? "";

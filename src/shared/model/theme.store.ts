@@ -8,7 +8,6 @@ export type ResolvedTheme = "light" | "dark";
 interface ThemeState {
   mode: ThemeMode;
   setMode: (mode: ThemeMode) => void;
-  /** light ⇄ dark almashtiradi (system bo'lsa — hozirgi ko'rinishning teskarisiga). */
   toggle: () => void;
 }
 
@@ -21,7 +20,6 @@ export function resolveTheme(mode: ThemeMode): ResolvedTheme {
   return mode;
 }
 
-/** `.dark` klassini `<html>` ga qo'yadi — theme.css shu selektorga tayanadi. */
 function applyTheme(mode: ThemeMode): void {
   if (typeof document === "undefined") return;
   const resolved = resolveTheme(mode);
@@ -50,7 +48,6 @@ export const useThemeStore = create<ThemeState>()(
   )
 );
 
-// Tizim mavzusi o'zgarsa va foydalanuvchi "system" ni tanlagan bo'lsa — darhol moslashamiz.
 if (typeof window !== "undefined") {
   applyTheme(useThemeStore.getState().mode);
   window.matchMedia?.("(prefers-color-scheme: dark)").addEventListener?.("change", () => {
@@ -58,7 +55,6 @@ if (typeof window !== "undefined") {
   });
 }
 
-/** Komponentlar uchun: hozirgi rejim, hisoblangan ko'rinish va boshqaruv. */
 export function useTheme() {
   const mode = useThemeStore((state) => state.mode);
   const setMode = useThemeStore((state) => state.setMode);

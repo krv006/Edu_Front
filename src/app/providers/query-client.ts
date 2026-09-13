@@ -2,7 +2,6 @@ import { MutationCache, QueryCache, QueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { API_ERROR_CODES, AppError } from "@/shared/api";
 
-/** Faqat vaqtinchalik nosozliklar qayta uriniladi — 4xx lar emas. */
 const RETRYABLE_CODES: ReadonlySet<string> = new Set([
   API_ERROR_CODES.NETWORK_ERROR,
   API_ERROR_CODES.OFFLINE,
@@ -14,7 +13,6 @@ export function shouldRetry(failureCount: number, error: unknown): boolean {
   return failureCount < 2 && error instanceof AppError && RETRYABLE_CODES.has(error.code);
 }
 
-/** Global toast faqat `meta.showGlobalError` belgilangan so'rovlarda chiqadi. */
 function showGlobalError(error: unknown, meta?: Record<string, unknown>): void {
   const message = error instanceof Error ? error.message : null;
   if (meta?.showGlobalError && message) toast.error(message);

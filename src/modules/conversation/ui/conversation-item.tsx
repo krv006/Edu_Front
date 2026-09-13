@@ -10,7 +10,6 @@ export interface ConversationItemProps {
   conversation: Conversation;
   active: boolean;
   basePath?: string;
-  /** Shu guruhda hozir jonli dars ketyapti — ro'yxatdan turib ko'rinadi. */
   live?: boolean;
 }
 
@@ -49,11 +48,6 @@ export function ConversationItem({
           <time>{formatConversationTime(conversation.updatedAt)}</time>
         </span>
         <span className="conversation-row conversation-row--preview">
-          {/*
-            Jonli dars ohirgi xabardan muhimroq: o'quvchi qaysi guruhga
-            kirishini ro'yxatdan turib bilishi kerak, shuning uchun shu paytda
-            oldin ko'rinish o'rnini egallaydi.
-          */}
           {live ? (
             <span className="conversation-live-copy">
               <Video size={13} aria-hidden="true" />

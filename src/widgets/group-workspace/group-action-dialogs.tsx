@@ -31,16 +31,8 @@ import type { Assignment, Lesson } from "@/shared/types";
 
 export interface LessonDraft { topic: string; date: string; time: string; duration: string }
 
-/**
- * Takrorlanuvchi jadval — bo'lsa, dialog bitta emas, bir nechta dars yaratadi.
- *
- * `dates` server endpointi mavjud bo'lmagan muhitlar uchun zaxira: u yerda
- * har sana bo'yicha alohida dars yaratiladi. Server ishlaganda esa
- * `weekdays` + oraliq yuboriladi.
- */
 export interface LessonScheduleDraft extends LessonDraft {
   dates: string[];
-  /** ISO hafta kunlari: 1 = Dushanba … 7 = Yakshanba. */
   weekdays: number[];
   startsOn: string;
   endsOn: string;
@@ -50,12 +42,7 @@ export interface AddLessonDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onCreate: (values: LessonDraft) => void;
-  /** Takrorlanuvchi rejim — berilmasa, rejim almashtirgichi ko'rsatilmaydi. */
   onCreateSchedule?: (values: LessonScheduleDraft) => void;
-  /**
-   * O'qituvchining barcha darslari (hamma kurslari bo'yicha) — vaqt
-   * to'qnashuvini tekshirish uchun. Bo'sh bo'lsa ogohlantirish chiqmaydi.
-   */
   existingLessons?: readonly Lesson[];
   initialValues?: Lesson | null;
 }
@@ -66,22 +53,11 @@ export interface AddAssignmentDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onCreate: (values: AssignmentDraft & { body: string; extraInstructions: string; file: File | null }) => void;
-  /**
-   * Vazifani bog'lash mumkin bo'lgan darslar. Backend FAQAT tugagan darsni
-   * qabul qiladi, shuning uchun ro'yxat shu yerda ham filtrlanadi.
-   */
   lessons?: readonly Lesson[];
-  /** Til fani bo'lmasa "tekshiruv turi" tanlovi umuman ko'rsatilmaydi. */
   isLanguageSubject?: boolean;
-  /**
-   * Tahrirlash rejimi — berilsa forma shu vazifadan to'ldiriladi (masalan
-   * noto'g'ri kiritilgan muddatni to'g'irlash uchun). Backend "Baholash
-   * izohi"ni qaytarmaydi (yozish-uchun-maydon), shuning uchun u bo'sh boshlanadi.
-   */
   initialValues?: Assignment | null;
 }
 
-/** Tez tanlash uchun tayyor davomiyliklar; boshqa qiymat qo‘lda yoziladi. */
 const DURATION_OPTIONS = [30, 45, 60, 90];
 
 function useSkillOptions(): Array<{ value: string; label: string }> {
@@ -109,7 +85,6 @@ function todayString(): string {
   return new Date().toISOString().slice(0, 10);
 }
 
-/** Bir oy keyingi sana — takrorlanuvchi jadval uchun oqilona standart oxir. */
 function monthLaterString(): string {
   const date = new Date();
   date.setMonth(date.getMonth() + 1);
@@ -145,7 +120,6 @@ export function AddLessonDialog({
   const [weekdays, setWeekdays] = useState<number[]>([...ODD_WEEKDAYS]);
   const [range, setRange] = useState(() => ({ from: todayString(), to: monthLaterString() }));
 
-  // Tahrirlashda takrorlanish ma'nosiz — bitta mavjud dars o'zgartiriladi.
   const canRepeat = Boolean(onCreateSchedule) && !initialValues;
   const isRepeating = canRepeat && repeat;
   const duration = Number(form.duration) || 45;
@@ -158,7 +132,6 @@ export function AddLessonDialog({
     [isRepeating, range.from, range.to, weekdays]
   );
 
-  /** Bitta dars uchun — tanlangan vaqtda band bo'lgan darslar. */
   const singleConflicts = useMemo(() => {
     if (isRepeating || !form.date) return [];
     return findScheduleConflicts(existingLessons, {
@@ -169,7 +142,6 @@ export function AddLessonDialog({
     });
   }, [isRepeating, existingLessons, form.date, form.time, duration, initialValues]);
 
-  /** Takrorlanuvchi jadval uchun — qaysi sanalarda band. */
   const scheduleConflicts = useMemo(
     () => (isRepeating ? findScheduleConflictsForDates(existingLessons, dates, form.time, duration) : []),
     [isRepeating, existingLessons, dates, form.time, duration]
@@ -395,14 +367,6 @@ export function AddLessonDialog({
   );
 }
 
-/**
- * Vaqt to'qnashuvi ogohlantirishi.
- *
- * Ataylab BLOKLAMAYDI: frontend faqat shu o'qituvchining darslarini ko'radi,
- * shuning uchun "to'qnashuv yo'q" degan xulosa to'liq ishonchli emas.
- * Qaror o'qituvchining o'ziga qoldiriladi, haqiqiy cheklov server tomonda
- * bo'lishi kerak.
- */
 function ConflictNotice({
   single,
   schedule,
@@ -485,7 +449,6 @@ export function AddAssignmentDialog({
           description: initialValues.description,
           dueAt: initialValues.dueAt ?? "",
           skillKey: initialValues.skillKey || "",
-          // Backend buni qaytarmaydi — bo'sh qoldirilsa PATCH mavjud qiymatni o'zgartirmaydi.
           grading: "",
           lessonId: initialValues.lessonId ?? "",
         }
@@ -494,7 +457,6 @@ export function AddAssignmentDialog({
   const [file, setFile] = useState<File | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
 
-  /** Backend faqat tugagan darsni qabul qiladi — eng yangisi tepada. */
   const lessonOptions = useMemo(() => {
     const finished = lessons
       .filter((lesson) => lesson.status === "finished")
@@ -515,7 +477,6 @@ export function AddAssignmentDialog({
     if (!form.title.trim() || !form.description.trim()) return;
     onCreate({
       ...form,
-      // Til fani bo'lmasa tanlov ko'rsatilmagan — eskirgan qiymat ketmasin.
       skillKey: isLanguageSubject ? form.skillKey : "",
       body: form.description,
       extraInstructions: form.grading,
@@ -607,7 +568,6 @@ export function AddAssignmentDialog({
                 includeTime
                 optional
               />
-              {/* Tekshiruv turi faqat til fanida ma'noli (docs/STAFF_API.md §2). */}
               {isLanguageSubject ? (
                 <SelectPicker
                   label={t("dialogs.assignment.checkTypeLabel")}
@@ -627,7 +587,6 @@ export function AddAssignmentDialog({
               )}
             </div>
 
-            {/* Til fanida ikkala tanlov ham kerak — dars tanlovi alohida qatorda. */}
             {isLanguageSubject ? (
               <SelectPicker
                 label={t("dialogs.assignment.lessonLabel")}

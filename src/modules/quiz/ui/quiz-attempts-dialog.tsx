@@ -11,11 +11,6 @@ export interface QuizAttemptsDialogProps {
   title?: string;
 }
 
-/**
- * Urinishlar tarixi. O'quvchi faqat o'zinikini, o'qituvchi/admin/ota-ona
- * barchasini ko'radi — bu backend RBAC orqali cheklanadi, shu yerda
- * qo'shimcha filtr shart emas.
- */
 export function QuizAttemptsDialog({ quizId, open, onOpenChange, title }: QuizAttemptsDialogProps) {
   const { t, i18n } = useTranslation("quiz");
   const attempts = useQuizAttempts(quizId, open);

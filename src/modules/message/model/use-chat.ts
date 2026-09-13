@@ -12,7 +12,6 @@ import { messageKeys } from "./message.keys";
 
 const TYPING_RESET_MS = 2600;
 
-/** WebSocket ishlamayotgan holat uchun zaxira — kanal ulanganda o'chadi. */
 const REST_FALLBACK_POLL_MS = 6000;
 
 export interface UseChatOptions {
@@ -37,9 +36,6 @@ export function useChat(
   const [socketState, setSocketState] = useState<SocketState>("idle");
   const [typing, setTyping] = useState<string | null>(null);
 
-  // Yon paneldagi ro'yxatdagi nusxa — chat ochilishi uchun detal so'rovi
-  // kutilmaydi, u fonda kelib ustiga yoziladi. Keshda topilmasa `undefined`
-  // bo'ladi va sahifa odatdagidek skeleton ko'rsatadi.
   const cachedConversation = readCachedConversation(queryClient, conversationId, role);
 
   const conversation = useQuery({
@@ -53,8 +49,6 @@ export function useChat(
     queryKey: messagesKey,
     queryFn: ({ signal }) => messageApi.getAll(conversationId as string, { signal }),
     enabled: Boolean(conversationId),
-    // WebSocket uzilgan bo'lsa yangi xabarlar kelmay qoladi — zaxira sifatida
-    // tarixni qayta so'raymiz. Kanal ulanishi bilan polling o'chadi.
     refetchInterval: socketState === "connected" ? false : REST_FALLBACK_POLL_MS,
   });
 
@@ -70,16 +64,10 @@ export function useChat(
                   upsertMessage(current, event.message)
                 );
               }
-              // O'zimizning "yozmoqda" signalimizni ko'rsatmaymiz.
               if (event.type === "typing" && event.userId !== String(senderId)) {
                 setTyping(event.name);
                 globalThis.setTimeout(() => setTyping(null), TYPING_RESET_MS);
               }
-              /*
-               * Kursdan chiqarildik: server socketni baribir yopadi, lekin
-               * foydalanuvchi nima bo'lganini bilishi va ochiq chatda qolib
-               * ketmasligi kerak. Ro'yxat ham yangilanadi — guruh yo'qoladi.
-               */
               if (event.type === "removed") {
                 toast.error(i18n.t("chat:removedFromGroup"));
                 queryClient.invalidateQueries({ queryKey: conversationKeys.all });
@@ -100,7 +88,6 @@ export function useChat(
 
   const sendMessage = useMutation({
     mutationFn: (payload: SendMessagePayload) => messageApi.send(conversationId as string, payload),
-    // Optimistik xabar darhol ko'rinadi, javob kelgach haqiqiysi bilan almashadi.
     onMutate: async (payload): Promise<OptimisticContext> => {
       const temporaryId = `temp-${crypto.randomUUID()}`;
       const optimistic: ChatMessage = {
@@ -172,5 +159,4 @@ export function useChat(
   };
 }
 
-/** `useChat` qaytaradigan to'liq shakl — widget va sahifalar shu tipga tayanadi. */
 export type ChatController = ReturnType<typeof useChat>;

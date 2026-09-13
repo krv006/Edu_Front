@@ -2,11 +2,6 @@ import i18next, { type Resource } from "i18next";
 import { initReactI18next } from "react-i18next";
 import { DEFAULT_LANGUAGE, useLanguageStore } from "@/shared/model";
 
-/**
- * Har bir `locales/<til>/<nomlar-maydoni>.json` fayli avtomatik yuklanadi —
- * yangi nomlar maydoni qo'shish uchun shu yerga qo'l bilan import qo'shish
- * shart emas, yangi fayl yaratish yetarli.
- */
 const localeModules = import.meta.glob<{ default: Record<string, string> }>(
   "./locales/*/*.json",
   { eager: true }
@@ -34,13 +29,6 @@ void i18next.use(initReactI18next).init({
   returnNull: false,
 });
 
-/*
- * Til do'koni (foydalanuvchi tanlovi, zustand + localStorage) yagona haqiqat
- * manbai — i18next shunga OBUNA bo'ladi, aksincha emas. Shu tufayli
- * `Accept-Language` sarlavhasini qo'yadigan `request-interceptor.ts` ham
- * xuddi shu do'kondan o'qiydi va ikkalasi hech qachon bir-biridan ajralib
- * qolmaydi.
- */
 useLanguageStore.subscribe((state) => {
   if (i18next.language !== state.language) void i18next.changeLanguage(state.language);
 });

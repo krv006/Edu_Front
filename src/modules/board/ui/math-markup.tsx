@@ -7,13 +7,6 @@ export interface MathMarkupProps {
   color?: string;
 }
 
-/**
- * LaTeX formulani ko'rsatadi (docs/README — MathLive `convertLatexToMarkup`).
- *
- * Markup'ni MathLive'ning o'zi LaTeX'dan quradi va HTML'ni o'tkazib yubormaydi,
- * shuning uchun `dangerouslySetInnerHTML` bu yerda kutubxonaning maqsadli ishlatilishi.
- * Kutubxona yuklanguncha xom LaTeX ko'rsatiladi — bo'sh joy "sakramaydi".
- */
 export function MathMarkup({ latex, size = 24, color = "currentColor" }: MathMarkupProps) {
   const [markup, setMarkup] = useState<string | null>(null);
 

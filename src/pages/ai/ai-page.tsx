@@ -1,12 +1,5 @@
 import { Sparkles } from "lucide-react";
 
-/**
- * AI bo'limi — hozircha o'rin egallab turadi.
- *
- * Ustundagi tuzilma tayyor bo'lishi uchun qo'shildi; mazmuni keyin
- * to'ldiriladi. Ataylab "ishlayotgandek" ko'rinmaydi — foydalanuvchi nima
- * kutishini bilib turishi kerak.
- */
 export function AiPage() {
   return (
     <div className="schedule-page">

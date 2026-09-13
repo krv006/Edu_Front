@@ -19,7 +19,6 @@ export function ParentAttendancePage() {
     return items.filter((item) => `${item.child} ${item.lesson}`.toLowerCase().includes(needle));
   }, [attendanceQuery.data, search]);
 
-  // Ota-ona uchun eng muhim yig'ma ko'rsatkich — bola darsdan jami qancha chalg'igani.
   const totalAway = useMemo(
     () => rows.reduce((sum, item) => sum + item.focus.awaySeconds, 0),
     [rows]

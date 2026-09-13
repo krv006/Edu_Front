@@ -9,10 +9,6 @@ import {
 import { NotificationHtml } from "./notification-html";
 import { SendNotificationDialog } from "./send-notification-dialog";
 
-/**
- * Admin paneli: yuborilgan xabarlar va ularning o'qilish statistikasi
- * (docs/COMPLETED_WORK.md §2). Qatorni bosganda kim o'qigani ochiladi.
- */
 export function SentNotificationsPanel() {
   const [composeOpen, setComposeOpen] = useState(false);
   const [detailId, setDetailId] = useState<string | null>(null);
@@ -21,7 +17,6 @@ export function SentNotificationsPanel() {
   const recipients = useNotificationRecipients(detailId);
   const items = sent.data?.items ?? [];
 
-  // Modul o'rnatilmagan muhitda (404) panelni umuman ko'rsatmaymiz.
   if (sent.isError) return null;
 
   return (

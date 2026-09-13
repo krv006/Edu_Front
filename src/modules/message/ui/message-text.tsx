@@ -8,13 +8,8 @@ export interface MessageTextProps {
   text: string;
 }
 
-/** Video yozuvi havolasi — xom URL o'rniga tanish belgi bilan ko'rsatiladi. */
 const RECORDING_PATH = /^\/recordings\//;
 
-/**
- * Xabar matni: doska/yozuv havolalari ilova ichida ochiladi, tashqi havolalar
- * yangi oynada. Matn React tugunlari sifatida quriladi — HTML injeksiya bo'lmaydi.
- */
 export function MessageText({ text }: MessageTextProps) {
   const { t } = useTranslation("chat");
   const tokens = useMemo(() => tokenizeMessageText(text), [text]);

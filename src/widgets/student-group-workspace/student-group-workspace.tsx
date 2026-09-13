@@ -90,17 +90,9 @@ export function StudentGroupWorkspace({
   const tabParam = params.get("tab") as TabId | null;
   const active: TabId = TABS.some((item) => item.id === tabParam) ? (tabParam as TabId) : "chat";
 
-  // Darslar va vazifalar faqat o'z bo'limi ochilganda so'raladi — chatni
-  // ochish uchun ular kutilib turilmasin.
   const lessons = useLessons({ course: courseId, page_size: 100 }, active === "lessons");
   const assignments = useAssignments(courseId, active === "assignments");
 
-  /**
-   * O'quvchi guruh a'zolari ro'yxatini ko'ra olmaydi
-   * (`GET /courses/{id}/students/` faqat o'qituvchi va adminga ochiq), lekin
-   * kurs ma'lumotida `student_count` bor va u barcha rollarga beriladi —
-   * shundan a'zolar SONI olinadi.
-   */
   const course = useCourse(courseId);
 
   const hydrated: Conversation = {
@@ -126,7 +118,6 @@ export function StudentGroupWorkspace({
   return (
     <section className="chat-page group-workspace student-group-workspace">
       <ChatHeader conversation={hydrated} backTo="/student/chats" />
-      {/* Jonli dars bo'lsa chat tepasida chiziq turadi — Telegram uslubi. */}
       <LiveLessonBar courseId={courseId} />
       <nav className="group-tabs">
         {TABS.map((tab) => {
@@ -197,12 +188,6 @@ export function StudentGroupWorkspace({
   );
 }
 
-// ─── Darslar (ko‘rish + tugagan darsni baholash) ────────────────────────────
-/**
- * O'qituvchidagi bilan AYNAN bir xil ko'rinish: ro'yxat ⇄ kalendar
- * almashtirgichi va o'sha komponentlar. Farq faqat amallar to'plamida —
- * o'quvchi darsni tahrirlay, o'chira yoki yakunlay olmaydi.
- */
 function StudentLessons({
   lessons = [],
   loading,
@@ -256,7 +241,6 @@ function StudentLessons({
   );
 }
 
-// ─── Vazifalar ──────────────────────────────────────────────────────────────
 function AttachmentButton({ assignment }: { assignment: Assignment }) {
   const { t } = useTranslation("student");
   const download = useDownloadAssignmentFile();
@@ -325,11 +309,6 @@ function SubmissionStatus({
   );
 }
 
-/**
- * Bildirishnomadan kelingan vazifani ko'rsatadi: ro'yxatda ajratib qo'yadi va
- * ekranga suradi. Ro'yxat kechroq yuklanishi mumkin, shuning uchun element
- * paydo bo'lgach qidiriladi.
- */
 function useAssignmentHighlight(assignmentId: string | null, ready: boolean) {
   useEffect(() => {
     if (!assignmentId || !ready) return;
@@ -342,10 +321,6 @@ function useAssignmentHighlight(assignmentId: string | null, ready: boolean) {
 function StudentAssignments({ assignments = [], loading }: { assignments?: Assignment[]; loading: boolean }) {
   const { t } = useTranslation("student");
   const [selected, setSelected] = useState<Assignment | null>(null);
-  /*
-   * Bildirishnomadagi havola vazifani KO'RSATADI, lekin topshirish oynasini
-   * o'zi ochmaydi: o'quvchi avval vazifani o'qib, keyin o'zi qaror qiladi.
-   */
   const [params] = useSearchParams();
   const highlightId = params.get("assignment");
   useAssignmentHighlight(highlightId, assignments.length > 0);
@@ -454,8 +429,6 @@ function StudentAssignments({ assignments = [], loading }: { assignments?: Assig
                   void submit
                     .mutateAsync({ assignmentId: selected.id, file, skillKey: selected.skillKey })
                     .then(() => setSelected(null))
-                    // Xato bo'lsa oyna ochiq qoladi (qayta urinish uchun) — xabar
-                    // `useSubmitHomework`ning `onError`i orqali allaqachon ko'rsatiladi.
                     .catch(() => undefined);
                 }}
               >

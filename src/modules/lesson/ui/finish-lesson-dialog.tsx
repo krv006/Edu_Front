@@ -6,11 +6,9 @@ import { useFinishLesson } from "../model/lesson.queries";
 export interface FinishLessonDialogProps {
   lesson: Lesson | null;
   onOpenChange: (open: boolean) => void;
-  /** Dars HAQIQATAN yakunlangach chaqiriladi (bekor qilinganda emas) — masalan jonli dars ekranidan chiqish uchun. */
   onFinished?: () => void;
 }
 
-/** O‘qituvchi uchun ortiqcha video-yozuv maydonisiz darsni yakunlash tasdig‘i. */
 export function FinishLessonDialog({ lesson, onOpenChange, onFinished }: FinishLessonDialogProps) {
   const { t } = useTranslation("lesson");
   const finish = useFinishLesson();

@@ -1,21 +1,7 @@
-/**
- * Fokus dizayn tokenlari.
- *
- * Bitta manba: brend qiymatlari `:root` da oddiy CSS o‘zgaruvchisi sifatida turadi,
- * `@theme inline` esa ularni Tailwind utilitalariga (`bg-background`, `text-muted-foreground`)
- * bog‘laydi. Shu sabab shadcn komponentlari ham, `legacy.css` dagi qo‘lda yozilgan
- * uslublar ham AYNAN bitta palitradan oziqlanadi.
- */
 
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  /* --- Brend ---
-     Logo gradienti binafsha (#5D0CFE) → ko'k (#1690FF) → teal (#03E7B4).
-     Tugma foni sifatida aynan gradientning BOSHI olinadi: u oq matn bilan
-     7.12:1 beradi. Gradientning teal uchi (#03E7B4) esa atigi 1.60:1 —
-     shuning uchun u hech qachon tugma foni bo'lolmaydi, faqat bezak
-     (logo, gradient chiziqlar) sifatida ishlatiladi. */
   --background: #f5f7fa;
   --foreground: #1a1f26;
   --surface: #ffffff;
@@ -33,7 +19,6 @@
   --secondary-foreground: #1a1f26;
 
   --muted: #eef1f6;
-  /* WCAG AA: oq fonda 5.87:1, sahifa fonida 5.47:1. */
   --muted-foreground: #5a6672;
 
   --accent: #efe9ff;
@@ -49,7 +34,6 @@
   --input: #e2e7ef;
   --ring: #7c3aff;
 
-  /* WCAG AA: oq matn bilan 4.88:1. */
   --destructive: #cd3a4b;
   --destructive-foreground: #ffffff;
   --success: #22a979;
@@ -71,16 +55,10 @@
   --sidebar-border: #232c36;
   --sidebar-ring: #7c3aff;
 
-  /* --- Kengaytirilgan semantik tokenlar ---
-     legacy.css da qattiq yozilgan ranglar shu tokenlarga bog'landi,
-     shuning uchun har bir ekran dark rejimga avtomatik moslashadi. */
 
-  /* Yuzalar: sahifa fonidan sal ajralib turadigan bloklar */
   --surface-subtle: #f7f9fc;
   --surface-tint: #f6faff;
 
-  /* Suhbat maydoni foni — yon panel (--surface) dan to'qroq, shunda xabar
-     pufakchalari va yon panel bir-biridan aniq ajralib turadi. */
   --chat-bg: #f5f7fa;
 
   --primary-tint: #f7f4ff;
@@ -88,7 +66,6 @@
   --border-accent: #d4c4ff;
   --border-accent-strong: #b9a1ff;
 
-  /* Holat ranglari — yumshoq fon + kontrastli matn */
   --destructive-soft: #fff0f2;
   --destructive-soft-border: #f4dadd;
   --destructive-strong: #b4233a;
@@ -99,16 +76,12 @@
   --warning-soft: #fff5d9;
   --warning-strong: #7a5100;
 
-/* Aksent tonlari — metrik kartochkalar, status pillari, avatarlar */
   --tone-violet-fg: #5643c9;  --tone-violet-bg: #f0edff;
   --tone-blue-fg:   #2f6fb8;  --tone-blue-bg:   #ebf4ff;
   --tone-amber-fg:  #9c6017;  --tone-amber-bg:  #fff4e3;
   --tone-emerald-fg:#0f7a59;  --tone-emerald-bg:#e7f8f1;
   --tone-rose-fg:   #b73f56;  --tone-rose-bg:   #ffedf1;
 
-  /* Overlay va shisha effektli yuzalar.
-     RGB uchligi alohida token — shaffoflik darajasi har joyda o‘zgacha,
-     lekin rang asosi mavzuga qarab almashadi. */
   --surface-rgb: 255 255 255;
   --shadow-rgb: 26 31 38;
   --scrim-rgb: 10 14 19;
@@ -121,31 +94,19 @@
   --shadow-primary: 0 10px 26px rgb(var(--primary-rgb) / 0.22);
   --shadow-float: 0 18px 50px rgba(26, 31, 38, 0.12);
 
-  /* --- Tipografiya shkalasi ---
-     `legacy.css` da 26 xil o'lchov qo'lda yozilgan edi (8px dan 44px gacha),
-     332 tadan 245 tasi 13px va undan kichik. Shkala ularni 12 pog'onaga
-     yig'adi va pastki chekkasini ko'taradi — matn siqilgan ko'rinmasin.
+  --fs-2xs: 11px;
+  --fs-xs: 12px;
+  --fs-sm: 13px;
+  --fs-md: 14px;
+  --fs-lg: 15px;
+  --fs-xl: 16px;
+  --fs-2xl: 17px;
+  --fs-3xl: 19px;
+  --fs-4xl: 21px;
+  --fs-5xl: 24px;
+  --fs-6xl: 28px;
+  --fs-7xl: 44px;
 
-     Nom fazosi ataylab `--text-*` EMAS: u Tailwind'niki va shadcn
-     komponentlaridagi `text-sm` kabi utilitalarni o'zgartirib yuborardi. */
-  --fs-2xs: 11px;  /* avval 8–9.5px — mayda yorliqlar, meta matn */
-  --fs-xs: 12px;   /* avval 10px    — yordamchi matn */
-  --fs-sm: 13px;   /* avval 11px    — ikkilamchi matn */
-  --fs-md: 14px;   /* avval 12px    — asosiy matn */
-  --fs-lg: 15px;   /* avval 13px    — kuchaytirilgan matn */
-  --fs-xl: 16px;   /* avval 14–15px */
-  --fs-2xl: 17px;  /* avval 16–17px */
-  --fs-3xl: 19px;  /* avval 18–19px — kichik sarlavha */
-  --fs-4xl: 21px;  /* avval 20–22px */
-  --fs-5xl: 24px;  /* avval 23–25px */
-  --fs-6xl: 28px;  /* avval 26–29px — sahifa sarlavhasi */
-  --fs-7xl: 44px;  /* hero raqami */
-
-  /* --- Radius shkalasi ---
-     Avval 21 xil qiymat bor edi (2px dan 24px gacha) — 8/9/10/11/12 kabi
-     farqlarni ko'z ilg'amaydi, lekin ular UI'ni "yig'ilmagan" qiladi.
-     Qiymat manbasi — Tailwind'ning `--radius-*` tokenlari, shuning uchun
-     `rounded-md` utilitasi va `legacy.css` bir xil burchak beradi. */
   --r-xs: 7px;
   --r-sm: var(--radius-sm);
   --r-md: var(--radius-md);
@@ -172,7 +133,6 @@
   --secondary-foreground: #e6edf3;
 
   --muted: #192027;
-  /* Yuzada 5.82:1, aktiv tabda 5.13:1. */
   --muted-foreground: #8b98a5;
 
   --accent: #20193a;
@@ -188,9 +148,6 @@
   --input: #26313d;
   --ring: #a98cff;
 
-  /* Tugma foni — oq matn bilan 4.88:1. Avval yorug' #f0616f edi va ustidagi
-     matn qora bo'lishga majbur qilardi. Qizil MATN uchun alohida
-     --destructive-strong bor, u yorug'ligicha qoladi. */
   --destructive: #cd3a4b;
   --destructive-foreground: #ffffff;
   --success: #35c493;
@@ -202,7 +159,6 @@
   --sidebar-accent: #20193a;
   --sidebar-border: #1e2731;
 
-  /* --- Kengaytirilgan semantik tokenlar (qorong‘i variant) --- */
   --surface-subtle: #131a21;
   --surface-tint: #151e29;
 
@@ -308,8 +264,6 @@
   --font-sans: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
 }
 
-/* `@theme` (inline emas) — o‘zgaruvchilar :root ga chiqadi, shuning uchun
-   legacy.css dagi `var(--radius-sm)` ham, `rounded-sm` utilitasi ham ishlaydi. */
 @theme {
   --radius-sm: 10px;
   --radius-md: 13px;

@@ -27,7 +27,6 @@ if (!parsedEnv.success) {
   throw new Error(`Environment konfiguratsiyasi noto‘g‘ri: ${details}`);
 }
 
-/** `/` — nisbiy so‘rovlar (vite proxy / vercel rewrite orqali). */
 function normalizeBaseUrl(value: string): string {
   if (value === "/") return "";
   return value.replace(/\/+$/, "");

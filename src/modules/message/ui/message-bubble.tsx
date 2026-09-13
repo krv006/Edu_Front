@@ -77,7 +77,6 @@ export function MessageBubble({ message, currentUserId = null, onReply, onOpenAc
           </div>
         )}
         {message.text && <MessageText text={message.text} />}
-        {/* Dars tugagach backend doska PDF'ini shu ko'rinishda yuboradi. */}
         {message.attachment && <MessageAttachment attachment={message.attachment} />}
         <span className="message-meta">
           {message.editedAt && <em>{t("bubble.edited")}</em>}

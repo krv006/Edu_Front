@@ -24,7 +24,6 @@ import { MathFieldInput } from "./math-field-input";
 export interface BoardPanelProps {
   lessonId: string;
   courseId: string | null;
-  /** O'quvchining LiveKit identity'si — `board_granted` signalini o'ziga tegishli deb aniqlash uchun. */
   currentUserId?: string | null;
 }
 
@@ -49,7 +48,6 @@ export function BoardPanel({ lessonId, courseId, currentUserId }: BoardPanelProp
   const [reason, setReason] = useState("");
   const [grantOpen, setGrantOpen] = useState(false);
 
-  // Matn/formula editori aynan foydalanuvchi bosgan doska koordinatasida ochiladi.
   const [placement, setPlacement] = useState<{ tool: "text" | "math"; point: Point } | null>(null);
   const [draftText, setDraftText] = useState("");
 
@@ -61,10 +59,6 @@ export function BoardPanel({ lessonId, courseId, currentUserId }: BoardPanelProp
   const active = state?.sheets.find((item) => item.index === sheet) ?? state?.sheets[0];
   const canDraw = Boolean(state?.canDraw);
 
-  /**
-   * Chizmani real-time kanal orqali yuboramiz — server uni darhol hammaga tarqatadi.
-   * Kanal yopiq bo'lsa REST `POST .../stroke/` ishlatiladi (docs: ikkalasi teng kuchli).
-   */
   function commitStroke(stroke: StrokeShapeDto) {
     if (!realtime.sendStroke(sheet, stroke)) addStroke.mutate({ sheet, stroke });
   }
@@ -93,8 +87,6 @@ export function BoardPanel({ lessonId, courseId, currentUserId }: BoardPanelProp
         ? { type: "math", latex: draftText.trim(), x, y, size: BOARD_TEXT_SIZE, color }
         : { type: "text", text: draftText, x, y, size: BOARD_TEXT_SIZE, color };
 
-    // Bu yerda ataylab REST: server formulani rad etsa (`math_enabled` yo'q kursda)
-    // 400 va tushunarli matn qaytaradi. WS orqali yuborilsa xato dialog yopilgach kelardi.
     addStroke.mutate(
       { sheet, stroke },
       {
@@ -107,11 +99,6 @@ export function BoardPanel({ lessonId, courseId, currentUserId }: BoardPanelProp
     );
   }
 
-  /**
-   * Lastik asbobi bosilgan holda elementga bosilganda darhol shu yerga
-   * keladi — avval alohida "Tanlash" rejimi kerak edi, bu tushunarsiz
-   * bo'lib, "lastik ishlamayapti" degan shikoyatlarga sabab bo'lgan edi.
-   */
   function handleStrokeClick(id: string) {
     if (tool !== "erase" || !canDraw) return;
     setSelected(id);
@@ -119,7 +106,6 @@ export function BoardPanel({ lessonId, courseId, currentUserId }: BoardPanelProp
     setReasonOpen(true);
   }
 
-  /** Oyna yopilganda tanlov ham tozalanadi — aks holda keyingi ochilishda eskisi qolib ketardi. */
   function closeReasonDialog() {
     setReasonOpen(false);
     setSelected(null);
@@ -133,9 +119,8 @@ export function BoardPanel({ lessonId, courseId, currentUserId }: BoardPanelProp
       await erase.mutateAsync({ sheet, strokeIds: [selected], reason: reason.trim() });
       closeReasonDialog();
       toast.success(t("eraseDialog.deleted"));
-    } catch {
-      // Xato bo'lsa oyna ochiq qoladi (qayta urinish uchun) — xabar
-      // `useEraseStrokes`ning `onError`i orqali allaqachon ko'rsatiladi.
+    } catch (error) {
+      void error;
     }
   }
 
@@ -148,7 +133,6 @@ export function BoardPanel({ lessonId, courseId, currentUserId }: BoardPanelProp
     }
   }
 
-  /** SymPy yechimini doskaga matn bloki sifatida qo'yadi. */
   function placeSolution() {
     if (!solution) return;
     const steps = solution.steps?.length ? `\n${solution.steps.join("\n")}` : "";
@@ -183,7 +167,6 @@ export function BoardPanel({ lessonId, courseId, currentUserId }: BoardPanelProp
       </div>
     );
 
-  // Chizilayotgan element server javobini kutmasdan darhol ko'rinadi.
   const preview =
     draft && tool !== "erase" && tool !== "text" && tool !== "math"
       ? buildStroke({ kind: tool, ...draft, color, width: strokeWidth })
@@ -233,7 +216,6 @@ export function BoardPanel({ lessonId, courseId, currentUserId }: BoardPanelProp
               <UserCheck size={15} /> {t("permission.grantButton")}
             </Button>
           ) : null}
-          {/* Formula yechuvchi faqat matematika kurslarida ishlaydi (docs/README). */}
           {state.mathEnabled ? (
             <Button size="sm" variant="secondary" onClick={() => setFormulaOpen(true)}>
               <Calculator size={15} /> {t("solver.button")}

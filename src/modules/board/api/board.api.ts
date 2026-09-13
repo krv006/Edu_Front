@@ -10,7 +10,6 @@ export const boardApi = {
   addStroke: (lessonId: string, sheet: number, stroke: StrokeInput) =>
     apiClient.post(boardEndpoints.stroke(lessonId), { sheet, stroke }),
   addSheet: (lessonId: string) => apiClient.post(boardEndpoints.sheet(lessonId), {}),
-  /** O‘chirish sababi majburiy — audit jurnaliga yoziladi. */
   erase: (lessonId: string, sheet: number, strokeIds: string[], reason: string) =>
     apiClient.post(boardEndpoints.erase(lessonId), { sheet, stroke_ids: strokeIds, reason }),
   grant: (lessonId: string, studentId: string) =>

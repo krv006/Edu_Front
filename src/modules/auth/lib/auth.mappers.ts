@@ -24,7 +24,6 @@ export function mapTokenPairDto(dto: unknown): TokenPair {
   return { accessToken: parsed.access, refreshToken: parsed.refresh };
 }
 
-/** Ham `userDtoSchema.certificates` ichidagi elementlar, ham `POST .../certificates/` javobi uchun. */
 export function mapCertificateDto(dto: unknown): Certificate {
   const parsed = certificateDtoSchema.parse(dto);
   return {
@@ -45,7 +44,6 @@ function mapLinkedAccountDto(dto: LinkedAccountDto): LinkedAccount {
   };
 }
 
-/** Zod bilan runtime validatsiya — backend shakli o'zgarsa darhol xato beradi. */
 export function mapUserDto(dto: unknown): AuthUser {
   const parsed = userDtoSchema.parse(dto);
   const name = [parsed.first_name, parsed.last_name].filter(Boolean).join(" ") || parsed.username;
@@ -58,7 +56,6 @@ export function mapUserDto(dto: unknown): AuthUser {
     role: normalizeRole(parsed.role) as Role,
     phone: parsed.phone ?? null,
     inviteCode: parsed.invite_code ?? null,
-    // `<img src>` uchun to'liq havola kerak — apiClient bazasi qo'llanadi.
     avatarUrl: normalizeMediaUrl(parsed.avatar),
     email: null,
     status: "online",
@@ -80,10 +77,6 @@ export function mapSwitchAccountResponse(dto: unknown): { tokens: TokenPair; use
   };
 }
 
-/**
- * Kirishlar tarixi — backend paginatsiyasiz massiv qaytaradi, eng yangisi birinchi.
- * `at` + `ip` juftligi yozuvni bir xil qiladi, shuning uchun ro'yxat kaliti sifatida yetarli.
- */
 export function mapLoginRecords(dto: unknown): LoginRecord[] {
   return loginRecordDtoSchema
     .array()

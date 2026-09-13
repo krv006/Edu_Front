@@ -17,10 +17,6 @@ const LESSON_DATE = new Intl.DateTimeFormat("uz-UZ", {
   year: "numeric",
 });
 
-/**
- * Dars tugagach backend kurs chatiga ".../recordings/<lesson_id>" havolasini yuboradi
- * (docs/PROJECT.md §10) — shu havola aynan shu sahifaga tushadi.
- */
 export function RecordingPage() {
   const { lessonId } = useParams();
   const navigate = useNavigate();
@@ -51,7 +47,6 @@ export function RecordingPage() {
         <div>
           <span className="portal-eyebrow">DARS YOZUVI</span>
           <h1>{data.title}</h1>
-          {/* Har ma'lumot alohida nishonda — ikonkalar matn oqimini buzmaydi */}
           <div className="page-meta">
             <span>
               <BookOpen size={14} /> {data.courseTitle}
@@ -89,7 +84,6 @@ export function RecordingPage() {
         )}
       </section>
 
-      {/* Dars tugagach o'quvchi o'qituvchini baholaydi (docs/COMPLETED_WORK.md — baholash API). */}
       {isStudent ? (
         <section className="portal-card recording-page-card">
           <div className="portal-section-head">

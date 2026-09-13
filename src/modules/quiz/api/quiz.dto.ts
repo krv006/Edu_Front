@@ -1,7 +1,6 @@
 export interface QuizOptionDto {
   id: string | number;
   text: string;
-  /** Faqat o'qituvchi/adminga keladi. */
   is_correct?: boolean;
   order?: number;
 }

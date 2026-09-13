@@ -45,14 +45,6 @@ function waitUntilOnline(): Promise<void> {
   });
 }
 
-/**
- * Bitta darsning teacher-browser video (ekran) sessiyasi.
- *
- * `getDisplayMedia` orqali olingan tayyor stream tashqaridan (foydalanuvchi
- * gesture'i ichida) beriladi — bu klass faqat uni yozib, yuklaydi. Xuddi
- * `TeacherAudioRecordingSession`dagidek, blob navbati faqat server 204
- * qaytargach `shift()` qilinadi.
- */
 export class TeacherVideoRecordingSession {
   readonly lessonId: string;
 
@@ -90,7 +82,6 @@ export class TeacherVideoRecordingSession {
     return () => this.listeners.delete(listener);
   }
 
-  /** `stream` — `getDisplayMedia` orqali foydalanuvchi gesture ichida oldindan olingan oqim. */
   start(stream: MediaStream): void {
     if (this.recorder || this.phase === "recording") return;
     if (typeof MediaRecorder === "undefined") {
@@ -113,7 +104,6 @@ export class TeacherVideoRecordingSession {
       };
       this.recorder.onstop = () => this.resolveStopped?.();
 
-      // O'qituvchi brauzerning "Stop sharing" panelidan to'xtatsa ham yozuv tugaydi.
       stream.getVideoTracks().forEach((track) => track.addEventListener("ended", this.onTrackEnded));
 
       this.startedAt = new Date().toISOString();
@@ -237,7 +227,6 @@ export function releaseTeacherVideoRecording(session: TeacherVideoRecordingSessi
     .catch(() => undefined);
 }
 
-/** Finish mutation shu promise tugamaguncha lesson va finalize endpointlarini chaqirmaydi. */
 export async function flushTeacherVideoRecording(lessonId: string): Promise<void> {
   const sessions = [...(sessionsByLesson.get(lessonId) ?? [])];
   await Promise.all(sessions.map((session) => session.stopAndFlush()));

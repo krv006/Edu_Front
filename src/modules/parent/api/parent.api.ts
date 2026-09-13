@@ -34,7 +34,6 @@ export const parentApi = {
     return page.items.map(mapParentLinkDto);
   },
 
-  /** Faqat tasdiqlangan bog'lanishlar — rozilik modeli (docs/ARCHITECTURE.md §5). */
   async getChildren(options?: RequestOptions) {
     const links = await this.getLinks(options);
     const approved = links.filter((item) => item.status === "approved");
@@ -88,10 +87,6 @@ export const parentApi = {
     return mapConsentDto(item);
   },
 
-  /**
-   * Backendda "farzandimning vazifalari" endpointi yo'q — kurslar bo'yicha yig'iladi
-   * va har bir vazifaning topshiriqlaridan tanlangan bolaniki ajratiladi.
-   */
   async getHomework(selectedChildId: string, options: RequestOptions = {}): Promise<Assignment[]> {
     const coursePage = await courseApi.getAll({ ...options, query: { page_size: 100 } });
     const assignments = (

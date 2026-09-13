@@ -126,11 +126,6 @@ function CameraTile({
   );
 }
 
-/**
- * O'quvchi mikrofoni (MIC_REQUEST_GRANT.md): darsga o'chiq holda kiradi va
- * gapirish uchun o'qituvchidan ruxsat so'raydi. Ruxsat berilgach LiveKit
- * huquqlari yangilanadi va shu yerning o'zi odatdagi tugmaga aylanadi.
- */
 function StudentMicControl({
   onRequest,
   requesting,
@@ -158,10 +153,6 @@ function StudentMicControl({
     );
   }
 
-  /*
-   * Navbatda turgan so'rov bitta bo'ladi: javob (ruxsat yoki rad) kelmaguncha
-   * qayta so'rab bo'lmaydi — shuning uchun tugma kutish holatiga o'tadi.
-   */
   return (
     <button
       type="button"
@@ -177,10 +168,6 @@ function StudentMicControl({
   );
 }
 
-/**
- * O'qituvchi mikrofoni. Uning tokeni hech qachon cheklanmasligi kerak, lekin
- * cheklangan holat uchrasa tugma jimgina ishlamay turmasin — sababi ko'rinsin.
- */
 function TeacherMicControl() {
   const { t } = useTranslation("live");
   const permissions = useLocalParticipantPermissions();
@@ -212,12 +199,6 @@ function TeacherMicControl() {
   );
 }
 
-/**
- * O'quvchi kamerasi (FRONTEND_TODO_CAMERA_BOARD.md §1) — `StudentMicControl`
- * bilan AYNAN bir xil naqsh: darsga kamerasiz kiradi, yoqish uchun
- * o'qituvchidan ruxsat so'raydi. Ruxsat berilgach LiveKit huquqlari
- * yangilanadi va shu yerning o'zi odatdagi tugmaga aylanadi.
- */
 function StudentCameraControl({
   onRequest,
   requesting,
@@ -260,10 +241,6 @@ function StudentCameraControl({
   );
 }
 
-/**
- * O'qituvchi kamerasi. Uning tokeni hech qachon cheklanmasligi kerak, lekin
- * cheklangan holat uchrasa tugma jimgina ishlamay turmasin — sababi ko'rinsin.
- */
 function TeacherCameraControl() {
   const { t } = useTranslation("live");
   const permissions = useLocalParticipantPermissions();
@@ -295,11 +272,6 @@ function TeacherCameraControl() {
   );
 }
 
-/** LiveKit'ning o'z ichki `waitForDimensions` (1000ms) tekshiruvidan OLDIN
- * chaqiriladi — klonlangan video trekning o'lchami tayyor bo'lishini kutadi,
- * shunda nashr paytida LiveKit uni darhol topadi (standart o'lchamga
- * tushib qolib, konsolga xato yozmaydi). Topilmasa ham (juda kam holat)
- * LiveKit o'zining fallback'iga tayanadi — funksionallik baribir buzilmaydi. */
 async function waitForVideoDimensions(track: MediaStreamTrack, timeoutMs = 500): Promise<void> {
   const started = Date.now();
   while (Date.now() - started < timeoutMs) {
@@ -309,20 +281,6 @@ async function waitForVideoDimensions(track: MediaStreamTrack, timeoutMs = 500):
   }
 }
 
-/**
- * O'qituvchi ekran ulashishi — endi PRE-JOIN'da olingan yagona `screenStream`ni
- * qayta ishlatadi, yangi `getDisplayMedia` so'ramaydi (2026-09-05, foydalanuvchi
- * xabar bergan xato: ikkalasi bir xil tabni tanlasa, brauzer ikkita mustaqil
- * "Sharing..." banner ko'rsatardi — ruxsat ikki marta so'ralgani uchun).
- *
- * Yozuv (recording) shu oqimning ASL treklaridan MUSTAQIL davom etadi — LiveKit
- * xonasiga har safar YOQILGANDA `track.clone()` orqali olingan NUSXA chop
- * etiladi (asl trekning o'zi emas). Sabab (sinovda topilgan): bir marta
- * `unpublishTrack` qilingan trekni xuddi o'sha obyekt bilan qayta
- * `publishTrack` qilib bo'lmaydi (LiveKit jimgina rad etadi) — nusxa esa har
- * safar yangi, muammosiz. O'chirilganda faqat NUSXA to'xtatiladi, asl trek —
- * hech qachon.
- */
 function TeacherShareControl({ screenStream }: { screenStream: MediaStream }) {
   const { t } = useTranslation("live");
   const room = useRoomContext();
@@ -349,11 +307,6 @@ function TeacherShareControl({ screenStream }: { screenStream: MediaStream }) {
       const audioTrack = screenStream.getAudioTracks()[0];
       if (videoTrack) {
         const clone = videoTrack.clone();
-        // Yangi klon o'lchami (width/height) darhol tayyor bo'lmasligi mumkin —
-        // shu zahoti chop etilsa, LiveKit 1 soniya kutib, topolmay standart
-        // o'lchamga (1280x720) tushib qoladi (konsolda "could not determine
-        // track dimensions" xatosi, funksionallik buzilmaydi, lekin shovqin
-        // qiladi). Shu yerda oldindan kutib, mavjud bo'lsa xatoni oldini olamiz.
         await waitForVideoDimensions(clone);
         toPublish.push({ track: clone, source: Track.Source.ScreenShare });
       }
@@ -376,7 +329,6 @@ function TeacherShareControl({ screenStream }: { screenStream: MediaStream }) {
     }
   }
 
-  // Brauzerning o'z "Stop sharing" panelidan to'xtatilsa — tugma holati ham yangilansin.
   useEffect(() => {
     const videoTrack = screenStream.getVideoTracks()[0];
     if (!videoTrack) return undefined;
@@ -386,22 +338,10 @@ function TeacherShareControl({ screenStream }: { screenStream: MediaStream }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [screenStream]);
 
-  /**
-   * O'qituvchi darsga kirishning o'zida ekranini ulashish uchun ruxsat
-   * bergan (pre-join, yozuv uchun majburiy) — shuning uchun jonli ulashish
-   * ham AVTOMATIK yoqiladi, alohida tugma bosishni talab qilmaydi (2026-09-05,
-   * foydalanuvchi so'ragan). Faqat xona haqiqatan ULANGANDA (Connected)
-   * ishga tushadi — undan oldin `publishTrack` ishonchsiz bo'lardi. `ref`
-   * bilan FAQAT BIR MARTA ishga tushishi kafolatlanadi (StrictMode'da effekt
-   * ikki marta chaqirilsa ham qayta boshlab yubormaydi).
-   */
   useEffect(() => {
     if (autoStartedRef.current) return;
     if (connectionState !== ConnectionState.Connected) return;
     autoStartedRef.current = true;
-    // `queueMicrotask` — `startSharing` ichidagi `setState`ni effekt
-    // tanasidan SINXRON emas, keyingi microtask'da chaqiradi (React 19
-    // "effekt ichida sinxron setState" lint qoidasi shunga qarab tekshiradi).
     queueMicrotask(() => void startSharing());
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [connectionState]);
@@ -442,11 +382,6 @@ function StudentShareControl() {
     return (
       <TrackToggle
         source={Track.Source.ScreenShare}
-        // Ekran bilan birga uning OVOZI ham uzatiladi: aks holda video darsi
-        // yoki taqdimotdagi tovush o'quvchilarga umuman yetib bormaydi.
-        // `selfBrowserSurface: "exclude"` — shu darsning o'z tab'ini tanlov
-        // ro'yxatidan olib tashlaydi: aks holda kimdir o'z darsini ulashsa,
-        // ekranda cheksiz oyna-ichida-oyna (aks sado) hosil bo'lardi.
         captureOptions={{ audio: true, selfBrowserSurface: "exclude" }}
         showIcon={false}
         className="live-control live-control--share"
@@ -531,20 +466,6 @@ function ShareRequestListener({ lessonId, enabled }: { lessonId: string; enabled
 export interface LiveRoomProps {
   lesson: Lesson;
   isTeacher: boolean;
-  /**
-   * Pre-join'da `getDisplayMedia` orqali olingan, o'qituvchining butun
-   * ekrani/tabi — dars video yozuvi doim shundan olinadi (kim gapirsa, kim
-   * ekran ulashsa, kim kamerasini yoqsa — hammasi yoziladi). Pre-join uni
-   * MAJBURIY qiladi (ruxsat berilmasa kirish bloklanadi), shuning uchun bu
-   * yerda har doim mavjud.
-   *
-   * "Ekranni ulashish" tugmasi (pastda, `TeacherShareControl`) — YANGI
-   * `getDisplayMedia` SO'RAMAYDI, aynan shu oqimni LiveKit xonasiga
-   * chop etadi/olib tashlaydi (2026-09-05: ilgari alohida so'rov edi,
-   * ikkalasi bir xil tabni tanlasa brauzer ikkita mustaqil "Sharing..."
-   * banner ko'rsatardi). Ya'ni yozuv va jonli ko'rsatish endi BITTA ruxsat
-   * bilan ishlaydi — biri to'xtasa, ikkinchisi ham to'xtaydi.
-   */
   screenStream: MediaStream | null;
   onLeave: () => void;
 }
@@ -556,15 +477,6 @@ export function LiveRoom({ lesson, isTeacher, screenStream, onLeave }: LiveRoomP
   const videoRecordingLabels = useVideoRecordingLabels();
   const [panel, setPanel] = useState<SidePanel>(null);
   const [inviteOpen, setInviteOpen] = useState(false);
-  /**
-   * Faqat "Chiqish" (o'zi darsdan chiqish) bilan darsni "Yakunlash" (hamma
-   * uchun tugatish, video yozuv finalize qilinadi) alohida amallar —
-   * ilgari o'qituvchi uchun bularning ikkinchisi jonli dars ekranida
-   * umuman yo'q edi (faqat alohida sahifadagi darslar ro'yxatida bor edi),
-   * shuning uchun o'qituvchi shunchaki "Chiqish"ni bosib ketsa, dars hech
-   * qachon rasman yakunlanmas va video yozuv abadiy tugallanmas edi
-   * (production'da topilgan xato, 2026-09-05).
-   */
   const [finishOpen, setFinishOpen] = useState(false);
   const connectionState = useConnectionState();
   const participants = useParticipants();
@@ -596,29 +508,9 @@ export function LiveRoom({ lesson, isTeacher, screenStream, onLeave }: LiveRoomP
   const screenTracks = tracks.filter((track) => track.source === Track.Source.ScreenShare);
   const cameraTracks = tracks.filter((track) => track.source === Track.Source.Camera);
   const activeShare = screenTracks[0] ?? null;
-  /** "Ishtirokchilar" tugmasidagi nishoncha — mikrofon va kamera so'rovlari birgalikda. */
   const pendingRequestsCount = mic.requests.length + camera.requests.length;
 
-  /*
-   * `connectionState` ilgari shu yerda tekshirilardi ("Reconnecting paytida
-   * ikkinchi sessiya ochilmasin" niyati bilan), lekin amalda LiveKit
-   * ulanishi qisqa muddatga `Disconnected` holatiga TUSHIB QAYTGANDA ham,
-   * bu `enabled`ni yolg'onga aylantirib, recorder sessiyasini TO'LIQ qayta
-   * boshlatib yuborardi — natijada bir nechta mustaqil WebM segmenti xom
-   * ulanib, yakuniy faylda ikkinchi segmentdan keyin qidirish/pauza qotib
-   * qolardi (production, 2026-09-01). Yozib olish LiveKit ulanishiga
-   * bog'liq emas (video — brauzerning o'zi, audio — mahalliy mikser),
-   * shuning uchun endi faqat `isTeacher`ga qaraymiz — sessiya faqat dars
-   * haqiqatan tugaganda (komponent unmount) to'xtaydi.
-   */
   const audioRecording = useTeacherAudioRecording(lesson.id, audioMediaTracks, isTeacher);
-  /**
-   * `screenStream` endi audio trekni ham o'z ichiga oladi (jonli "Ekranni
-   * ulashish" uchun qayta ishlatiladi, yuqoridagi izohga qarang) — lekin
-   * video yozuvi ilgarigidek FAQAT video trekni yozishi kerak (audio allaqachon
-   * alohida, Web Audio mikser orqali yoziladi — ikkalasini ham video faylga
-   * qo'shish ortiqcha va backend birlashtirishda baribir e'tiborga olinmaydi).
-   */
   const screenVideoOnlyStream = useMemo(() => {
     const videoTrack = screenStream?.getVideoTracks()[0];
     return videoTrack ? new MediaStream([videoTrack]) : null;
@@ -730,12 +622,6 @@ export function LiveRoom({ lesson, isTeacher, screenStream, onLeave }: LiveRoomP
         {panel ? (
           <aside className="live-room-panel" aria-label={t("room.sidePanelAria")}>
             <nav className="live-room-panel-tabs">
-              {/*
-                Doska to'liq ekranda video butunlay yashiriladi (`boardFull`),
-                shuning uchun "Ishtirokchilar"ni bosib videoga qaytish odat
-                bo'lib qolgan edi — nomi esa buni bildirmasdi. Endi videoga
-                qaytish uchun alohida, aniq nomlangan tugma bor.
-              */}
               <button onClick={() => setPanel(null)}>
                 <Video size={16} /> {t("room.backToVideo")}
               </button>
@@ -827,7 +713,6 @@ export function LiveRoom({ lesson, isTeacher, screenStream, onLeave }: LiveRoomP
           aria-pressed={panel === "people"}
         >
           <Users size={19} />
-          {/* So'rov kelganini o'qituvchi panelni ochmasdan ham sezishi kerak. */}
           {pendingRequestsCount ? (
             <span className="live-control-badge">{pendingRequestsCount}</span>
           ) : null}
@@ -915,7 +800,6 @@ function ParticipantsPanel({
           <h4>
             <Hand size={14} /> {t("participantsPanel.wantsToSpeak", { count: micRequests.length })}
           </h4>
-          {/* Navbat FIFO: ro'yxat kelish tartibida, birinchi so'ragan tepada. */}
           {micRequests.map((request, index) => (
             <article key={request.studentId}>
               <span className="live-mic-queue-number" aria-hidden="true">
@@ -952,7 +836,6 @@ function ParticipantsPanel({
           <h4>
             <Video size={14} /> {t("participantsPanel.wantsCamera", { count: cameraRequests.length })}
           </h4>
-          {/* Navbat FIFO: ro'yxat kelish tartibida, birinchi so'ragan tepada. */}
           {cameraRequests.map((request, index) => (
             <article key={request.studentId}>
               <span className="live-mic-queue-number" aria-hidden="true">
@@ -1001,8 +884,6 @@ function ParticipantsPanel({
               >
                 <MonitorUp size={15} /> {t("participantsPanel.allowShare")}
               </Button>
-              {/* LiveKit identity — backend token'da o'quvchi id'si sifatida
-                  beriladi, ban ham shu id'ni kutadi. */}
               <button
                 className="icon-button destructive-icon"
                 aria-label={t("participantsPanel.banAria", {

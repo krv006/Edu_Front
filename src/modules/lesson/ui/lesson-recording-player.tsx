@@ -9,18 +9,9 @@ import { useDeleteRecording } from "../model/lesson.queries";
 export interface LessonRecordingPlayerProps {
   lessonId: string;
   recording: LessonRecording | null | undefined;
-  /** O'qituvchi bo'lsa — o'chirish tugmasi ko'rinadi. */
   canDelete?: boolean;
 }
 
-/**
- * Dars video yozuvi (docs/COMPLETED_WORK.md §1).
- *
- * Yozuv FAQAT platformada ochiladi: havola 3 soatlik va imzolangan, yuklab olish
- * tugmasi ko'rsatilmaydi (`controlsList`), kontekst menyusi bloklanadi.
- * Bu to'liq himoya emas — brauzerda imkonsiz — lekin yozuvni tarqatishni
- * taklif qilmaslik hujjatdagi talab.
- */
 export function LessonRecordingPlayer({
   lessonId,
   recording,
@@ -48,8 +39,6 @@ export function LessonRecordingPlayer({
     );
   }
 
-  // `recording` — dars hali davom etmoqda; `completed` bo'lsa-yu havola yo'q bo'lsa
-  // egress fayli hali ko'chirilmagan. Ikkalasida ham kutish holati ko'rsatiladi.
   if (!recording.ready || !recording.streamUrl) {
     return (
       <div className="recording-state">
@@ -67,7 +56,6 @@ export function LessonRecordingPlayer({
 
   return (
     <div className="recording-player">
-      {/* Subtitr manbasi yo'q — backend faqat MP4 oqimini beradi. */}
       <video
         controls
         playsInline

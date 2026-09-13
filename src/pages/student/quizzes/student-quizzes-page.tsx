@@ -8,7 +8,6 @@ import { QuizAttemptDialog, QuizAttemptsDialog, useQuizzes } from "@/modules/qui
 import type { QuizSummary } from "@/shared/types";
 import { Button, LoadingFallback, RouteState } from "@/shared/ui/legacy";
 
-/** Bildirishnomadan kelingan testni ajratib ko'rsatadi. */
 function useQuizHighlight(quizId: string | null, ready: boolean) {
   useEffect(() => {
     if (!quizId || !ready) return;

@@ -4,10 +4,6 @@ import { Download, FileUp, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Button, Dialog, DialogContent } from "@/shared/ui/legacy";
 // yopilgan maydon:
-// import { useMemo } from "react";
-// import { BookOpen, CalendarDays } from "lucide-react";
-// import { useLessons } from "@/modules/lesson";
-// import { DatePicker, SelectPicker } from "@/shared/ui/legacy/form-pickers";
 import type { QuizFormValues, QuizImportWarning } from "@/shared/types";
 import { useDownloadQuizTemplate, useImportQuizDocx } from "../model/quiz.queries";
 
@@ -21,7 +17,6 @@ interface QuizQuestionDraft {
   text: string;
   points: string;
   options: QuizOptionDraft[];
-  /** Tanlangan variant kaliti — bitta savolda faqat bitta to'g'ri javob bo'ladi. */
   correctKey: string | null;
 }
 
@@ -29,11 +24,9 @@ export interface AddQuizDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onCreate: (values: QuizFormValues) => void;
-  /** Test bog'lanadigan kurslar — o'qituvchining o'z kurslari. */
   courses: Array<{ id: string; title: string }>;
 }
 
-/** Yangi savol shablonidagi standart variantlar soni — A, B, C, D. */
 const DEFAULT_OPTION_COUNT = 4;
 
 function optionLetter(index: number): string {
@@ -64,7 +57,6 @@ export function AddQuizDialog({ open, onOpenChange, onCreate, courses }: AddQuiz
 
   const [step, setStep] = useState<"details" | "questions">("details");
   // yopilgan maydon: tanlagich yo'q, shuning uchun faqat o'qish qoldi.
-  // Tiklashda: const [courseId, setCourseId] = useState(() => courses[0]?.id ?? "");
   const [courseId] = useState(() => courses[0]?.id ?? "");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
@@ -103,8 +95,6 @@ export function AddQuizDialog({ open, onOpenChange, onCreate, courses }: AddQuiz
     );
   }
 
-  /** "Nechta savol?" maydoni bo'sh bo'lsa ham shablonni yuklab olish
-   * ishlashi uchun — 1-100 oralig'ida, bo'sh bo'lsa 10 (placeholder bilan mos). */
   function resolvedQuestionCount(): number {
     const parsed = Math.trunc(Number(questionCount));
     return Math.max(1, Math.min(100, parsed || 10));
@@ -127,10 +117,6 @@ export function AddQuizDialog({ open, onOpenChange, onCreate, courses }: AddQuiz
     setError(null);
   }
 
-  /** "Nechta savol?" maydoniga son kiritib davom etilsa — o'shancha bo'sh
-   * shablon (savol + 4 ta variant) bilan alohida, sodda "qog'oz" sahifasiga
-   * o'tiladi — o'qituvchi faqat yozadi, hech narsa qo'shish/o'chirish shart
-   * emas. */
   function goToQuestions() {
     if (!courseId || !title.trim()) {
       setError(!courseId ? t("createDialog.validation.chooseCourse") : t("createDialog.validation.enterTitle"));
@@ -153,9 +139,6 @@ export function AddQuizDialog({ open, onOpenChange, onCreate, courses }: AddQuiz
     setStep("questions");
   }
 
-  /** `.docx` yoki `.xlsx` faylni tanlagach — parse qilingan savollarni
-   * to'g'ridan-to'g'ri savollar sahifasiga yuklaydi. Hech narsa saqlanmagan,
-   * o'qituvchi ko'rib chiqib "Test yaratish"ni bosishi kerak. */
   function handleImportFile(event: ChangeEvent<HTMLInputElement>) {
     const file = event.target.files?.[0];
     event.target.value = "";

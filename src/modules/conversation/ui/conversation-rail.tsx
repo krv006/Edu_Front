@@ -5,13 +5,11 @@ import logoUrl from "@/shared/assets/y-logo.svg";
 import type { ConversationRole } from "@/shared/types";
 import { useConversations } from "../model/use-conversations";
 
-/** Ustundagi asosiy bo'lim — Teams uslubi: ikonka tepada, yozuv ostida. */
 export type ConversationSection = "chat" | "schedule" | "ai" | "workspace" | "report";
 
 type SectionItem = {
   id: ConversationSection;
   icon: typeof MessagesSquare;
-  /** Suhbatlar bo'limiga nisbatan yo'l; bo'sh bo'lsa — o'zi. */
   path: string;
 };
 
@@ -22,7 +20,6 @@ const SECTIONS: SectionItem[] = [
   { id: "workspace", icon: LayoutGrid, path: "/workspace" },
 ];
 
-/** Reyting faqat o'quvchida — o'qituvchining o'z bahosi yo'q. */
 const STUDENT_ONLY_SECTIONS: SectionItem[] = [{ id: "report", icon: Trophy, path: "/report" }];
 
 export interface ConversationRailProps {
@@ -31,16 +28,6 @@ export interface ConversationRailProps {
   onOpenMenu: () => void;
 }
 
-/**
- * Asosiy bo'limlar ustuni.
- *
- * Ataylab `ConversationPanel` dan TASHQARIDA turadi: kalendar va AI
- * bo'limlarida suhbatlar ustuni butunlay yopiladi, panel ichida bo'lganda
- * esa u bilan birga bu ham yo'qolib, qaytishning iloji qolmasdi.
- *
- * Suhbat turlari (Shaxsiy/Guruhlar/O'qilmagan) bu yerda emas — ular
- * ro'yxat tepasidagi tugmachalarda, chunki ular bo'lim emas, filtr.
- */
 export function ConversationRail({ role, section, onOpenMenu }: ConversationRailProps) {
   const { t } = useTranslation("nav");
   const navigate = useNavigate();
@@ -49,7 +36,6 @@ export function ConversationRail({ role, section, onOpenMenu }: ConversationRail
   const chatsPath = useResolvedPath(basePath).pathname;
   const sections = role === "student" ? [...SECTIONS, ...STUDENT_ONLY_SECTIONS] : SECTIONS;
 
-  /** Chat yonidagi nishoncha — o'qilmagan suhbatlar soni. */
   const unreadChats = data.filter((conversation) => conversation.unreadCount > 0).length;
 
   return (
@@ -58,7 +44,6 @@ export function ConversationRail({ role, section, onOpenMenu }: ConversationRail
         <img src={logoUrl} alt="YolUp" />
       </span>
 
-      {/* Yozuvsiz — hamburger o'zi tushunarli, yorlig'i faqat aria uchun. */}
       <button
         className="conversation-rail-menu"
         onClick={onOpenMenu}

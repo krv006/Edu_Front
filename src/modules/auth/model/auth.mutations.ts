@@ -41,13 +41,10 @@ export function useUpdateProfileMutation() {
           first_name: values.firstName.trim(),
           last_name: values.lastName.trim(),
           phone: values.phone?.trim() || "",
-          // Faqat haqiqatan o'zgargan bo'lsa yuboriladi — aks holda har
-          // saqlashda backend uni band deb hisoblab qolishi mumkin.
           ...(username ? { username } : {}),
         })
       );
     },
-    // Server javobi global auth holatiga ko'chiriladi.
     onSuccess: (user) => useAuthStore.getState().setUser(user),
   });
 }
@@ -60,7 +57,6 @@ export function useUpdateLessonReminderMutation() {
   });
 }
 
-/** Profil rasmi — `null` yuborilsa rasm o'chiriladi. */
 export function useUpdateAvatarMutation() {
   return useMutation({
     mutationFn: async (avatar: File | null): Promise<AuthUser> =>
@@ -69,10 +65,6 @@ export function useUpdateAvatarMutation() {
   });
 }
 
-/**
- * O'qituvchi o'ziga sertifikat qo'shadi. Javob — faqat bitta sertifikat
- * (butun user emas), shuning uchun store'dagi ro'yxatga qo'lda qo'shiladi.
- */
 export function useUploadCertificate() {
   return useMutation({
     mutationFn: async ({ file, title }: { file: File; title?: string }) =>

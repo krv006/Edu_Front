@@ -14,10 +14,6 @@ const dayMonthTime = new Intl.DateTimeFormat("uz-UZ", {
   minute: "2-digit",
 });
 
-/**
- * Backendda o'quvchi paneli uchun alohida endpoint yo'q —
- * kurs, dars va vazifa ro'yxatlaridan yig'iladi.
- */
 export const studentApi = {
   async getDashboard(options: RequestOptions = {}): Promise<StudentDashboard> {
     const [coursePage, lessonPage] = await Promise.all([

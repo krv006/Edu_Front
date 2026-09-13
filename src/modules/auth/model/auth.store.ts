@@ -34,7 +34,6 @@ interface AuthState {
   status: AuthStatus;
   error: AppError | null;
 
-  /** Ilova ochilganda bir marta chaqiriladi: saqlangan token bo'lsa profilni tiklaydi. */
   bootstrap: () => Promise<void>;
   login: (credentials: LoginCredentials) => Promise<AuthUser>;
   register: (dto: RegisterRequestDto) => Promise<AuthUser>;
@@ -42,7 +41,6 @@ interface AuthState {
   switchRole: (role: string) => Promise<AuthUser>;
   logout: () => Promise<void>;
   setUser: (user: AuthUser) => void;
-  /** Tarmoq xatosidan keyin "Qayta urinish". */
   retry: () => Promise<void>;
 }
 
@@ -54,11 +52,6 @@ function toAppError(error: unknown): AppError {
       });
 }
 
-/**
- * Ketayotgan `me/` so'rovi. React StrictMode (dev) effektni ikki marta
- * chaqiradi, shuningdek daraxt qayta mount bo'lishi ham mumkin — ikkalasida
- * ham bitta so'rov yetarli, chaqiruvchilar bir xil natijani kutadi.
- */
 let pendingBootstrap: Promise<void> | null = null;
 
 export const useAuthStore = create<AuthState>()((set, get) => ({
@@ -79,7 +72,6 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
         syncLanguageFromServer(user.preferredLanguage);
       } catch (error) {
         const appError = toAppError(error);
-        // 401 — token yaroqsiz: sessiyani jimgina tozalaymiz, xato ekrani chiqarmaymiz.
         if (appError.status === 401) {
           tokenStorage.clearTokens();
           set({ user: null, status: AUTH_STATUS.ANONYMOUS, error: null });
@@ -89,7 +81,6 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
       }
     })();
 
-    // Tugagach tozalaymiz — "Qayta urinish" yangi so'rov yubora olsin.
     try {
       await pendingBootstrap;
     } finally {
@@ -106,7 +97,6 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
       syncLanguageFromServer(user.preferredLanguage);
       return user;
     } catch (error) {
-      // Yarim ochilgan sessiya qolmasin.
       tokenStorage.clearTokens();
       set({ user: null, status: AUTH_STATUS.ANONYMOUS, error: null });
       throw error;
@@ -146,21 +136,12 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
     return user;
   },
 
-  /**
-   * Chiqish: avval serverga aytamiz (refresh token bekor qilinsin), keyin
-   * lokal holatni tozalaymiz.
-   *
-   * So'rov xatosi ATAYLAB YUTILADI: tarmoq uzilgan, token eskirgan yoki
-   * endpoint hali chiqarilmagan bo'lishi mumkin — bularning hech biri
-   * foydalanuvchini tizimda ushlab qolishga sabab emas. Shuning uchun
-   * tokenlar `finally` da, har qanday holatda tozalanadi.
-   */
   async logout() {
     const refreshToken = tokenStorage.getRefreshToken();
     try {
       await authApi.logout(refreshToken);
-    } catch {
-      // Sababi muhim emas — chiqish baribir davom etadi.
+    } catch (error) {
+      void error;
     } finally {
       tokenStorage.clearTokens();
       set({ user: null, status: AUTH_STATUS.ANONYMOUS, error: null });
@@ -176,7 +157,6 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
   },
 }));
 
-// ─── Bir martalik yon-effektlar ─────────────────────────────────────────────
 configureAuthRefresh();
 
 useLanguageStore.subscribe((state, prevState) => {
@@ -187,12 +167,10 @@ useLanguageStore.subscribe((state, prevState) => {
 });
 
 if (typeof window !== "undefined") {
-  // Refresh muvaffaqiyatsiz bo'lganda API qatlami shu hodisani yuboradi.
   window.addEventListener(SESSION_EXPIRED_EVENT, () => {
     useAuthStore.setState({ user: null, status: AUTH_STATUS.ANONYMOUS, error: null });
   });
 
-  // Boshqa tabda chiqilsa — bu tab ham sessiyani yopadi.
   window.addEventListener("storage", (event) => {
     if (!event.key?.startsWith("fokus_")) return;
     if (!tokenStorage.hasSession() && useAuthStore.getState().user) {

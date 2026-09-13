@@ -8,12 +8,6 @@ export interface LiveLessonBarProps {
   courseId: string | null;
 }
 
-/**
- * Chat tepasidagi "dars ketmoqda" chizig'i (Telegram video chat uslubi).
- *
- * Jonli dars bo'lmasa umuman render qilinmaydi — chat balandligi bekorga
- * qisqarmaydi va tepada bo'sh joy qolmaydi.
- */
 export function LiveLessonBar({ courseId }: LiveLessonBarProps) {
   const { t } = useTranslation("lesson");
   const navigate = useNavigate();

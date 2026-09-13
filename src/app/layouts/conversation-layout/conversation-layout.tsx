@@ -82,8 +82,6 @@ export function ConversationLayout({ role = "teacher" }: { role?: ConversationRo
       className={`teacher-shell conversation-shell conversation-shell--${role} ${resizing ? "is-resizing" : ""} ${wideSection ? "is-wide-section" : ""} ${conversationId ? "has-conversation" : ""}`}
       style={{ "--conversation-width": `${panelWidth}px` } as CSSProperties}
     >
-      {/* Ustun paneldan TASHQARIDA: kalendar va AI bo'limlarida suhbatlar
-          ustuni yopiladi, ustun esa qolishi kerak — aks holda qaytib bo'lmaydi. */}
       <ConversationRail role={role} section={section} onOpenMenu={() => setMenuOpen(true)} />
       <ConversationPanel role={role} onOpenMenu={() => setMenuOpen(true)} />
       <div
@@ -103,12 +101,6 @@ export function ConversationLayout({ role = "teacher" }: { role?: ConversationRo
           conversationId || wideSection ? "has-conversation" : ""
         }`}
       >
-        {/*
-          `AnimatePresence mode="wait"` ataylab olib tashlandi: u eski sahifa
-          chiqib ketmaguncha yangisini umuman mount qilmasdi, ya'ni har suhbat
-          almashganda 180 ms sof kechikish va so'rovlarning shuncha kechikishi.
-          Endi yangi sahifa darhol mount bo'lib, joyida ochiladi.
-        */}
         <motion.div
           key={wideSection ? section : (conversationId ?? "empty")}
           className="route-motion"
@@ -120,7 +112,6 @@ export function ConversationLayout({ role = "teacher" }: { role?: ConversationRo
         </motion.div>
       </main>
 
-      {/* Menyu ustundagi tugmadan ochiladi, shuning uchun u ham shu yerda. */}
       <AccountMenu
         open={menuOpen}
         onOpenChange={setMenuOpen}

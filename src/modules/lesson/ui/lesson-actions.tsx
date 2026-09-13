@@ -7,29 +7,15 @@ import { isLessonClosed, isLessonEditable, isLessonJoinable } from "../lib/lesso
 export interface LessonActionsProps {
   lesson: Lesson;
   onJoin: (lesson: Lesson) => void;
-  /**
-   * Quyidagilar IXTIYORIY: berilmasa tugmasi umuman chizilmaydi.
-   * O'quvchi darsni yakunlay, tahrirlay yoki o'chira olmaydi, shuning uchun
-   * u faqat kerakli amallarni uzatadi va ro'yxat/kalendar ikkala rolda ham
-   * bir xil ko'rinadi.
-   */
   onFinish?: (lesson: Lesson) => void;
   onEdit?: (lesson: Lesson) => void;
   onDelete?: (lesson: Lesson) => void;
-  /** Berilsa — baholar nishoni bosiladigan bo'ladi (o'qituvchi ro'yxatni ochadi). */
   onRatings?: (lesson: Lesson) => void;
-  /** Tugagan darsning video yozuvi. */
   onRecording?: (lesson: Lesson) => void;
-  /** O'quvchi tugagan darsga baho qo'yadi. */
   onRate?: (lesson: Lesson) => void;
-  /** Tor joyda (kalendar kataklari ostida) faqat ikonkalar ko'rsatiladi. */
   compact?: boolean;
 }
 
-/**
- * Dars ustidagi amallar. Kalendar ham, ro'yxat ham shu bitta blokni ishlatadi —
- * "Yakunlash faqat live darsda" qoidasi kalendar va ro‘yxat uchun bir joyda turadi.
- */
 export function LessonActions({
   lesson,
   onJoin,
@@ -44,7 +30,6 @@ export function LessonActions({
   const { t } = useTranslation("lesson");
   const finished = lesson.status === "finished";
   const joinDisabled = !isLessonJoinable(lesson);
-  /** Baho nishoni: o'qituvchida bosiladi, o'quvchida shunchaki ko'rsatiladi. */
   const ratingChip =
     finished && (onRatings || lesson.ratingCount > 0) ? (
       <>
@@ -69,12 +54,6 @@ export function LessonActions({
         <span className="rating-chip rating-chip--static">{ratingChip}</span>
       ) : null}
 
-      {/*
-        Bitta joy, ikki holat: dars hali bo'lmagan/ketayotgan bo'lsa — "Kirish"
-        (jonli xonaga), tugagach — o'sha tugma o'rnida "Ko'rish" (yozib olingan
-        darsga) chiqadi. Ikkalasi alohida-alohida tugma emas, aynan shu bitta
-        joyning ikki holati.
-      */}
       {!finished ? (
         <Button
           size="sm"

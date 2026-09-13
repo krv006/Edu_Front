@@ -15,7 +15,6 @@
     />
     <title>YolUp</title>
     <script>
-      // React yuklanmasdan oldin mavzuni qo'yamiz — aks holda oq ekran "chaqnab" ketadi.
       (function () {
         try {
           var stored = localStorage.getItem("fokus_theme");
@@ -27,7 +26,7 @@
           document.documentElement.classList.toggle("dark", dark);
           document.documentElement.style.colorScheme = dark ? "dark" : "light";
         } catch (error) {
-          /* localStorage o'chirilgan — standart yorug' mavzu qoladi */
+          void error;
         }
       })();
     </script>
