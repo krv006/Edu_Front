@@ -1,9 +1,17 @@
-import { normalizeMediaUrl } from "@/shared/api";
+import { normalizeMediaUrl, normalizePagination, type Page, type PaginationOptions } from "@/shared/api";
 import { normalizeRole } from "@/modules/permission";
 import type { Role } from "@/shared/constants";
-import type { AuthUser, Certificate, LinkedAccount, LoginCredentials } from "@/shared/types";
+import type {
+  AuthUser,
+  Certificate,
+  LinkedAccount,
+  LoginCredentials,
+  TeacherRating,
+  TeacherStats,
+} from "@/shared/types";
 import {
   certificateDtoSchema,
+  lessonRatingDtoSchema,
   loginRecordDtoSchema,
   switchAccountResponseDtoSchema,
   tokenPairDtoSchema,
@@ -90,4 +98,41 @@ export function mapLoginRecords(dto: unknown): LoginRecord[] {
       isNewIp: item.new_ip,
       isNewDevice: item.new_device,
     }));
+}
+
+export function mapTeacherRatings(dto: unknown, options?: PaginationOptions): Page<TeacherRating> {
+  const page = normalizePagination<unknown>(dto, options);
+  return {
+    ...page,
+    items: page.items.map((item) => {
+      const parsed = lessonRatingDtoSchema.parse(item);
+      const student = parsed.student ?? {};
+      const name = [student.first_name, student.last_name].filter(Boolean).join(" ");
+      return {
+        id: String(parsed.id),
+        lessonId: String(parsed.lesson),
+        studentName: name || student.username || "—",
+        studentUsername: student.username ?? "",
+        stars: Number(parsed.stars ?? 0),
+        description: parsed.description ?? "",
+        createdAt: parsed.created_at ?? "",
+      };
+    }),
+  };
+}
+
+export function mapTeacherStats(dto: unknown): TeacherStats {
+  const raw = (dto ?? {}) as Record<string, unknown>;
+  const num = (value: unknown) => (value === null || value === undefined ? null : Number(value));
+  return {
+    avgRating: num(raw.avg_rating),
+    ratingCount: Number(raw.rating_count ?? 0),
+    ratingBreakdown: (raw.rating_breakdown as Record<string, number>) ?? {},
+    courseCount: Number(raw.course_count ?? 0),
+    studentCount: Number(raw.student_count ?? 0),
+    lessonsFinished: Number(raw.lessons_finished ?? 0),
+    lessonsCancelled: Number(raw.lessons_cancelled ?? 0),
+    lessonsScheduled: Number(raw.lessons_scheduled ?? 0),
+    reliability: num(raw.reliability),
+  };
 }

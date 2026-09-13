@@ -81,7 +81,9 @@
       "cancel": "Cancel",
       "saveChanges": "Save changes",
       "saveMultiple": "Save {{count}} lessons",
-      "saveSingle": "Save lesson"
+      "saveSingle": "Save lesson",
+      "quizLabel": "Attach a quiz",
+      "quizNone": "No quiz attached"
     },
     "conflict": {
       "singleTitle": "You already have a lesson at this time",

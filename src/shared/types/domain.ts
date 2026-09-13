@@ -155,6 +155,7 @@ export interface Lesson {
   time: string;
   avgRating: number | null;
   ratingCount: number;
+  quizId: string | null;
 }
 
 export interface LessonRating {

@@ -12,6 +12,7 @@ export interface LessonDto {
   created_at: string;
   avg_rating?: number | string | null;
   rating_count?: number | null;
+  quiz_id?: string | null;
 }
 
 export interface LessonRequestDto {
@@ -19,6 +20,7 @@ export interface LessonRequestDto {
   title: string;
   starts_at: string;
   duration_min: number;
+  quiz?: string | null;
 }
 
 export type RecordingStatusDto = "recording" | "merging" | "completed" | "failed";
@@ -78,4 +80,5 @@ export interface LessonFormInput {
   time?: string;
   duration?: string | number;
   durationMinutes?: string | number;
+  quizId?: string | null;
 }

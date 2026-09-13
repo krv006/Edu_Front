@@ -43,6 +43,7 @@ export function mapLessonDto(dto: LessonDto): Lesson {
     time: dto.starts_at?.slice(11, 16) ?? "",
     avgRating: toAverage(dto.avg_rating),
     ratingCount: Number(dto.rating_count ?? 0),
+    quizId: dto.quiz_id ?? null,
   };
 }
 
@@ -102,5 +103,6 @@ export function mapLessonRequest(form: LessonFormInput): LessonRequestDto {
     title: form.topic ?? form.title ?? "",
     starts_at: startsAt,
     duration_min: Number(form.duration ?? form.durationMinutes ?? 45),
+    ...(form.quizId === undefined ? {} : { quiz: form.quizId || null }),
   };
 }
