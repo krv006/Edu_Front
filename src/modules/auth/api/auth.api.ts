@@ -1,6 +1,6 @@
 import { apiClient, type RequestOptions } from "@/shared/api";
 import { authEndpoints } from "./auth.endpoints";
-import { mapLoginRecords } from "../lib/auth.mappers";
+import { mapLoginRecords, mapTeacherRatings, mapTeacherStats } from "../lib/auth.mappers";
 import type {
   AuthUserDto,
   CertificateDto,
@@ -43,6 +43,18 @@ export const authApi = {
   updateLanguage(language: string) {
     return apiClient.patch<AuthUserDto>(authEndpoints.me, { preferred_language: language });
   },
+  async getMyRatings(options?: RequestOptions) {
+    return mapTeacherRatings(await apiClient.get(authEndpoints.myRatings, options), options?.query);
+  },
+
+  async getTeacherRatings(id: string, options?: RequestOptions) {
+    return mapTeacherRatings(await apiClient.get(authEndpoints.teacherRatings(id), options), options?.query);
+  },
+
+  async getTeacherStats(id: string, options?: RequestOptions) {
+    return mapTeacherStats(await apiClient.get(authEndpoints.teacherStats(id), options));
+  },
+
   updateLessonReminderMinutes(minutes: number) {
     return apiClient.patch<AuthUserDto>(authEndpoints.me, { lesson_reminder_minutes: minutes });
   },

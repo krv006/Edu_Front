@@ -18,10 +18,14 @@ export {
   authKeys,
   useApproveTeacher,
   useLoginHistory,
+  useMyRatings,
   usePendingTeachers,
+  useTeacherRatings,
+  useTeacherStats,
   useTeachers,
 } from "./model/auth.queries";
 export { LoginHistoryDialog } from "./ui/login-history-dialog";
+export { TeacherRatingsDialog } from "./ui/teacher-ratings-dialog";
 export { describeUserAgent } from "./lib/describe-user-agent";
 export { useAuth, useCurrentUser, useIsAuthenticated } from "./model/use-auth";
 export { createLoginSchema, createRegisterSchema } from "./model/auth.schemas";

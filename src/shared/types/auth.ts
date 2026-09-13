@@ -36,6 +36,28 @@ export interface AuthUser {
   linkedAccounts: LinkedAccount[];
 }
 
+export interface TeacherRating {
+  id: string;
+  lessonId: string;
+  studentName: string;
+  studentUsername: string;
+  stars: number;
+  description: string;
+  createdAt: string;
+}
+
+export interface TeacherStats {
+  avgRating: number | null;
+  ratingCount: number;
+  ratingBreakdown: Record<string, number>;
+  courseCount: number;
+  studentCount: number;
+  lessonsFinished: number;
+  lessonsCancelled: number;
+  lessonsScheduled: number;
+  reliability: number | null;
+}
+
 export type AuthStatus = "anonymous" | "initializing" | "authenticated" | "error";
 
 export interface LoginCredentials {

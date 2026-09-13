@@ -46,6 +46,17 @@ export const loginRecordDtoSchema = z.object({
   new_device: z.boolean().default(false),
 });
 
+export const lessonRatingDtoSchema = z.object({
+  id: z.string(),
+  lesson: z.string(),
+  student: userDtoSchema.partial().extend({ id: z.string().optional() }),
+  stars: z.number(),
+  description: z.string().nullable().optional(),
+  created_at: z.string(),
+});
+
+export type LessonRatingDto = z.infer<typeof lessonRatingDtoSchema>;
+
 export const switchAccountResponseDtoSchema = tokenPairDtoSchema.extend({
   user: userDtoSchema,
 });
