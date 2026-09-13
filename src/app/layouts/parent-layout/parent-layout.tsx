@@ -6,7 +6,7 @@ import { PortalLayout } from "@/app/layouts/portal-layout";
 import { SelectedChildSelector } from "@/modules/parent";
 
 export function ParentLayout() {
-  const { user, logout } = useAuth();
+  const { user } = useAuth();
   const { t } = useTranslation("nav");
   const navigation = [
     { to: ROUTES.parent.dashboard, label: t("parent.dashboard"), icon: Home, end: true },
@@ -19,8 +19,8 @@ export function ParentLayout() {
     <PortalLayout
       navItems={navigation}
       roleLabel={t("roles.parent")}
+      workspaceLabel={t("rail.parentWorkspace")}
       user={user}
-      onLogout={logout}
       headerExtra={<SelectedChildSelector />}
     />
   );

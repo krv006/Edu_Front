@@ -1,4 +1,8 @@
 {
+  "selector": {
+    "label": "Child",
+    "noChild": "No child linked"
+  },
   "dashboard": {
     "loading": "Loading the parent dashboard",
     "loadError": "Couldn't load the data",
