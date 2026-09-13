@@ -37,7 +37,9 @@
     "rate": "Baholash",
     "editAria": "Darsni tahrirlash",
     "deleteAria": "Darsni o'chirish",
-    "ratingsAria": "Dars baholari — {{count}} ta"
+    "ratingsAria": "Dars baholari — {{count}} ta",
+    "createQuiz": "Test yaratish",
+    "createQuizAria": "Bu dars uchun test yaratish"
   },
   "viewSwitch": {
     "list": "Ro'yxat",
