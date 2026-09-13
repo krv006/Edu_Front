@@ -3,7 +3,6 @@
     "chat": "Chat",
     "lessons": "Lessons",
     "assignments": "Assignments",
-    "students": "Students",
     "attendance": "Attendance"
   },
   "sendFailed": "Couldn't send the message",

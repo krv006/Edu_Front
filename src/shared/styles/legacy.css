@@ -2425,6 +2425,108 @@ button:disabled {
   align-items: center;
   gap: 10px;
 }
+/* Guruh a'zolari kurs ma'lumotlari panelida (Telegram uslubi). Panel tor —
+   400px dan keng emas — shuning uchun kartochka emas, zich qatorlar. */
+.info-members-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 10px;
+}
+.info-members-head .info-section-title { margin-bottom: 0; }
+.info-members-count { color: var(--muted-foreground); font-size: var(--fs-2xs); }
+.info-members-add {
+  width: 100%;
+  min-height: 38px;
+  margin: 10px 0 8px;
+  padding: 0 12px;
+  border: 1px solid var(--border-accent);
+  border-radius: var(--r-sm);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  color: var(--primary-text);
+  background: var(--primary-tint);
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  cursor: pointer;
+  transition: background .16s ease, border-color .16s ease;
+}
+.info-members-add:hover {
+  border-color: var(--border-accent-strong);
+  background: var(--primary-soft);
+}
+.info-members-search {
+  min-height: 38px;
+  margin-bottom: 6px;
+  padding: 0 11px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-sm);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--muted-foreground);
+  background: var(--surface-subtle);
+}
+.info-members-search input {
+  width: 100%;
+  min-width: 0;
+  border: 0;
+  outline: 0;
+  color: var(--foreground);
+  background: transparent;
+  font-size: var(--fs-sm);
+}
+/* Ataylab o'z siljishi yo'q: panelning o'zi (`.dialog-content`) allaqachon
+   siljiydi, ichiga yana bitta qo'shilsa ikkita scroll ustma-ust tushadi. */
+.info-members-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
+}
+.info-member-row {
+  padding: 6px 8px;
+  margin: 0 -8px;
+  border-radius: var(--r-sm);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.info-member-row:hover { background: var(--surface-subtle); }
+/* `> span` DEYILMAYDI: avatar o'rami ham `<span>`, u ham `flex: 1` olib,
+   ism ustunini nariga surib yuborardi. */
+.info-member-identity {
+  min-width: 0;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+.info-member-identity strong {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  color: var(--foreground);
+  font-size: var(--fs-sm);
+  white-space: nowrap;
+}
+.info-member-identity small { color: var(--muted-foreground); font-size: var(--fs-2xs); }
+/* Chiqarish tugmasi doim ko'rinadi: teginish ekranida hover yo'q. */
+.info-member-remove {
+  flex: 0 0 auto;
+  width: 30px;
+  height: 30px;
+  border: 0;
+  border-radius: var(--r-sm);
+  display: grid;
+  place-items: center;
+  color: var(--muted-foreground);
+  background: transparent;
+  cursor: pointer;
+  transition: color .16s ease, background .16s ease;
+}
+.info-member-remove:hover { color: var(--destructive); background: var(--destructive-soft); }
+
 .member-count {
   margin-top: 7px;
   padding: 9px;
@@ -2665,50 +2767,6 @@ button:disabled {
   color: var(--foreground);
   background: transparent;
   font-size: var(--fs-md);
-}
-.student-grid {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 10px;
-}
-.student-card {
-  min-height: 68px;
-  padding: 11px;
-  border: 1px solid var(--border);
-  border-radius: var(--r-md);
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  background: var(--surface);
-}
-.student-card > div {
-  min-width: 0;
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 3px;
-}
-.student-card strong {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  color: var(--foreground);
-  font-size: var(--fs-md);
-  white-space: nowrap;
-}
-.student-card span {
-  color: var(--muted-foreground);
-  font-size: var(--fs-2xs);
-}
-.student-card > button {
-  min-height: 32px;
-  padding: 0 10px;
-  border: 0;
-  border-radius: var(--r-sm);
-  color: var(--primary-text);
-  background: var(--primary-soft);
-  font-size: var(--fs-2xs);
-  font-weight: 800;
-  cursor: pointer;
 }
 
 [data-sonner-toaster] [data-sonner-toast].fokus-toast {
@@ -5880,8 +5938,6 @@ body > .ML__keyboard,
 .submission-row-main small { display: flex; align-items: center; gap: 4px; margin-top: 3px; font-size: var(--fs-2xs); color: var(--muted-foreground); }
 .submission-row-main small .is-late { color: var(--destructive-strong); font-style: normal; font-weight: 700; }
 .submission-row-actions { display: flex; align-items: center; gap: 4px; flex: none; }
-
-.student-card .icon-button { margin-left: auto; }
 
 @media (max-width: 768px) {
   .hw-result-head { flex-direction: column; align-items: flex-start; }

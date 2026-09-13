@@ -28,3 +28,4 @@ export {
   useUpdateCourse,
 } from "./model/course.queries";
 export { AddStudentDialog } from "./ui/add-student-dialog";
+export { CourseMembersSection } from "./ui/course-members-section";
