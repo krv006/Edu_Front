@@ -24,7 +24,8 @@ const DEFAULT_WIDTH = 368;
 function sectionFromPath(pathname: string): ConversationSection {
   if (pathname.endsWith("/schedule")) return "schedule";
   if (pathname.endsWith("/ai")) return "ai";
-  if (pathname.endsWith("/quizzes")) return "quizzes";
+  // Testlar Workspace ichidagi karta — u yerda ham ustunda Workspace yonadi.
+  if (pathname.endsWith("/workspace") || pathname.endsWith("/quizzes")) return "workspace";
   if (pathname.endsWith("/report")) return "report";
   return "chat";
 }

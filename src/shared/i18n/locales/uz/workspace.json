@@ -1,0 +1,32 @@
+{
+  "eyebrow": "ISH MAYDONI",
+  "title": "Workspace",
+  "subtitle": "Kundalik ishingiz uchun bo'limlar shu yerda to'planadi.",
+  "soon": "Tez orada",
+  "cards": {
+    "quizzes": {
+      "title": "Testlar",
+      "description": "Testlar yaratish, yechish va natijalarni ko'rish."
+    },
+    "assignments": {
+      "title": "Vazifalar",
+      "description": "Uy vazifalari va topshiriqlar bir joyda."
+    },
+    "materials": {
+      "title": "Materiallar",
+      "description": "Dars uchun fayllar va havolalar to'plami."
+    },
+    "recordings": {
+      "title": "Dars yozuvlari",
+      "description": "O'tilgan darslarni qayta ko'rish."
+    },
+    "stats": {
+      "title": "Statistika",
+      "description": "Faollik va natijalar bo'yicha hisobotlar."
+    },
+    "certificates": {
+      "title": "Sertifikatlar",
+      "description": "Berilgan va olingan sertifikatlar."
+    }
+  }
+}
