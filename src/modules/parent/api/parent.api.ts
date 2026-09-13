@@ -1,4 +1,4 @@
-import { apiClient, type RequestOptions } from "@/shared/api";
+import { apiClient, normalizePagination, type RequestOptions } from "@/shared/api";
 import { attendanceApi } from "@/modules/attendance";
 import { courseApi } from "@/modules/course";
 import { homeworkApi } from "@/modules/homework";
@@ -27,9 +27,21 @@ function mapConsentDto(item: ConsentDto): Consent {
 }
 
 export const parentApi = {
+  /*
+   * Bu endpoint DRF sahifasini qaytaradi (`{count, next, previous, results}`),
+   * massiv emas — sxemada `PaginatedLinkList`. Javobni to'g'ridan-to'g'ri
+   * `.map` qilish `items.map is not a function` xatosiga olib kelardi va
+   * ota-ona bo'limining hammasi shu bitta so'rovga bog'liq: panel ham,
+   * farzandlar ro'yxati ham "Ma'lumotlarni yuklab bo'lmadi" ko'rsatardi.
+   *
+   * `normalizePagination` massivni ham, sahifani ham qabul qiladi — backend
+   * shaklini keyin o'zgartirsa ham buziladigan joy qolmaydi.
+   */
   async getLinks(options?: RequestOptions) {
-    const items = await apiClient.get<ParentLinkDto[]>(authEndpoints.links, options);
-    return items.map(mapParentLinkDto);
+    const page = normalizePagination<ParentLinkDto>(
+      await apiClient.get(authEndpoints.links, { ...options, query: { page_size: 100, ...options?.query } })
+    );
+    return page.items.map(mapParentLinkDto);
   },
 
   /** Faqat tasdiqlangan bog'lanishlar — rozilik modeli (docs/ARCHITECTURE.md §5). */
@@ -74,9 +86,12 @@ export const parentApi = {
     );
   },
 
+  /** `getLinks` bilan bir xil sabab: sxemada `PaginatedConsentList`. */
   async getConsents(options?: RequestOptions) {
-    const items = await apiClient.get<ConsentDto[]>(authEndpoints.consents, options);
-    return items.map(mapConsentDto);
+    const page = normalizePagination<ConsentDto>(
+      await apiClient.get(authEndpoints.consents, { ...options, query: { page_size: 100, ...options?.query } })
+    );
+    return page.items.map(mapConsentDto);
   },
 
   async setConsent(dto: SetConsentInput) {

@@ -1,4 +1,8 @@
 {
+  "selector": {
+    "label": "Farzand",
+    "noChild": "Farzand ulanmagan"
+  },
   "dashboard": {
     "loading": "Ota-ona paneli yuklanmoqda",
     "loadError": "Ma'lumotlarni yuklab bo'lmadi",

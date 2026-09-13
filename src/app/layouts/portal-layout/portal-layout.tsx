@@ -1,11 +1,12 @@
 import { useState, type ComponentType, type ReactNode } from "react";
-import { AnimatePresence, motion } from "framer-motion";
-import { ChevronDown, LogOut, Menu, X } from "lucide-react";
+import { motion } from "framer-motion";
+import { ChevronDown, Menu, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { NavLink, Outlet } from "react-router-dom";
 import { NotificationBell } from "@/modules/notification";
+import { AccountMenu } from "@/widgets/account-menu";
 import type { AuthUser } from "@/shared/types";
-import { Avatar, Brand, LanguageToggle, ThemeToggle } from "@/shared/ui/legacy";
+import { Avatar, Brand } from "@/shared/ui/legacy";
 
 export interface PortalNavItem {
   to: string;
@@ -17,19 +18,17 @@ export interface PortalNavItem {
 export interface PortalLayoutProps {
   navItems: PortalNavItem[];
   roleLabel: string;
+  /** Hisob menyusidagi "ish maydoni" qatori — rolga qarab boshqacha. */
+  workspaceLabel: string;
   user: AuthUser | null;
-  onLogout: () => void | Promise<void>;
   headerExtra?: ReactNode;
 }
 
-export function PortalLayout({ navItems, roleLabel, user, onLogout, headerExtra = null }: PortalLayoutProps) {
+export function PortalLayout({ navItems, roleLabel, workspaceLabel, user, headerExtra = null }: PortalLayoutProps) {
   const { t } = useTranslation();
   const [accountOpen, setAccountOpen] = useState(false);
+  const [profileOpen, setProfileOpen] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
-
-  async function handleLogout() {
-    await onLogout();
-  }
 
   return (
     <div className="portal-shell">
@@ -38,45 +37,26 @@ export function PortalLayout({ navItems, roleLabel, user, onLogout, headerExtra 
           <NavLink to="/" className="portal-brand-link" aria-label={t("portal.home")}>
             <Brand />
           </NavLink>
+          {/*
+            Til, mavzu va rol yorlig'i ataylab bu yerda emas: birinchi ikkisi
+            hisob menyusidagi "Sozlamalar" ichida, rol esa ismning ostida
+            allaqachon yozilgan. Sarlavhada ular faqat siqiqlik hosil qilardi.
+          */}
           <div className="portal-header-actions">
             {headerExtra}
             <NotificationBell enabled={Boolean(user)} />
-            <LanguageToggle className="portal-language-toggle" />
-            <ThemeToggle className="portal-theme-toggle" />
-            <span className="portal-role-badge">{roleLabel}</span>
-            <div className="portal-account-wrap">
-              <button
-                className="portal-account"
-                onClick={() => setAccountOpen((value) => !value)}
-                aria-expanded={accountOpen}
-              >
-                <Avatar name={user?.name ?? t("portal.defaultUser")} tone="violet" size="sm" status="online" />
-                <span>
-                  <strong>{user?.name}</strong>
-                  <small>{roleLabel}</small>
-                </span>
-                <ChevronDown size={16} />
-              </button>
-              <AnimatePresence>
-                {accountOpen && (
-                  <motion.div
-                    className="portal-account-menu"
-                    initial={{ opacity: 0, y: -8, scale: 0.97 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: -5, scale: 0.98 }}
-                    transition={{ duration: 0.17 }}
-                  >
-                    <div>
-                      <strong>{user?.name}</strong>
-                      <small>{user?.email}</small>
-                    </div>
-                    <button onClick={handleLogout}>
-                      <LogOut size={17} /> {t("actions.logout")}
-                    </button>
-                  </motion.div>
-                )}
-              </AnimatePresence>
-            </div>
+            <button
+              className="portal-account"
+              onClick={() => setAccountOpen(true)}
+              aria-label={t("nav:rail.openProfileMenu")}
+            >
+              <Avatar name={user?.name ?? t("portal.defaultUser")} tone="violet" size="sm" status="online" />
+              <span className="portal-account-identity">
+                <strong>{user?.name}</strong>
+                <small>{roleLabel}</small>
+              </span>
+              <ChevronDown size={16} />
+            </button>
             <button
               className="portal-mobile-toggle"
               onClick={() => setMobileOpen((value) => !value)}
@@ -113,6 +93,21 @@ export function PortalLayout({ navItems, roleLabel, user, onLogout, headerExtra 
       <main className="portal-main">
         <Outlet />
       </main>
+
+      {/*
+        Chat sahifalaridagi bilan bir xil menyu. Ilgari bu yerda faqat ism va
+        "Chiqish" bo'lgan kichik ro'yxat turardi — shuning uchun ota-ona
+        rolida akkauntni almashtirib bo'lmasdi: almashtirgich o'sha menyuning
+        ichida.
+      */}
+      <AccountMenu
+        open={accountOpen}
+        onOpenChange={setAccountOpen}
+        profileOpen={profileOpen}
+        onProfileOpenChange={setProfileOpen}
+        roleLabel={roleLabel}
+        workspaceLabel={workspaceLabel}
+      />
     </div>
   );
 }

@@ -172,8 +172,10 @@ button:disabled {
   align-items: center;
   gap: 11px;
 }
-/* Logo o'zi to'liq rangli gradient monogramm — orqasiga fon qo'yilmaydi,
-   aks holda gradient gradient ustiga tushib, belgi yo'qolib ketardi. */
+/* Logo o'zi to'liq rangli gradient monogramm, shuning uchun orqasiga TO'YINGAN
+   fon qo'yilmaydi — gradient gradient ustiga tushib, belgi yo'qolib ketardi.
+   Sarlavhalardagi mayin katak (pastdagi `.portal-brand-link`) bunga kirmaydi:
+   u deyarli oq/qora, belgini bosmaydi. */
 .brand-mark {
   width: 38px;
   height: 38px;
@@ -183,6 +185,18 @@ button:disabled {
 .brand--compact .brand-mark {
   width: 40px;
   height: 40px;
+}
+
+/* Portal sarlavhasidagi logo — suhbatlar ustunidagi bilan bir xil katak
+   (`.conversation-rail-logo`), shunda brend belgisi ilovaning har ikkala
+   qobig'ida bir xil ko'rinadi. To'ldirish 38px qutida belgini 22px qoldiradi —
+   ustundagi bilan tep-teng. */
+.portal-brand-link .brand-mark {
+  padding: 7px;
+  border: 1px solid var(--border-accent);
+  border-radius: var(--r-md);
+  background: linear-gradient(145deg, var(--surface), var(--primary-soft));
+  object-position: center calc(50% - 0.7px);
 }
 
 .avatar-wrap {
@@ -2954,32 +2968,37 @@ body.is-resizing-sidebar {
   color: var(--muted-foreground);
   background: var(--muted);
 }
+/* Profil qatori — ko'zga BITTA karta. Ichida ikkita tugma turadi (kartaning
+   o'zi va rol almashtirgich), chunki tugma ichiga tugma joylab bo'lmaydi va
+   almashtirgich teginish uchun alohida nishon bo'lishi kerak — hoversiz
+   ekranda flyout'ni boshqa ochib bo'lmaydi. Ramka, fon va hover holati
+   o'ramda: shuning uchun ichkarida chegara ko'rinmaydi. */
 .teacher-menu-profile-wrap {
   margin: 12px 0 14px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-lg);
   display: flex;
   align-items: stretch;
-  gap: 8px;
+  overflow: hidden;
+  background: var(--surface);
+  transition: border-color 0.16s ease, transform 0.16s ease;
+}
+.teacher-menu-profile-wrap:hover {
+  border-color: var(--border-accent-strong);
+  transform: translateY(-1px);
 }
 .teacher-menu-profile {
   flex: 1;
   min-width: 0;
   padding: 14px 11px;
-  border: 1px solid var(--border);
-  border-radius: var(--r-lg);
+  border: 0;
   display: flex;
   align-items: center;
   gap: 12px;
   color: var(--foreground);
   text-align: left;
-  background: var(--surface);
+  background: transparent;
   cursor: pointer;
-  transition: border-color 0.16s ease, transform 0.16s ease,
-    background 0.16s ease;
-}
-.teacher-menu-profile:hover {
-  border-color: var(--border-accent-strong);
-  background: var(--surface);
-  transform: translateY(-1px);
 }
 .teacher-menu-profile > span:nth-child(2) {
   min-width: 0;
@@ -3000,24 +3019,21 @@ body.is-resizing-sidebar {
 }
 .teacher-menu-role-trigger {
   flex: 0 0 auto;
-  width: 34px;
-  border: 1px solid var(--border);
-  border-radius: var(--r-lg);
+  width: 38px;
+  padding: 0;
+  border: 0;
   display: flex;
   align-items: center;
   justify-content: center;
   color: var(--muted-foreground);
-  background: var(--surface);
+  background: transparent;
   cursor: pointer;
-  transition: border-color 0.16s ease, background 0.16s ease, color 0.16s ease,
-    transform 0.16s ease;
+  transition: color 0.16s ease;
 }
-.teacher-menu-role-trigger:hover,
-.teacher-menu-role-trigger.is-open {
-  border-color: var(--border-accent-strong);
-  color: var(--accent-foreground);
-  background: rgb(var(--primary-rgb) / 0.08);
-}
+/* Alohida quti ham, fon ham yo'q — kartaga kelganda ikonkaning o'zi buriladi. */
+.teacher-menu-profile-wrap:hover .teacher-menu-role-trigger,
+.teacher-menu-role-trigger.is-open { color: var(--accent-foreground); }
+.teacher-menu-profile-wrap:hover .teacher-menu-role-trigger svg,
 .teacher-menu-role-trigger.is-open svg { transform: rotate(180deg); }
 .teacher-menu-role-trigger svg { transition: transform 0.16s ease; }
 .teacher-menu-role-flyout {
@@ -3636,7 +3652,6 @@ body.is-resizing-sidebar {
 @media (max-width: 700px) {
   .selected-child-selector span { display: none; }
   .selected-child-selector select { max-width: 92px; }
-  .portal-role-badge { display: none; }
   .consent-list > button { grid-template-columns: 38px minmax(0, 1fr); }
   .consent-list i { grid-column: 2; justify-self: start; }
 }
@@ -3880,16 +3895,6 @@ body > .ML__keyboard,
 }
 .portal-brand-link { color: inherit; text-decoration: none; }
 .portal-header-actions { display: flex; align-items: center; gap: 10px; }
-.portal-role-badge {
-  padding: 6px 10px;
-  border: 1px solid var(--border-accent);
-  border-radius: var(--r-full);
-  color: var(--accent-foreground);
-  background: var(--primary-tint);
-  font-size: var(--fs-sm);
-  font-weight: 800;
-}
-.portal-account-wrap { position: relative; }
 .portal-account {
   min-width: 190px;
   padding: 5px 8px;
@@ -3902,38 +3907,9 @@ body > .ML__keyboard,
   cursor: pointer;
 }
 .portal-account:hover { background: var(--surface-subtle); }
-.portal-account > span { min-width: 0; flex: 1; display: grid; text-align: left; }
+.portal-account-identity { min-width: 0; flex: 1; display: grid; text-align: left; }
 .portal-account strong { overflow: hidden; font-size: var(--fs-md); text-overflow: ellipsis; white-space: nowrap; }
 .portal-account small { color: var(--muted-foreground); font-size: var(--fs-xs); }
-.portal-account-menu {
-  position: absolute;
-  top: calc(100% + 9px);
-  right: 0;
-  width: 245px;
-  padding: 8px;
-  border: 1px solid var(--border);
-  border-radius: var(--r-lg);
-  background: var(--surface);
-  box-shadow: var(--shadow-float);
-}
-.portal-account-menu > div { padding: 10px; display: grid; border-bottom: 1px solid var(--border); }
-.portal-account-menu strong { font-size: var(--fs-lg); }
-.portal-account-menu small { margin-top: 3px; color: var(--muted-foreground); font-size: var(--fs-sm); }
-.portal-account-menu button {
-  width: 100%;
-  margin-top: 6px;
-  padding: 10px;
-  border: 0;
-  border-radius: var(--r-sm);
-  display: flex;
-  align-items: center;
-  gap: 9px;
-  color: var(--destructive);
-  background: transparent;
-  font-weight: 700;
-  cursor: pointer;
-}
-.portal-account-menu button:hover { background: var(--destructive-soft); }
 .portal-mobile-toggle { display: none; width: 40px; height: 40px; border: 1px solid var(--border); border-radius: var(--r-sm); place-items: center; background: var(--surface); }
 .portal-nav { border-top: 1px solid var(--border); }
 .portal-nav-inner { height: 49px; display: flex; align-items: stretch; gap: 8px; }
@@ -4280,7 +4256,7 @@ body > .ML__keyboard,
 @media (max-width: 680px) {
   .portal-header-inner, .portal-nav-inner, .portal-page { width: min(100% - 24px, 1180px); }
   .portal-header-inner { height: 62px; }
-  .portal-role-badge, .portal-account > span, .portal-account > svg { display: none; }
+  .portal-account-identity, .portal-account > svg { display: none; }
   .portal-account { min-width: auto; padding: 3px; }
   .portal-mobile-toggle { display: grid; }
   .portal-nav { position: absolute; top: 62px; right: 0; left: 0; display: none; border-bottom: 1px solid var(--border); background: rgb(var(--surface-rgb) / .98); box-shadow: 0 16px 30px rgb(var(--shadow-rgb) / .08); }
@@ -6448,10 +6424,9 @@ body > .ML__keyboard,
     overscroll-behavior: contain;
   }
 
-  /* Portal sarlavhasi: mavzu almashtirgich rol yorlig'idan oldin, siqilgan holda */
-  .portal-header-actions { gap: 7px; flex-wrap: wrap; }
-  .portal-role-badge { display: none; }
-  .portal-account span { display: none; }
+  /* Portal sarlavhasi tor ekranda siqiladi: ism yashirinadi, avatar qoladi */
+  .portal-header-actions { gap: 7px; }
+  .portal-account-identity { display: none; }
 
   /* Keng jadvallar gorizontal siljiydi, sahifa emas */
   .attendance-table-scroll,

@@ -21,6 +21,7 @@
     "report": "Rating",
     "resizeHandle": "Resize the conversation panel",
     "teacherWorkspace": "Teacher workspace",
-    "studentWorkspace": "Student workspace"
+    "studentWorkspace": "Student workspace",
+    "parentWorkspace": "Parent workspace"
   }
 }
