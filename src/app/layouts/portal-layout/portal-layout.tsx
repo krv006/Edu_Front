@@ -18,7 +18,6 @@ export interface PortalNavItem {
 export interface PortalLayoutProps {
   navItems: PortalNavItem[];
   roleLabel: string;
-  /** Hisob menyusidagi "ish maydoni" qatori — rolga qarab boshqacha. */
   workspaceLabel: string;
   user: AuthUser | null;
   headerExtra?: ReactNode;
@@ -37,11 +36,6 @@ export function PortalLayout({ navItems, roleLabel, workspaceLabel, user, header
           <NavLink to="/" className="portal-brand-link" aria-label={t("portal.home")}>
             <Brand />
           </NavLink>
-          {/*
-            Til, mavzu va rol yorlig'i ataylab bu yerda emas: birinchi ikkisi
-            hisob menyusidagi "Sozlamalar" ichida, rol esa ismning ostida
-            allaqachon yozilgan. Sarlavhada ular faqat siqiqlik hosil qilardi.
-          */}
           <div className="portal-header-actions">
             {headerExtra}
             <NotificationBell enabled={Boolean(user)} />
@@ -94,12 +88,6 @@ export function PortalLayout({ navItems, roleLabel, workspaceLabel, user, header
         <Outlet />
       </main>
 
-      {/*
-        Chat sahifalaridagi bilan bir xil menyu. Ilgari bu yerda faqat ism va
-        "Chiqish" bo'lgan kichik ro'yxat turardi — shuning uchun ota-ona
-        rolida akkauntni almashtirib bo'lmasdi: almashtirgich o'sha menyuning
-        ichida.
-      */}
       <AccountMenu
         open={accountOpen}
         onOpenChange={setAccountOpen}

@@ -11,24 +11,14 @@ export const pushKeys = Object.freeze({
 });
 
 export interface PushNotificationsState {
-  /** Brauzer push'ni umuman qo'llab-quvvatlaydimi. */
   supported: boolean;
-  /** Shu brauzerda obuna ochiqmi. */
   enabled: boolean;
-  /** Ruxsat butunlay rad etilgan — endi faqat brauzer sozlamalaridan tiklanadi. */
   blocked: boolean;
   pending: boolean;
   error: string | null;
   toggle: (next: boolean) => void;
 }
 
-/**
- * Push obunasining holati.
- *
- * Holat brauzerdan o'qiladi, serverdan emas: obuna qurilmaga bog'liq, serverda
- * esa boshqa brauzerdagi obuna ham turgan bo'lishi mumkin. So'rov sifatida
- * yozilgan — shunda yoqib/o'chirgandan keyin holat o'zi yangilanadi.
- */
 export function usePushNotifications(): PushNotificationsState {
   const supported = isPushSupported();
   const queryClient = useQueryClient();
@@ -48,7 +38,6 @@ export function usePushNotifications(): PushNotificationsState {
       if (next) await enablePush();
       else await disablePush();
     },
-    // Xato bo'lsa ham qayta o'qiymiz: obuna yarim holatda qolgan bo'lishi mumkin.
     onSettled: () => queryClient.invalidateQueries({ queryKey: pushKeys.status }),
   });
 

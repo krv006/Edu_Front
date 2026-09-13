@@ -20,11 +20,9 @@ const MIN_WIDTH = 300;
 const MAX_WIDTH = 480;
 const DEFAULT_WIDTH = 368;
 
-/** Yo'ldan bo'limni aniqlaymiz — bo'lim holati URL'da turadi. */
 function sectionFromPath(pathname: string): ConversationSection {
   if (pathname.endsWith("/schedule")) return "schedule";
   if (pathname.endsWith("/ai")) return "ai";
-  // Testlar Workspace ichidagi karta — u yerda ham ustunda Workspace yonadi.
   if (pathname.endsWith("/workspace") || pathname.endsWith("/quizzes")) return "workspace";
   if (pathname.endsWith("/report")) return "report";
   return "chat";
@@ -37,7 +35,6 @@ export function ConversationLayout({ role = "teacher" }: { role?: ConversationRo
   const [menuOpen, setMenuOpen] = useState(false);
   const [profileOpen, setProfileOpen] = useState(false);
   const section = sectionFromPath(pathname);
-  /** Chatdan boshqa bo'limda suhbatlar ustuni yopiladi. */
   const wideSection = section !== "chat";
   const storageKey = WIDTH_KEYS[role] ?? WIDTH_KEYS.teacher;
   const [panelWidth, setPanelWidth] = useState(() => {

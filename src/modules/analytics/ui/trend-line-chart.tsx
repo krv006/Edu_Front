@@ -11,7 +11,6 @@ export interface TrendLineSeries {
 export interface TrendLineChartProps {
   series: TrendLineSeries[];
   labels: string[];
-  /** `false` — pastki chegara ma'lumotning eng kichigidan olinadi (masalan 0-100 ball). */
   zeroBase?: boolean;
 }
 
@@ -31,8 +30,6 @@ export function TrendLineChart({ series, labels, zeroBase = true }: TrendLineCha
   const allValues = series.flatMap((s) => s.values.filter((v): v is number => v != null));
   const rawMax = allValues.length ? Math.max(...allValues) : 1;
   const rawMin = allValues.length ? Math.min(...allValues) : 0;
-  // Bir nuqta/tekis qator bo'lsa ham (span=0) chiziq pastki chetga yopishib
-  // qolmasligi uchun har doim nolmas padding — |rawMax| yoki 1 dan.
   const padding = (rawMax - rawMin || Math.abs(rawMax) || 1) * 0.15;
 
   const niceMin = zeroBase ? 0 : rawMin - padding;

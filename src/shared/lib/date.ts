@@ -2,11 +2,6 @@ import { format, isToday, isYesterday } from "date-fns";
 import { enUS, ru, uz } from "date-fns/locale";
 import { i18n } from "@/shared/i18n";
 
-/**
- * Plain (hook bo'lmagan) yordamchi funksiyalar bo'lgani uchun joriy tilni
- * global `i18n` instansidan o'qiydi — chaqiruvchi tomonlar (13 ta fayl)
- * o'zgartirilmasin deb ataylab shunday.
- */
 const DATE_FNS_LOCALES = { uz, en: enUS, ru } as const;
 
 function currentDateFnsLocale() {

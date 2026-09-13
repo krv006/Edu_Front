@@ -42,7 +42,6 @@ export function useCreateQuiz() {
   });
 }
 
-/** Hech narsa saqlamaydi — preview qaytaradi, dialog uni draft'ga yuklaydi. */
 export function useImportQuizDocx() {
   const { t } = useTranslation("quiz");
   return useMutation({
@@ -52,7 +51,6 @@ export function useImportQuizDocx() {
   });
 }
 
-/** Bo'sh shablon (.docx/.xlsx) — brauzer darhol yuklab oladi, hech narsa saqlanmaydi. */
 export function useDownloadQuizTemplate() {
   const { t } = useTranslation("quiz");
   return useMutation({

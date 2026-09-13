@@ -391,7 +391,6 @@ export interface QuizFormValues {
   questions: QuizQuestionFormValues[];
 }
 
-/** Admin boshqaruv paneli — `apps.analytics` (faqat o'qish, `audit.view` ruxsati). */
 export interface TopCourseStat {
   id: string;
   title: string;
@@ -432,7 +431,6 @@ export interface DashboardTrends {
   attendanceRate: Array<number | null>;
 }
 
-/** `.docx` import preview — hech narsa saqlanmagan, o'qituvchi ko'rib tahrirlaydi. */
 export interface QuizImportWarning {
   questionNumber: number;
   reason: string;

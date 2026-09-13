@@ -98,14 +98,6 @@ button:disabled {
   box-shadow: 0 10px 24px rgb(var(--primary-rgb) / 0.26);
 }
 .button--secondary {
-  /*
-   * Rangi ATAYLAB ochiq/qorong'i mavzuga bog'liq token'lardan olinadi (ambient
-   * `color`ga tayanmaydi) — aks holda `.live-page` kabi doim qorong'i fon
-   * ichida (rang atayin oq-yaqin qilib belgilangan) shu tugma matni ko'rinmay
-   * qolardi: doska panelining o'zi ochiq mavzuda oq fon bo'lsa ham, atrofdan
-   * meros qilingan oq matn shu fonda deyarli yo'qolib ketardi (2026-09-11,
-   * jonli darsning doska bo'limida "Ruxsat"/"Yechuvchi" tugmalari ko'rinmasligi).
-   */
   border: 1px solid var(--border);
   color: var(--foreground);
   background: var(--surface);
@@ -172,10 +164,6 @@ button:disabled {
   align-items: center;
   gap: 11px;
 }
-/* Logo o'zi to'liq rangli gradient monogramm, shuning uchun orqasiga TO'YINGAN
-   fon qo'yilmaydi — gradient gradient ustiga tushib, belgi yo'qolib ketardi.
-   Sarlavhalardagi mayin katak (pastdagi `.portal-brand-link`) bunga kirmaydi:
-   u deyarli oq/qora, belgini bosmaydi. */
 .brand-mark {
   width: 38px;
   height: 38px;
@@ -187,10 +175,6 @@ button:disabled {
   height: 40px;
 }
 
-/* Portal sarlavhasidagi logo — suhbatlar ustunidagi bilan bir xil katak
-   (`.conversation-rail-logo`), shunda brend belgisi ilovaning har ikkala
-   qobig'ida bir xil ko'rinadi. To'ldirish 38px qutida belgini 22px qoldiradi —
-   ustundagi bilan tep-teng. */
 .portal-brand-link .brand-mark {
   padding: 7px;
   border: 1px solid var(--border-accent);
@@ -323,8 +307,6 @@ button:disabled {
   margin-bottom: 30px;
   color: var(--foreground);
 }
-/* Kirish/ro'yxatdan o'tish kartasida logo kattaroq: bu yerda u sarlavhadan
-   oldingi asosiy brend belgisi, header'dagi kichik nishoncha emas. */
 .login-card > .brand .brand-mark {
   width: 64px;
   height: 64px;
@@ -744,8 +726,6 @@ button:disabled {
 .conversation-rail {
   width: 76px;
   flex: 0 0 auto;
-  /* Tepadagi bo'shliq sarlavhaniki bilan bir xil — brend belgisi
-     qidiruv maydoni bilan bir chiziqda turadi. */
   padding: 20px 5px 8px;
   border-right: 1px solid var(--border);
   display: flex;
@@ -783,12 +763,6 @@ button:disabled {
   white-space: nowrap;
 }
 
-/* Brend belgisi — ustunning eng tepasida, qidiruv maydoni bilan bir chiziqda.
-   Balandlik va tepadagi -4px `.panel-topbar` nikidan olingan: ikkala ustun ham
-   20px bo'shliqdan boshlanadi, shuning uchun bir xil quti = bir xil markaz.
-   Katak fon va ramka bilan: yalang'och logo ustundagi ikonkalar orasida
-   osilib qolgandek ko'rinardi. Uslub bo'sh holat ekranidagi nishonchadan
-   olingan, faqat kichikroq va sokinroq — bu yerda u bosh qahramon emas. */
 .conversation-rail-logo {
   width: 38px;
   height: 38px;
@@ -804,8 +778,6 @@ button:disabled {
   height: 22px;
   display: block;
   object-fit: contain;
-  /* Belgining siyohi SVG qutisining markazidan ~3% pastda — shu qadar
-     qaytaramiz, aks holda katak ichida pastroqda o'tirgandek ko'rinadi. */
   object-position: center calc(50% - 0.7px);
 }
 
@@ -1973,8 +1945,6 @@ button:disabled {
     border-bottom: 1px solid var(--border);
     overflow-x: auto;
   }
-  /* Mobilda ustun gorizontal tasma — logo bo'lim tugmalari orasida
-     turib qolmasligi uchun yashiriladi. */
   .conversation-rail-logo {
     display: none;
   }
@@ -2425,8 +2395,6 @@ button:disabled {
   align-items: center;
   gap: 10px;
 }
-/* Guruh a'zolari kurs ma'lumotlari panelida (Telegram uslubi). Panel tor —
-   400px dan keng emas — shuning uchun kartochka emas, zich qatorlar. */
 .info-members-head {
   display: flex;
   align-items: baseline;
@@ -2478,8 +2446,6 @@ button:disabled {
   background: transparent;
   font-size: var(--fs-sm);
 }
-/* Ataylab o'z siljishi yo'q: panelning o'zi (`.dialog-content`) allaqachon
-   siljiydi, ichiga yana bitta qo'shilsa ikkita scroll ustma-ust tushadi. */
 .info-members-list {
   display: flex;
   flex-direction: column;
@@ -2494,8 +2460,6 @@ button:disabled {
   gap: 10px;
 }
 .info-member-row:hover { background: var(--surface-subtle); }
-/* `> span` DEYILMAYDI: avatar o'rami ham `<span>`, u ham `flex: 1` olib,
-   ism ustunini nariga surib yuborardi. */
 .info-member-identity {
   min-width: 0;
   flex: 1;
@@ -2511,7 +2475,6 @@ button:disabled {
   white-space: nowrap;
 }
 .info-member-identity small { color: var(--muted-foreground); font-size: var(--fs-2xs); }
-/* Chiqarish tugmasi doim ko'rinadi: teginish ekranida hover yo'q. */
 .info-member-remove {
   flex: 0 0 auto;
   width: 30px;
@@ -3026,11 +2989,6 @@ body.is-resizing-sidebar {
   color: var(--muted-foreground);
   background: var(--muted);
 }
-/* Profil qatori — ko'zga BITTA karta. Ichida ikkita tugma turadi (kartaning
-   o'zi va rol almashtirgich), chunki tugma ichiga tugma joylab bo'lmaydi va
-   almashtirgich teginish uchun alohida nishon bo'lishi kerak — hoversiz
-   ekranda flyout'ni boshqa ochib bo'lmaydi. Ramka, fon va hover holati
-   o'ramda: shuning uchun ichkarida chegara ko'rinmaydi. */
 .teacher-menu-profile-wrap {
   margin: 12px 0 14px;
   border: 1px solid var(--border);
@@ -3088,7 +3046,6 @@ body.is-resizing-sidebar {
   cursor: pointer;
   transition: color 0.16s ease;
 }
-/* Alohida quti ham, fon ham yo'q — kartaga kelganda ikonkaning o'zi buriladi. */
 .teacher-menu-profile-wrap:hover .teacher-menu-role-trigger,
 .teacher-menu-role-trigger.is-open { color: var(--accent-foreground); }
 .teacher-menu-profile-wrap:hover .teacher-menu-role-trigger svg,
@@ -3579,11 +3536,6 @@ body.is-resizing-sidebar {
 .dialog-form { display: grid; gap: 14px; }
 .dialog-actions { display: flex; justify-content: flex-end; gap: 9px; }
 .inline-actions { display: flex; align-items: center; gap: 6px; }
-/* Admin sahifalari (dashboard/teachers) hech qanday Layout ichida emas —
-   PortalLayout'dagi kabi `.portal-main{overflow:auto}` o'rovchisi yo'q. `#root`
-   o'zi `overflow:hidden` (legacy.css:6), shuning uchun bu sahifa o'ZI o'z
-   scroll hududini yaratishi kerak, aks holda balandligi ekrandan oshgan
-   tarkib scroll bo'lmasdan shunchaki kesilib qoladi. */
 .admin-page {
   height: 100dvh;
   overflow-y: auto;
@@ -3605,7 +3557,6 @@ body.is-resizing-sidebar {
   .inline-actions { flex-wrap: wrap; justify-content: flex-end; }
 }
 
-/* Admin — boshqaruv paneli (KPI, trend grafiklar, top jadvallar) */
 .dash-topbar { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 .dash-period-switch { display: flex; background: var(--muted); border-radius: var(--r-sm); padding: 3px; gap: 2px; }
 .dash-period-switch button { border: 0; background: transparent; color: var(--muted-foreground); font-size: var(--fs-xs); font-weight: 700; padding: 6px 12px; border-radius: 8px; cursor: pointer; }
@@ -4065,8 +4016,6 @@ body > .ML__keyboard,
 .portal-search { width: min(480px, 100%); min-height: 44px; padding: 0 14px; border: 1px solid var(--border); border-radius: var(--r-md); display: flex; align-items: center; gap: 9px; color: var(--muted-foreground); background: var(--surface); }
 .portal-search:focus-within { border-color: var(--primary); box-shadow: 0 0 0 4px rgb(var(--primary-rgb) / .09); }
 .portal-search input { width: 100%; border: 0; outline: 0; color: var(--foreground); background: transparent; font-size: var(--fs-md); }
-/* Workspace kartalari. `auto-fill` — kartalar soni vaqt o'tib ortadi, ustunlar
-   sonini qo'lda belgilab qo'ysak, har qo'shilganda qayta sozlash kerak bo'lardi. */
 .workspace-grid {
   margin-top: 18px;
   display: grid;
@@ -4104,7 +4053,6 @@ a.workspace-card:hover {
 }
 .workspace-card strong { color: var(--foreground); font-size: var(--fs-xl); }
 .workspace-card p { margin: 0; color: var(--muted-foreground); font-size: var(--fs-sm); line-height: 1.5; }
-/* Tayyor bo'lmagan karta — bosilmaydi, shuning uchun hover ham yo'q. */
 .workspace-card.is-soon { background: var(--surface-subtle); cursor: default; }
 .workspace-card.is-soon .workspace-card-icon { color: var(--muted-foreground); background: var(--surface); }
 .workspace-card.is-soon strong { color: var(--muted-foreground); }
@@ -5005,8 +4953,6 @@ a.workspace-card:hover {
 }
 
 /* Branded select, calendar and time controls */
-/* Ko'zdan yashirin, ammo ekran o'quvchi uchun ochiq. `display: none` YARAMAYDI:
-   u elementni ochiq daraxtdan ham olib tashlaydi va `aria-labelledby` uziladi. */
 .is-visually-hidden {
   position: absolute;
   width: 1px;
@@ -5889,7 +5835,6 @@ a.workspace-card:hover {
 .hw-result-state p { margin: 0; font-size: var(--fs-md); }
 .hw-result-state--error { color: var(--destructive-strong); border-color: var(--destructive-soft-border); background: var(--destructive-soft); }
 
-/* Quiz — yaratish formasi (1-bosqich: kurs/nom/sana/nechta savol) */
 .quiz-template-gen { display: flex; align-items: end; gap: 10px; padding: 12px; border: 1px solid var(--border-accent); border-radius: var(--r-lg); background: var(--primary-tint); flex-wrap: wrap; }
 .quiz-template-gen label { flex: 0 0 auto; width: 140px; }
 .quiz-template-gen-or { color: var(--muted-foreground); font-size: var(--fs-xs); font-weight: 700; }
@@ -5901,10 +5846,6 @@ a.workspace-card:hover {
 .quiz-template-download { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
 .quiz-template-download-label { color: var(--muted-foreground); font-size: var(--fs-xs); font-weight: 700; }
 
-/* Quiz — savollar sahifasi (2-bosqich). "Nechta savol?"dan keyin yoki .docx
-   import qilingach shu yerga o'tiladi: to'liq ekranli, bitta "qog'oz varag'i"
-   kabi sodda ko'rinish — hech qanday qo'shish/o'chirish tugmasi yo'q, faqat
-   yozish (savol soni bosqichning boshida belgilangan, keyin o'zgarmaydi). */
 .quiz-page { position: fixed; inset: 0; z-index: 111; background: var(--surface); overflow-y: auto; }
 .quiz-page-header { position: sticky; top: 0; z-index: 2; display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; padding: 18px clamp(16px, 6vw, 100px); background: var(--surface); border-bottom: 1px solid var(--border); }
 .quiz-page-eyebrow { display: block; color: var(--primary-text); font-size: var(--fs-xs); font-weight: 800; }
@@ -5917,8 +5858,6 @@ a.workspace-card:hover {
 .quiz-page-question-number { flex: none; font-size: var(--fs-xl); font-weight: 800; color: var(--muted-foreground); }
 .quiz-page-question-text { flex: 1; min-width: 0; border: 0; border-bottom: 2px solid var(--border-strong); background: transparent; padding: 6px 2px; font-size: var(--fs-xl); font-weight: 650; color: var(--foreground); outline: 0; }
 .quiz-page-question-text:focus { border-color: var(--primary); }
-/* Aynan namunadagi (Word test varag'i) ko'rinishi: "A) ..." har biri o'z
-   qatorida, tagida "To'g'ri javob: A B C D" — harfni bosib belgilanadi. */
 .quiz-page-options { display: grid; gap: 10px; padding-left: 30px; }
 .quiz-page-option { display: flex; align-items: center; gap: 8px; }
 .quiz-page-option-letter { flex: none; font-weight: 800; color: var(--muted-foreground); }
@@ -6105,10 +6044,7 @@ a.workspace-card:hover {
 }
 .account-settings-row > span { font-size: var(--fs-md); font-weight: 600; }
 .account-settings-control { flex: 0 0 auto; display: flex; align-items: center; gap: 8px; }
-/* Tanlagich qatorning o'ng yarmida turadi: qolgan sozlamalar bilan bir xil
-   ko'rinish uchun kenglik cheklanadi, aks holda u butun qatorni egallardi. */
 .account-settings-control--picker { width: min(210px, 52%); }
-/* Yoqilgan holat rang bilan ko'rsatiladi: qator tor, alohida yozuvga joy yo'q. */
 .push-toggle {
   min-height: 34px;
   padding: 0 13px;
@@ -6578,7 +6514,6 @@ a.workspace-card:hover {
     overscroll-behavior: contain;
   }
 
-  /* Portal sarlavhasi tor ekranda siqiladi: ism yashirinadi, avatar qoladi */
   .portal-header-actions { gap: 7px; }
   .portal-account-identity { display: none; }
 

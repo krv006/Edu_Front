@@ -1,6 +1,5 @@
 import { pushApi, type PushSubscriptionPayload } from "../api/push.api";
 
-/** Push uchun uchala narsa ham kerak — biri bo'lmasa imkoniyat yo'q. */
 export function isPushSupported(): boolean {
   return (
     typeof window !== "undefined" &&
@@ -10,27 +9,15 @@ export function isPushSupported(): boolean {
   );
 }
 
-/**
- * VAPID kaliti base64url ko'rinishida keladi, `applicationServerKey` esa
- * baytlar massivini kutadi — shuning uchun qo'lda o'giriladi.
- */
 function urlBase64ToUint8Array(base64: string): Uint8Array<ArrayBuffer> {
   const padding = "=".repeat((4 - (base64.length % 4)) % 4);
   const normalized = (base64 + padding).replace(/-/g, "+").replace(/_/g, "/");
   const raw = window.atob(normalized);
-  /* Bufer aniq `ArrayBuffer` bo'lishi kerak: `applicationServerKey`
-     `SharedArrayBuffer` ustidagi ko'rinishni qabul qilmaydi. */
   const output = new Uint8Array(new ArrayBuffer(raw.length));
   for (let i = 0; i < raw.length; i += 1) output[i] = raw.charCodeAt(i);
   return output;
 }
 
-/**
- * Service worker'ni ro'yxatdan o'tkazadi.
- *
- * `ready` kutiladi: `register()` qaytgani bilan worker hali faol bo'lmasligi
- * mumkin, faol bo'lmagan worker'da esa `pushManager` ishlamaydi.
- */
 export async function registerServiceWorker(): Promise<ServiceWorkerRegistration> {
   await navigator.serviceWorker.register("/sw.js");
   return navigator.serviceWorker.ready;
@@ -48,7 +35,6 @@ function toPayload(subscription: PushSubscription): PushSubscriptionPayload {
   return { endpoint: json.endpoint, keys: { p256dh: keys.p256dh, auth: keys.auth } };
 }
 
-/** Ruxsat so'raladi, obuna ochiladi va serverga saqlanadi. */
 export async function enablePush(): Promise<void> {
   const permission = await Notification.requestPermission();
   if (permission !== "granted") {
@@ -60,8 +46,6 @@ export async function enablePush(): Promise<void> {
   }
 
   const registration = await registerServiceWorker();
-  /* Obuna allaqachon bor bo'lishi mumkin (masalan boshqa hisobda ochilgan) —
-     uni qayta ishlatamiz, aks holda brauzer xato beradi. */
   const existing = await registration.pushManager.getSubscription();
   const subscription =
     existing ??
@@ -73,10 +57,6 @@ export async function enablePush(): Promise<void> {
   await pushApi.subscribe(toPayload(subscription));
 }
 
-/**
- * Serverdagi yozuv avval o'chiriladi, brauzerdagisi keyin: teskarisi bo'lsa,
- * server so'rovi yiqilganda obuna serverda qolib, xabar kelaverardi.
- */
 export async function disablePush(): Promise<void> {
   const registration = await navigator.serviceWorker.ready;
   const subscription = await registration.pushManager.getSubscription();
@@ -85,7 +65,6 @@ export async function disablePush(): Promise<void> {
   await subscription.unsubscribe();
 }
 
-/** Shu brauzerda obuna ochiqmi — sozlamalar tugmasining holati uchun. */
 export async function hasPushSubscription(): Promise<boolean> {
   if (!isPushSupported() || Notification.permission !== "granted") return false;
   const registration = await navigator.serviceWorker.getRegistration();

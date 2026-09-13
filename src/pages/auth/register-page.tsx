@@ -11,7 +11,6 @@ export function RegisterPage() {
   const navigate = useNavigate();
   const { t } = useTranslation("auth");
   async function submit(values: RegisterFormValues) {
-    // Javobida access/refresh darhol keladi — alohida login shart emas.
     const user = await register.mutateAsync(values);
     toast.success(t("register.accountCreated"));
     navigate(resolveHomeRoute(user), { replace: true });

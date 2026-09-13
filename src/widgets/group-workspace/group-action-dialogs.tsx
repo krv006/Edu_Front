@@ -95,7 +95,6 @@ function useSkillOptions(): Array<{ value: string; label: string }> {
   ];
 }
 
-/** ISO hafta kuni (1=Dushanba…7=Yakshanba) bo'yicha tarjima qilingan nom/qisqartma. */
 function useWeekdayTranslations(): { labels: Record<number, string>; short: Record<number, string> } {
   const { t } = useTranslation("group");
   const labels = t("dialogs.lesson.weekdayLabels", { returnObjects: true }) as string[];
