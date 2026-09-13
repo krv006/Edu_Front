@@ -1,10 +1,26 @@
-import { useMemo, useRef, useState, type ChangeEvent, type FormEvent } from "react";
+/*
+ * VAQTINCHA YOPILGAN MAYDONLAR — so'rov bo'yicha hozircha kerak emas:
+ * "Qaysi kurs uchun", "Topshirish muddati", "Ochilish vaqti", "Qaysi dars uchun".
+ *
+ * O'chirilmadi, izohga olindi: qaytarish uchun shu fayldagi "yopilgan maydon"
+ * izohlarini ochish va ular bilan birga turgan import/holat qatorlarini
+ * tiklash yetarli.
+ *
+ * DIQQAT: backend `course` ni MAJBURIY talab qiladi (`POST /api/v1/quizzes/`,
+ * `required: [course, ...]`, nullable emas). Shuning uchun tanlagich yopiq
+ * bo'lsa ham `courseId` holati saqlanadi va o'qituvchining BIRINCHI kursi
+ * yuboriladi — aks holda test umuman yaratilmasdi.
+ */
+import { useRef, useState, type ChangeEvent, type FormEvent } from "react";
 import { motion } from "framer-motion";
-import { BookOpen, CalendarDays, Download, FileUp, X } from "lucide-react";
+import { Download, FileUp, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
-import { useLessons } from "@/modules/lesson";
 import { Button, Dialog, DialogContent } from "@/shared/ui/legacy";
-import { DatePicker, SelectPicker } from "@/shared/ui/legacy/form-pickers";
+// yopilgan maydon:
+// import { useMemo } from "react";
+// import { BookOpen, CalendarDays } from "lucide-react";
+// import { useLessons } from "@/modules/lesson";
+// import { DatePicker, SelectPicker } from "@/shared/ui/legacy/form-pickers";
 import type { QuizFormValues, QuizImportWarning } from "@/shared/types";
 import { useDownloadQuizTemplate, useImportQuizDocx } from "../model/quiz.queries";
 
@@ -60,7 +76,9 @@ export function AddQuizDialog({ open, onOpenChange, onCreate, courses }: AddQuiz
   }
 
   const [step, setStep] = useState<"details" | "questions">("details");
-  const [courseId, setCourseId] = useState(() => courses[0]?.id ?? "");
+  // yopilgan maydon: tanlagich yo'q, shuning uchun faqat o'qish qoldi.
+  // Tiklashda: const [courseId, setCourseId] = useState(() => courses[0]?.id ?? "");
+  const [courseId] = useState(() => courses[0]?.id ?? "");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [lessonId, setLessonId] = useState("");
@@ -74,6 +92,7 @@ export function AddQuizDialog({ open, onOpenChange, onCreate, courses }: AddQuiz
   const importDocx = useImportQuizDocx();
   const downloadTemplate = useDownloadQuizTemplate();
 
+  /* yopilgan maydon — kurs va dars tanlagichlari bilan birga:
   const courseOptions = useMemo(
     () => courses.map((course) => ({ value: course.id, label: course.title })),
     [courses]
@@ -88,6 +107,7 @@ export function AddQuizDialog({ open, onOpenChange, onCreate, courses }: AddQuiz
       .map((lesson) => ({ value: lesson.id, label: `${lesson.title} · ${lesson.date}` }));
     return [{ value: "", label: t("createDialog.notLinkedToLesson") }, ...finished];
   }, [lessons.data, t]);
+  */
 
   function newQuestion() {
     return emptyQuestion(
@@ -358,6 +378,7 @@ export function AddQuizDialog({ open, onOpenChange, onCreate, courses }: AddQuiz
           initial={{ opacity: 0, y: 6 }}
           animate={{ opacity: 1, y: 0 }}
         >
+          {/* yopilgan maydon — Qaysi kurs uchun:
           <SelectPicker
             label={t("createDialog.courseLabel")}
             icon={BookOpen}
@@ -368,6 +389,7 @@ export function AddQuizDialog({ open, onOpenChange, onCreate, courses }: AddQuiz
             }}
             options={courseOptions}
           />
+          */}
           <label>
             <span>{t("createDialog.titleLabel")}</span>
             <input
@@ -387,6 +409,7 @@ export function AddQuizDialog({ open, onOpenChange, onCreate, courses }: AddQuiz
             />
           </label>
 
+          {/* yopilgan maydon — Topshirish muddati / Ochilish vaqti:
           <div className="form-grid-two">
             <DatePicker
               label={t("createDialog.dueLabel")}
@@ -403,6 +426,8 @@ export function AddQuizDialog({ open, onOpenChange, onCreate, courses }: AddQuiz
               optional
             />
           </div>
+          */}
+          {/* yopilgan maydon — Qaysi dars uchun:
           <SelectPicker
             label={t("createDialog.lessonLabel")}
             icon={CalendarDays}
@@ -410,6 +435,7 @@ export function AddQuizDialog({ open, onOpenChange, onCreate, courses }: AddQuiz
             onChange={setLessonId}
             options={lessonOptions}
           />
+          */}
 
           <div className="quiz-template-gen">
             <label>
