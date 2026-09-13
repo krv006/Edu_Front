@@ -1,0 +1,32 @@
+{
+  "eyebrow": "WORKSPACE",
+  "title": "Workspace",
+  "subtitle": "Everything you work with day to day, in one place.",
+  "soon": "Coming soon",
+  "cards": {
+    "quizzes": {
+      "title": "Quizzes",
+      "description": "Create and take quizzes, review the results."
+    },
+    "assignments": {
+      "title": "Assignments",
+      "description": "Homework and tasks in one place."
+    },
+    "materials": {
+      "title": "Materials",
+      "description": "Files and links for your lessons."
+    },
+    "recordings": {
+      "title": "Lesson recordings",
+      "description": "Rewatch lessons that already happened."
+    },
+    "stats": {
+      "title": "Statistics",
+      "description": "Reports on activity and results."
+    },
+    "certificates": {
+      "title": "Certificates",
+      "description": "Certificates issued and received."
+    }
+  }
+}
