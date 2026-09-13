@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { AnimatePresence, motion } from "framer-motion";
 import {
   BookOpen,
@@ -16,6 +16,7 @@ import { useAuth } from "@/modules/auth";
 import { toIntlLocale } from "@/shared/i18n";
 import { AttendanceAccordion, useAttendance } from "@/modules/attendance";
 import { useCourse } from "@/modules/course";
+import { useQuizzes } from "@/modules/quiz";
 import {
   AssignmentDetailDialog,
   useAssignments,
@@ -226,6 +227,15 @@ function LessonsPanel({ courseId, lessons = [], loading }: LessonsPanelProps) {
   const { view, setView } = useLessonView();
 
   const allLessons = useLessons({ page_size: 200 }, dialog);
+  const courseQuizzes = useQuizzes(courseId, dialog && Boolean(courseId));
+
+  const quizOptions = useMemo(
+    () =>
+      (courseQuizzes.data ?? [])
+        .filter((quiz) => !quiz.lessonId || quiz.lessonId === editing?.id)
+        .map((quiz) => ({ id: quiz.id, title: quiz.title })),
+    [courseQuizzes.data, editing]
+  );
 
   function save(form: LessonDraft) {
     const payload = { ...form, courseId };
@@ -309,6 +319,7 @@ function LessonsPanel({ courseId, lessons = [], loading }: LessonsPanelProps) {
         }}
         initialValues={editing}
         existingLessons={allLessons.data ?? []}
+        quizOptions={quizOptions}
         onCreate={save}
         onCreateSchedule={saveSchedule}
       />

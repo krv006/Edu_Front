@@ -3,6 +3,7 @@ import { motion } from "framer-motion";
 import {
   Bold,
   CalendarDays,
+  FileQuestion,
   FileUp,
   GraduationCap,
   Hourglass,
@@ -29,7 +30,7 @@ import {
 } from "@/modules/lesson";
 import type { Assignment, Lesson } from "@/shared/types";
 
-export interface LessonDraft { topic: string; date: string; time: string; duration: string }
+export interface LessonDraft { topic: string; date: string; time: string; duration: string; quizId: string }
 
 export interface LessonScheduleDraft extends LessonDraft {
   dates: string[];
@@ -45,6 +46,7 @@ export interface AddLessonDialogProps {
   onCreateSchedule?: (values: LessonScheduleDraft) => void;
   existingLessons?: readonly Lesson[];
   initialValues?: Lesson | null;
+  quizOptions?: ReadonlyArray<{ id: string; title: string }>;
 }
 
 interface AssignmentDraft { title: string; description: string; dueAt: string; skillKey: string; grading: string; lessonId: string }
@@ -106,6 +108,7 @@ export function AddLessonDialog({
   onCreateSchedule,
   existingLessons = [],
   initialValues = null,
+  quizOptions = [],
 }: AddLessonDialogProps) {
   const { t } = useTranslation("group");
   const DATE_LABEL = useDateLabelFormatter();
@@ -115,6 +118,7 @@ export function AddLessonDialog({
     date: initialValues?.date ?? "",
     time: initialValues?.time ?? "18:30",
     duration: String(initialValues?.durationMinutes ?? initialValues?.duration ?? "45"),
+    quizId: initialValues?.quizId ?? "",
   }));
   const [repeat, setRepeat] = useState(false);
   const [weekdays, setWeekdays] = useState<number[]>([...ODD_WEEKDAYS]);
@@ -158,7 +162,7 @@ export function AddLessonDialog({
   }
 
   function reset() {
-    setForm({ topic: "", date: "", time: "18:30", duration: "45" });
+    setForm({ topic: "", date: "", time: "18:30", duration: "45", quizId: "" });
     setRepeat(false);
     setWeekdays([...ODD_WEEKDAYS]);
     setRange({ from: todayString(), to: monthLaterString() });
@@ -323,6 +327,19 @@ export function AddLessonDialog({
                 options={DURATION_OPTIONS}
               />
             )}
+
+            {!isRepeating && quizOptions.length ? (
+              <SelectPicker
+                label={t("dialogs.lesson.quizLabel")}
+                icon={FileQuestion}
+                value={form.quizId}
+                onChange={(value) => update("quizId", value)}
+                options={[
+                  { value: "", label: t("dialogs.lesson.quizNone") },
+                  ...quizOptions.map((quiz) => ({ value: quiz.id, label: quiz.title })),
+                ]}
+              />
+            ) : null}
 
             {isRepeating ? (
               <p className={`schedule-summary ${dates.length ? "" : "is-empty"}`}>

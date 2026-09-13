@@ -81,7 +81,9 @@
       "cancel": "Отмена",
       "saveChanges": "Сохранить изменения",
       "saveMultiple": "Сохранить {{count}} уроков",
-      "saveSingle": "Сохранить урок"
+      "saveSingle": "Сохранить урок",
+      "quizLabel": "Прикрепить тест",
+      "quizNone": "Тест не прикреплён"
     },
     "conflict": {
       "singleTitle": "У вас уже есть урок в это время",

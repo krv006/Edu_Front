@@ -81,7 +81,9 @@
       "cancel": "Bekor qilish",
       "saveChanges": "O'zgarishlarni saqlash",
       "saveMultiple": "{{count}} ta darsni saqlash",
-      "saveSingle": "Darsni saqlash"
+      "saveSingle": "Darsni saqlash",
+      "quizLabel": "Test biriktirish",
+      "quizNone": "Test biriktirilmagan"
     },
     "conflict": {
       "singleTitle": "Bu vaqtda darsingiz bor",
