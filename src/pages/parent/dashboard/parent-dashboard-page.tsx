@@ -12,11 +12,8 @@ const metricIcons: Record<string, typeof UsersRound> = { children: UsersRound, r
 export function ParentDashboardPage() {
   const { t } = useTranslation("parent");
   const { user } = useAuth(); const { selectedChildId, selectedChild, children, childrenQuery } = useSelectedChild(); const dashboard = useParentDashboard(selectedChildId);
-  // Farzand tanlanmagan bo'lsa davomat so'ralmaydi: filtrlaydigan o'quvchi yo'q.
   const attendance = useAttendance(selectedChildId ? { student: selectedChildId } : {}, Boolean(selectedChildId));
   if (childrenQuery.isLoading || dashboard.isLoading || attendance.isLoading) return <LoadingFallback label={t("dashboard.loading")} />;
-  // Hali farzand biriktirilmagani — xato emas, ishning boshlanmagani. Ota-onaga
-  // "yuklab bo'lmadi" deyish noto'g'ri: muammo tarmoqda emas, keyingi qadamda.
   if (!childrenQuery.isError && !children.length)
     return <RouteState eyebrow={t("dashboard.eyebrow")} title={t("dashboard.noChildTitle")} description={t("dashboard.noChildDescription")} action={<Link className="button button--primary" to={ROUTES.parent.children}>{t("dashboard.noChildAction")}</Link>} />;
   if (childrenQuery.isError || dashboard.isError || attendance.isError) return <RouteState title={t("dashboard.loadError")} actionLabel={t("dashboard.retry")} onAction={() => { childrenQuery.refetch(); dashboard.refetch(); attendance.refetch(); }} />;

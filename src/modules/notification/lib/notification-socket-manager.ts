@@ -10,7 +10,6 @@ export interface LiveNotification {
   id: string;
   html: string;
   targetType: NotificationTarget;
-  /** `null` — oddiy xabar. */
   kind: string | null;
   senderName: string;
   /** `null` — xabar hech qayerga olib bormaydi. */

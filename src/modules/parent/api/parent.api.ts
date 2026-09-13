@@ -27,16 +27,6 @@ function mapConsentDto(item: ConsentDto): Consent {
 }
 
 export const parentApi = {
-  /*
-   * Bu endpoint DRF sahifasini qaytaradi (`{count, next, previous, results}`),
-   * massiv emas — sxemada `PaginatedLinkList`. Javobni to'g'ridan-to'g'ri
-   * `.map` qilish `items.map is not a function` xatosiga olib kelardi va
-   * ota-ona bo'limining hammasi shu bitta so'rovga bog'liq: panel ham,
-   * farzandlar ro'yxati ham "Ma'lumotlarni yuklab bo'lmadi" ko'rsatardi.
-   *
-   * `normalizePagination` massivni ham, sahifani ham qabul qiladi — backend
-   * shaklini keyin o'zgartirsa ham buziladigan joy qolmaydi.
-   */
   async getLinks(options?: RequestOptions) {
     const page = normalizePagination<ParentLinkDto>(
       await apiClient.get(authEndpoints.links, { ...options, query: { page_size: 100, ...options?.query } })
@@ -48,9 +38,6 @@ export const parentApi = {
   async getChildren(options?: RequestOptions) {
     const links = await this.getLinks(options);
     const approved = links.filter((item) => item.status === "approved");
-    // Tasdiqlangan farzand yo'q ekan, davomat so'rovi ortiqcha: uni filtrlab
-    // beradigan o'quvchi yo'q, server esa bunday so'rovni rad etadi va butun
-    // sahifa xatoga aylanadi. Bo'sh ro'yxat — xato emas, oddiy boshlang'ich holat.
     if (!approved.length) return [];
     const attendancePage = await attendanceApi.getAll({ ...options, query: { page_size: 100 } });
     return approved.map((link) => mapChildFromLink(link, attendancePage.items));
@@ -59,7 +46,6 @@ export const parentApi = {
   async getDashboard(options: ParentDashboardOptions = {}) {
     const { selectedChildId, ...requestOptions } = options;
     const links = await this.getLinks(requestOptions);
-    // Yuqoridagi sabab: farzand biriktirilmagan ota-onaga davomat so'ralmaydi.
     if (!links.some((item) => item.status === "approved")) {
       return createParentDashboard(links, []);
     }
@@ -86,7 +72,6 @@ export const parentApi = {
     );
   },
 
-  /** `getLinks` bilan bir xil sabab: sxemada `PaginatedConsentList`. */
   async getConsents(options?: RequestOptions) {
     const page = normalizePagination<ConsentDto>(
       await apiClient.get(authEndpoints.consents, { ...options, query: { page_size: 100, ...options?.query } })

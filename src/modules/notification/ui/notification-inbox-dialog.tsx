@@ -8,7 +8,6 @@ import {
 import type { NotificationLink } from "../api/notification.dto";
 import { NotificationHtml } from "./notification-html";
 
-/** Serverdagi `Notification.kind` qiymati — dars eslatmasi alohida ikonka bilan. */
 const LESSON_REMINDER_KIND = "lesson_reminder";
 
 export interface NotificationInboxDialogProps {

@@ -12,14 +12,6 @@ import {
 } from "../lib/auth.mappers";
 import { configureAuthRefresh } from "../lib/auth-session";
 
-/**
- * Hisobga bog'langan til bilan qurilmadagi tilni ikki tomonlama sinxronlaydi:
- *  - login/bootstrap'da serverdan kelgan qiymat qurilmaga yoziladi (boshqa
- *    qurilmada tanlangan til shu yerda ham tiklanadi);
- *  - foydalanuvchi shu yerda tilni almashtirsa, pastdagi `subscribe` serverga
- *    yozadi (auth.store.ts'dagi so'nggi bo'lim).
- * `suppressLanguagePush` — serverdan o'qiganda orqaga PATCH ketmasligi uchun.
- */
 let suppressLanguagePush = false;
 
 function syncLanguageFromServer(preferred: string) {
@@ -45,11 +37,8 @@ interface AuthState {
   /** Ilova ochilganda bir marta chaqiriladi: saqlangan token bo'lsa profilni tiklaydi. */
   bootstrap: () => Promise<void>;
   login: (credentials: LoginCredentials) => Promise<AuthUser>;
-  /** Javobida access/refresh darhol keladi — muvaffaqiyatli bo'lsa darhol AUTHENTICATED. */
   register: (dto: RegisterRequestDto) => Promise<AuthUser>;
-  /** Bog'langan akkauntga parolsiz o'tish (PHONE_LINKED_ACCOUNTS_API.md). */
   switchAccount: (userId: string) => Promise<AuthUser>;
-  /** Boshqa rolga o'tish — mavjud bo'lmasa backend uni avtomatik ochadi. */
   switchRole: (role: string) => Promise<AuthUser>;
   logout: () => Promise<void>;
   setUser: (user: AuthUser) => void;
@@ -124,12 +113,6 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
     }
   },
 
-  /**
-   * Ro'yxatdan o'tish javobida access/refresh darhol keladi — `login()` kabi
-   * alohida so'rov shart emas, lekin foydalanuvchi ma'lumoti javobda
-   * kafolatlanmagani uchun (backend hujjati faqat tokenlarni tasdiqlagan)
-   * ehtiyot shart bilan `getCurrentUser()` orqali olinadi.
-   */
   async register(dto) {
     try {
       const tokens = mapTokenPairDto(await authApi.register(dto));
@@ -145,11 +128,6 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
     }
   },
 
-  /**
-   * Bog'langan akkauntga parolsiz o'tish. Joriy sessiya davomiyligi
-   * (`remember me`) saqlanadi — bu yangi login emas, shuning uchun
-   * foydalanuvchidan qayta so'ralmaydi.
-   */
   async switchAccount(userId) {
     const persistent = tokenStorage.isPersistent();
     const { tokens, user } = mapSwitchAccountResponse(await authApi.switchAccount(userId));
@@ -159,7 +137,6 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
     return user;
   },
 
-  /** Rolga o'tish — hali mavjud bo'lmasa backend ro'yxatdan o'tishsiz ochadi. */
   async switchRole(role) {
     const persistent = tokenStorage.isPersistent();
     const { tokens, user } = mapSwitchAccountResponse(await authApi.switchRole(role));
@@ -202,14 +179,10 @@ export const useAuthStore = create<AuthState>()((set, get) => ({
 // ─── Bir martalik yon-effektlar ─────────────────────────────────────────────
 configureAuthRefresh();
 
-// `LanguageToggle` (shared/ui) qaysi modulda ishlatilishidan bexabar bo'lib
-// qolishi uchun ataylab shu yerda ulanadi: foydalanuvchi tizimga kirgan bo'lsa,
-// tanlagan tili hisobiga yoziladi (boshqa qurilmada ham tiklanishi uchun).
 useLanguageStore.subscribe((state, prevState) => {
   if (suppressLanguagePush || state.language === prevState.language) return;
   if (useAuthStore.getState().status !== AUTH_STATUS.AUTHENTICATED) return;
   authApi.updateLanguage(state.language).catch(() => {
-    // Muhim emas — brauzerda tanlov baribir saqlanadi, keyingi harakatda qayta urinamiz.
   });
 });
 

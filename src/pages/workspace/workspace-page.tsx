@@ -7,21 +7,9 @@ import { Link } from "react-router-dom";
 interface WorkspaceCard {
   id: string;
   icon: LucideIcon;
-  /**
-   * Yo'l berilmagan karta — hali tayyor emas, "tez orada" deb ko'rsatiladi.
-   * Yangi bo'lim tayyor bo'lsa, shu ro'yxatga `to` qo'shilsa yetarli.
-   */
   to?: string;
 }
 
-/*
- * Workspace kartalari. Ro'yxat ataylab bitta joyda: bo'lim vaqt o'tib
- * kengayadi, har safar tartib-tuzilishni qayta yozmaslik uchun.
- *
- * `../quizzes` — bu sahifa `chats/workspace` ichida, shuning uchun bir pog'ona
- * yuqori chiqib `chats/quizzes` ga boradi. Shu bilan yo'l o'qituvchida ham,
- * o'quvchida ham bir xil ishlaydi.
- */
 const CARDS: WorkspaceCard[] = [
   { id: "quizzes", icon: FileQuestion, to: "../quizzes" },
   { id: "assignments", icon: ClipboardList },
@@ -69,8 +57,6 @@ export function WorkspacePage() {
                   {body}
                 </Link>
               ) : (
-                /* Havola emas: bosiladigan ko'rinsa, bosgan odam nima
-                   bo'lmaganini tushunmay qolardi. */
                 <div className="workspace-card is-soon" aria-disabled="true">
                   {body}
                 </div>

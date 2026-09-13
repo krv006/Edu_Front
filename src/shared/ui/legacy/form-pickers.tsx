@@ -46,7 +46,6 @@ function parseDateValue(value: string | null | undefined): Date | null {
   return new Date(year, month - 1, day);
 }
 
-/** `months` — joriy tildagi oy nomlari (`common:formPickers.months`), chaqiruvchi komponent beradi. */
 function formatDateValue(value: string | null | undefined, months: string[]): string {
   const date = parseDateValue(value);
   if (!date) return "";
@@ -215,8 +214,6 @@ function FieldShell({
 }) {
   return (
     <div className="form-picker-field">
-      {/* Yorliq yashirilganda ham DOM'da qoladi: `aria-labelledby` unga
-          murojaat qiladi, ya'ni ekran o'quvchi maydonni baribir nomlaydi. */}
       <span
         id={labelId}
         className={`form-picker-label ${hideLabel ? "is-visually-hidden" : ""}`}
@@ -240,7 +237,6 @@ export interface SelectPickerProps {
   onChange: (value: string) => void;
   options: Array<SelectOption | string>;
   icon?: IconComponent;
-  /** Yorliq yonida allaqachon yozilgan bo'lsa — masalan sozlamalar qatorida. */
   hideLabel?: boolean;
 }
 

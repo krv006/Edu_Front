@@ -72,7 +72,6 @@ export function mapUserDto(dto: unknown): AuthUser {
   };
 }
 
-/** `POST /auth/switch/<id>/` javobi — yangi tokenlar HAM yangi akkauntning to'liq ma'lumoti. */
 export function mapSwitchAccountResponse(dto: unknown): { tokens: TokenPair; user: AuthUser } {
   const parsed = switchAccountResponseDtoSchema.parse(dto);
   return {

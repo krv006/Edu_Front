@@ -10,7 +10,6 @@ export function ChatEmptyState({ onOpenConversations }: { onOpenConversations?: 
         <span className="empty-orbit empty-orbit--one" />
         <span className="empty-orbit empty-orbit--two" />
         <div className="empty-icon">
-          {/* Bezak — sarlavha nima ekanini aytadi, shuning uchun alt bo'sh. */}
           <img className="empty-icon-logo" src={logoUrl} alt="" />
           <span>
             <Sparkles size={14} />

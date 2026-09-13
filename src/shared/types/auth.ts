@@ -10,11 +10,6 @@ export interface Certificate {
   createdAt: string;
 }
 
-/**
- * Xuddi shu telefon raqamiga bog'langan BOSHQA akkaunt (o'zi kirmaydi).
- * Mustaqil login/parolga ega — almashish uchun qayta kirish kerak
- * (PHONE_LINKED_ACCOUNTS_API.md).
- */
 export interface LinkedAccount {
   id: string;
   username: string;
@@ -42,11 +37,8 @@ export interface AuthUser {
   /** Faqat o'qituvchida mazmunli — admin tasdiqlamaguncha `false`. */
   isApproved: boolean | null;
   certificates: Certificate[];
-  /** Hisobga bog'langan til (`uz`/`ru`/`en`) — qurilmadan mustaqil, `PATCH /auth/me/` bilan saqlanadi. */
   preferredLanguage: string;
-  /** Dars boshlanishidan necha daqiqa oldin eslatma kelsin. `null` — server standarti. */
   lessonReminderMinutes: number | null;
-  /** Xuddi shu telefondagi boshqa akkauntlar — bo'sh yoki telefon yo'q bo'lsa `[]`. */
   linkedAccounts: LinkedAccount[];
 }
 

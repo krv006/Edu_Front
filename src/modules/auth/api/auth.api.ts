@@ -47,11 +47,9 @@ export const authApi = {
   updateCurrentUser(dto: Partial<RegisterRequestDto>) {
     return apiClient.patch<AuthUserDto>(authEndpoints.me, dto);
   },
-  /** Hisobga bog'laydi — boshqa qurilma/brauzerda ham shu til tiklanadi. */
   updateLanguage(language: string) {
     return apiClient.patch<AuthUserDto>(authEndpoints.me, { preferred_language: language });
   },
-  /** Dars eslatmasi vaqti — hisobga bog'lanadi, qurilmadan mustaqil. */
   updateLessonReminderMinutes(minutes: number) {
     return apiClient.patch<AuthUserDto>(authEndpoints.me, { lesson_reminder_minutes: minutes });
   },
@@ -64,19 +62,15 @@ export const authApi = {
     body.set("avatar", avatar ?? "");
     return apiClient.patch<AuthUserDto>(authEndpoints.me, body);
   },
-  /** Javobida access/refresh darhol keladi — ro'yxatdan o'tgach alohida login shart emas. */
   register(dto: RegisterRequestDto) {
     return apiClient.post<TokenPairDto>(authEndpoints.register, dto, {
       skipAuth: true,
       skipRefresh: true,
     });
   },
-  /** Bog'langan akkauntga parolsiz o'tish — joriy (eski akkaunt) token bilan yuboriladi. */
   switchAccount(id: string) {
     return apiClient.post<SwitchAccountResponseDto>(authEndpoints.switchAccount(id), {});
   },
-  /** Boshqa rolga o'tish — mavjud bo'lmasa backend ro'yxatdan o'tishsiz avtomatik ochadi.
-   * `role` backend qiymatida (kichik harf: "teacher"/"parent"/"student") kutiladi. */
   switchRole(role: string) {
     return apiClient.post<SwitchAccountResponseDto>(authEndpoints.switchRole, { role });
   },

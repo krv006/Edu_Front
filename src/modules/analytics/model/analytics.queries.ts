@@ -8,7 +8,6 @@ export const analyticsKeys = Object.freeze({
   trends: (period: DashboardPeriod) => ["analytics", "trends", period] as const,
 });
 
-/** Admin/super_admin uchun — `RequirePerm('audit.view')` boshqa rollarga 403 beradi. */
 export function useDashboardSummary(enabled = true) {
   return useQuery({
     queryKey: analyticsKeys.summary,
@@ -17,8 +16,6 @@ export function useDashboardSummary(enabled = true) {
   });
 }
 
-/** `placeholderData: keepPreviousData` — davr almashtirilganda butun sahifa
- * qayta yuklanib "ko'zni chirpillatib" ketmaydi, eski grafik joyida turadi. */
 export function useDashboardTrends(period: DashboardPeriod, enabled = true) {
   return useQuery({
     queryKey: analyticsKeys.trends(period),

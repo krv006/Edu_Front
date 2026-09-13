@@ -179,10 +179,6 @@ export function ConversationInfoPanel({ conversation, open, onOpenChange }: Conv
                 </button>
               )}
             </div>
-            {/* Guruh a'zolari — ilgari alohida "O'quvchilar" bo'limi edi. Ular
-                guruh haqidagi ma'lumot, shuning uchun Telegram'dagidek shu
-                panelda turadi. Faqat o'qituvchida: o'quvchiga sinfdoshlarining
-                ro'yxati ko'rsatilmaydi. */}
             {teacherGroup ? (
               <CourseMembersSection courseId={conversation.courseId} canManage />
             ) : null}

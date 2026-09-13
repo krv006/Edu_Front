@@ -8,25 +8,16 @@ import { AddStudentDialog } from "./add-student-dialog";
 
 export interface CourseMembersSectionProps {
   courseId: string | null;
-  /** Qo'shish va chiqarish faqat kurs egasida — o'quvchi ro'yxatni ko'ra oladi, o'zgartira olmaydi. */
   canManage: boolean;
 }
 
-/** Ro'yxat shundan uzun bo'lsa qidiruv maydoni chiqadi — qisqasida u shunchaki joy egallaydi. */
 const SEARCH_THRESHOLD = 8;
 
-/**
- * Guruh a'zolari — kurs ma'lumotlari panelining ichida (Telegram uslubi).
- *
- * Ilgari bu alohida "O'quvchilar" bo'limi edi; a'zolar ro'yxati guruh
- * haqidagi ma'lumot bo'lgani uchun endi shu yerda turadi.
- */
 export function CourseMembersSection({ courseId, canManage }: CourseMembersSectionProps) {
   const { t } = useTranslation("group");
   const [search, setSearch] = useState("");
   const [addOpen, setAddOpen] = useState(false);
   const [removeTarget, setRemoveTarget] = useState<DomainUser | null>(null);
-  // Komponent panel ochilgandagina mount bo'ladi, shuning uchun qo'shimcha shart kerak emas.
   const studentsQuery = useCourseStudents(courseId, { page_size: 100 });
   const unenroll = useUnenrollStudent();
 

@@ -1,16 +1,3 @@
-/*
- * VAQTINCHA YOPILGAN MAYDONLAR — so'rov bo'yicha hozircha kerak emas:
- * "Qaysi kurs uchun", "Topshirish muddati", "Ochilish vaqti", "Qaysi dars uchun".
- *
- * O'chirilmadi, izohga olindi: qaytarish uchun shu fayldagi "yopilgan maydon"
- * izohlarini ochish va ular bilan birga turgan import/holat qatorlarini
- * tiklash yetarli.
- *
- * DIQQAT: backend `course` ni MAJBURIY talab qiladi (`POST /api/v1/quizzes/`,
- * `required: [course, ...]`, nullable emas). Shuning uchun tanlagich yopiq
- * bo'lsa ham `courseId` holati saqlanadi va o'qituvchining BIRINCHI kursi
- * yuboriladi — aks holda test umuman yaratilmasdi.
- */
 import { useRef, useState, type ChangeEvent, type FormEvent } from "react";
 import { motion } from "framer-motion";
 import { Download, FileUp, X } from "lucide-react";
