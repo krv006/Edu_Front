@@ -39,9 +39,16 @@
   },
   "settingsDialog": {
     "title": "Sozlamalar",
-    "description": "Interfeys tili va ko'rinish rejimini tanlang.",
+    "description": "Interfeys tili, ko'rinish rejimi va bildirishnomalar.",
     "languageLabel": "Til",
-    "themeLabel": "Mavzu"
+    "themeLabel": "Mavzu",
+    "pushLabel": "Brauzer bildirishnomalari",
+    "pushOn": "Yoqilgan",
+    "pushOff": "Yoqish",
+    "pushUnsupported": "Bu brauzer qo'llab-quvvatlamaydi",
+    "pushBlocked": "Bildirishnomalar brauzer sozlamalarida bloklangan — avval o'sha yerdan ruxsat bering.",
+    "reminderLabel": "Dars eslatmasi",
+    "reminderOption": "{{count}} daqiqa oldin"
   },
   "roleSwitcher": {
     "triggerAria": "Boshqa akkauntlaringiz",

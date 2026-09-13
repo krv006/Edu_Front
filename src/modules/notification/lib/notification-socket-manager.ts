@@ -10,6 +10,8 @@ export interface LiveNotification {
   id: string;
   html: string;
   targetType: NotificationTarget;
+  /** `null` — oddiy xabar. */
+  kind: string | null;
   senderName: string;
   /** `null` — xabar hech qayerga olib bormaydi. */
   link: NotificationLink | null;
@@ -31,6 +33,7 @@ export function parseNotificationEvent(raw: unknown): LiveNotification | null {
     id: String(dto.id),
     html: sanitizeHtml(dto.description ?? ""),
     targetType: dto.target_type ?? "user",
+    kind: dto.kind ?? null,
     link: mapNotificationLink(dto.link_type, dto.link_id),
     senderName:
       [sender?.first_name, sender?.last_name].filter(Boolean).join(" ") ||

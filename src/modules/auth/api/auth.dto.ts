@@ -44,6 +44,8 @@ export const userDtoSchema = z.object({
   is_approved: z.boolean().nullable().optional(),
   certificates: z.array(certificateDtoSchema).optional().default([]),
   preferred_language: z.string().default("uz"),
+  /** Dars boshlanishidan necha daqiqa oldin eslatilsin. */
+  lesson_reminder_minutes: z.number().nullable().optional(),
   /** Xuddi shu telefondagi boshqa akkauntlar — bo'sh yoki telefon yo'q bo'lsa `[]`. */
   linked_accounts: z.array(linkedAccountDtoSchema).optional().default([]),
 });

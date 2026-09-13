@@ -51,6 +51,10 @@ export const authApi = {
   updateLanguage(language: string) {
     return apiClient.patch<AuthUserDto>(authEndpoints.me, { preferred_language: language });
   },
+  /** Dars eslatmasi vaqti — hisobga bog'lanadi, qurilmadan mustaqil. */
+  updateLessonReminderMinutes(minutes: number) {
+    return apiClient.patch<AuthUserDto>(authEndpoints.me, { lesson_reminder_minutes: minutes });
+  },
   /**
    * Profil rasmi — multipart, shuning uchun alohida chaqiruv.
    * Bo'sh `File` yuborilmaydi: rasmni o'chirish uchun bo'sh satr yuboriladi.

@@ -1,4 +1,4 @@
-import { ArrowRight, BellOff, Check, Megaphone, UserRound } from "lucide-react";
+import { AlarmClock, ArrowRight, BellOff, Check, Megaphone, UserRound } from "lucide-react";
 import { formatDateTime } from "@/shared/lib";
 import { Button, Dialog, DialogContent, LoadingFallback, RouteState } from "@/shared/ui/legacy";
 import {
@@ -7,6 +7,9 @@ import {
 } from "../model/notification.queries";
 import type { NotificationLink } from "../api/notification.dto";
 import { NotificationHtml } from "./notification-html";
+
+/** Serverdagi `Notification.kind` qiymati — dars eslatmasi alohida ikonka bilan. */
+const LESSON_REMINDER_KIND = "lesson_reminder";
 
 export interface NotificationInboxDialogProps {
   open: boolean;
@@ -58,7 +61,13 @@ export function NotificationInboxDialog({
               {items.map((item) => (
                 <li key={item.id} className={item.isRead ? "" : "is-unread"}>
                   <span className="notification-icon">
-                    {item.targetType === "all" ? <Megaphone size={16} /> : <UserRound size={16} />}
+                    {item.kind === LESSON_REMINDER_KIND ? (
+                      <AlarmClock size={16} />
+                    ) : item.targetType === "all" ? (
+                      <Megaphone size={16} />
+                    ) : (
+                      <UserRound size={16} />
+                    )}
                   </span>
 
                   <div className="notification-body">
