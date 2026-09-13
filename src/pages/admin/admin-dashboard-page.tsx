@@ -20,7 +20,7 @@ import {
   useDashboardSummary,
   useDashboardTrends,
 } from "@/modules/analytics";
-import { NotificationBell, SentNotificationsPanel } from "@/modules/notification";
+import { NotificationBell, SentNotificationsPanel, type NotificationLink } from "@/modules/notification";
 import { can, PERMISSIONS } from "@/modules/permission";
 import type { DashboardPeriod } from "@/shared/types";
 
@@ -43,6 +43,12 @@ export function AdminDashboardPage() {
 
   const summary = useDashboardSummary();
   const trends = useDashboardTrends(period);
+
+  function openNotificationLink(link: NotificationLink) {
+    if (link.type === "teacher") {
+      navigate(`${ROUTES.admin.teachers}?teacher=${encodeURIComponent(link.id)}`);
+    }
+  }
 
   async function signOut() {
     await logout();
@@ -82,7 +88,7 @@ export function AdminDashboardPage() {
           <Link className="portal-primary-link" to={ROUTES.admin.teachers}>
             <UsersRound size={15} /> {t("dashboard.teachersLink")}
           </Link>
-          <NotificationBell enabled={Boolean(user)} />
+          <NotificationBell enabled={Boolean(user)} onOpenLink={openNotificationLink} />
           <Button variant="secondary" onClick={signOut}>
             <LogOut size={17} /> {t("dashboard.logout")}
           </Button>

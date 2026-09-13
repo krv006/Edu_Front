@@ -16,7 +16,6 @@ import { useAuth } from "@/modules/auth";
 import { toIntlLocale } from "@/shared/i18n";
 import { AttendanceAccordion, useAttendance } from "@/modules/attendance";
 import { useCourse } from "@/modules/course";
-import { useQuizzes } from "@/modules/quiz";
 import {
   AssignmentDetailDialog,
   useAssignments,
@@ -38,6 +37,7 @@ import {
   useLessonView,
   useUpdateLesson,
 } from "@/modules/lesson";
+import { AddQuizDialog, useCreateQuiz, useQuizzes } from "@/modules/quiz";
 import { ChatHeader } from "@/modules/conversation";
 import { MessageComposer, MessageList } from "@/modules/message";
 import type {
@@ -219,11 +219,13 @@ function LessonsPanel({ courseId, lessons = [], loading }: LessonsPanelProps) {
   const [deleteTarget, setDeleteTarget] = useState<Lesson | null>(null);
   const [finishTarget, setFinishTarget] = useState<Lesson | null>(null);
   const [ratingsTarget, setRatingsTarget] = useState<Lesson | null>(null);
+  const [quizTarget, setQuizTarget] = useState<Lesson | null>(null);
   const navigate = useNavigate();
   const create = useCreateLesson();
   const createSchedule = useCreateLessonSchedule();
   const update = useUpdateLesson();
   const remove = useDeleteLesson();
+  const createQuiz = useCreateQuiz();
   const { view, setView } = useLessonView();
 
   const allLessons = useLessons({ page_size: 200 }, dialog);
@@ -277,6 +279,7 @@ function LessonsPanel({ courseId, lessons = [], loading }: LessonsPanelProps) {
       setEditing(lesson);
       setDialog(true);
     },
+    onCreateQuiz: setQuizTarget,
   };
 
   return (
@@ -309,6 +312,21 @@ function LessonsPanel({ courseId, lessons = [], loading }: LessonsPanelProps) {
       ) : (
         <LessonList lessons={lessons} {...actions} />
       )}
+
+      {quizTarget && courseId ? (
+        <AddQuizDialog
+          key={quizTarget.id}
+          open
+          onOpenChange={(open) => {
+            if (!open) setQuizTarget(null);
+          }}
+          courses={[{ id: courseId, title: quizTarget.courseTitle ?? "" }]}
+          lessonId={quizTarget.id}
+          onCreate={(values) =>
+            createQuiz.mutate(values, { onSuccess: () => setQuizTarget(null) })
+          }
+        />
+      ) : null}
 
       <AddLessonDialog
         key={editing?.id ?? "new-lesson"}

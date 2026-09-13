@@ -37,7 +37,9 @@
     "rate": "Rate",
     "editAria": "Edit lesson",
     "deleteAria": "Delete lesson",
-    "ratingsAria": "Lesson ratings — {{count}}"
+    "ratingsAria": "Lesson ratings — {{count}}",
+    "createQuiz": "Create quiz",
+    "createQuizAria": "Create a quiz for this lesson"
   },
   "viewSwitch": {
     "list": "List",

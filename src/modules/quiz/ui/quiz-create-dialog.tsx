@@ -25,6 +25,7 @@ export interface AddQuizDialogProps {
   onOpenChange: (open: boolean) => void;
   onCreate: (values: QuizFormValues) => void;
   courses: Array<{ id: string; title: string }>;
+  lessonId?: string;
 }
 
 const DEFAULT_OPTION_COUNT = 4;
@@ -47,7 +48,7 @@ function emptyQuestion(key: string, optionKeys: string[]): QuizQuestionDraft {
   };
 }
 
-export function AddQuizDialog({ open, onOpenChange, onCreate, courses }: AddQuizDialogProps) {
+export function AddQuizDialog({ open, onOpenChange, onCreate, courses, lessonId: initialLessonId = "" }: AddQuizDialogProps) {
   const { t } = useTranslation("quiz");
   const nextKey = useRef(0);
   function newKey() {
@@ -60,7 +61,7 @@ export function AddQuizDialog({ open, onOpenChange, onCreate, courses }: AddQuiz
   const [courseId] = useState(() => courses[0]?.id ?? "");
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [lessonId, setLessonId] = useState("");
+  const [lessonId, setLessonId] = useState(initialLessonId);
   const [dueAt, setDueAt] = useState("");
   const [opensAt, setOpensAt] = useState("");
   const [questions, setQuestions] = useState<QuizQuestionDraft[]>([]);
@@ -108,7 +109,7 @@ export function AddQuizDialog({ open, onOpenChange, onCreate, courses }: AddQuiz
     setStep("details");
     setTitle("");
     setDescription("");
-    setLessonId("");
+    setLessonId(initialLessonId);
     setDueAt("");
     setOpensAt("");
     setQuestions([]);

@@ -1,6 +1,6 @@
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 import { ArrowLeft, BarChart3, ShieldCheck, Users } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { useApproveTeacher, usePendingTeachers, useTeachers } from "@/modules/auth";
 import { RatingSummary } from "@/modules/lesson";
@@ -8,6 +8,15 @@ import { ROUTES } from "@/shared/config";
 import type { AuthUser } from "@/shared/types";
 import { Avatar, Button, LoadingFallback } from "@/shared/ui/legacy";
 import { TeacherStatsDialog } from "./teacher-stats-dialog";
+
+function useTeacherHighlight(teacherId: string | null, ready: boolean) {
+  useEffect(() => {
+    if (!teacherId || !ready) return;
+    document
+      .querySelector(`[data-teacher-id="${CSS.escape(teacherId)}"]`)
+      ?.scrollIntoView({ block: "center", behavior: "smooth" });
+  }, [teacherId, ready]);
+}
 
 function TeacherRow({
   teacher,
@@ -20,7 +29,7 @@ function TeacherRow({
 }) {
   const { t } = useTranslation("admin");
   return (
-    <article className="admin-teacher-row">
+    <article className="admin-teacher-row" data-teacher-id={teacher.id}>
       <Avatar name={teacher.name} src={teacher.avatarUrl} size="sm" />
       <div>
         <strong>{teacher.name}</strong>
@@ -48,6 +57,9 @@ export function AdminTeachersPage() {
   const teachers = useTeachers();
   const approve = useApproveTeacher();
   const [statsTarget, setStatsTarget] = useState<AuthUser | null>(null);
+  const [params] = useSearchParams();
+  const highlightId = params.get("teacher");
+  useTeacherHighlight(highlightId, (pending.data?.length ?? 0) > 0);
 
   return (
     <main className="portal-page admin-page">
