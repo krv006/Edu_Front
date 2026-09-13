@@ -10,6 +10,8 @@ export interface NotificationDto {
   /** `nh3` bilan tozalangan HTML — faqat formatlash teglari. */
   description: string;
   target_type: NotificationTarget;
+  /** Xabar turi, masalan "lesson_reminder" — UI uni ajratib ko'rsatadi. */
+  kind?: string | null;
   /** Xabar nimaga tegishli: "assignment" — uy vazifasi. Bo‘lmasligi mumkin. */
   link_type?: string | null;
   link_id?: string | null;
@@ -73,6 +75,8 @@ export interface InboxNotification {
   /** Tozalangan HTML. */
   html: string;
   targetType: NotificationTarget;
+  /** `null` — oddiy xabar. */
+  kind: string | null;
   isRead: boolean;
   readAt: string | null;
   /** `null` — xabar hech qayerga olib bormaydi. */

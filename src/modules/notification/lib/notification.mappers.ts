@@ -45,6 +45,7 @@ export function mapInboxNotificationDto(dto: NotificationRecipientDto): InboxNot
     // HTML shu yerda bir marta tozalanadi — UI xom matnni umuman ko'rmaydi.
     html: sanitizeHtml(dto.notification?.description ?? ""),
     targetType: dto.notification?.target_type ?? "user",
+    kind: dto.notification?.kind ?? null,
     isRead: Boolean(dto.is_read),
     readAt: dto.read_at ?? null,
     link: mapNotificationLink(dto.notification?.link_type, dto.notification?.link_id),

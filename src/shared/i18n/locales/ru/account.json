@@ -39,9 +39,16 @@
   },
   "settingsDialog": {
     "title": "Настройки",
-    "description": "Выберите язык интерфейса и оформление.",
+    "description": "Язык интерфейса, режим оформления и уведомления.",
     "languageLabel": "Язык",
-    "themeLabel": "Тема"
+    "themeLabel": "Тема",
+    "pushLabel": "Уведомления браузера",
+    "pushOn": "Включены",
+    "pushOff": "Включить",
+    "pushUnsupported": "Этот браузер не поддерживает",
+    "pushBlocked": "Уведомления заблокированы в настройках браузера — сначала разрешите их там.",
+    "reminderLabel": "Напоминание об уроке",
+    "reminderOption": "за {{count}} минут"
   },
   "roleSwitcher": {
     "triggerAria": "Другие ваши аккаунты",

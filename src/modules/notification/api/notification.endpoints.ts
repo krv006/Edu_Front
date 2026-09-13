@@ -11,4 +11,8 @@ export const notificationEndpoints = Object.freeze({
   recipients: (id: string) => `/api/v1/notifications/${id}/recipients/`,
   /** Admin: xabar yuborishda foydalanuvchi qidirish. */
   searchUsers: "/api/v1/auth/users/search/",
+  /** Brauzer push obunasi — ilova yopiq bo'lganda ham xabar keladi. */
+  pushVapidKey: "/api/v1/notifications/push/vapid-key/",
+  pushSubscribe: "/api/v1/notifications/push/subscribe/",
+  pushUnsubscribe: "/api/v1/notifications/push/unsubscribe/",
 });

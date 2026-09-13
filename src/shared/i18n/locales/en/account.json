@@ -39,9 +39,16 @@
   },
   "settingsDialog": {
     "title": "Settings",
-    "description": "Choose the interface language and appearance.",
+    "description": "Interface language, appearance and notifications.",
     "languageLabel": "Language",
-    "themeLabel": "Theme"
+    "themeLabel": "Theme",
+    "pushLabel": "Browser notifications",
+    "pushOn": "On",
+    "pushOff": "Turn on",
+    "pushUnsupported": "Not supported in this browser",
+    "pushBlocked": "Notifications are blocked in your browser settings — allow them there first.",
+    "reminderLabel": "Lesson reminder",
+    "reminderOption": "{{count}} minutes before"
   },
   "roleSwitcher": {
     "triggerAria": "Your other accounts",

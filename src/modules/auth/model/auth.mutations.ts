@@ -55,6 +55,15 @@ export function useUpdateProfileMutation() {
   });
 }
 
+/** Dars eslatmasi vaqti — javob global auth holatiga ko'chiriladi. */
+export function useUpdateLessonReminderMutation() {
+  return useMutation({
+    mutationFn: async (minutes: number): Promise<AuthUser> =>
+      mapUserDto(await authApi.updateLessonReminderMinutes(minutes)),
+    onSuccess: (user) => useAuthStore.getState().setUser(user),
+  });
+}
+
 /** Profil rasmi — `null` yuborilsa rasm o'chiriladi. */
 export function useUpdateAvatarMutation() {
   return useMutation({

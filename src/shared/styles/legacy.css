@@ -5005,6 +5005,18 @@ a.workspace-card:hover {
 }
 
 /* Branded select, calendar and time controls */
+/* Ko'zdan yashirin, ammo ekran o'quvchi uchun ochiq. `display: none` YARAMAYDI:
+   u elementni ochiq daraxtdan ham olib tashlaydi va `aria-labelledby` uziladi. */
+.is-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
 .form-picker-field {
   min-width: 0;
   display: grid;
@@ -6092,6 +6104,35 @@ a.workspace-card:hover {
   border-radius: var(--r-md);
 }
 .account-settings-row > span { font-size: var(--fs-md); font-weight: 600; }
+.account-settings-control { flex: 0 0 auto; display: flex; align-items: center; gap: 8px; }
+/* Tanlagich qatorning o'ng yarmida turadi: qolgan sozlamalar bilan bir xil
+   ko'rinish uchun kenglik cheklanadi, aks holda u butun qatorni egallardi. */
+.account-settings-control--picker { width: min(210px, 52%); }
+/* Yoqilgan holat rang bilan ko'rsatiladi: qator tor, alohida yozuvga joy yo'q. */
+.push-toggle {
+  min-height: 34px;
+  padding: 0 13px;
+  border: 1px solid var(--border);
+  border-radius: var(--r-full);
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  color: var(--muted-foreground);
+  background: var(--surface);
+  font-size: var(--fs-sm);
+  font-weight: 700;
+  cursor: pointer;
+  transition: color .16s ease, border-color .16s ease, background .16s ease;
+}
+.push-toggle:hover:not(:disabled) { border-color: var(--border-accent-strong); color: var(--primary-text); }
+.push-toggle.is-on {
+  border-color: var(--border-accent-strong);
+  color: var(--primary-text);
+  background: var(--primary-soft);
+}
+.push-toggle:disabled { opacity: .6; cursor: default; }
+.account-settings-hint { margin: 0; color: var(--muted-foreground); font-size: var(--fs-xs); line-height: 1.5; }
+.account-settings-error { margin: 0; color: var(--destructive); font-size: var(--fs-xs); line-height: 1.5; }
 
 /* ============================================================
    Jonli dars sahifasi (/live/:lessonId) — Google Meet uslubi

@@ -44,6 +44,8 @@ export interface AuthUser {
   certificates: Certificate[];
   /** Hisobga bog'langan til (`uz`/`ru`/`en`) — qurilmadan mustaqil, `PATCH /auth/me/` bilan saqlanadi. */
   preferredLanguage: string;
+  /** Dars boshlanishidan necha daqiqa oldin eslatma kelsin. `null` — server standarti. */
+  lessonReminderMinutes: number | null;
   /** Xuddi shu telefondagi boshqa akkauntlar — bo'sh yoki telefon yo'q bo'lsa `[]`. */
   linkedAccounts: LinkedAccount[];
 }

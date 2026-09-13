@@ -35,6 +35,7 @@ import {
   type ProfileFormValues,
 } from "@/modules/auth";
 import { NotificationInboxDialog } from "@/modules/notification";
+import { NotificationSettings } from "./notification-settings";
 import { ROLES, type Role } from "@/shared/constants";
 import { useLanguageStore } from "@/shared/model";
 import type { LinkedAccount } from "@/shared/types";
@@ -650,6 +651,7 @@ export function AccountMenu({
                 <span>{t("settingsDialog.themeLabel")}</span>
                 <ThemeToggle />
               </div>
+              <NotificationSettings />
             </div>
           </DialogContent>
         )}

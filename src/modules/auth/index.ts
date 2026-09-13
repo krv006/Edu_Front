@@ -31,6 +31,7 @@ export {
   useSwitchRoleMutation,
   useDeleteCertificate,
   useUpdateAvatarMutation,
+  useUpdateLessonReminderMutation,
   useUpdateProfileMutation,
   useUploadCertificate,
 } from "./model/auth.mutations";

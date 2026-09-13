@@ -67,6 +67,7 @@ export function mapUserDto(dto: unknown): AuthUser {
     isApproved: parsed.is_approved ?? null,
     certificates: parsed.certificates.map(mapCertificateDto),
     preferredLanguage: parsed.preferred_language,
+    lessonReminderMinutes: parsed.lesson_reminder_minutes ?? null,
     linkedAccounts: parsed.linked_accounts.map(mapLinkedAccountDto),
   };
 }
