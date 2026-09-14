@@ -7,7 +7,10 @@ import { RatingSummary } from "@/modules/lesson";
 import { ROUTES } from "@/shared/config";
 import type { AuthUser } from "@/shared/types";
 import { Avatar, Button, LoadingFallback } from "@/shared/ui/legacy";
+import { SelectPicker } from "@/shared/ui/legacy/form-pickers";
 import { TeacherStatsDialog } from "./teacher-stats-dialog";
+
+type TeacherView = "pending" | "all";
 
 function useTeacherHighlight(teacherId: string | null, ready: boolean) {
   useEffect(() => {
@@ -59,7 +62,9 @@ export function AdminTeachersPage() {
   const [statsTarget, setStatsTarget] = useState<AuthUser | null>(null);
   const [params] = useSearchParams();
   const highlightId = params.get("teacher");
-  useTeacherHighlight(highlightId, (pending.data?.length ?? 0) > 0);
+  const [view, setView] = useState<TeacherView>("pending");
+  const query = view === "pending" ? pending : teachers;
+  useTeacherHighlight(highlightId, (query.data?.length ?? 0) > 0);
 
   return (
     <main className="portal-page admin-page">
@@ -79,50 +84,58 @@ export function AdminTeachersPage() {
       <section className="portal-card admin-teacher-panel">
         <div className="portal-section-head">
           <div>
-            <span>{t("teachers.pendingEyebrow")}</span>
-            <h2>{t("teachers.pendingTitle")}</h2>
+            <span>
+              {view === "pending" ? <ShieldCheck size={13} /> : <Users size={13} />}{" "}
+              {view === "pending" ? t("teachers.pendingEyebrow") : t("teachers.allEyebrow")}
+            </span>
+            <h2>{view === "pending" ? t("teachers.pendingTitle") : t("teachers.allTitle")}</h2>
+          </div>
+          <div className="admin-teacher-filter">
+            <SelectPicker
+              hideLabel
+              label={t("teachers.viewLabel")}
+              icon={view === "pending" ? ShieldCheck : Users}
+              value={view}
+              onChange={(value) => setView(value as TeacherView)}
+              options={[
+                {
+                  value: "pending",
+                  label: t("teachers.viewPending", { count: pending.data?.length ?? 0 }),
+                },
+                {
+                  value: "all",
+                  label: t("teachers.viewAll", { count: teachers.data?.length ?? 0 }),
+                },
+              ]}
+            />
           </div>
         </div>
-        {pending.isLoading ? <LoadingFallback label={t("teachers.loading")} /> : null}
+
+        {query.isLoading ? <LoadingFallback label={t("teachers.loading")} /> : null}
+
         <div className="admin-teacher-list">
-          {(pending.data ?? []).map((teacher) => (
+          {(query.data ?? []).map((teacher) => (
             <TeacherRow
               key={teacher.id}
               teacher={teacher}
               onStats={setStatsTarget}
               action={
-                <Button
-                  size="sm"
-                  loading={approve.isPending && approve.variables === teacher.id}
-                  onClick={() => approve.mutate(teacher.id)}
-                >
-                  {t("teachers.approve")}
-                </Button>
+                view === "pending" ? (
+                  <Button
+                    size="sm"
+                    loading={approve.isPending && approve.variables === teacher.id}
+                    onClick={() => approve.mutate(teacher.id)}
+                  >
+                    {t("teachers.approve")}
+                  </Button>
+                ) : undefined
               }
             />
           ))}
-          {!pending.isLoading && !pending.data?.length ? (
-            <p className="portal-muted">{t("teachers.noPending")}</p>
-          ) : null}
-        </div>
-      </section>
-
-      <section className="portal-card admin-teacher-panel">
-        <div className="portal-section-head">
-          <div>
-            <span>
-              <Users size={13} /> {t("teachers.allEyebrow")}
-            </span>
-            <h2>{t("teachers.allTitle")}</h2>
-          </div>
-        </div>
-        {teachers.isLoading ? <LoadingFallback label={t("teachers.loading")} /> : null}
-        <div className="admin-teacher-list">
-          {(teachers.data ?? []).map((teacher) => (
-            <TeacherRow key={teacher.id} teacher={teacher} onStats={setStatsTarget} />
-          ))}
-          {!teachers.isLoading && !teachers.data?.length ? (
-            <p className="portal-muted">{t("teachers.noTeachers")}</p>
+          {!query.isLoading && !query.data?.length ? (
+            <p className="portal-muted">
+              {view === "pending" ? t("teachers.noPending") : t("teachers.noTeachers")}
+            </p>
           ) : null}
         </div>
       </section>

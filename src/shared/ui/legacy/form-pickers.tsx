@@ -314,7 +314,7 @@ export function SelectPicker({ label, value, onChange, options, icon, hideLabel 
       <FloatingPicker open={open} onClose={() => setOpen(false)} anchorRef={anchorRef} labelledBy={labelId} className="select-picker-popover">
         <div className="picker-mini-heading"><span>{t("formPickers.selectHeading")}</span><strong>{label}</strong></div>
         <div className="select-picker-options" role="listbox" aria-labelledby={labelId}>
-          {normalizedOptions.map((option, index) => {
+          {normalizedOptions.map((option) => {
             const active = option.value === value;
             return (
               <motion.button
@@ -328,9 +328,6 @@ export function SelectPicker({ label, value, onChange, options, icon, hideLabel 
                   setOpen(false);
                   requestAnimationFrame(() => anchorRef.current?.focus());
                 }}
-                initial={{ opacity: 0, x: -5 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: index * 0.025 }}
                 whileTap={{ scale: 0.98 }}
               >
                 <span>{option.label}</span>

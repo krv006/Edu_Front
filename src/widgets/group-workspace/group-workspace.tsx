@@ -4,6 +4,7 @@ import {
   BookOpen,
   CalendarDays,
   CheckCircle2,
+  ClipboardCheck,
   ClipboardList,
   FileQuestion,
   Pencil,
@@ -39,6 +40,7 @@ import {
   useUpdateLesson,
 } from "@/modules/lesson";
 import { AddQuizDialog, useCreateQuiz, useQuizzes } from "@/modules/quiz";
+import { MockTestCreateDialog } from "@/modules/mock-test";
 import { ChatHeader } from "@/modules/conversation";
 import { MessageComposer, MessageList } from "@/modules/message";
 import type {
@@ -396,6 +398,7 @@ function AssignmentsPanel({
   const update = useUpdateAssignment();
   const remove = useDeleteAssignment();
   const [quizDialog, setQuizDialog] = useState(false);
+  const [mockDialog, setMockDialog] = useState(false);
   const createQuiz = useCreateQuiz();
   const course = useCourse(courseId);
 
@@ -418,6 +421,9 @@ function AssignmentsPanel({
           <p>{t("assignments.subtitle")}</p>
         </div>
         <div className="group-panel-tools">
+          <Button variant="secondary" onClick={() => setMockDialog(true)}>
+            <ClipboardCheck size={17} /> {t("assignments.addMockTest")}
+          </Button>
           <Button variant="secondary" onClick={() => setQuizDialog(true)}>
             <FileQuestion size={17} /> {t("assignments.addQuiz")}
           </Button>
@@ -511,6 +517,8 @@ function AssignmentsPanel({
           }
         />
       ) : null}
+
+      <MockTestCreateDialog open={mockDialog} onOpenChange={setMockDialog} courseId={courseId} />
 
       <AddAssignmentDialog
         key={editingAssignment?.id ?? "new"}

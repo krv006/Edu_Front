@@ -25,7 +25,9 @@ function sectionFromPath(pathname: string): ConversationSection {
   if (
     pathname.endsWith("/workspace") ||
     pathname.endsWith("/quizzes") ||
-    pathname.endsWith("/ai")
+    pathname.endsWith("/ai") ||
+    pathname.endsWith("/analytics") ||
+    pathname.endsWith("/mock-tests")
   )
     return "workspace";
   if (pathname.endsWith("/report")) return "report";

@@ -13,6 +13,14 @@ export {
   mapTopCourseDto,
   mapTopTeacherDto,
 } from "./lib/analytics.mappers";
-export { analyticsKeys, useDashboardSummary, useDashboardTrends } from "./model/analytics.queries";
+export {
+  analyticsKeys,
+  useDashboardSummary,
+  useDashboardTrends,
+  useMonitoringCurrent,
+  useMonitoringHistory,
+  useMyAnalytics,
+  useTeacherVideoStats,
+} from "./model/analytics.queries";
 export { TrendLineChart, type TrendLineSeries } from "./ui/trend-line-chart";
 export { TrendStackedBarChart, type TrendBarSeries } from "./ui/trend-stacked-bar-chart";

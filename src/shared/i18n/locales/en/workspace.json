@@ -20,5 +20,28 @@
       "title": "Mock Test",
       "description": "Take a practice test under exam conditions."
     }
+  },
+  "analytics": {
+    "eyebrow": "PERSONAL ANALYTICS",
+    "title": "Analytics",
+    "subtitle": "Your results and figures.",
+    "loading": "Loading analytics",
+    "loadError": "Could not load analytics",
+    "retry": "Retry",
+    "attemptCount": "Attempts",
+    "avgPercentage": "Average score",
+    "recentAttempts": "RECENT ATTEMPTS",
+    "noAttempts": "No quizzes taken yet.",
+    "avgRating": "Average rating",
+    "ratingCount": "Ratings",
+    "courseCount": "Courses",
+    "studentCount": "Students",
+    "lessonsFinished": "Lessons held",
+    "reliability": "Reliability",
+    "byCourse": "BY COURSE",
+    "course": "Course",
+    "quizAvg": "Quiz average",
+    "attendance": "Attendance",
+    "noCourses": "No courses found."
   }
 }

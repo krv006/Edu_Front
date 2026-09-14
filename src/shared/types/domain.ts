@@ -1,3 +1,4 @@
+import type { TeacherStats } from "./auth";
 
 export type AvatarTone = "violet" | "blue" | "emerald" | "amber" | "rose";
 
@@ -359,6 +360,7 @@ export interface DashboardSummary {
   activeCourses: number;
   avgRating: number | null;
   ratingCount: number;
+  totalVideos: number;
   topCourses: TopCourseStat[];
   topTeachers: TopTeacherStat[];
 }
@@ -429,4 +431,65 @@ export interface AttendanceRow {
   attentionAnswered: number;
   focus: FocusJournal;
   status: "completed" | "active";
+}
+
+export interface StudentAttemptSummary {
+  quizId: string;
+  quizTitle: string;
+  courseTitle: string;
+  score: number;
+  maxScore: number;
+  percentage: number | null;
+  takenAt: string;
+}
+
+export interface StudentAnalytics {
+  kind: "student";
+  attemptCount: number;
+  avgPercentage: number | null;
+  recentAttempts: StudentAttemptSummary[];
+}
+
+export interface TeacherCourseAnalytics {
+  courseId: string;
+  courseTitle: string;
+  studentCount: number | null;
+  avgRating: number | null;
+  reliability: number | null;
+  quizAvgPercentage: number | null;
+  quizAttemptCount: number | null;
+  attendanceRate: number | null;
+}
+
+export interface TeacherAnalytics {
+  kind: "teacher";
+  overall: TeacherStats;
+  courses: TeacherCourseAnalytics[];
+}
+
+export type MyAnalytics = StudentAnalytics | TeacherAnalytics;
+
+export interface TeacherVideoStat {
+  teacherId: string;
+  teacherName: string;
+  videoCount: number;
+}
+
+export interface TeacherVideoStats {
+  totalVideos: number;
+  teachers: TeacherVideoStat[];
+}
+
+export interface MonitoringSample {
+  cpuPercent: number;
+  memoryPercent: number;
+  memoryUsedMb: number;
+  memoryTotalMb: number;
+  createdAt: string;
+}
+
+export interface MonitoringHistory {
+  hours: number;
+  samples: MonitoringSample[];
+  peak: MonitoringSample | null;
 }

@@ -23,6 +23,7 @@
     "subtitle": "Управляйте сдачами и результатами AI.",
     "addAssignment": "Дать задание",
     "addQuiz": "Создать тест",
+    "addMockTest": "Mock-тест",
     "dueLabel": "Срок: {{date}}",
     "noDue": "Срок не установлен",
     "submissionsCount": "сдано: {{count}}",

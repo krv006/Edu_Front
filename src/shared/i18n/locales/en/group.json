@@ -23,6 +23,7 @@
     "subtitle": "Manage submissions and AI results.",
     "addAssignment": "Assign homework",
     "addQuiz": "Create quiz",
+    "addMockTest": "Mock test",
     "dueLabel": "Due: {{date}}",
     "noDue": "No due date set",
     "submissionsCount": "{{count}} submitted",

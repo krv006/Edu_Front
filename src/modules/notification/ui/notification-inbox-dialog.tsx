@@ -10,6 +10,12 @@ import { NotificationHtml } from "./notification-html";
 
 const LESSON_REMINDER_KIND = "lesson_reminder";
 
+const LINK_LABELS: Record<string, string> = {
+  assignment: "Vazifaga o‘tish",
+  quiz: "Testga o‘tish",
+  teacher: "Ko‘rib chiqish",
+};
+
 export interface NotificationInboxDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -75,6 +81,7 @@ export function NotificationInboxDialog({
                     <NotificationHtml html={item.html} />
                   </div>
 
+                  <div className="notification-actions">
                   {item.link && onOpenLink ? (
                     <Button
                       size="sm"
@@ -85,7 +92,7 @@ export function NotificationInboxDialog({
                         onOpenChange(false);
                       }}
                     >
-                      Vazifaga o‘tish <ArrowRight size={15} />
+                      {LINK_LABELS[item.link.type] ?? "Ochish"} <ArrowRight size={15} />
                     </Button>
                   ) : item.isRead ? (
                     <span className="notification-read" title="O‘qilgan">
@@ -101,6 +108,7 @@ export function NotificationInboxDialog({
                       O‘qidim
                     </Button>
                   )}
+                  </div>
                 </li>
               ))}
             </ul>

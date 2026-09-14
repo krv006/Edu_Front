@@ -8,8 +8,18 @@
     "loading": "Загрузка панели управления",
     "loadError": "Не удалось загрузить данные",
     "retry": "Повторить",
-    "periods": { "day": "День", "week": "Неделя", "month": "Месяц", "year": "Год" },
-    "periodNoun": { "day": "день", "week": "неделю", "month": "месяц", "year": "год" },
+    "periods": {
+      "day": "День",
+      "week": "Неделя",
+      "month": "Месяц",
+      "year": "Год"
+    },
+    "periodNoun": {
+      "day": "день",
+      "week": "неделю",
+      "month": "месяц",
+      "year": "год"
+    },
     "kpi": {
       "activeStudents": "Активные ученики",
       "activeTeachers": "Активные учителя",
@@ -80,6 +90,32 @@
     "noPending": "Нет учителей, ожидающих подтверждения.",
     "allEyebrow": "ВСЕ",
     "allTitle": "Все учителя",
-    "noTeachers": "Учителя не найдены."
+    "noTeachers": "Учителя не найдены.",
+    "viewLabel": "Вид",
+    "viewPending": "Ждут подтверждения ({{count}})",
+    "viewAll": "Все учителя ({{count}})"
+  },
+  "storage": {
+    "eyebrow": "ХРАНИЛИЩЕ",
+    "title": "Видеозаписи",
+    "loading": "Загрузка",
+    "totalVideos": "Всего {{count}} видео",
+    "teacher": "Учитель",
+    "videoCount": "Видео",
+    "empty": "Видеозаписей пока нет."
+  },
+  "monitoring": {
+    "eyebrow": "СЕРВЕР",
+    "title": "Состояние сервера",
+    "scopeNote": "Только CPU и RAM самого backend-контейнера.",
+    "loading": "Загрузка измерений",
+    "cpu": "CPU",
+    "memory": "Память",
+    "memoryUsed": "Использовано памяти",
+    "measuredAt": "Последнее измерение",
+    "noSamples": "Измерений пока нет.",
+    "hours": "{{count}} ч",
+    "peakLabel": "Пиковая нагрузка",
+    "pointNote": "{{count}} точек"
   }
 }

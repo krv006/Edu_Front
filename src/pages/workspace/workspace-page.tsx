@@ -15,9 +15,9 @@ interface WorkspaceCard {
 
 const CARDS: WorkspaceCard[] = [
   { id: "quizzes", icon: FileQuestion, to: "../quizzes" },
-  { id: "analytics", icon: BarChart3 },
+  { id: "analytics", icon: BarChart3, to: "../analytics" },
   { id: "ai", icon: Sparkles, to: "../ai" },
-  { id: "mock", icon: ClipboardCheck, studentOnly: true },
+  { id: "mock", icon: ClipboardCheck, to: "../mock-tests", studentOnly: true },
 ];
 
 export function WorkspacePage() {
