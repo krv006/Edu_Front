@@ -5,6 +5,7 @@ import {
   CalendarDays,
   CheckCircle2,
   ClipboardList,
+  FileQuestion,
   Pencil,
   Plus,
   Trash2,
@@ -219,13 +220,11 @@ function LessonsPanel({ courseId, lessons = [], loading }: LessonsPanelProps) {
   const [deleteTarget, setDeleteTarget] = useState<Lesson | null>(null);
   const [finishTarget, setFinishTarget] = useState<Lesson | null>(null);
   const [ratingsTarget, setRatingsTarget] = useState<Lesson | null>(null);
-  const [quizTarget, setQuizTarget] = useState<Lesson | null>(null);
   const navigate = useNavigate();
   const create = useCreateLesson();
   const createSchedule = useCreateLessonSchedule();
   const update = useUpdateLesson();
   const remove = useDeleteLesson();
-  const createQuiz = useCreateQuiz();
   const { view, setView } = useLessonView();
 
   const allLessons = useLessons({ page_size: 200 }, dialog);
@@ -279,7 +278,6 @@ function LessonsPanel({ courseId, lessons = [], loading }: LessonsPanelProps) {
       setEditing(lesson);
       setDialog(true);
     },
-    onCreateQuiz: setQuizTarget,
   };
 
   return (
@@ -312,21 +310,6 @@ function LessonsPanel({ courseId, lessons = [], loading }: LessonsPanelProps) {
       ) : (
         <LessonList lessons={lessons} {...actions} />
       )}
-
-      {quizTarget && courseId ? (
-        <AddQuizDialog
-          key={quizTarget.id}
-          open
-          onOpenChange={(open) => {
-            if (!open) setQuizTarget(null);
-          }}
-          courses={[{ id: courseId, title: quizTarget.courseTitle ?? "" }]}
-          lessonId={quizTarget.id}
-          onCreate={(values) =>
-            createQuiz.mutate(values, { onSuccess: () => setQuizTarget(null) })
-          }
-        />
-      ) : null}
 
       <AddLessonDialog
         key={editing?.id ?? "new-lesson"}
@@ -412,8 +395,19 @@ function AssignmentsPanel({
   const create = useCreateAssignment();
   const update = useUpdateAssignment();
   const remove = useDeleteAssignment();
+  const [quizDialog, setQuizDialog] = useState(false);
+  const createQuiz = useCreateQuiz();
+  const course = useCourse(courseId);
 
-  const lessons = useLessons({ course: courseId, page_size: 100 }, dialog);
+  const lessons = useLessons({ course: courseId, page_size: 100 }, dialog || quizDialog);
+  const quizLessonOptions = useMemo(
+    () =>
+      (lessons.data ?? []).map((lesson) => ({
+        id: lesson.id,
+        title: `${lesson.title} · ${lesson.date}`,
+      })),
+    [lessons.data]
+  );
 
   return (
     <div className="group-panel">
@@ -423,9 +417,14 @@ function AssignmentsPanel({
           <h2>{t("assignments.title")}</h2>
           <p>{t("assignments.subtitle")}</p>
         </div>
-        <Button onClick={() => setDialog(true)}>
-          <Plus size={17} /> {t("assignments.addAssignment")}
-        </Button>
+        <div className="group-panel-tools">
+          <Button variant="secondary" onClick={() => setQuizDialog(true)}>
+            <FileQuestion size={17} /> {t("assignments.addQuiz")}
+          </Button>
+          <Button onClick={() => setDialog(true)}>
+            <Plus size={17} /> {t("assignments.addAssignment")}
+          </Button>
+        </div>
       </div>
 
       {loading ? (
@@ -497,6 +496,21 @@ function AssignmentsPanel({
           <Button onClick={() => setDialog(true)}>{t("assignments.emptyCreateFirst")}</Button>
         </div>
       )}
+
+      {quizDialog && courseId ? (
+        <AddQuizDialog
+          open
+          onOpenChange={(open) => {
+            if (!open) setQuizDialog(false);
+          }}
+          courses={[{ id: courseId, title: course.data?.title ?? "" }]}
+          showSchedule
+          lessonOptions={quizLessonOptions}
+          onCreate={(values) =>
+            createQuiz.mutate(values, { onSuccess: () => setQuizDialog(false) })
+          }
+        />
+      ) : null}
 
       <AddAssignmentDialog
         key={editingAssignment?.id ?? "new"}
