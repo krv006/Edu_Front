@@ -1,26 +1,30 @@
-import { Award, BarChart3, ClipboardList, FileQuestion, Library, Video } from "lucide-react";
+import { BarChart3, ClipboardCheck, FileQuestion, Sparkles } from "lucide-react";
 import type { LucideIcon } from "lucide-react";
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
+import { useAuth } from "@/modules/auth";
+import { ROLES } from "@/shared/constants";
 
 interface WorkspaceCard {
   id: string;
   icon: LucideIcon;
   to?: string;
+  studentOnly?: boolean;
 }
 
 const CARDS: WorkspaceCard[] = [
   { id: "quizzes", icon: FileQuestion, to: "../quizzes" },
-  { id: "assignments", icon: ClipboardList },
-  { id: "materials", icon: Library },
-  { id: "recordings", icon: Video },
-  { id: "stats", icon: BarChart3 },
-  { id: "certificates", icon: Award },
+  { id: "analytics", icon: BarChart3 },
+  { id: "ai", icon: Sparkles, to: "../ai" },
+  { id: "mock", icon: ClipboardCheck, studentOnly: true },
 ];
 
 export function WorkspacePage() {
   const { t } = useTranslation("workspace");
+  const { user } = useAuth();
+  const isStudent = user?.role === ROLES.STUDENT;
+  const cards = CARDS.filter((card) => !card.studentOnly || isStudent);
 
   return (
     <div className="portal-page">
@@ -33,7 +37,7 @@ export function WorkspacePage() {
       </div>
 
       <div className="workspace-grid">
-        {CARDS.map((card, index) => {
+        {cards.map((card, index) => {
           const Icon = card.icon;
           const body = (
             <>
