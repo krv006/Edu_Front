@@ -1,4 +1,4 @@
-import { apiClient, type RequestOptions } from "@/shared/api";
+import { apiClient, normalizePagination, type RequestOptions } from "@/shared/api";
 import { authEndpoints } from "./auth.endpoints";
 import { mapLoginRecords, mapTeacherRatings, mapTeacherStats } from "../lib/auth.mappers";
 import type {
@@ -101,11 +101,17 @@ export const authApi = {
       })
     );
   },
-  getTeachers(options?: RequestOptions) {
-    return apiClient.get<AuthUserDto[]>(authEndpoints.teachers, options);
+  async getTeachers(options?: RequestOptions) {
+    const page = normalizePagination<AuthUserDto>(
+      await apiClient.get(authEndpoints.teachers, { ...options, query: { page_size: 100, ...options?.query } })
+    );
+    return page.items;
   },
-  getPendingTeachers(options?: RequestOptions) {
-    return apiClient.get<AuthUserDto[]>(authEndpoints.teachersPending, options);
+  async getPendingTeachers(options?: RequestOptions) {
+    const page = normalizePagination<AuthUserDto>(
+      await apiClient.get(authEndpoints.teachersPending, { ...options, query: { page_size: 100, ...options?.query } })
+    );
+    return page.items;
   },
   approveTeacher(id: string) {
     return apiClient.post<AuthUserDto>(authEndpoints.teacherApprove(id), {});
