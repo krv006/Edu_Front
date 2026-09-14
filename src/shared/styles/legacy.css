@@ -5053,9 +5053,17 @@ a.workspace-card:hover {
   color: var(--foreground);
   font-size: var(--fs-sm);
 }
+.select-picker-popover {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.select-picker-popover .picker-mini-heading { flex: 0 0 auto; }
 .select-picker-options {
+  flex: 1 1 auto;
   display: grid;
   gap: 4px;
+  overflow-y: auto;
 }
 .select-picker-options > button {
   min-height: 42px;
