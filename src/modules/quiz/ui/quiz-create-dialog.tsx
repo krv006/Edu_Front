@@ -27,7 +27,11 @@ export interface AddQuizDialogProps {
   onCreate: (values: QuizFormValues) => void;
   courses: Array<{ id: string; title: string }>;
   showSchedule?: boolean;
-  lessonOptions?: ReadonlyArray<{ id: string; title: string }>;
+  // `title` — tanlagichda ko'rinadigan yorliq (masalan "Dars nomi · 12-sen").
+  // `rawTitle` — test nomini avtomatik to'ldirish uchun sof qiymat (sana
+  // qo'shilmagan holda). Darsning tavsifi (description) backend'da yo'q —
+  // faqat nomi bor, shuning uchun tavsif emas, faqat nom to'ldiriladi.
+  lessonOptions?: ReadonlyArray<{ id: string; title: string; rawTitle: string }>;
 }
 
 const DEFAULT_OPTION_COUNT = 4;
@@ -194,6 +198,15 @@ export function AddQuizDialog({
     setQuestions((current) =>
       current.map((question) => (question.key === questionKey ? { ...question, ...patch } : question))
     );
+  }
+
+  // Dars tanlanganda test nomi shu darsdan avtomatik to'ldiriladi — FAQAT
+  // hali bo'sh bo'lsa (o'qituvchi allaqachon o'zi nom yozgan bo'lsa, buni
+  // bosib o'tmaymiz — "avtomatik, lekin tahrirlanadigan" xatti-harakat).
+  function handleLessonChange(newLessonId: string) {
+    setLessonId(newLessonId);
+    const lesson = lessonOptions?.find((option) => option.id === newLessonId);
+    if (lesson && !title.trim()) setTitle(lesson.rawTitle);
   }
 
   function updateOptionText(questionKey: string, optionKey: string, text: string) {
@@ -422,7 +435,7 @@ export function AddQuizDialog({
               label={t("createDialog.lessonLabel")}
               icon={CalendarDays}
               value={lessonId}
-              onChange={setLessonId}
+              onChange={handleLessonChange}
               options={[
                 { value: "", label: t("createDialog.notLinkedToLesson") },
                 ...lessonOptions.map((lesson) => ({ value: lesson.id, label: lesson.title })),

@@ -408,6 +408,7 @@ function AssignmentsPanel({
       (lessons.data ?? []).map((lesson) => ({
         id: lesson.id,
         title: `${lesson.title} · ${lesson.date}`,
+        rawTitle: lesson.title,
       })),
     [lessons.data]
   );
