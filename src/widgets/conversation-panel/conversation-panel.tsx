@@ -196,6 +196,7 @@ export function ConversationPanel({ role = "teacher", onOpenMenu }: Conversation
             </AnimatePresence>
           </div>
           <NotificationBell enabled={Boolean(user)} onOpenLink={openNotificationLink} />
+          <span className="panel-role-badge">{t(`nav:roles.${role}`)}</span>
           <button className="panel-account" onClick={onOpenMenu} aria-label={t("panel.accountAria")}>
             <Avatar name={user?.name ?? t("common:portal.defaultUser")} tone="violet" size="sm" status="online" />
           </button>
