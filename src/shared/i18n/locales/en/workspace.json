@@ -5,28 +5,20 @@
   "soon": "Coming soon",
   "cards": {
     "quizzes": {
-      "title": "Quizzes",
+      "title": "Quiz",
       "description": "Create and take quizzes, review the results."
     },
-    "assignments": {
-      "title": "Assignments",
-      "description": "Homework and tasks in one place."
+    "analytics": {
+      "title": "Analytics",
+      "description": "Figures on results and activity."
     },
-    "materials": {
-      "title": "Materials",
-      "description": "Files and links for your lessons."
+    "ai": {
+      "title": "AI",
+      "description": "Work with the AI assistant."
     },
-    "recordings": {
-      "title": "Lesson recordings",
-      "description": "Rewatch lessons that already happened."
-    },
-    "stats": {
-      "title": "Statistics",
-      "description": "Reports on activity and results."
-    },
-    "certificates": {
-      "title": "Certificates",
-      "description": "Certificates issued and received."
+    "mock": {
+      "title": "Mock Test",
+      "description": "Take a practice test under exam conditions."
     }
   }
 }

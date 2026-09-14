@@ -1,11 +1,11 @@
-import { CalendarDays, LayoutGrid, Menu, MessagesSquare, Sparkles, Trophy } from "lucide-react";
+import { CalendarDays, LayoutGrid, Menu, MessagesSquare, Trophy } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useResolvedPath } from "react-router-dom";
 import logoUrl from "@/shared/assets/y-logo.svg";
 import type { ConversationRole } from "@/shared/types";
 import { useConversations } from "../model/use-conversations";
 
-export type ConversationSection = "chat" | "schedule" | "ai" | "workspace" | "report";
+export type ConversationSection = "chat" | "schedule" | "workspace" | "report";
 
 type SectionItem = {
   id: ConversationSection;
@@ -16,7 +16,6 @@ type SectionItem = {
 const SECTIONS: SectionItem[] = [
   { id: "chat", icon: MessagesSquare, path: "" },
   { id: "schedule", icon: CalendarDays, path: "/schedule" },
-  { id: "ai", icon: Sparkles, path: "/ai" },
   { id: "workspace", icon: LayoutGrid, path: "/workspace" },
 ];
 

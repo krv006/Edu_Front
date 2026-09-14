@@ -5,28 +5,20 @@
   "soon": "Tez orada",
   "cards": {
     "quizzes": {
-      "title": "Testlar",
+      "title": "Test",
       "description": "Testlar yaratish, yechish va natijalarni ko'rish."
     },
-    "assignments": {
-      "title": "Vazifalar",
-      "description": "Uy vazifalari va topshiriqlar bir joyda."
+    "analytics": {
+      "title": "Tahlil",
+      "description": "Natijalar va faollik bo'yicha ko'rsatkichlar."
     },
-    "materials": {
-      "title": "Materiallar",
-      "description": "Dars uchun fayllar va havolalar to'plami."
+    "ai": {
+      "title": "AI",
+      "description": "Sun'iy intellekt yordamchisi bilan ishlash."
     },
-    "recordings": {
-      "title": "Dars yozuvlari",
-      "description": "O'tilgan darslarni qayta ko'rish."
-    },
-    "stats": {
-      "title": "Statistika",
-      "description": "Faollik va natijalar bo'yicha hisobotlar."
-    },
-    "certificates": {
-      "title": "Sertifikatlar",
-      "description": "Berilgan va olingan sertifikatlar."
+    "mock": {
+      "title": "Mock Test",
+      "description": "Imtihon sharoitida sinov testini yechish."
     }
   }
 }
