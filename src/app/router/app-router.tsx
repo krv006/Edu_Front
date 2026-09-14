@@ -71,6 +71,8 @@ const AiPage = lazy(() => import("@/pages/ai/ai-page").then((module) => ({ defau
 const StudentReportPage = lazy(() => import("@/pages/student/report/student-report-page").then((module) => ({ default: module.StudentReportPage })));
 const ParentReportPage = lazy(() => import("@/pages/parent/report/parent-report-page").then((module) => ({ default: module.ParentReportPage })));
 const WorkspacePage = lazy(() => import("@/pages/workspace").then((module) => ({ default: module.WorkspacePage })));
+const AnalyticsPage = lazy(() => import("@/pages/workspace").then((module) => ({ default: module.AnalyticsPage })));
+const MockTestPage = lazy(() => import("@/pages/workspace").then((module) => ({ default: module.MockTestPage })));
 const TeacherQuizzesPage = lazy(() => import("@/pages/teacher/quizzes/teacher-quizzes-page").then((module) => ({ default: module.TeacherQuizzesPage })));
 const StudentQuizzesPage = lazy(() => import("@/pages/student/quizzes/student-quizzes-page").then((module) => ({ default: module.StudentQuizzesPage })));
 
@@ -141,6 +143,7 @@ export function AppRouter() {
                     <Route path="schedule" element={<SchedulePage />} />
                     <Route path="ai" element={<AiPage />} />
                     <Route path="workspace" element={<WorkspacePage />} />
+                    <Route path="analytics" element={<AnalyticsPage />} />
                     <Route path="quizzes" element={<TeacherQuizzesPage />} />
                     <Route
                       path=":conversationId"
@@ -182,6 +185,8 @@ export function AppRouter() {
                     <Route path="schedule" element={<SchedulePage />} />
                     <Route path="ai" element={<AiPage />} />
                     <Route path="workspace" element={<WorkspacePage />} />
+                    <Route path="analytics" element={<AnalyticsPage />} />
+                    <Route path="mock-tests" element={<MockTestPage />} />
                     <Route path="quizzes" element={<StudentQuizzesPage />} />
                     <Route path="report" element={<StudentReportPage />} />
                     <Route

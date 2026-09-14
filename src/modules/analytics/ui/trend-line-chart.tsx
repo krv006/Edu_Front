@@ -12,6 +12,7 @@ export interface TrendLineChartProps {
   series: TrendLineSeries[];
   labels: string[];
   zeroBase?: boolean;
+  unit?: string;
 }
 
 const W = 600;
@@ -23,7 +24,7 @@ const PAD_B = 26;
 const PLOT_W = W - PAD_L - PAD_R;
 const PLOT_H = H - PAD_T - PAD_B;
 
-export function TrendLineChart({ series, labels, zeroBase = true }: TrendLineChartProps) {
+export function TrendLineChart({ series, labels, zeroBase = true, unit = "" }: TrendLineChartProps) {
   const [hoverIndex, setHoverIndex] = useState<number | null>(null);
   const n = labels.length;
 
@@ -49,6 +50,7 @@ export function TrendLineChart({ series, labels, zeroBase = true }: TrendLineCha
             <line x1={PAD_L} y1={yFor(gv)} x2={W - PAD_R} y2={yFor(gv)} className="trend-chart-grid" />
             <text x={PAD_L - 6} y={yFor(gv) + 3.5} textAnchor="end" className="trend-chart-axis">
               {Math.round(gv)}
+              {unit}
             </text>
           </g>
         ))}
@@ -76,6 +78,7 @@ export function TrendLineChart({ series, labels, zeroBase = true }: TrendLineCha
                   <circle cx={xFor(lastIndex)} cy={yFor(lastValue)} r={3.4} fill={s.color} className="trend-chart-dot" />
                   <text x={xFor(lastIndex)} y={yFor(lastValue) - 9} textAnchor="end" className="trend-chart-endlabel" fill={s.color}>
                     {lastValue}
+                    {unit}
                   </text>
                 </>
               ) : null}
@@ -83,13 +86,23 @@ export function TrendLineChart({ series, labels, zeroBase = true }: TrendLineCha
           );
         })}
 
-        {labels.map((label, i) =>
-          i % xStep === 0 || i === n - 1 ? (
-            <text key={i} x={xFor(i)} y={H - 6} textAnchor="middle" className="trend-chart-axis">
+        {labels.map((label, i) => {
+          const isLast = i === n - 1;
+          if (!(i % xStep === 0 || isLast)) return null;
+          const previousTick = Math.floor((n - 1) / xStep) * xStep;
+          if (isLast && i !== previousTick && i - previousTick < xStep / 2) return null;
+          return (
+            <text
+              key={i}
+              x={xFor(i)}
+              y={H - 6}
+              textAnchor={isLast ? "end" : i === 0 ? "start" : "middle"}
+              className="trend-chart-axis"
+            >
               {label}
             </text>
-          ) : null
-        )}
+          );
+        })}
 
         {hoverIndex != null ? (
           <line x1={xFor(hoverIndex)} y1={PAD_T} x2={xFor(hoverIndex)} y2={PAD_T + PLOT_H} className="trend-chart-crosshair" />
@@ -115,7 +128,7 @@ export function TrendLineChart({ series, labels, zeroBase = true }: TrendLineCha
           {series.map((s) => (
             <div key={s.key} className="trend-chart-tooltip-row">
               <span className="trend-chart-tooltip-dot" style={{ background: s.color }} />
-              {s.name}: <strong>{s.values[hoverIndex] ?? "—"}</strong>
+              {s.name}: <strong>{s.values[hoverIndex] ?? "—"}{s.values[hoverIndex] == null ? "" : unit}</strong>
             </div>
           ))}
         </div>

@@ -8,8 +8,18 @@
     "loading": "Loading dashboard",
     "loadError": "Couldn't load the data",
     "retry": "Retry",
-    "periods": { "day": "Day", "week": "Week", "month": "Month", "year": "Year" },
-    "periodNoun": { "day": "day", "week": "week", "month": "month", "year": "year" },
+    "periods": {
+      "day": "Day",
+      "week": "Week",
+      "month": "Month",
+      "year": "Year"
+    },
+    "periodNoun": {
+      "day": "day",
+      "week": "week",
+      "month": "month",
+      "year": "year"
+    },
     "kpi": {
       "activeStudents": "Active students",
       "activeTeachers": "Active teachers",
@@ -80,6 +90,32 @@
     "noPending": "No teachers awaiting approval.",
     "allEyebrow": "ALL",
     "allTitle": "All teachers",
-    "noTeachers": "No teachers found."
+    "noTeachers": "No teachers found.",
+    "viewLabel": "View",
+    "viewPending": "Awaiting approval ({{count}})",
+    "viewAll": "All teachers ({{count}})"
+  },
+  "storage": {
+    "eyebrow": "STORAGE",
+    "title": "Video recordings",
+    "loading": "Loading",
+    "totalVideos": "{{count}} videos in total",
+    "teacher": "Teacher",
+    "videoCount": "Videos",
+    "empty": "No recordings yet."
+  },
+  "monitoring": {
+    "eyebrow": "SERVER",
+    "title": "Server health",
+    "scopeNote": "CPU and RAM of the backend container only.",
+    "loading": "Loading samples",
+    "cpu": "CPU",
+    "memory": "Memory",
+    "memoryUsed": "Memory used",
+    "measuredAt": "Last sample",
+    "noSamples": "No samples yet.",
+    "hours": "{{count}}h",
+    "peakLabel": "Busiest moment",
+    "pointNote": "{{count}} points"
   }
 }
