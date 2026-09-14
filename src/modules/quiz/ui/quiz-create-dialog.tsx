@@ -7,6 +7,7 @@ import { DatePicker, SelectPicker } from "@/shared/ui/legacy/form-pickers";
 // yopilgan maydon:
 import type { QuizFormValues, QuizImportWarning } from "@/shared/types";
 import { useDownloadQuizTemplate, useImportQuizDocx } from "../model/quiz.queries";
+import { QuizPreview } from "./quiz-preview";
 
 interface QuizOptionDraft {
   key: string;
@@ -299,7 +300,8 @@ export function AddQuizDialog({
         ) : null}
         {error ? <div className="form-alert quiz-page-alert">{error}</div> : null}
 
-        <form id="quiz-questions-form" className="quiz-page-body" onSubmit={submit}>
+        <div className="quiz-page-split">
+          <form id="quiz-questions-form" className="quiz-page-body" onSubmit={submit}>
           {questions.map((question, index) => (
             <div key={question.key} className="quiz-page-question">
               <div className="quiz-page-question-head">
@@ -350,7 +352,10 @@ export function AddQuizDialog({
               </div>
             </div>
           ))}
-        </form>
+          </form>
+
+          <QuizPreview title={title} description={description} questions={questions} />
+        </div>
       </div>
     );
   }
