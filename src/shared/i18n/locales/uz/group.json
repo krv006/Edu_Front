@@ -22,6 +22,7 @@
     "title": "Vazifalar",
     "subtitle": "Topshiriqlar va AI natijalarini boshqaring.",
     "addAssignment": "Vazifa berish",
+    "addQuiz": "Test yaratish",
     "dueLabel": "Muddat: {{date}}",
     "noDue": "Muddat belgilanmagan",
     "submissionsCount": "{{count}} topshirilgan",

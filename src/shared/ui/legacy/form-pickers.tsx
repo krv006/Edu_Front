@@ -8,6 +8,8 @@ import {
   type ComponentType,
   type ReactNode,
   type RefObject,
+  type TouchEvent as ReactTouchEvent,
+  type WheelEvent as ReactWheelEvent,
 } from "react";
 import { createPortal } from "react-dom";
 import { FocusScope } from "@radix-ui/react-focus-scope";
@@ -60,6 +62,7 @@ interface PanelPosition {
   left: number;
   top: number;
   width: number;
+  maxHeight: number;
   origin: "top" | "bottom";
 }
 
@@ -72,9 +75,24 @@ interface FloatingPickerProps {
   className?: string;
 }
 
+function findScroller(from: Element | null, limit: HTMLElement): HTMLElement | null {
+  let node: Element | null = from;
+  while (node && node !== limit.parentElement) {
+    if (node instanceof HTMLElement) {
+      const overflow = getComputedStyle(node).overflowY;
+      if ((overflow === "auto" || overflow === "scroll") && node.scrollHeight > node.clientHeight) {
+        return node;
+      }
+    }
+    node = node.parentElement;
+  }
+  return null;
+}
+
 function FloatingPicker({ open, onClose, anchorRef, children, labelledBy, className = "" }: FloatingPickerProps) {
   const panelRef = useRef<HTMLDivElement>(null);
-  const [position, setPosition] = useState<PanelPosition>({ left: 12, top: 12, width: 320, origin: "top" });
+  const touchYRef = useRef<number | null>(null);
+  const [position, setPosition] = useState<PanelPosition>({ left: 12, top: 12, width: 320, maxHeight: 390, origin: "top" });
 
   useLayoutEffect(() => {
     if (!open || !anchorRef.current) return undefined;
@@ -83,15 +101,24 @@ function FloatingPicker({ open, onClose, anchorRef, children, labelledBy, classN
       const anchor = anchorRef.current?.getBoundingClientRect();
       if (!anchor) return;
       const viewportPadding = 12;
+      const gap = 8;
+      const minPanel = 220;
       const width = Math.min(Math.max(anchor.width, 310), window.innerWidth - viewportPadding * 2);
-      const estimatedHeight = panelRef.current?.offsetHeight ?? 390;
-      const roomBelow = window.innerHeight - anchor.bottom - viewportPadding;
-      const placeAbove = roomBelow < Math.min(estimatedHeight, 390) && anchor.top > roomBelow;
       const left = Math.min(Math.max(viewportPadding, anchor.left), window.innerWidth - width - viewportPadding);
-      const top = placeAbove
-        ? Math.max(viewportPadding, anchor.top - estimatedHeight - 8)
-        : Math.min(anchor.bottom + 8, window.innerHeight - estimatedHeight - viewportPadding);
-      setPosition({ left, top: Math.max(viewportPadding, top), width, origin: placeAbove ? "bottom" : "top" });
+
+      const roomBelow = window.innerHeight - anchor.bottom - gap - viewportPadding;
+      const roomAbove = anchor.top - gap - viewportPadding;
+      const placeAbove = roomBelow < minPanel && roomAbove > roomBelow;
+
+      const room = Math.max(placeAbove ? roomAbove : roomBelow, minPanel);
+      const maxHeight = Math.min(room, window.innerHeight - viewportPadding * 2);
+      const rawTop = placeAbove ? anchor.top - gap - maxHeight : anchor.bottom + gap;
+      const top = Math.min(
+        Math.max(viewportPadding, rawTop),
+        Math.max(viewportPadding, window.innerHeight - viewportPadding - maxHeight)
+      );
+
+      setPosition({ left, top, width, maxHeight, origin: placeAbove ? "bottom" : "top" });
     }
 
     placePanel();
@@ -127,6 +154,32 @@ function FloatingPicker({ open, onClose, anchorRef, children, labelledBy, classN
     };
   }, [anchorRef, onClose, open]);
 
+  function isScrollLocked() {
+    return document.body.hasAttribute("data-scroll-locked");
+  }
+
+  function handleWheel(event: ReactWheelEvent<HTMLDivElement>) {
+    if (!panelRef.current || !isScrollLocked()) return;
+    const scroller = findScroller(event.target as Element, panelRef.current);
+    if (!scroller) return;
+    scroller.scrollTop += event.deltaY;
+    event.preventDefault();
+  }
+
+  function handleTouchStart(event: ReactTouchEvent<HTMLDivElement>) {
+    touchYRef.current = event.touches[0]?.clientY ?? null;
+  }
+
+  function handleTouchMove(event: ReactTouchEvent<HTMLDivElement>) {
+    const start = touchYRef.current;
+    const current = event.touches[0]?.clientY;
+    if (start === null || current === undefined || !panelRef.current || !isScrollLocked()) return;
+    const scroller = findScroller(event.target as Element, panelRef.current);
+    if (!scroller) return;
+    scroller.scrollTop += start - current;
+    touchYRef.current = current;
+  }
+
   if (typeof document === "undefined") return null;
 
   return createPortal(
@@ -143,7 +196,16 @@ function FloatingPicker({ open, onClose, anchorRef, children, labelledBy, classN
           className={`form-picker-popover ${className}`}
           role="dialog"
           aria-labelledby={labelledBy}
-          style={{ left: position.left, top: position.top, width: position.width, transformOrigin: position.origin }}
+          onWheel={handleWheel}
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          style={{
+            left: position.left,
+            top: position.top,
+            width: position.width,
+            maxHeight: position.maxHeight,
+            transformOrigin: position.origin,
+          }}
           initial={{ opacity: 0, y: position.origin === "top" ? -8 : 8, scale: 0.96 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
           exit={{ opacity: 0, y: position.origin === "top" ? -5 : 5, scale: 0.97 }}

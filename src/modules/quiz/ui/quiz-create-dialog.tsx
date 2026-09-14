@@ -1,8 +1,9 @@
 import { useRef, useState, type ChangeEvent, type FormEvent } from "react";
 import { motion } from "framer-motion";
-import { Download, FileUp, X } from "lucide-react";
+import { CalendarDays, Download, FileUp, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Button, Dialog, DialogContent } from "@/shared/ui/legacy";
+import { DatePicker, SelectPicker } from "@/shared/ui/legacy/form-pickers";
 // yopilgan maydon:
 import type { QuizFormValues, QuizImportWarning } from "@/shared/types";
 import { useDownloadQuizTemplate, useImportQuizDocx } from "../model/quiz.queries";
@@ -25,7 +26,8 @@ export interface AddQuizDialogProps {
   onOpenChange: (open: boolean) => void;
   onCreate: (values: QuizFormValues) => void;
   courses: Array<{ id: string; title: string }>;
-  lessonId?: string;
+  showSchedule?: boolean;
+  lessonOptions?: ReadonlyArray<{ id: string; title: string }>;
 }
 
 const DEFAULT_OPTION_COUNT = 4;
@@ -48,7 +50,14 @@ function emptyQuestion(key: string, optionKeys: string[]): QuizQuestionDraft {
   };
 }
 
-export function AddQuizDialog({ open, onOpenChange, onCreate, courses, lessonId: initialLessonId = "" }: AddQuizDialogProps) {
+export function AddQuizDialog({
+  open,
+  onOpenChange,
+  onCreate,
+  courses,
+  showSchedule = false,
+  lessonOptions,
+}: AddQuizDialogProps) {
   const { t } = useTranslation("quiz");
   const nextKey = useRef(0);
   function newKey() {
@@ -70,7 +79,7 @@ export function AddQuizDialog({ open, onOpenChange, onCreate, courses, lessonId:
   const courseId = courses[0]?.id ?? "";
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [lessonId, setLessonId] = useState(initialLessonId);
+  const [lessonId, setLessonId] = useState("");
   const [dueAt, setDueAt] = useState("");
   const [opensAt, setOpensAt] = useState("");
   const [questions, setQuestions] = useState<QuizQuestionDraft[]>([]);
@@ -118,7 +127,7 @@ export function AddQuizDialog({ open, onOpenChange, onCreate, courses, lessonId:
     setStep("details");
     setTitle("");
     setDescription("");
-    setLessonId(initialLessonId);
+    setLessonId("");
     setDueAt("");
     setOpensAt("");
     setQuestions([]);
@@ -389,33 +398,37 @@ export function AddQuizDialog({ open, onOpenChange, onCreate, courses, lessonId:
             />
           </label>
 
-          {/* yopilgan maydon — Topshirish muddati / Ochilish vaqti:
-          <div className="form-grid-two">
-            <DatePicker
-              label={t("createDialog.dueLabel")}
-              value={dueAt}
-              onChange={setDueAt}
-              includeTime
-              optional
+          {showSchedule ? (
+            <div className="form-grid-two">
+              <DatePicker
+                label={t("createDialog.dueLabel")}
+                value={dueAt}
+                onChange={setDueAt}
+                includeTime
+                optional
+              />
+              <DatePicker
+                label={t("createDialog.opensLabel")}
+                value={opensAt}
+                onChange={setOpensAt}
+                includeTime
+                optional
+              />
+            </div>
+          ) : null}
+
+          {lessonOptions?.length ? (
+            <SelectPicker
+              label={t("createDialog.lessonLabel")}
+              icon={CalendarDays}
+              value={lessonId}
+              onChange={setLessonId}
+              options={[
+                { value: "", label: t("createDialog.notLinkedToLesson") },
+                ...lessonOptions.map((lesson) => ({ value: lesson.id, label: lesson.title })),
+              ]}
             />
-            <DatePicker
-              label={t("createDialog.opensLabel")}
-              value={opensAt}
-              onChange={setOpensAt}
-              includeTime
-              optional
-            />
-          </div>
-          */}
-          {/* yopilgan maydon — Qaysi dars uchun:
-          <SelectPicker
-            label={t("createDialog.lessonLabel")}
-            icon={CalendarDays}
-            value={lessonId}
-            onChange={setLessonId}
-            options={lessonOptions}
-          />
-          */}
+          ) : null}
 
           <div className="quiz-template-gen">
             <label>

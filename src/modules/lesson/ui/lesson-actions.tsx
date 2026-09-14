@@ -1,4 +1,4 @@
-import { FileQuestion, Pencil, PlayCircle, Star, Trash2, Video } from "lucide-react";
+import { Pencil, PlayCircle, Star, Trash2, Video } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import type { Lesson } from "@/shared/types";
 import { Button } from "@/shared/ui/legacy";
@@ -13,7 +13,6 @@ export interface LessonActionsProps {
   onRatings?: (lesson: Lesson) => void;
   onRecording?: (lesson: Lesson) => void;
   onRate?: (lesson: Lesson) => void;
-  onCreateQuiz?: (lesson: Lesson) => void;
   compact?: boolean;
 }
 
@@ -26,7 +25,6 @@ export function LessonActions({
   onRatings,
   onRecording,
   onRate,
-  onCreateQuiz,
   compact = false,
 }: LessonActionsProps) {
   const { t } = useTranslation("lesson");
@@ -86,16 +84,6 @@ export function LessonActions({
         </Button>
       ) : null}
 
-      {onCreateQuiz ? (
-        <button
-          className="icon-button"
-          onClick={() => onCreateQuiz(lesson)}
-          aria-label={t("actions.createQuizAria")}
-          title={t("actions.createQuiz")}
-        >
-          <FileQuestion size={16} />
-        </button>
-      ) : null}
       {onEdit && isLessonEditable(lesson) ? (
         <button className="icon-button" onClick={() => onEdit(lesson)} aria-label={t("actions.editAria")}>
           <Pencil size={16} />
