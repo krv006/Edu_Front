@@ -57,8 +57,17 @@ export function AddQuizDialog({ open, onOpenChange, onCreate, courses, lessonId:
   }
 
   const [step, setStep] = useState<"details" | "questions">("details");
-  // yopilgan maydon: tanlagich yo'q, shuning uchun faqat o'qish qoldi.
-  const [courseId] = useState(() => courses[0]?.id ?? "");
+  // yopilgan maydon: tanlagich yo'q, shuning uchun o'qituvchining birinchi
+  // kursi avtomatik tanlanadi. Bu qiymat har renderda `courses` propidan
+  // qayta hisoblanadi (state emas) — shu sabab dialog `courses` hali bo'sh
+  // massiv bo'lgan paytda mount bo'lsa ham (API yuklanishi tugamagan),
+  // ma'lumot kelgach to'g'ri kurs avtomatik ishlatiladi. Oldin bu
+  // `useState(() => courses[0]?.id ?? "")` bilan qilingan edi — lazy
+  // initializer faqat BIRINCHI render'da baholanadi va `courses` mount
+  // paytida bo'sh bo'lsa, qiymat abadiy bo'sh qatorda qotib qolardi,
+  // tanlagich yo'qligi sababli buni tuzatib bo'lmasdi — natijada "Kursni
+  // tanlang" xatosi bilan test umuman yaratilmasdi.
+  const courseId = courses[0]?.id ?? "";
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [lessonId, setLessonId] = useState(initialLessonId);
