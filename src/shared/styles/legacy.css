@@ -687,6 +687,7 @@ button:disabled {
   display: flex;
   flex-direction: column;
   overflow: hidden;
+  container-type: inline-size;
 }
 
 .conversation-filter-pills {
@@ -4372,8 +4373,21 @@ a.workspace-card:hover {
   align-items: center;
   gap: 8px;
 }
-.panel-topbar .panel-account {
+.panel-role-badge {
+  flex: 0 0 auto;
   margin-left: auto;
+  padding: 5px 10px;
+  border: 1px solid var(--border-accent);
+  border-radius: var(--r-full);
+  color: var(--accent-foreground);
+  background: var(--primary-tint);
+  font-size: var(--fs-2xs);
+  font-weight: 800;
+  white-space: nowrap;
+}
+@container (max-width: 356px) {
+  .panel-role-badge { display: none; }
+  .panel-topbar .panel-account { margin-left: auto; }
 }
 .panel-search-button {
   min-width: 0;
