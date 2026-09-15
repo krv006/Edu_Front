@@ -22,7 +22,7 @@ export const quizApi = {
   async getAll(courseId: string | null, options: RequestOptions = {}) {
     const dto = await apiClient.get<unknown>(quizEndpoints.list, {
       ...options,
-      query: { course: courseId },
+      query: { course: courseId, ordering: "-created_at", page_size: 200 },
     });
     return normalizePagination<QuizSummaryDto>(dto).items.map(mapQuizSummaryDto);
   },

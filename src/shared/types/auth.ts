@@ -29,6 +29,7 @@ export interface AuthUser {
   status: string;
   avgRating: number | null;
   ratingCount: number | null;
+  isApproved: boolean | null;
   certificates: Certificate[];
   preferredLanguage: string;
   lessonReminderMinutes: number | null;
