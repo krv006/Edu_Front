@@ -78,9 +78,36 @@ export interface BoardStateDto {
   size?: [number, number];
   subject?: string;
   math_enabled?: boolean;
+  chemistry_enabled?: boolean;
   away_students?: Array<{ student_id: string | number; name: string }>;
   pending_mic_requests?: Array<{ student_id: string | number; name: string }>;
   pending_camera_requests?: Array<{ student_id: string | number; name: string }>;
+}
+
+export interface PeriodicElementDto {
+  z: number;
+  symbol: string;
+  name: string;
+  mass?: number | string | null;
+  shells?: number[] | null;
+  valence?: number | number[] | string | null;
+  category?: string | null;
+  period?: number | null;
+  group?: number | null;
+  appearance?: string | null;
+}
+
+export interface PeriodicElement {
+  z: number;
+  symbol: string;
+  name: string;
+  mass: string;
+  shells: number[];
+  valence: string;
+  category: string;
+  period: number | null;
+  group: number | null;
+  appearance: string;
 }
 
 export interface FormulaSolutionDto {
@@ -117,6 +144,7 @@ export interface BoardState {
   height: number;
   subject: string;
   mathEnabled: boolean;
+  chemistryEnabled: boolean;
   awayStudents: AwayStudent[];
   pendingMicRequests: PendingMicRequest[];
   pendingCameraRequests: PendingCameraRequest[];

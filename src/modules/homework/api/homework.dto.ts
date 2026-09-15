@@ -61,6 +61,7 @@ export interface AssignmentDto {
   course_id: string | number;
   course_title: string;
   subject: string;
+  subject_label?: string;
   title: string;
   description?: string;
   body?: string;

@@ -14,6 +14,7 @@ import type {
   CourseFormInput,
   CourseStudentSearchDto,
   EnrollmentAction,
+  SubjectOptionDto,
   EnrollmentDto,
   EnrollPayload,
 } from "./course.dto";
@@ -36,6 +37,10 @@ export const courseApi = {
   },
   async getCatalog(options: RequestOptions = {}) {
     return mapCoursePage(await apiClient.get(courseEndpoints.catalog, options), options.query);
+  },
+  async getSubjects(options: RequestOptions = {}) {
+    const payload = await apiClient.get<unknown>(courseEndpoints.subjects, options);
+    return normalizePagination<SubjectOptionDto>(payload).items.filter((item) => item?.value);
   },
   async getById(id: string, options?: RequestOptions) {
     return mapCourseDto(await apiClient.get<CourseDto>(courseEndpoints.detail(id), options));

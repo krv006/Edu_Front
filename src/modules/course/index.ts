@@ -7,6 +7,7 @@ export type {
   EnrollmentAction,
   EnrollmentDto,
   EnrollPayload,
+  SubjectOptionDto,
 } from "./api/course.dto";
 export { mapCourseDto, mapCoursePage, mapCourseRequest, mapCourseUserDto, mapEnrollmentDto } from "./lib/course.mappers";
 export {
@@ -24,6 +25,7 @@ export {
   useEnrollStudent,
   useRespondCourseRequest,
   useSearchCourseStudents,
+  useSubjects,
   useUnenrollStudent,
   useUpdateCourse,
 } from "./model/course.queries";

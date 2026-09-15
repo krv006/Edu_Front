@@ -48,6 +48,7 @@ export interface Conversation {
   memberCount: number;
   imageUrl: string | null;
   subject?: string;
+  subjectLabel?: string;
   description?: string;
 }
 
@@ -98,6 +99,7 @@ export interface Course {
   id: string;
   title: string;
   subject: string;
+  subjectLabel: string;
   description: string;
   teacher: string;
   teacherUser: DomainUser | null;

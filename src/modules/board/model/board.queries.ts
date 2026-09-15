@@ -6,6 +6,7 @@ import type { StrokeInput } from "../api/board.dto";
 export const boardKeys = Object.freeze({
   all: ["board"] as const,
   state: (id: string) => ["board", id] as const,
+  periodicTable: ["board", "periodic-table"] as const,
 });
 
 const FALLBACK_POLL_MS = 2000;
@@ -19,12 +20,35 @@ export function useBoard(lessonId: string, { enabled = true, live = false } = {}
   });
 }
 
+export function usePeriodicTable(enabled = true) {
+  return useQuery({
+    queryKey: boardKeys.periodicTable,
+    queryFn: ({ signal }) => boardApi.getPeriodicTable({ signal }),
+    staleTime: Infinity,
+    enabled,
+  });
+}
+
 export function useAddStroke(lessonId: string) {
   const client = useQueryClient();
   return useMutation({
     mutationFn: ({ sheet, stroke }: { sheet: number; stroke: StrokeInput }) =>
       boardApi.addStroke(lessonId, sheet, stroke),
     onSuccess: () => client.invalidateQueries({ queryKey: boardKeys.state(lessonId) }),
+  });
+}
+
+export function useAddStrokes(lessonId: string) {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ sheet, strokes }: { sheet: number; strokes: StrokeInput[] }) => {
+      for (const stroke of strokes) {
+        await boardApi.addStroke(lessonId, sheet, stroke);
+      }
+      return strokes.length;
+    },
+    onSuccess: () => client.invalidateQueries({ queryKey: boardKeys.state(lessonId) }),
+    onError: (error: Error) => toast.error(error.message),
   });
 }
 

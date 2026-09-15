@@ -13,7 +13,8 @@ export function mapCourseDto(dto: CourseDto): Course {
   return {
     id: String(dto.id),
     title: dto.title,
-    subject: dto.subject || "Umumiy",
+    subject: dto.subject || "",
+    subjectLabel: dto.subject_label || dto.subject || "",
     description: dto.description || "",
     teacher:
       [teacher.first_name, teacher.last_name].filter(Boolean).join(" ") ||

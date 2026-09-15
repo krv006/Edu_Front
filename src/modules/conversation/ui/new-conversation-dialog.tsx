@@ -1,14 +1,15 @@
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Sparkles } from "lucide-react";
+import { GraduationCap, Sparkles } from "lucide-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { conversationApi, conversationKeys } from "@/modules/conversation";
-import { useCourseRequests, useRespondCourseRequest } from "@/modules/course";
+import { useCourseRequests, useRespondCourseRequest, useSubjects } from "@/modules/course";
 import type { Conversation } from "@/shared/types";
 import { Button, Dialog, DialogContent } from "@/shared/ui/legacy";
+import { SelectPicker } from "@/shared/ui/legacy/form-pickers";
 
 interface GroupDraft {
   name: string;
@@ -27,6 +28,7 @@ export function NewConversationDialog({ open, onOpenChange }: NewConversationDia
   const navigate = useNavigate();
   const client = useQueryClient();
   const requests = useCourseRequests({ page_size: 20 }, open);
+  const subjects = useSubjects(open);
   const respond = useRespondCourseRequest();
   const create = useMutation({
     mutationFn: conversationApi.createGroup.bind(conversationApi),
@@ -105,14 +107,13 @@ export function NewConversationDialog({ open, onOpenChange }: NewConversationDia
                   placeholder={t("newDialog.courseNamePlaceholder")}
                 />
               </label>
-              <label>
-                {t("newDialog.subjectLabel")}
-                <input
-                  value={group.subject}
-                  onChange={(event) => update("subject", event.target.value)}
-                  placeholder={t("newDialog.subjectPlaceholder")}
-                />
-              </label>
+              <SelectPicker
+                label={t("newDialog.subjectLabel")}
+                icon={GraduationCap}
+                value={group.subject}
+                onChange={(value) => update("subject", value)}
+                options={(subjects.data ?? []).map((item) => ({ value: item.value, label: item.label }))}
+              />
               <label>
                 {t("newDialog.descriptionLabel")}
                 <textarea

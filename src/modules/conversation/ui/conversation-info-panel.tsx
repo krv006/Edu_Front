@@ -1,15 +1,16 @@
 import { useRef, useState, type FormEvent } from "react";
-import { Bell, BellOff, Camera, Check, Copy, Loader2, Pencil, ShieldAlert, Trash2, UserRound } from "lucide-react";
+import { Bell, BellOff, Camera, Check, Copy, GraduationCap, Loader2, Pencil, ShieldAlert, Trash2, UserRound } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { storage } from "@/shared/lib";
 import { useAuth } from "@/modules/auth";
-import { CourseMembersSection, useCourse, useDeleteCourse, useUpdateCourse } from "@/modules/course";
+import { CourseMembersSection, useCourse, useDeleteCourse, useSubjects, useUpdateCourse } from "@/modules/course";
 import { DIRECT_STATUS, useDirectStatusLabel, useRespondDirect, useSetRoomImage } from "@/modules/conversation";
 import type { CourseFormInput } from "@/modules/course";
 import type { Conversation } from "@/shared/types";
 import { Avatar, Button, Dialog, DialogContent } from "@/shared/ui/legacy";
+import { SelectPicker } from "@/shared/ui/legacy/form-pickers";
 import type { DirectAction } from "../api/conversation.dto";
 
 export interface ConversationInfoPanelProps {
@@ -28,6 +29,7 @@ export function ConversationInfoPanel({ conversation, open, onOpenChange }: Conv
   const [muted, setMuted] = useState(() => storage.get(muteKey) === "true");
   const [copied, setCopied] = useState(false);
   const [editOpen, setEditOpen] = useState(false);
+  const subjects = useSubjects(editOpen);
   const [deleteOpen, setDeleteOpen] = useState(false);
   const [courseForm, setCourseForm] = useState<CourseFormInput>({ title: "", subject: "", description: "" });
   const course = useCourse(open ? conversation.courseId : null);
@@ -104,7 +106,11 @@ export function ConversationInfoPanel({ conversation, open, onOpenChange }: Conv
             className="info-sheet"
             motionPreset="right-sheet"
             title={conversation.title}
-            description={isGroup ? conversation.subject || t("info.groupSubjectFallback") : t("info.profileInfo")}
+            description={
+              isGroup
+                ? conversation.subjectLabel || conversation.subject || t("info.groupSubjectFallback")
+                : t("info.profileInfo")
+            }
           >
             <div className="info-profile">
               <span className="info-avatar-slot">
@@ -232,15 +238,13 @@ export function ConversationInfoPanel({ conversation, open, onOpenChange }: Conv
                   />
                 </div>
               </label>
-              <label className="field-group">
-                <span>{t("info.subject")}</span>
-                <div className="input-shell">
-                  <input
-                    value={courseForm.subject}
-                    onChange={(event) => setCourseForm((value) => ({ ...value, subject: event.target.value }))}
-                  />
-                </div>
-              </label>
+              <SelectPicker
+                label={t("info.subject")}
+                icon={GraduationCap}
+                value={courseForm.subject ?? ""}
+                onChange={(value) => setCourseForm((current) => ({ ...current, subject: value }))}
+                options={(subjects.data ?? []).map((item) => ({ value: item.value, label: item.label }))}
+              />
               <label className="field-group">
                 <span>{t("info.description")}</span>
                 <textarea

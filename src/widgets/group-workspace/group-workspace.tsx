@@ -122,6 +122,7 @@ export function GroupWorkspace({
     ...conversation,
     title: course.data?.title ?? conversation.title,
     subject: course.data?.subject,
+    subjectLabel: course.data?.subjectLabel,
     description: course.data?.description,
     memberCount: course.data?.studentCount ?? 0,
   };
