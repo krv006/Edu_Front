@@ -4886,6 +4886,9 @@ a.workspace-card:hover {
 .dialog-tabs button:hover { color: var(--foreground); }
 .dialog-tabs button.is-active { color: var(--primary-foreground); background: var(--primary); }
 
+.schedule-past-warning { margin: 0; padding: 10px 12px; border: 1px solid var(--destructive-soft-border); border-radius: var(--r-sm); color: var(--destructive-strong); background: var(--destructive-soft); font-size: var(--fs-xs); font-weight: 700; }
+.calendar-days button.is-blocked { opacity: .3; cursor: not-allowed; }
+.schedule-topic-note { margin: -2px 0 0; padding: 9px 11px; border-radius: var(--r-sm); color: var(--primary-text); background: var(--primary-tint); font-size: var(--fs-xs); font-weight: 650; }
 .schedule-mode { padding: 3px; border: 1px solid var(--border); border-radius: var(--r-md); display: grid; grid-template-columns: 1fr 1fr; gap: 3px; background: var(--surface-subtle); }
 .schedule-mode button { min-height: 38px; border: 0; border-radius: var(--r-sm); display: inline-flex; gap: 6px; align-items: center; justify-content: center; color: var(--muted-foreground); background: transparent; font: inherit; font-size: var(--fs-sm); font-weight: 700; cursor: pointer; transition: color .16s, background .16s; }
 .schedule-mode button:hover { color: var(--foreground); }

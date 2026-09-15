@@ -350,9 +350,18 @@ interface CalendarGridProps {
   onChange: (dateValue: string) => void;
   viewDate: Date;
   onViewDateChange: (date: Date) => void;
+  minDate?: string;
+  maxDate?: string;
 }
 
-function CalendarGrid({ value, onChange, viewDate, onViewDateChange }: CalendarGridProps) {
+function CalendarGrid({
+  value,
+  onChange,
+  viewDate,
+  onViewDateChange,
+  minDate,
+  maxDate,
+}: CalendarGridProps) {
   const { t } = useTranslation("common");
   const months = t("formPickers.months", { returnObjects: true }) as string[];
   const weekdays = t("formPickers.weekdays", { returnObjects: true }) as string[];
@@ -401,11 +410,13 @@ function CalendarGrid({ value, onChange, viewDate, onViewDateChange }: CalendarG
           const inMonth = date.getMonth() === viewDate.getMonth();
           const isSelected = selected ? dateValue === toDateValue(selected) : false;
           const isToday = dateValue === todayValue;
+          const blocked = Boolean((minDate && dateValue < minDate) || (maxDate && dateValue > maxDate));
           return (
             <motion.button
               key={dateValue}
               type="button"
-              className={`${inMonth ? "" : "is-outside"}${isSelected ? " is-selected" : ""}${isToday ? " is-today" : ""}`}
+              disabled={blocked}
+              className={`${inMonth ? "" : "is-outside"}${isSelected ? " is-selected" : ""}${isToday ? " is-today" : ""}${blocked ? " is-blocked" : ""}`}
               onClick={() => onChange(dateValue)}
               aria-label={`${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}`}
               aria-pressed={isSelected}
@@ -647,9 +658,19 @@ export interface DatePickerProps {
   onChange: (value: string) => void;
   includeTime?: boolean;
   optional?: boolean;
+  minDate?: string;
+  maxDate?: string;
 }
 
-export function DatePicker({ label, value, onChange, includeTime = false, optional = false }: DatePickerProps) {
+export function DatePicker({
+  label,
+  value,
+  onChange,
+  includeTime = false,
+  optional = false,
+  minDate,
+  maxDate,
+}: DatePickerProps) {
   const { t } = useTranslation("common");
   const months = t("formPickers.months", { returnObjects: true }) as string[];
   const [open, setOpen] = useState(false);
@@ -692,7 +713,14 @@ export function DatePicker({ label, value, onChange, includeTime = false, option
         labelledBy={labelId}
         className={includeTime ? "datetime-picker-popover" : "date-picker-popover"}
       >
-        <CalendarGrid value={value} onChange={selectDate} viewDate={viewDate} onViewDateChange={setViewDate} />
+        <CalendarGrid
+          value={value}
+          onChange={selectDate}
+          viewDate={viewDate}
+          onViewDateChange={setViewDate}
+          minDate={minDate}
+          maxDate={maxDate}
+        />
         {includeTime ? (
           <div className="datetime-time-section">
             <div className="picker-section-title">
@@ -720,6 +748,10 @@ export function DatePicker({ label, value, onChange, includeTime = false, option
           <button
             type="button"
             className="picker-today"
+            disabled={Boolean(
+              (minDate && toDateValue(new Date()) < minDate) ||
+                (maxDate && toDateValue(new Date()) > maxDate)
+            )}
             onClick={() => {
               selectDate(toDateValue(new Date()));
               setViewDate(new Date());
