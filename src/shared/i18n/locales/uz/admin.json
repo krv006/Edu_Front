@@ -81,13 +81,19 @@
   "teachers": {
     "eyebrow": "ADMINISTRATOR",
     "title": "O'qituvchilar",
-    "subtitle": "Reyting va faoliyat ko'rsatkichlari.",
+    "subtitle": "Reyting va tasdiqlash holati.",
     "backToDashboard": "Boshqaruv paneli",
+    "pendingEyebrow": "TASDIQLANISHI KERAK",
+    "pendingTitle": "Yangi o'qituvchilar",
     "loading": "Yuklanmoqda",
+    "approve": "Tasdiqlash",
+    "noPending": "Tasdiqlanishi kerak bo'lgan o'qituvchi yo'q.",
     "allEyebrow": "BARCHASI",
     "allTitle": "Barcha o'qituvchilar",
     "noTeachers": "O'qituvchi topilmadi.",
-    "countLabel": "{{count}} ta o'qituvchi"
+    "viewLabel": "Ko'rinish",
+    "viewPending": "Tasdiqlanishi kerak ({{count}})",
+    "viewAll": "Barcha o'qituvchilar ({{count}})"
   },
   "storage": {
     "eyebrow": "SAQLASH",

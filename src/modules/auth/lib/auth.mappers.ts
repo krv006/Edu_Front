@@ -69,6 +69,7 @@ export function mapUserDto(dto: unknown): AuthUser {
     status: "online",
     avgRating: parsed.avg_rating ?? null,
     ratingCount: parsed.rating_count ?? null,
+    isApproved: parsed.is_approved ?? null,
     certificates: parsed.certificates.map(mapCertificateDto),
     preferredLanguage: parsed.preferred_language,
     lessonReminderMinutes: parsed.lesson_reminder_minutes ?? null,

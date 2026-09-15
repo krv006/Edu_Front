@@ -4278,7 +4278,7 @@ a.workspace-card:hover {
   .mock-runner-bar { flex-wrap: wrap; }
 }
 
-.admin-teacher-count { flex: 0 0 auto; padding: 6px 12px; border-radius: var(--r-full); color: var(--primary-text); background: var(--primary-soft); font-size: var(--fs-2xs); font-weight: 800; }
+.admin-teacher-filter { flex: 0 0 auto; width: min(260px, 60%); }
 
 .storage-total { color: var(--primary-text); font-size: var(--fs-md); white-space: nowrap; }
 .monitoring-note { margin: 4px 0 0; font-size: var(--fs-xs); }

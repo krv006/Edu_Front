@@ -31,6 +31,7 @@ export const userDtoSchema = z.object({
   avatar: z.string().nullable().optional(),
   avg_rating: z.number().nullable().optional(),
   rating_count: z.number().nullable().optional(),
+  is_approved: z.boolean().nullable().optional(),
   certificates: z.array(certificateDtoSchema).optional().default([]),
   preferred_language: z.string().default("uz"),
   lesson_reminder_minutes: z.number().nullable().optional(),

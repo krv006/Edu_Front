@@ -1,13 +1,16 @@
-import { useEffect, useState } from "react";
-import { ArrowLeft, BarChart3, Users } from "lucide-react";
+import { useEffect, useState, type ReactNode } from "react";
+import { ArrowLeft, BarChart3, ShieldCheck, Users } from "lucide-react";
 import { Link, useSearchParams } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { useTeachers } from "@/modules/auth";
+import { useApproveTeacher, usePendingTeachers, useTeachers } from "@/modules/auth";
 import { RatingSummary } from "@/modules/lesson";
 import { ROUTES } from "@/shared/config";
 import type { AuthUser } from "@/shared/types";
-import { Avatar, LoadingFallback } from "@/shared/ui/legacy";
+import { Avatar, Button, LoadingFallback } from "@/shared/ui/legacy";
+import { SelectPicker } from "@/shared/ui/legacy/form-pickers";
 import { TeacherStatsDialog } from "./teacher-stats-dialog";
+
+type TeacherView = "pending" | "all";
 
 function useTeacherHighlight(teacherId: string | null, ready: boolean) {
   useEffect(() => {
@@ -20,9 +23,11 @@ function useTeacherHighlight(teacherId: string | null, ready: boolean) {
 
 function TeacherRow({
   teacher,
+  action,
   onStats,
 }: {
   teacher: AuthUser;
+  action?: ReactNode;
   onStats?: (teacher: AuthUser) => void;
 }) {
   const { t } = useTranslation("admin");
@@ -44,24 +49,29 @@ function TeacherRow({
           <BarChart3 size={16} />
         </button>
       ) : null}
+      {action}
     </article>
   );
 }
 
 export function AdminTeachersPage() {
   const { t } = useTranslation("admin");
+  const pending = usePendingTeachers();
   const teachers = useTeachers();
+  const approve = useApproveTeacher();
   const [statsTarget, setStatsTarget] = useState<AuthUser | null>(null);
   const [params] = useSearchParams();
   const highlightId = params.get("teacher");
-  useTeacherHighlight(highlightId, (teachers.data?.length ?? 0) > 0);
+  const [view, setView] = useState<TeacherView>("pending");
+  const query = view === "pending" ? pending : teachers;
+  useTeacherHighlight(highlightId, (query.data?.length ?? 0) > 0);
 
   return (
     <main className="portal-page admin-page">
       <div className="portal-page-heading">
         <div>
           <span className="portal-eyebrow">
-            <Users size={14} /> {t("teachers.eyebrow")}
+            <ShieldCheck size={14} /> {t("teachers.eyebrow")}
           </span>
           <h1>{t("teachers.title")}</h1>
           <p>{t("teachers.subtitle")}</p>
@@ -75,23 +85,57 @@ export function AdminTeachersPage() {
         <div className="portal-section-head">
           <div>
             <span>
-              <Users size={13} /> {t("teachers.allEyebrow")}
+              {view === "pending" ? <ShieldCheck size={13} /> : <Users size={13} />}{" "}
+              {view === "pending" ? t("teachers.pendingEyebrow") : t("teachers.allEyebrow")}
             </span>
-            <h2>{t("teachers.allTitle")}</h2>
+            <h2>{view === "pending" ? t("teachers.pendingTitle") : t("teachers.allTitle")}</h2>
           </div>
-          <span className="admin-teacher-count">
-            {t("teachers.countLabel", { count: teachers.data?.length ?? 0 })}
-          </span>
+          <div className="admin-teacher-filter">
+            <SelectPicker
+              hideLabel
+              label={t("teachers.viewLabel")}
+              icon={view === "pending" ? ShieldCheck : Users}
+              value={view}
+              onChange={(value) => setView(value as TeacherView)}
+              options={[
+                {
+                  value: "pending",
+                  label: t("teachers.viewPending", { count: pending.data?.length ?? 0 }),
+                },
+                {
+                  value: "all",
+                  label: t("teachers.viewAll", { count: teachers.data?.length ?? 0 }),
+                },
+              ]}
+            />
+          </div>
         </div>
 
-        {teachers.isLoading ? <LoadingFallback label={t("teachers.loading")} /> : null}
+        {query.isLoading ? <LoadingFallback label={t("teachers.loading")} /> : null}
 
         <div className="admin-teacher-list">
-          {(teachers.data ?? []).map((teacher) => (
-            <TeacherRow key={teacher.id} teacher={teacher} onStats={setStatsTarget} />
+          {(query.data ?? []).map((teacher) => (
+            <TeacherRow
+              key={teacher.id}
+              teacher={teacher}
+              onStats={setStatsTarget}
+              action={
+                view === "pending" ? (
+                  <Button
+                    size="sm"
+                    loading={approve.isPending && approve.variables === teacher.id}
+                    onClick={() => approve.mutate(teacher.id)}
+                  >
+                    {t("teachers.approve")}
+                  </Button>
+                ) : undefined
+              }
+            />
           ))}
-          {!teachers.isLoading && !teachers.data?.length ? (
-            <p className="portal-muted">{t("teachers.noTeachers")}</p>
+          {!query.isLoading && !query.data?.length ? (
+            <p className="portal-muted">
+              {view === "pending" ? t("teachers.noPending") : t("teachers.noTeachers")}
+            </p>
           ) : null}
         </div>
       </section>
