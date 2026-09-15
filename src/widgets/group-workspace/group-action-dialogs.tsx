@@ -83,14 +83,25 @@ function useWeekdayTranslations(): { labels: Record<number, string>; short: Reco
   };
 }
 
+function toDateValue(date: Date): string {
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${date.getFullYear()}-${month}-${day}`;
+}
+
 function todayString(): string {
-  return new Date().toISOString().slice(0, 10);
+  return toDateValue(new Date());
+}
+
+function nowTimeString(): string {
+  const now = new Date();
+  return `${String(now.getHours()).padStart(2, "0")}:${String(now.getMinutes()).padStart(2, "0")}`;
 }
 
 function monthLaterString(): string {
   const date = new Date();
   date.setMonth(date.getMonth() + 1);
-  return date.toISOString().slice(0, 10);
+  return toDateValue(date);
 }
 
 function useDateLabelFormatter(): Intl.DateTimeFormat {
@@ -115,7 +126,7 @@ export function AddLessonDialog({
   const weekdayText = useWeekdayTranslations();
   const [form, setForm] = useState<LessonDraft>(() => ({
     topic: initialValues?.topic ?? "",
-    date: initialValues?.date ?? "",
+    date: initialValues?.date ?? todayString(),
     time: initialValues?.time ?? "18:30",
     duration: String(initialValues?.durationMinutes ?? initialValues?.duration ?? "45"),
     quizId: initialValues?.quizId ?? "",
@@ -127,6 +138,14 @@ export function AddLessonDialog({
   const canRepeat = Boolean(onCreateSchedule) && !initialValues;
   const isRepeating = canRepeat && repeat;
   const duration = Number(form.duration) || 45;
+  const today = todayString();
+  const editingPast = Boolean(initialValues) && form.date < today;
+  const startsInPast =
+    !isRepeating &&
+    !editingPast &&
+    Boolean(form.date) &&
+    (form.date < today || (form.date === today && form.time < nowTimeString()));
+  const invalidRange = isRepeating && Boolean(range.to) && range.to < range.from;
 
   const dates = useMemo(
     () =>
@@ -162,7 +181,7 @@ export function AddLessonDialog({
   }
 
   function reset() {
-    setForm({ topic: "", date: "", time: "18:30", duration: "45", quizId: "" });
+    setForm({ topic: "", date: todayString(), time: "18:30", duration: "45", quizId: "" });
     setRepeat(false);
     setWeekdays([...ODD_WEEKDAYS]);
     setRange({ from: todayString(), to: monthLaterString() });
@@ -170,10 +189,10 @@ export function AddLessonDialog({
 
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!form.time) return;
+    if (!form.time || startsInPast) return;
 
     if (isRepeating) {
-      if (!dates.length) return;
+      if (!dates.length || invalidRange) return;
       onCreateSchedule?.({
         ...form,
         topic: "",
@@ -235,7 +254,10 @@ export function AddLessonDialog({
                   role="radio"
                   aria-checked={repeat}
                   className={repeat ? "is-active" : ""}
-                  onClick={() => setRepeat(true)}
+                  onClick={() => {
+                    setRepeat(true);
+                    update("topic", "");
+                  }}
                 >
                   <Repeat size={15} /> {t("dialogs.lesson.repeating")}
                 </button>
@@ -244,6 +266,7 @@ export function AddLessonDialog({
 
             {isRepeating ? (
               <>
+                <p className="schedule-topic-note">{t("dialogs.lesson.repeatingTopicNote")}</p>
                 <div className="field-block">
                   <span className="field-block-label">{t("dialogs.lesson.weekdaysLabel")}</span>
                   <div className="weekday-presets">
@@ -282,11 +305,18 @@ export function AddLessonDialog({
                   <DatePicker
                     label={t("dialogs.lesson.startDate")}
                     value={range.from}
-                    onChange={(value) => setRange((current) => ({ ...current, from: value }))}
+                    minDate={today}
+                    onChange={(value) =>
+                      setRange((current) => ({
+                        from: value,
+                        to: current.to && current.to < value ? value : current.to,
+                      }))
+                    }
                   />
                   <DatePicker
                     label={t("dialogs.lesson.endDate")}
                     value={range.to}
+                    minDate={range.from || today}
                     onChange={(value) => setRange((current) => ({ ...current, to: value }))}
                   />
                 </div>
@@ -294,10 +324,10 @@ export function AddLessonDialog({
             ) : (
               <div className="form-grid-two">
                 <DatePicker
-                  label={t("dialogs.lesson.dateOptional")}
+                  label={t("dialogs.lesson.dateLabel")}
                   value={form.date}
+                  minDate={editingPast ? undefined : today}
                   onChange={(value) => update("date", value)}
-                  optional
                 />
                 <TimePicker
                   label={t("dialogs.lesson.startTime")}
@@ -360,6 +390,12 @@ export function AddLessonDialog({
               </p>
             ) : null}
 
+            {startsInPast ? (
+              <p className="schedule-past-warning" role="alert">
+                {t("dialogs.lesson.pastTimeError", { time: nowTimeString() })}
+              </p>
+            ) : null}
+
             <ConflictNotice single={singleConflicts} schedule={scheduleConflicts} />
 
             <div className="dialog-actions">
@@ -372,7 +408,11 @@ export function AddLessonDialog({
               </Button>
               <Button
                 type="submit"
-                disabled={isRepeating ? !dates.length : !form.topic.trim()}
+                disabled={
+                  isRepeating
+                    ? !dates.length || invalidRange
+                    : !form.topic.trim() || startsInPast
+                }
               >
                 {initialValues
                   ? t("dialogs.lesson.saveChanges")
