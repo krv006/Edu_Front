@@ -4,6 +4,7 @@ export interface CourseDto {
   id: string | number;
   title: string;
   subject?: string;
+  subject_label?: string;
   description?: string;
   teacher?: UserDto;
   student_count?: number;
@@ -20,6 +21,11 @@ export interface EnrollmentDto {
   student?: UserDto;
   status: EnrollmentStatus;
   created_at: string;
+}
+
+export interface SubjectOptionDto {
+  value: string;
+  label: string;
 }
 
 export interface CourseStudentSearchDto extends UserDto {

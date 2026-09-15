@@ -66,5 +66,25 @@
   },
   "away": {
     "title": "Darsdan chiqqan"
+  },
+  "periodic": {
+    "button": "Davriy jadval",
+    "title": "Davriy jadval",
+    "description": "Elementni tanlang — tuzilishi va Bor modeli ko'rinadi.",
+    "loading": "Jadval yuklanmoqda",
+    "loadError": "Davriy jadvalni yuklab bo'lmadi",
+    "searchPlaceholder": "Element, belgi yoki raqam",
+    "pickHint": "Batafsil ma'lumot uchun elementni tanlang.",
+    "atomicNumber": "Atom raqami: {{count}}",
+    "mass": "Massa: {{value}}",
+    "valence": "Valentlik",
+    "period": "Davr",
+    "group": "Guruh",
+    "shells": "Elektron qatlamlari",
+    "noShells": "Bu element uchun elektron qatlamlari ma'lumoti yo'q.",
+    "placeCard": "Doskaga qo'yish",
+    "placeBohr": "Bor modelini chizish",
+    "electronLabel": "e",
+    "electronSuffix": "e"
   }
 }

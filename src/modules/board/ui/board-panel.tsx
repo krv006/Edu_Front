@@ -1,11 +1,12 @@
 import { useState, type FormEvent } from "react";
-import { Calculator, Check, Eye, FilePlus2, Pencil, UserCheck, X } from "lucide-react";
+import { Atom, Calculator, Check, Eye, FilePlus2, Pencil, UserCheck, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import { useCourseStudents } from "@/modules/course";
 import { Button, Dialog, DialogContent } from "@/shared/ui/legacy";
 import type { FormulaSolutionDto, Point, StrokeShapeDto } from "../api/board.dto";
 import { BOARD_COLORS, BOARD_TEXT_SIZE, BOARD_WIDTHS } from "../constants/board.constants";
+import { nextTextPoint } from "../lib/board-flow";
 import { buildStroke } from "../lib/board.geometry";
 import {
   useAddSheet,
@@ -20,6 +21,7 @@ import { useBoardRealtime } from "../model/use-board-realtime";
 import { BoardStroke } from "./board-stroke";
 import { BoardToolbar, type BoardTool } from "./board-toolbar";
 import { MathFieldInput } from "./math-field-input";
+import { PeriodicTableDialog } from "./periodic-table-dialog";
 
 export interface BoardPanelProps {
   lessonId: string;
@@ -52,12 +54,22 @@ export function BoardPanel({ lessonId, courseId, currentUserId }: BoardPanelProp
   const [draftText, setDraftText] = useState("");
 
   const [formulaOpen, setFormulaOpen] = useState(false);
+  const [periodicOpen, setPeriodicOpen] = useState(false);
   const [formula, setFormula] = useState("");
   const [solution, setSolution] = useState<FormulaSolutionDto | null>(null);
 
   const state = board.data;
   const active = state?.sheets.find((item) => item.index === sheet) ?? state?.sheets[0];
   const canDraw = Boolean(state?.canDraw);
+
+  function flowPointFor(lines: number): Point {
+    return nextTextPoint(active?.strokes ?? [], {
+      boardWidth: state?.width ?? 1200,
+      boardHeight: state?.height ?? 800,
+      size: BOARD_TEXT_SIZE,
+      lines,
+    });
+  }
 
   function commitStroke(stroke: StrokeShapeDto) {
     if (!realtime.sendStroke(sheet, stroke)) addStroke.mutate({ sheet, stroke });
@@ -71,17 +83,17 @@ export function BoardPanel({ lessonId, courseId, currentUserId }: BoardPanelProp
     strokeWidth,
     enabled: canDraw,
     onCommit: commitStroke,
-    onPlacePoint: (point) => {
+    onPlacePoint: () => {
       if (tool !== "text" && tool !== "math") return;
       setDraftText("");
-      setPlacement({ tool, point });
+      setPlacement({ tool, point: flowPointFor(1) });
     },
   });
 
   function placeBlock(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     if (!placement || !draftText.trim()) return;
-    const [x, y] = placement.point;
+    const [x, y] = flowPointFor(draftText.split("\n").length);
     const stroke: StrokeShapeDto =
       placement.tool === "math"
         ? { type: "math", latex: draftText.trim(), x, y, size: BOARD_TEXT_SIZE, color }
@@ -136,17 +148,12 @@ export function BoardPanel({ lessonId, courseId, currentUserId }: BoardPanelProp
   function placeSolution() {
     if (!solution) return;
     const steps = solution.steps?.length ? `\n${solution.steps.join("\n")}` : "";
+    const text = `${solution.pretty}\n${solution.result}${steps}`;
+    const [x, y] = flowPointFor(text.split("\n").length);
     addStroke.mutate(
       {
         sheet,
-        stroke: {
-          type: "text",
-          text: `${solution.pretty}\n${solution.result}${steps}`,
-          x: 60,
-          y: 80,
-          size: BOARD_TEXT_SIZE,
-          color,
-        },
+        stroke: { type: "text", text, x, y, size: BOARD_TEXT_SIZE, color },
       },
       {
         onSuccess: () => {
@@ -219,6 +226,11 @@ export function BoardPanel({ lessonId, courseId, currentUserId }: BoardPanelProp
           {state.mathEnabled ? (
             <Button size="sm" variant="secondary" onClick={() => setFormulaOpen(true)}>
               <Calculator size={15} /> {t("solver.button")}
+            </Button>
+          ) : null}
+          {state.chemistryEnabled ? (
+            <Button size="sm" variant="secondary" onClick={() => setPeriodicOpen(true)}>
+              <Atom size={15} /> {t("periodic.button")}
             </Button>
           ) : null}
         </div>
@@ -404,6 +416,18 @@ export function BoardPanel({ lessonId, courseId, currentUserId }: BoardPanelProp
           </DialogContent>
         )}
       </Dialog>
+
+      <PeriodicTableDialog
+        open={periodicOpen}
+        onOpenChange={setPeriodicOpen}
+        lessonId={lessonId}
+        sheet={sheet}
+        canDraw={canDraw}
+        color={color}
+        boardWidth={state.width}
+        boardHeight={state.height}
+        strokes={active?.strokes ?? []}
+      />
     </div>
   );
 }

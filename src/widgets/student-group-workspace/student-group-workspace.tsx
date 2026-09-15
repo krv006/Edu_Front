@@ -104,6 +104,7 @@ export function StudentGroupWorkspace({
     ...conversation,
     title: course.data?.title ?? conversation.title,
     subject: course.data?.subject,
+    subjectLabel: course.data?.subjectLabel,
     description: course.data?.description,
     memberCount: course.data?.studentCount ?? conversation.memberCount,
   };

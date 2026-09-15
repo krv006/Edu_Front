@@ -66,5 +66,25 @@
   },
   "away": {
     "title": "Left the lesson"
+  },
+  "periodic": {
+    "button": "Periodic table",
+    "title": "Periodic table",
+    "description": "Pick an element to see its structure and Bohr model.",
+    "loading": "Loading the table",
+    "loadError": "Could not load the periodic table",
+    "searchPlaceholder": "Element, symbol or number",
+    "pickHint": "Pick an element to see the details.",
+    "atomicNumber": "Atomic number: {{count}}",
+    "mass": "Mass: {{value}}",
+    "valence": "Valence",
+    "period": "Period",
+    "group": "Group",
+    "shells": "Electron shells",
+    "noShells": "No shell data for this element.",
+    "placeCard": "Put on the board",
+    "placeBohr": "Draw the Bohr model",
+    "electronLabel": "e",
+    "electronSuffix": "e"
   }
 }

@@ -62,7 +62,7 @@ export function mapAssignmentDto(dto: AssignmentDto): Assignment {
     id: String(dto.id),
     courseId: String(dto.course_id),
     courseTitle: dto.course_title,
-    subject: dto.subject,
+    subject: dto.subject_label || dto.subject,
     title: dto.title,
     description: dto.description || "",
     body: dto.body || "",

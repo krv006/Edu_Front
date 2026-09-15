@@ -14,7 +14,17 @@ export const courseKeys = Object.freeze({
   students: (id: string, params: QueryParams = {}) => ["courses", id, "students", params] as const,
   searchStudents: (id: string, query: string) => ["courses", id, "search-students", query] as const,
   requests: ["courses", "requests"] as const,
+  subjects: ["courses", "subjects"] as const,
 });
+
+export function useSubjects(enabled = true) {
+  return useQuery({
+    queryKey: courseKeys.subjects,
+    queryFn: ({ signal }) => courseApi.getSubjects({ signal }),
+    staleTime: 30 * 60 * 1000,
+    enabled,
+  });
+}
 
 export function useCourses(params: QueryParams = {}) {
   return useQuery({
