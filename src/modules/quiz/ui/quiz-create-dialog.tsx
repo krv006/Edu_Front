@@ -1,10 +1,9 @@
 import { useRef, useState, type ChangeEvent, type FormEvent } from "react";
 import { motion } from "framer-motion";
-import { CalendarDays, Download, FileUp, X } from "lucide-react";
+import { BookOpen, CalendarDays, Download, FileUp, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Button, Dialog, DialogContent } from "@/shared/ui/legacy";
 import { DatePicker, SelectPicker } from "@/shared/ui/legacy/form-pickers";
-// yopilgan maydon:
 import type { QuizFormValues, QuizImportWarning } from "@/shared/types";
 import { useDownloadQuizTemplate, useImportQuizDocx } from "../model/quiz.queries";
 
@@ -70,17 +69,15 @@ export function AddQuizDialog({
   }
 
   const [step, setStep] = useState<"details" | "questions">("details");
-  // yopilgan maydon: tanlagich yo'q, shuning uchun o'qituvchining birinchi
-  // kursi avtomatik tanlanadi. Bu qiymat har renderda `courses` propidan
-  // qayta hisoblanadi (state emas) — shu sabab dialog `courses` hali bo'sh
-  // massiv bo'lgan paytda mount bo'lsa ham (API yuklanishi tugamagan),
-  // ma'lumot kelgach to'g'ri kurs avtomatik ishlatiladi. Oldin bu
-  // `useState(() => courses[0]?.id ?? "")` bilan qilingan edi — lazy
-  // initializer faqat BIRINCHI render'da baholanadi va `courses` mount
-  // paytida bo'sh bo'lsa, qiymat abadiy bo'sh qatorda qotib qolardi,
-  // tanlagich yo'qligi sababli buni tuzatib bo'lmasdi — natijada "Kursni
-  // tanlang" xatosi bilan test umuman yaratilmasdi.
-  const courseId = courses[0]?.id ?? "";
+  // Bitta kursli kontekstda (masalan guruh workspace'i — `courses` doim 1
+  // ta element) tanlagich ko'rsatilmaydi, shuning uchun `selectedCourseId`
+  // bo'sh qolsa `courses[0]`ga tushiladi (har renderda qayta hisoblanadi —
+  // `courses` async kelsa ham to'g'ri ishlaydi). Bir nechta kursli
+  // kontekstda (Workspace > Testlar, barcha kurslar) esa quyida tanlagich
+  // ko'rsatiladi va o'qituvchi aniq tanlaguncha ham `courses[0]` vaqtinchalik
+  // taxmin sifatida turadi, tanlangach `selectedCourseId` uni bosib o'tadi.
+  const [selectedCourseId, setSelectedCourseId] = useState("");
+  const courseId = selectedCourseId || courses[0]?.id || "";
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
   const [lessonId, setLessonId] = useState("");
@@ -93,23 +90,6 @@ export function AddQuizDialog({
   const fileInputRef = useRef<HTMLInputElement>(null);
   const importDocx = useImportQuizDocx();
   const downloadTemplate = useDownloadQuizTemplate();
-
-  /* yopilgan maydon — kurs va dars tanlagichlari bilan birga:
-  const courseOptions = useMemo(
-    () => courses.map((course) => ({ value: course.id, label: course.title })),
-    [courses]
-  );
-
-  // Testni bog'lash mumkin bo'lgan darslar — faqat tanlangan kurs bo'yicha, dialog ochilganda.
-  const lessons = useLessons({ course: courseId || null, page_size: 100 }, open && Boolean(courseId));
-  const lessonOptions = useMemo(() => {
-    const finished = (lessons.data ?? [])
-      .filter((lesson) => lesson.status === "finished")
-      .sort((a, b) => b.startsAt.localeCompare(a.startsAt))
-      .map((lesson) => ({ value: lesson.id, label: `${lesson.title} · ${lesson.date}` }));
-    return [{ value: "", label: t("createDialog.notLinkedToLesson") }, ...finished];
-  }, [lessons.data, t]);
-  */
 
   function newQuestion() {
     return emptyQuestion(
@@ -129,6 +109,7 @@ export function AddQuizDialog({
 
   function reset() {
     setStep("details");
+    setSelectedCourseId("");
     setTitle("");
     setDescription("");
     setLessonId("");
@@ -380,18 +361,18 @@ export function AddQuizDialog({
           initial={{ opacity: 0, y: 6 }}
           animate={{ opacity: 1, y: 0 }}
         >
-          {/* yopilgan maydon — Qaysi kurs uchun:
-          <SelectPicker
-            label={t("createDialog.courseLabel")}
-            icon={BookOpen}
-            value={courseId}
-            onChange={(value) => {
-              setCourseId(value);
-              setLessonId("");
-            }}
-            options={courseOptions}
-          />
-          */}
+          {courses.length > 1 ? (
+            <SelectPicker
+              label={t("createDialog.courseLabel")}
+              icon={BookOpen}
+              value={courseId}
+              onChange={(value) => {
+                setSelectedCourseId(value);
+                setLessonId("");
+              }}
+              options={courses.map((course) => ({ value: course.id, label: course.title }))}
+            />
+          ) : null}
           <label>
             <span>{t("createDialog.titleLabel")}</span>
             <input
