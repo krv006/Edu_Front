@@ -81,19 +81,13 @@
   "teachers": {
     "eyebrow": "ADMINISTRATOR",
     "title": "Teachers",
-    "subtitle": "Rating and approval status.",
+    "subtitle": "Ratings and activity stats.",
     "backToDashboard": "Dashboard",
-    "pendingEyebrow": "NEEDS APPROVAL",
-    "pendingTitle": "New teachers",
     "loading": "Loading",
-    "approve": "Approve",
-    "noPending": "No teachers awaiting approval.",
     "allEyebrow": "ALL",
     "allTitle": "All teachers",
     "noTeachers": "No teachers found.",
-    "viewLabel": "View",
-    "viewPending": "Awaiting approval ({{count}})",
-    "viewAll": "All teachers ({{count}})"
+    "countLabel": "{{count}} teachers"
   },
   "storage": {
     "eyebrow": "STORAGE",

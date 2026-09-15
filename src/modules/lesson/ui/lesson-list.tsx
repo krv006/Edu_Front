@@ -5,7 +5,7 @@ import { useTranslation } from "react-i18next";
 import { toIntlLocale } from "@/shared/i18n";
 import type { Lesson } from "@/shared/types";
 import { groupLessonsByDay, toDayKey } from "../lib/lesson-calendar";
-import { useLessonStatusMeta } from "../lib/lesson-status";
+import { hasLessonTopic, useLessonStatusMeta } from "../lib/lesson-status";
 import { LessonActions, type LessonActionsProps } from "./lesson-actions";
 
 export type LessonListProps = Omit<LessonActionsProps, "lesson" | "compact"> & {
@@ -80,7 +80,11 @@ export function LessonList({ lessons, ...actions }: LessonListProps) {
 
                   <div className="lesson-main">
                     <span className={`lesson-status lesson-status--${meta.tone}`}>{meta.label}</span>
-                    <h4>{lesson.title}</h4>
+                    {hasLessonTopic(lesson) ? (
+                      <h4>{lesson.title}</h4>
+                    ) : (
+                      <h4 className="lesson-missing-topic">{t("list.missingTopic")}</h4>
+                    )}
                     <p>
                       <Clock3 size={14} /> {lesson.time} —{" "}
                       {t("list.durationMinutes", { count: lesson.durationMinutes })}

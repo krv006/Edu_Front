@@ -13,11 +13,9 @@ export const authEndpoints = Object.freeze({
   consents: "/api/v1/auth/consents/",
   logins: "/api/v1/auth/logins/",
   teachers: "/api/v1/auth/teachers/",
-  teachersPending: "/api/v1/auth/teachers/pending/",
   myRatings: "/api/v1/auth/me/ratings/",
   teacherRatings: (id: string) => `/api/v1/auth/teachers/${id}/ratings/`,
   teacherStats: (id: string) => `/api/v1/auth/teachers/${id}/stats/`,
-  teacherApprove: (id: string) => `/api/v1/auth/teachers/${id}/approve/`,
   meCertificates: "/api/v1/auth/me/certificates/",
   meCertificate: (id: string) => `/api/v1/auth/me/certificates/${id}/`,
 });

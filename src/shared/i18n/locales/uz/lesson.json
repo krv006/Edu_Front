@@ -18,7 +18,8 @@
   "list": {
     "empty": "Hali dars rejalashtirilmagan.",
     "dayCount": "{{count}} ta",
-    "durationMinutes": "{{count}} daqiqa"
+    "durationMinutes": "{{count}} daqiqa",
+    "missingTopic": "Mavzu yozilmagan"
   },
   "calendar": {
     "todayButton": "Bugun",
@@ -33,6 +34,7 @@
     "join": "Kirish",
     "view": "Ko'rish",
     "joinDisabledTitle": "Bu darsning vaqti allaqachon o'tib ketgan",
+    "joinNeedsTopic": "Avval dars mavzusini yozing",
     "finish": "Yakunlash",
     "rate": "Baholash",
     "editAria": "Darsni tahrirlash",

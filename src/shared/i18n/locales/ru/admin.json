@@ -81,19 +81,13 @@
   "teachers": {
     "eyebrow": "АДМИНИСТРАТОР",
     "title": "Учителя",
-    "subtitle": "Рейтинг и статус подтверждения.",
+    "subtitle": "Рейтинг и показатели активности.",
     "backToDashboard": "Панель управления",
-    "pendingEyebrow": "ТРЕБУЕТСЯ ПОДТВЕРЖДЕНИЕ",
-    "pendingTitle": "Новые учителя",
     "loading": "Загрузка",
-    "approve": "Подтвердить",
-    "noPending": "Нет учителей, ожидающих подтверждения.",
     "allEyebrow": "ВСЕ",
     "allTitle": "Все учителя",
     "noTeachers": "Учителя не найдены.",
-    "viewLabel": "Вид",
-    "viewPending": "Ждут подтверждения ({{count}})",
-    "viewAll": "Все учителя ({{count}})"
+    "countLabel": "Учителей: {{count}}"
   },
   "storage": {
     "eyebrow": "ХРАНИЛИЩЕ",

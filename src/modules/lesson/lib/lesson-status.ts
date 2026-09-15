@@ -27,6 +27,10 @@ export function isLessonClosed(lesson: Lesson): boolean {
   return CLOSED_LESSON_STATUSES.includes(lesson.status);
 }
 
+export function hasLessonTopic(lesson: Lesson): boolean {
+  return Boolean(lesson.title?.trim());
+}
+
 export function isLessonJoinable(lesson: Lesson, now = new Date()): boolean {
   if (isLessonClosed(lesson)) return false;
   if (lesson.status === "scheduled") {

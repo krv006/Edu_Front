@@ -18,7 +18,8 @@
   "list": {
     "empty": "Уроки пока не запланированы.",
     "dayCount": "{{count}}",
-    "durationMinutes": "{{count}} мин"
+    "durationMinutes": "{{count}} мин",
+    "missingTopic": "Тема не указана"
   },
   "calendar": {
     "todayButton": "Сегодня",
@@ -33,6 +34,7 @@
     "join": "Войти",
     "view": "Смотреть",
     "joinDisabledTitle": "Время этого урока уже прошло",
+    "joinNeedsTopic": "Сначала укажите тему урока",
     "finish": "Завершить",
     "rate": "Оценить",
     "editAria": "Редактировать урок",
