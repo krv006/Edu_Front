@@ -90,6 +90,13 @@
       "markCorrect": "Отметьте правильный ответ в каждом вопросе"
     }
   },
+  "preview": {
+    "regionAria": "Как это увидит ученик",
+    "eyebrow": "ВИД УЧЕНИКА",
+    "untitled": "Тест без названия",
+    "questionPlaceholder": "Текст вопроса",
+    "optionPlaceholder": "Текст варианта"
+  },
   "attemptDialog": {
     "defaultTitle": "Тест",
     "defaultDescription": "Ответьте на вопросы — без ограничения по времени.",

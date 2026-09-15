@@ -90,6 +90,13 @@
       "markCorrect": "Mark the correct answer for every question"
     }
   },
+  "preview": {
+    "regionAria": "How the student will see it",
+    "eyebrow": "STUDENT VIEW",
+    "untitled": "Untitled quiz",
+    "questionPlaceholder": "Question text",
+    "optionPlaceholder": "Option text"
+  },
   "attemptDialog": {
     "defaultTitle": "Quiz",
     "defaultDescription": "Answer the questions — no time limit.",
