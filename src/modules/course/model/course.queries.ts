@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import type { QueryParams } from "@/shared/api";
-import { describeCreateError, type CreateChildRequestDto } from "@/modules/auth";
+import type { CreateChildRequestDto } from "@/modules/auth";
 import { courseApi } from "../api/course.api";
 import type { CourseFormInput, EnrollmentAction, EnrollPayload } from "../api/course.dto";
 
@@ -71,7 +71,7 @@ export function useCreateCourse() {
       client.invalidateQueries({ queryKey: courseKeys.all });
       toast.success("Kurs yaratildi");
     },
-    onError: (error) => toast.error(describeCreateError(error)),
+    onError: (error: Error) => toast.error(error.message),
   });
 }
 

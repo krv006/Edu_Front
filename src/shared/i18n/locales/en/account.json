@@ -30,7 +30,6 @@
     "save": "Save",
     "usernameLabel": "Username · copy",
     "phoneLabel": "Phone · copy",
-    "notApproved": "Your account hasn't been approved by an administrator yet — creating courses and lessons is temporarily disabled.",
     "certificates": "Certificates",
     "upload": "Upload",
     "certificateFallback": "Certificate",

@@ -16,10 +16,8 @@ export type {
 export { AUTH_STATUS, useAuthStore } from "./model/auth.store";
 export {
   authKeys,
-  useApproveTeacher,
   useLoginHistory,
   useMyRatings,
-  usePendingTeachers,
   useTeacherRatings,
   useTeacherStats,
   useTeachers,
@@ -41,6 +39,5 @@ export {
 } from "./model/auth.mutations";
 export { mapCertificateDto, mapLoginRequest, mapTokenPairDto, mapUserDto } from "./lib/auth.mappers";
 export { resolveHomeRoute } from "./lib/resolve-home-route";
-export { describeCreateError } from "./lib/teacher-approval";
 export { LoginForm } from "./ui/login-form";
 export { RegisterForm } from "./ui/register-form";

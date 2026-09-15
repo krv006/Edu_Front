@@ -28,6 +28,15 @@ export function useQuiz(id: string | null) {
   });
 }
 
+export function useQuizDetailLoader() {
+  const client = useQueryClient();
+  return (id: string) =>
+    client.fetchQuery({
+      queryKey: quizKeys.detail(id),
+      queryFn: ({ signal }) => quizApi.getById(id, { signal }),
+    });
+}
+
 export function useCreateQuiz() {
   const { t } = useTranslation("quiz");
   const client = useQueryClient();

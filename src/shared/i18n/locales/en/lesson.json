@@ -18,7 +18,8 @@
   "list": {
     "empty": "No lessons scheduled yet.",
     "dayCount": "{{count}}",
-    "durationMinutes": "{{count}} min"
+    "durationMinutes": "{{count}} min",
+    "missingTopic": "No topic set"
   },
   "calendar": {
     "todayButton": "Today",
@@ -33,6 +34,7 @@
     "join": "Join",
     "view": "View",
     "joinDisabledTitle": "This lesson's time has already passed",
+    "joinNeedsTopic": "Add a lesson topic first",
     "finish": "Finish",
     "rate": "Rate",
     "editAria": "Edit lesson",

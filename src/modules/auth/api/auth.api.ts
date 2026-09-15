@@ -107,15 +107,6 @@ export const authApi = {
     );
     return page.items;
   },
-  async getPendingTeachers(options?: RequestOptions) {
-    const page = normalizePagination<AuthUserDto>(
-      await apiClient.get(authEndpoints.teachersPending, { ...options, query: { page_size: 100, ...options?.query } })
-    );
-    return page.items;
-  },
-  approveTeacher(id: string) {
-    return apiClient.post<AuthUserDto>(authEndpoints.teacherApprove(id), {});
-  },
   uploadCertificate(file: File, title?: string) {
     const body = new FormData();
     body.set("file", file);

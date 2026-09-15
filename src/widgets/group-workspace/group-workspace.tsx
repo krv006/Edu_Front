@@ -4,7 +4,6 @@ import {
   BookOpen,
   CalendarDays,
   CheckCircle2,
-  ClipboardCheck,
   ClipboardList,
   FileQuestion,
   Pencil,
@@ -15,7 +14,7 @@ import { useNavigate, useSearchParams } from "react-router-dom";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import { useAuth } from "@/modules/auth";
-import { toIntlLocale } from "@/shared/i18n";
+import { formatDayTime } from "@/shared/lib";
 import { AttendanceAccordion, useAttendance } from "@/modules/attendance";
 import { useCourse } from "@/modules/course";
 import {
@@ -39,8 +38,7 @@ import {
   useLessonView,
   useUpdateLesson,
 } from "@/modules/lesson";
-import { AddQuizDialog, useCreateQuiz, useQuizzes } from "@/modules/quiz";
-import { MockTestCreateDialog } from "@/modules/mock-test";
+import { AddQuizDialog, QuizAttemptsDialog, useCreateQuiz, useQuizzes } from "@/modules/quiz";
 import { ChatHeader } from "@/modules/conversation";
 import { MessageComposer, MessageList } from "@/modules/message";
 import type {
@@ -49,6 +47,7 @@ import type {
   ChatMessage,
   Conversation,
   Lesson,
+  QuizSummary,
   SendMessagePayload,
 } from "@/shared/types";
 import type { ChatController } from "@/modules/message";
@@ -386,7 +385,7 @@ function AssignmentsPanel({
   loading,
   isLanguageSubject,
 }: AssignmentsPanelProps) {
-  const { t, i18n } = useTranslation("group");
+  const { t } = useTranslation("group");
   const [dialog, setDialog] = useState(false);
   const [editingAssignment, setEditingAssignment] = useState<Assignment | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<Assignment | null>(null);
@@ -398,19 +397,22 @@ function AssignmentsPanel({
   const update = useUpdateAssignment();
   const remove = useDeleteAssignment();
   const [quizDialog, setQuizDialog] = useState(false);
-  const [mockDialog, setMockDialog] = useState(false);
   const createQuiz = useCreateQuiz();
   const course = useCourse(courseId);
 
-  const lessons = useLessons({ course: courseId, page_size: 100 }, dialog || quizDialog);
-  const quizLessonOptions = useMemo(
+  const lessons = useLessons({ course: courseId, page_size: 100 }, dialog);
+  const courseQuizzes = useQuizzes(courseId, Boolean(courseId));
+  const [attemptsOf, setAttemptsOf] = useState<QuizSummary | null>(null);
+  const courseQuizList = useMemo(
+    () => (courseQuizzes.data ?? []).filter((quiz) => quiz.courseId === courseId),
+    [courseQuizzes.data, courseId]
+  );
+  const quizTitleOptions = useMemo(
     () =>
-      (lessons.data ?? []).map((lesson) => ({
-        id: lesson.id,
-        title: `${lesson.title} · ${lesson.date}`,
-        rawTitle: lesson.title,
-      })),
-    [lessons.data]
+      courseQuizList
+        .filter((quiz) => quiz.title)
+        .map((quiz) => ({ id: quiz.id, title: quiz.title })),
+    [courseQuizList]
   );
 
   return (
@@ -422,9 +424,6 @@ function AssignmentsPanel({
           <p>{t("assignments.subtitle")}</p>
         </div>
         <div className="group-panel-tools">
-          <Button variant="secondary" onClick={() => setMockDialog(true)}>
-            <ClipboardCheck size={17} /> {t("assignments.addMockTest")}
-          </Button>
           <Button variant="secondary" onClick={() => setQuizDialog(true)}>
             <FileQuestion size={17} /> {t("assignments.addQuiz")}
           </Button>
@@ -433,6 +432,38 @@ function AssignmentsPanel({
           </Button>
         </div>
       </div>
+
+      {courseQuizList.length ? (
+        <div className="assignment-list group-quiz-list">
+          {courseQuizList.map((quiz) => (
+            <motion.article
+              key={quiz.id}
+              data-quiz-id={quiz.id}
+              className="assignment-card"
+              initial={{ opacity: 0, y: 8 }}
+              animate={{ opacity: 1, y: 0 }}
+            >
+              <span className="assignment-card-icon">
+                <FileQuestion size={20} />
+              </span>
+              <div>
+                <strong>{quiz.title}</strong>
+                <p>{quiz.description}</p>
+                <small>
+                  {quiz.dueAt
+                    ? t("assignments.dueLabel", { date: formatDayTime(quiz.dueAt) })
+                    : t("assignments.noDue")}{" "}
+                  · {t("assignments.quizQuestions", { count: quiz.questionCount })}
+                </small>
+              </div>
+              <span className="assignment-subject is-quiz">{t("assignments.quizBadge")}</span>
+              <Button size="sm" variant="secondary" onClick={() => setAttemptsOf(quiz)}>
+                <CheckCircle2 size={15} /> {t("assignments.results")}
+              </Button>
+            </motion.article>
+          ))}
+        </div>
+      ) : null}
 
       {loading ? (
         <div className="student-tab-loading">
@@ -456,12 +487,7 @@ function AssignmentsPanel({
                 <p>{item.description}</p>
                 <small>
                   {item.dueAt
-                    ? t("assignments.dueLabel", {
-                        date: new Intl.DateTimeFormat(toIntlLocale(i18n.language), {
-                          dateStyle: "medium",
-                          timeStyle: "short",
-                        }).format(new Date(item.dueAt)),
-                      })
+                    ? t("assignments.dueLabel", { date: formatDayTime(item.dueAt) })
                     : t("assignments.noDue")}{" "}
                   · {t("assignments.submissionsCount", { count: item.submissionsCount ?? 0 })}
                 </small>
@@ -496,13 +522,22 @@ function AssignmentsPanel({
             </motion.article>
           ))}
         </div>
-      ) : (
+      ) : courseQuizList.length ? null : (
         <div className="premium-empty">
           <ClipboardList size={30} />
           <h3>{t("assignments.emptyTitle")}</h3>
           <Button onClick={() => setDialog(true)}>{t("assignments.emptyCreateFirst")}</Button>
         </div>
       )}
+
+      <QuizAttemptsDialog
+        quizId={attemptsOf?.id ?? null}
+        open={Boolean(attemptsOf)}
+        onOpenChange={(open) => {
+          if (!open) setAttemptsOf(null);
+        }}
+        title={attemptsOf?.title}
+      />
 
       {quizDialog && courseId ? (
         <AddQuizDialog
@@ -512,14 +547,12 @@ function AssignmentsPanel({
           }}
           courses={[{ id: courseId, title: course.data?.title ?? "" }]}
           showSchedule
-          lessonOptions={quizLessonOptions}
+          existingQuizzes={quizTitleOptions}
           onCreate={(values) =>
             createQuiz.mutate(values, { onSuccess: () => setQuizDialog(false) })
           }
         />
       ) : null}
-
-      <MockTestCreateDialog open={mockDialog} onOpenChange={setMockDialog} courseId={courseId} />
 
       <AddAssignmentDialog
         key={editingAssignment?.id ?? "new"}

@@ -170,18 +170,20 @@ export function AddLessonDialog({
 
   function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (!form.topic.trim() || !form.time) return;
+    if (!form.time) return;
 
     if (isRepeating) {
       if (!dates.length) return;
       onCreateSchedule?.({
         ...form,
+        topic: "",
         dates,
         weekdays,
         startsOn: range.from,
         endsOn: range.to,
       });
     } else {
+      if (!form.topic.trim()) return;
       onCreate({ ...form, date: form.date || todayString() });
     }
     reset();
@@ -205,15 +207,17 @@ export function AddLessonDialog({
             initial={{ opacity: 0, y: 6 }}
             animate={{ opacity: 1, y: 0 }}
           >
-            <label>
-              <span>{t("dialogs.lesson.topicLabel")}</span>
-              <input
-                autoFocus
-                value={form.topic}
-                onChange={(event) => update("topic", event.target.value)}
-                placeholder={t("dialogs.lesson.topicPlaceholder")}
-              />
-            </label>
+            {isRepeating ? null : (
+              <label>
+                <span>{t("dialogs.lesson.topicLabel")}</span>
+                <input
+                  autoFocus
+                  value={form.topic}
+                  onChange={(event) => update("topic", event.target.value)}
+                  placeholder={t("dialogs.lesson.topicPlaceholder")}
+                />
+              </label>
+            )}
 
             {canRepeat ? (
               <div className="schedule-mode" role="radiogroup" aria-label={t("dialogs.lesson.typeAria")}>
@@ -368,7 +372,7 @@ export function AddLessonDialog({
               </Button>
               <Button
                 type="submit"
-                disabled={!form.topic.trim() || (isRepeating && !dates.length)}
+                disabled={isRepeating ? !dates.length : !form.topic.trim()}
               >
                 {initialValues
                   ? t("dialogs.lesson.saveChanges")

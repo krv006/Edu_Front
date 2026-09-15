@@ -13,7 +13,7 @@ import {
   toDayKey,
   type CalendarDay,
 } from "../lib/lesson-calendar";
-import { useLessonStatusMeta } from "../lib/lesson-status";
+import { hasLessonTopic, useLessonStatusMeta } from "../lib/lesson-status";
 import { LessonActions, type LessonActionsProps } from "./lesson-actions";
 
 export type LessonCalendarProps = Omit<LessonActionsProps, "lesson" | "compact"> & {
@@ -63,7 +63,9 @@ function DayCell({
             className={`calendar-chip calendar-chip--${lessonStatusMeta(lesson.status).tone}`}
           >
             <b>{lesson.time}</b>
-            <i>{lesson.title}</i>
+            <i className={hasLessonTopic(lesson) ? "" : "lesson-missing-topic"}>
+              {hasLessonTopic(lesson) ? lesson.title : t("list.missingTopic")}
+            </i>
           </span>
         ))}
         {hidden > 0 ? <span className="calendar-chip-more">+{hidden}</span> : null}
@@ -173,7 +175,11 @@ export function LessonCalendar({ lessons, ...actions }: LessonCalendarProps) {
                       <i>{t("list.durationMinutes", { count: lesson.durationMinutes })}</i>
                     </span>
                     <span className="calendar-day-info">
-                      <strong>{lesson.title}</strong>
+                      {hasLessonTopic(lesson) ? (
+                        <strong>{lesson.title}</strong>
+                      ) : (
+                        <strong className="lesson-missing-topic">{t("list.missingTopic")}</strong>
+                      )}
                       <em className={`lesson-status lesson-status--${meta.tone}`}>{meta.label}</em>
                     </span>
                     <LessonActions lesson={lesson} compact {...actions} />

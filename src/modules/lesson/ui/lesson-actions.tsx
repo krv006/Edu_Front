@@ -2,7 +2,7 @@ import { Pencil, PlayCircle, Star, Trash2, Video } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import type { Lesson } from "@/shared/types";
 import { Button } from "@/shared/ui/legacy";
-import { isLessonClosed, isLessonEditable, isLessonJoinable } from "../lib/lesson-status";
+import { hasLessonTopic, isLessonClosed, isLessonEditable, isLessonJoinable } from "../lib/lesson-status";
 
 export interface LessonActionsProps {
   lesson: Lesson;
@@ -29,7 +29,8 @@ export function LessonActions({
 }: LessonActionsProps) {
   const { t } = useTranslation("lesson");
   const finished = lesson.status === "finished";
-  const joinDisabled = !isLessonJoinable(lesson);
+  const missingTopic = !hasLessonTopic(lesson);
+  const joinDisabled = missingTopic || !isLessonJoinable(lesson);
   const ratingChip =
     finished && (onRatings || lesson.ratingCount > 0) ? (
       <>
@@ -58,7 +59,13 @@ export function LessonActions({
         <Button
           size="sm"
           disabled={joinDisabled}
-          title={joinDisabled && !isLessonClosed(lesson) ? t("actions.joinDisabledTitle") : undefined}
+          title={
+            missingTopic
+              ? t("actions.joinNeedsTopic")
+              : joinDisabled && !isLessonClosed(lesson)
+                ? t("actions.joinDisabledTitle")
+                : undefined
+          }
           onClick={() => onJoin(lesson)}
         >
           <Video size={16} />

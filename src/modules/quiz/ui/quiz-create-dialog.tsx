@@ -1,11 +1,11 @@
-import { useRef, useState, type ChangeEvent, type FormEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import { motion } from "framer-motion";
-import { BookOpen, CalendarDays, Download, FileUp, X } from "lucide-react";
+import { BookOpen, ChevronDown, Plus, Trash2, X } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { Button, Dialog, DialogContent } from "@/shared/ui/legacy";
 import { DatePicker, SelectPicker } from "@/shared/ui/legacy/form-pickers";
-import type { QuizFormValues, QuizImportWarning } from "@/shared/types";
-import { useDownloadQuizTemplate, useImportQuizDocx } from "../model/quiz.queries";
+import type { QuizFormValues } from "@/shared/types";
+import { useQuizDetailLoader } from "../model/quiz.queries";
 import { QuizPreview } from "./quiz-preview";
 
 interface QuizOptionDraft {
@@ -27,11 +27,7 @@ export interface AddQuizDialogProps {
   onCreate: (values: QuizFormValues) => void;
   courses: Array<{ id: string; title: string }>;
   showSchedule?: boolean;
-  // `title` — tanlagichda ko'rinadigan yorliq (masalan "Dars nomi · 12-sen").
-  // `rawTitle` — test nomini avtomatik to'ldirish uchun sof qiymat (sana
-  // qo'shilmagan holda). Darsning tavsifi (description) backend'da yo'q —
-  // faqat nomi bor, shuning uchun tavsif emas, faqat nom to'ldiriladi.
-  lessonOptions?: ReadonlyArray<{ id: string; title: string; rawTitle: string }>;
+  existingQuizzes?: ReadonlyArray<{ id: string; title: string }>;
 }
 
 const DEFAULT_OPTION_COUNT = 4;
@@ -60,7 +56,7 @@ export function AddQuizDialog({
   onCreate,
   courses,
   showSchedule = false,
-  lessonOptions,
+  existingQuizzes = [],
 }: AddQuizDialogProps) {
   const { t } = useTranslation("quiz");
   const nextKey = useRef(0);
@@ -70,27 +66,76 @@ export function AddQuizDialog({
   }
 
   const [step, setStep] = useState<"details" | "questions">("details");
-  // Bitta kursli kontekstda (masalan guruh workspace'i — `courses` doim 1
-  // ta element) tanlagich ko'rsatilmaydi, shuning uchun `selectedCourseId`
-  // bo'sh qolsa `courses[0]`ga tushiladi (har renderda qayta hisoblanadi —
-  // `courses` async kelsa ham to'g'ri ishlaydi). Bir nechta kursli
-  // kontekstda (Workspace > Testlar, barcha kurslar) esa quyida tanlagich
-  // ko'rsatiladi va o'qituvchi aniq tanlaguncha ham `courses[0]` vaqtinchalik
-  // taxmin sifatida turadi, tanlangach `selectedCourseId` uni bosib o'tadi.
   const [selectedCourseId, setSelectedCourseId] = useState("");
   const courseId = selectedCourseId || courses[0]?.id || "";
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  const [lessonId, setLessonId] = useState("");
   const [dueAt, setDueAt] = useState("");
   const [opensAt, setOpensAt] = useState("");
   const [questions, setQuestions] = useState<QuizQuestionDraft[]>([]);
-  const [questionCount, setQuestionCount] = useState("");
   const [error, setError] = useState<string | null>(null);
-  const [importWarnings, setImportWarnings] = useState<QuizImportWarning[]>([]);
-  const fileInputRef = useRef<HTMLInputElement>(null);
-  const importDocx = useImportQuizDocx();
-  const downloadTemplate = useDownloadQuizTemplate();
+  const [suggestOpen, setSuggestOpen] = useState(false);
+  const [copyingId, setCopyingId] = useState<string | null>(null);
+  const [copiedFrom, setCopiedFrom] = useState<string | null>(null);
+  const titleComboRef = useRef<HTMLDivElement>(null);
+  const loadQuizDetail = useQuizDetailLoader();
+
+  const suggestions = useMemo(() => {
+    const query = title.trim().toLowerCase();
+    const named = existingQuizzes.filter((quiz) => quiz.title);
+    if (!query) return named;
+    return named.filter(
+      (quiz) => quiz.title.toLowerCase().includes(query) && quiz.title.toLowerCase() !== query
+    );
+  }, [existingQuizzes, title]);
+
+  useEffect(() => {
+    if (!suggestOpen) return undefined;
+    function handlePointerDown(event: PointerEvent) {
+      if (titleComboRef.current?.contains(event.target as Node)) return;
+      setSuggestOpen(false);
+    }
+    document.addEventListener("pointerdown", handlePointerDown);
+    return () => document.removeEventListener("pointerdown", handlePointerDown);
+  }, [suggestOpen]);
+
+  function hasDraftContent() {
+    return questions.some(
+      (question) => question.text.trim() || question.options.some((option) => option.text.trim())
+    );
+  }
+
+  async function copyFromQuiz(quiz: { id: string; title: string }) {
+    setSuggestOpen(false);
+    setTitle(quiz.title);
+    if (hasDraftContent() && !window.confirm(t("createDialog.copyConfirm", { title: quiz.title }))) {
+      return;
+    }
+    setCopyingId(quiz.id);
+    try {
+      const detail = await loadQuizDetail(quiz.id);
+      setDescription(detail.description);
+      setQuestions(
+        detail.questions.map((question) => {
+          const options = question.options.map((option) => ({ key: newKey(), text: option.text }));
+          const correctIndex = question.options.findIndex((option) => option.isCorrect);
+          return {
+            key: newKey(),
+            text: question.text,
+            points: String(question.points),
+            options,
+            correctKey: correctIndex >= 0 ? options[correctIndex].key : null,
+          };
+        })
+      );
+      setCopiedFrom(quiz.title);
+      setError(null);
+    } catch (loadError) {
+      setError(loadError instanceof Error ? loadError.message : t("createDialog.copyFailed"));
+    } finally {
+      setCopyingId(null);
+    }
+  }
 
   function newQuestion() {
     return emptyQuestion(
@@ -99,26 +144,16 @@ export function AddQuizDialog({
     );
   }
 
-  function resolvedQuestionCount(): number {
-    const parsed = Math.trunc(Number(questionCount));
-    return Math.max(1, Math.min(100, parsed || 10));
-  }
-
-  function handleDownloadTemplate(type: "docx" | "xlsx") {
-    downloadTemplate.mutate({ type, count: resolvedQuestionCount() });
-  }
-
   function reset() {
     setStep("details");
     setSelectedCourseId("");
     setTitle("");
     setDescription("");
-    setLessonId("");
     setDueAt("");
     setOpensAt("");
     setQuestions([]);
-    setQuestionCount("");
-    setImportWarnings([]);
+    setCopiedFrom(null);
+    setCopyingId(null);
     setError(null);
   }
 
@@ -127,68 +162,23 @@ export function AddQuizDialog({
       setError(!courseId ? t("createDialog.validation.chooseCourse") : t("createDialog.validation.enterTitle"));
       return;
     }
-    const count = Math.max(1, Math.min(100, Math.trunc(Number(questionCount)) || 0));
-    const hasContent = questions.some(
-      (question) => question.text.trim() || question.options.some((option) => option.text.trim())
-    );
-    if (
-      questions.length &&
-      hasContent &&
-      !window.confirm(t("createDialog.generateConfirm", { count: questions.length, newCount: count }))
-    ) {
-      return;
-    }
     setError(null);
-    setQuestions(Array.from({ length: count }, () => newQuestion()));
-    setImportWarnings([]);
+    if (!questions.length) setQuestions([newQuestion()]);
     setStep("questions");
   }
 
-  function handleImportFile(event: ChangeEvent<HTMLInputElement>) {
-    const file = event.target.files?.[0];
-    event.target.value = "";
-    if (!file) return;
-    if (!courseId || !title.trim()) {
-      setError(!courseId ? t("createDialog.validation.chooseCourse") : t("createDialog.validation.enterTitle"));
-      return;
-    }
-    importDocx.mutate(file, {
-      onSuccess: (preview) => {
-        if (!title.trim() && preview.title) setTitle(preview.title);
-        if (!description.trim() && preview.description) setDescription(preview.description);
-        setQuestions(
-          preview.questions.map((question) => {
-            const options = question.options.map((option) => ({ key: newKey(), text: option.text }));
-            const correctIndex = question.options.findIndex((option) => option.isCorrect);
-            return {
-              key: newKey(),
-              text: question.text,
-              points: String(question.points),
-              options,
-              correctKey: correctIndex >= 0 ? options[correctIndex].key : null,
-            };
-          })
-        );
-        setImportWarnings(preview.warnings);
-        setError(null);
-        setStep("questions");
-      },
-    });
+  function addQuestion() {
+    setQuestions((current) => [...current, newQuestion()]);
+  }
+
+  function removeQuestion(questionKey: string) {
+    setQuestions((current) => current.filter((question) => question.key !== questionKey));
   }
 
   function updateQuestion(questionKey: string, patch: Partial<QuizQuestionDraft>) {
     setQuestions((current) =>
       current.map((question) => (question.key === questionKey ? { ...question, ...patch } : question))
     );
-  }
-
-  // Dars tanlanganda test nomi shu darsdan avtomatik to'ldiriladi — FAQAT
-  // hali bo'sh bo'lsa (o'qituvchi allaqachon o'zi nom yozgan bo'lsa, buni
-  // bosib o'tmaymiz — "avtomatik, lekin tahrirlanadigan" xatti-harakat).
-  function handleLessonChange(newLessonId: string) {
-    setLessonId(newLessonId);
-    const lesson = lessonOptions?.find((option) => option.id === newLessonId);
-    if (lesson && !title.trim()) setTitle(lesson.rawTitle);
   }
 
   function updateOptionText(questionKey: string, optionKey: string, text: string) {
@@ -229,7 +219,7 @@ export function AddQuizDialog({
     }
     onCreate({
       courseId,
-      lessonId: lessonId || null,
+      lessonId: null,
       title: title.trim(),
       description: description.trim(),
       dueAt: dueAt || null,
@@ -278,20 +268,6 @@ export function AddQuizDialog({
           </div>
         </div>
 
-        {importWarnings.length ? (
-          <div className="form-alert form-alert--warning quiz-page-alert">
-            {importWarnings.map((warning) => (
-              <p key={warning.questionNumber}>
-                {t(
-                  warning.reason === "answer_not_detected"
-                    ? "createDialog.importWarningAnswerNotDetected"
-                    : "createDialog.importWarningNotEnoughOptions",
-                  { number: warning.questionNumber }
-                )}
-              </p>
-            ))}
-          </div>
-        ) : null}
         {error ? <div className="form-alert quiz-page-alert">{error}</div> : null}
 
         <div className="quiz-page-split">
@@ -306,6 +282,16 @@ export function AddQuizDialog({
                   onChange={(event) => updateQuestion(question.key, { text: event.target.value })}
                   placeholder={t("createDialog.questionTextPlaceholder")}
                 />
+                {questions.length > 1 ? (
+                  <button
+                    type="button"
+                    className="quiz-page-question-remove"
+                    aria-label={t("createDialog.removeQuestionAria", { number: index + 1 })}
+                    onClick={() => removeQuestion(question.key)}
+                  >
+                    <Trash2 size={15} />
+                  </button>
+                ) : null}
               </div>
               <div className="quiz-page-options">
                 {question.options.map((option, optionIndex) => (
@@ -346,6 +332,9 @@ export function AddQuizDialog({
               </div>
             </div>
           ))}
+          <button type="button" className="quiz-page-add-question" onClick={addQuestion}>
+            <Plus size={16} /> {t("createDialog.addQuestion")}
+          </button>
           </form>
 
           <QuizPreview title={title} description={description} questions={questions} />
@@ -371,22 +360,70 @@ export function AddQuizDialog({
               label={t("createDialog.courseLabel")}
               icon={BookOpen}
               value={courseId}
-              onChange={(value) => {
-                setSelectedCourseId(value);
-                setLessonId("");
-              }}
+              onChange={(value) => setSelectedCourseId(value)}
               options={courses.map((course) => ({ value: course.id, label: course.title }))}
             />
           ) : null}
-          <label>
-            <span>{t("createDialog.titleLabel")}</span>
-            <input
-              autoFocus
-              value={title}
-              onChange={(event) => setTitle(event.target.value)}
-              placeholder={t("createDialog.titlePlaceholder")}
-            />
-          </label>
+          <div className="quiz-title-field">
+            <span className="quiz-title-field-label">{t("createDialog.titleLabel")}</span>
+            <div className="quiz-title-combo" ref={titleComboRef}>
+              <input
+                autoFocus
+                value={title}
+                onChange={(event) => {
+                  setTitle(event.target.value);
+                  setCopiedFrom(null);
+                  setSuggestOpen(true);
+                }}
+                onClick={() => setSuggestOpen(true)}
+                onKeyDown={(event) => {
+                  if (event.key === "Escape" && suggestOpen) {
+                    event.stopPropagation();
+                    setSuggestOpen(false);
+                  }
+                }}
+                placeholder={t("createDialog.titlePlaceholder")}
+                role="combobox"
+                aria-expanded={suggestOpen && suggestions.length > 0}
+                aria-autocomplete="list"
+              />
+              {existingQuizzes.length ? (
+                <button
+                  type="button"
+                  className={`quiz-title-combo-toggle ${suggestOpen ? "is-open" : ""}`}
+                  aria-label={t("createDialog.existingTitlesAria")}
+                  onMouseDown={(event) => event.preventDefault()}
+                  onClick={() => setSuggestOpen((current) => !current)}
+                >
+                  <ChevronDown size={16} />
+                </button>
+              ) : null}
+              {suggestOpen && suggestions.length ? (
+                <div className="quiz-title-suggest" role="listbox">
+                  <span className="quiz-title-suggest-head">{t("createDialog.existingTitlesLabel")}</span>
+                  {suggestions.map((quiz) => (
+                    <button
+                      key={quiz.id}
+                      type="button"
+                      role="option"
+                      aria-selected={quiz.title === title}
+                      disabled={copyingId !== null}
+                      onClick={() => void copyFromQuiz(quiz)}
+                    >
+                      {quiz.title}
+                    </button>
+                  ))}
+                </div>
+              ) : null}
+            </div>
+            {copyingId ? (
+              <small className="quiz-title-hint">{t("createDialog.copyLoading")}</small>
+            ) : copiedFrom ? (
+              <small className="quiz-title-hint is-done">
+                {t("createDialog.copyDone", { title: copiedFrom, count: questions.length })}
+              </small>
+            ) : null}
+          </div>
           <label>
             <span>{t("createDialog.descriptionLabel")}</span>
             <textarea
@@ -416,76 +453,14 @@ export function AddQuizDialog({
             </div>
           ) : null}
 
-          {lessonOptions?.length ? (
-            <SelectPicker
-              label={t("createDialog.lessonLabel")}
-              icon={CalendarDays}
-              value={lessonId}
-              onChange={handleLessonChange}
-              options={[
-                { value: "", label: t("createDialog.notLinkedToLesson") },
-                ...lessonOptions.map((lesson) => ({ value: lesson.id, label: lesson.title })),
-              ]}
-            />
-          ) : null}
-
-          <div className="quiz-template-gen">
-            <label>
-              <span>{t("createDialog.questionCountLabel")}</span>
-              <input
-                inputMode="numeric"
-                value={questionCount}
-                onChange={(event) => setQuestionCount(event.target.value.replace(/[^\d]/g, ""))}
-                placeholder={t("createDialog.questionCountPlaceholder")}
-              />
-            </label>
-            <button type="button" className="quiz-generate-button" onClick={goToQuestions}>
-              {t("createDialog.continueButton")}
-            </button>
-            <span className="quiz-template-gen-or">{t("createDialog.importOr")}</span>
-            <input
-              ref={fileInputRef}
-              type="file"
-              accept=".docx,.xlsx"
-              hidden
-              onChange={handleImportFile}
-            />
-            <button
-              type="button"
-              className="quiz-generate-button quiz-generate-button--ghost"
-              disabled={importDocx.isPending}
-              onClick={() => fileInputRef.current?.click()}
-            >
-              <FileUp size={14} />{" "}
-              {importDocx.isPending ? t("createDialog.importButtonLoading") : t("createDialog.importButton")}
-            </button>
-          </div>
-
-          <div className="quiz-template-download">
-            <span className="quiz-template-download-label">{t("createDialog.downloadTemplateLabel")}</span>
-            <button
-              type="button"
-              className="quiz-generate-button quiz-generate-button--ghost"
-              disabled={downloadTemplate.isPending}
-              onClick={() => handleDownloadTemplate("docx")}
-            >
-              <Download size={14} /> {t("createDialog.downloadTemplateWord")}
-            </button>
-            <button
-              type="button"
-              className="quiz-generate-button quiz-generate-button--ghost"
-              disabled={downloadTemplate.isPending}
-              onClick={() => handleDownloadTemplate("xlsx")}
-            >
-              <Download size={14} /> {t("createDialog.downloadTemplateExcel")}
-            </button>
-          </div>
-
           {error ? <div className="form-alert">{error}</div> : null}
 
           <div className="dialog-actions">
-            <Button type="button" variant="ghost" onClick={() => onOpenChange(false)}>
+            <Button type="button" variant="secondary" onClick={() => onOpenChange(false)}>
               {t("createDialog.cancel")}
+            </Button>
+            <Button type="button" onClick={goToQuestions}>
+              {t("createDialog.continueButton")}
             </Button>
           </div>
         </motion.div>

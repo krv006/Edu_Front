@@ -6,7 +6,9 @@ import {
   CalendarDays,
   CheckCircle2,
   CircleAlert,
+  FileQuestion,
   FileUp,
+  History,
   ListChecks,
   Paperclip,
 } from "lucide-react";
@@ -32,11 +34,13 @@ import {
   useLessons,
   useLessonView,
 } from "@/modules/lesson";
+import { QuizAttemptDialog, QuizAttemptsDialog, useQuizzes } from "@/modules/quiz";
 import type {
   Assignment,
   ChatMessage,
   Conversation,
   Lesson,
+  QuizSummary,
   SendMessagePayload,
   Submission,
 } from "@/shared/types";
@@ -92,6 +96,7 @@ export function StudentGroupWorkspace({
 
   const lessons = useLessons({ course: courseId, page_size: 100 }, active === "lessons");
   const assignments = useAssignments(courseId, active === "assignments");
+  const quizzes = useQuizzes(courseId, active === "assignments" && Boolean(courseId));
 
   const course = useCourse(courseId);
 
@@ -169,7 +174,11 @@ export function StudentGroupWorkspace({
             />
           ) : null}
           {active === "assignments" ? (
-            <StudentAssignments assignments={assignments.data} loading={assignments.isLoading} />
+            <StudentAssignments
+              assignments={assignments.data}
+              loading={assignments.isLoading}
+              quizzes={(quizzes.data ?? []).filter((quiz) => quiz.courseId === courseId)}
+            />
           ) : null}
         </motion.div>
       </AnimatePresence>
@@ -318,9 +327,19 @@ function useAssignmentHighlight(assignmentId: string | null, ready: boolean) {
   }, [assignmentId, ready]);
 }
 
-function StudentAssignments({ assignments = [], loading }: { assignments?: Assignment[]; loading: boolean }) {
+function StudentAssignments({
+  assignments = [],
+  loading,
+  quizzes = [],
+}: {
+  assignments?: Assignment[];
+  loading: boolean;
+  quizzes?: QuizSummary[];
+}) {
   const { t } = useTranslation("student");
   const [selected, setSelected] = useState<Assignment | null>(null);
+  const [attemptOf, setAttemptOf] = useState<QuizSummary | null>(null);
+  const [historyOf, setHistoryOf] = useState<QuizSummary | null>(null);
   const [params] = useSearchParams();
   const highlightId = params.get("assignment");
   useAssignmentHighlight(highlightId, assignments.length > 0);
@@ -345,6 +364,33 @@ function StudentAssignments({ assignments = [], loading }: { assignments?: Assig
         </div>
       </div>
       <div className="student-workspace-list">
+        {quizzes.map((quiz) => (
+          <article key={quiz.id} data-quiz-id={quiz.id}>
+            <span className="workspace-list-icon">
+              <FileQuestion size={20} />
+            </span>
+            <div>
+              <strong>{quiz.title}</strong>
+              <p>
+                {t("groupWorkspace.assignments.quizBadge")} ·{" "}
+                {quiz.dueAt
+                  ? `${t("groupWorkspace.assignments.dueLabel")}: ${formatDayTime(quiz.dueAt)}`
+                  : t("groupWorkspace.assignments.noDue")}{" "}
+                · {t("groupWorkspace.assignments.quizQuestions", { count: quiz.questionCount })}
+              </p>
+            </div>
+            <button
+              className="icon-button"
+              aria-label={t("groupWorkspace.assignments.quizHistoryAria")}
+              onClick={() => setHistoryOf(quiz)}
+            >
+              <History size={16} />
+            </button>
+            <Button size="sm" onClick={() => setAttemptOf(quiz)}>
+              {t("groupWorkspace.assignments.quizSolve")}
+            </Button>
+          </article>
+        ))}
         {assignments.map((item) => {
           const overdue = isAssignmentOverdue(item);
           const deadlineLabel = item.dueAt
@@ -383,8 +429,26 @@ function StudentAssignments({ assignments = [], loading }: { assignments?: Assig
             </article>
           );
         })}
-        {!assignments.length ? <p className="portal-muted">{t("groupWorkspace.assignments.empty")}</p> : null}
+        {!assignments.length && !quizzes.length ? (
+          <p className="portal-muted">{t("groupWorkspace.assignments.empty")}</p>
+        ) : null}
       </div>
+
+      <QuizAttemptDialog
+        quizId={attemptOf?.id ?? null}
+        open={Boolean(attemptOf)}
+        onOpenChange={(open) => {
+          if (!open) setAttemptOf(null);
+        }}
+      />
+      <QuizAttemptsDialog
+        quizId={historyOf?.id ?? null}
+        open={Boolean(historyOf)}
+        onOpenChange={(open) => {
+          if (!open) setHistoryOf(null);
+        }}
+        title={historyOf?.title}
+      />
 
       <Dialog
         open={Boolean(selected)}
